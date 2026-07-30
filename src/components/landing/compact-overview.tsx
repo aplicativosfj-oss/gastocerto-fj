@@ -6,6 +6,7 @@ import {
   Car,
   Fingerprint,
   Flame,
+  LayoutDashboard,
   Lock,
   PiggyBank,
   Receipt,
@@ -15,6 +16,8 @@ import {
   Wallet,
 } from "lucide-react";
 
+import { DemoDialog } from "@/components/landing/demo-dialog";
+import { handleAnchorClick } from "@/lib/scroll";
 import {
   Accordion,
   AccordionContent,
@@ -61,6 +64,13 @@ const faqs = [
   { q: "Mensal ou anual?", a: "O conteúdo é o mesmo; no anual o Premium sai por R$ 15,90/mês em vez de R$ 19,90." },
   { q: "Preciso de conta para a demonstração?", a: "Não. A demonstração é aberta, com dados fictícios e sem cartão de crédito." },
 ];
+
+const shortcuts = [
+  { label: "Recursos", href: "#recursos", icon: Wallet },
+  { label: "Planos", href: "#planos", icon: Star },
+  { label: "Segurança", href: "#seguranca", icon: Lock },
+  { label: "FAQ", href: "#faq", icon: Bell },
+] as const;
 
 const tabs = ["recursos", "como-funciona", "seguranca", "faq"] as const;
 type TabValue = (typeof tabs)[number];
