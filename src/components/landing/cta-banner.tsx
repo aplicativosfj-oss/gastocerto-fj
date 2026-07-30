@@ -18,22 +18,22 @@ export function CtaBanner() {
           <div className="grid items-center gap-4 lg:grid-cols-[1.35fr_1fr]">
             <div className="min-w-0">
               <h2 className="section-title">
-                Comece hoje a controlar cada real que você gasta
+                Em 1 minuto você já sabe para onde vai seu salário
               </h2>
               <p className="mt-2 max-w-xl text-[13px] leading-snug text-white/80 sm:text-sm">
-                Crie sua conta gratuita em menos de um minuto ou explore a demonstração com dados
-                de exemplo — sem cartão de crédito.
+                Conta gratuita, sem cartão de crédito e sem instalar nada. Prefere ver antes?
+                Abra a demonstração com dados de exemplo.
               </p>
               <p className="mt-2 inline-flex items-center gap-2 text-[11px] text-white/75">
                 <ShieldCheck className="size-3.5 shrink-0 text-success" aria-hidden="true" />
-                Exporte ou exclua seus dados quando quiser.
+                Seus dados são só seus: exporte ou apague quando quiser.
               </p>
             </div>
 
             <div className="grid grid-cols-2 gap-2 lg:grid-cols-1">
               <Button className="h-10 w-full shadow-lifted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent" asChild>
                 <Link to="/auth" search={{ mode: "signup" }}>
-                  Criar conta
+                  Criar conta grátis
                   <ArrowRight className="size-4" aria-hidden="true" />
                 </Link>
               </Button>

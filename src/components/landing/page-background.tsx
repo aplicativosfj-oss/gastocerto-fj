@@ -1,4 +1,4 @@
-import workspaceBg from "@/assets/hero-workspace.jpg";
+import workspaceBg from "@/assets/hero-desk-night.jpg";
 
 /**
  * Plano de fundo realista aplicado a toda a homepage.
@@ -11,7 +11,7 @@ export function PageBackground() {
         src={workspaceBg}
         alt=""
         width={1920}
-        height={1280}
+        height={1088}
         loading="lazy"
         decoding="async"
         className="size-full object-cover opacity-[0.10] dark:opacity-[0.22]"
