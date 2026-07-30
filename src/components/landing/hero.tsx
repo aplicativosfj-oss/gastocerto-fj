@@ -4,6 +4,7 @@ import { ArrowRight, PlayCircle, ShieldCheck, TrendingDown, Wallet } from "lucid
 import heroBg from "@/assets/hero-workspace.jpg";
 import { Button } from "@/components/ui/button";
 import { DashboardPreview } from "@/components/landing/dashboard-preview";
+import { DemoDialog } from "@/components/landing/demo-dialog";
 import { GridPattern, RingChart, Sparkline } from "@/components/landing/decor";
 import { formatCurrency } from "@/lib/format";
 
@@ -60,17 +61,16 @@ export function Hero() {
                 <ArrowRight className="size-4" aria-hidden="true" />
               </Link>
             </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="border-white/25 bg-white/5 text-white hover:bg-white/15 hover:text-white"
-              asChild
-            >
-              <Link to="/demonstracao">
+            <DemoDialog>
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-white/25 bg-white/5 text-white hover:bg-white/15 hover:text-white"
+              >
                 <PlayCircle className="size-4" aria-hidden="true" />
                 Ver demonstração
-              </Link>
-            </Button>
+              </Button>
+            </DemoDialog>
           </div>
 
           <dl className="mt-8 grid grid-cols-3 gap-3 border-t border-white/10 pt-5">

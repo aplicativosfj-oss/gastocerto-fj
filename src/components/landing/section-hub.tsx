@@ -16,12 +16,15 @@ import {
 import type { LucideIcon } from "lucide-react";
 
 import { GridPattern } from "@/components/landing/decor";
+import { DemoDialog } from "@/components/landing/demo-dialog";
+import { handleAnchorClick } from "@/lib/scroll";
 
 type HubItem = {
   label: string;
   description: string;
   icon: LucideIcon;
   href?: string;
+  demo?: boolean;
   to?: "/demonstracao" | "/auth";
   search?: { mode: "signup" | "login" };
 };
@@ -29,9 +32,9 @@ type HubItem = {
 const items: HubItem[] = [
   {
     label: "Painel financeiro",
-    description: "Saldo, projeções e média diária",
+    description: "Ver demonstração ao vivo",
     icon: LayoutDashboard,
-    to: "/demonstracao",
+    demo: true,
   },
   {
     label: "Lançamentos",
@@ -148,7 +151,13 @@ export function SectionHub() {
 
         <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
           {items.map((item) =>
-            item.to ? (
+            item.demo ? (
+              <DemoDialog key={item.label}>
+                <button type="button" className={cardClass}>
+                  <CardBody item={item} />
+                </button>
+              </DemoDialog>
+            ) : item.to ? (
               <Link
                 key={item.label}
                 to={item.to}
@@ -158,7 +167,12 @@ export function SectionHub() {
                 <CardBody item={item} />
               </Link>
             ) : (
-              <a key={item.label} href={item.href} className={cardClass}>
+              <a
+                key={item.label}
+                href={item.href}
+                onClick={(event) => handleAnchorClick(event, item.href ?? "#")}
+                className={cardClass}
+              >
                 <CardBody item={item} />
               </a>
             ),
