@@ -2,6 +2,8 @@ import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   ArrowLeftRight,
+  CalendarClock,
+  Car,
   LayoutDashboard,
   ListTree,
   LogOut,
@@ -25,10 +27,13 @@ export const navItems = [
   { label: "Visão geral", to: "/painel", icon: LayoutDashboard },
   { label: "Transações", to: "/lancamentos", icon: ArrowLeftRight },
   { label: "Receitas", to: "/receitas", icon: TrendingUp },
+  { label: "Recorrentes", to: "/recorrencia", icon: CalendarClock },
+  { label: "Veículos", to: "/veiculos", icon: Car },
   { label: "Categorias", to: "/categorias", icon: ListTree },
   { label: "Orçamentos", to: "/orcamentos", icon: PiggyBank },
   { label: "Meu perfil", to: "/perfil", icon: User2 },
 ] as const;
+
 
 export function AppShell({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
