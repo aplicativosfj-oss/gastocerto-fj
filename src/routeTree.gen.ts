@@ -17,6 +17,7 @@ import { Route as RedefinirSenhaRouteImport } from './routes/redefinir-senha'
 import { Route as AuthenticatedCategoriasRouteImport } from './routes/_authenticated/categorias'
 import { Route as AuthenticatedComprovantesRouteImport } from './routes/_authenticated/comprovantes'
 import { Route as AuthenticatedLancamentosRouteImport } from './routes/_authenticated/lancamentos'
+import { Route as AuthenticatedMetasRouteImport } from './routes/_authenticated/metas'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedOrcamentosRouteImport } from './routes/_authenticated/orcamentos'
 import { Route as AuthenticatedPainelRouteImport } from './routes/_authenticated/painel'
@@ -68,6 +69,11 @@ const AuthenticatedLancamentosRoute =
     path: '/lancamentos',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedMetasRoute = AuthenticatedMetasRouteImport.update({
+  id: '/metas',
+  path: '/metas',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
@@ -125,6 +131,7 @@ export interface FileRoutesByFullPath {
   '/categorias': typeof AuthenticatedCategoriasRoute
   '/comprovantes': typeof AuthenticatedComprovantesRoute
   '/lancamentos': typeof AuthenticatedLancamentosRoute
+  '/metas': typeof AuthenticatedMetasRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/orcamentos': typeof AuthenticatedOrcamentosRoute
   '/painel': typeof AuthenticatedPainelRoute
@@ -143,6 +150,7 @@ export interface FileRoutesByTo {
   '/categorias': typeof AuthenticatedCategoriasRoute
   '/comprovantes': typeof AuthenticatedComprovantesRoute
   '/lancamentos': typeof AuthenticatedLancamentosRoute
+  '/metas': typeof AuthenticatedMetasRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/orcamentos': typeof AuthenticatedOrcamentosRoute
   '/painel': typeof AuthenticatedPainelRoute
@@ -163,6 +171,7 @@ export interface FileRoutesById {
   '/_authenticated/categorias': typeof AuthenticatedCategoriasRoute
   '/_authenticated/comprovantes': typeof AuthenticatedComprovantesRoute
   '/_authenticated/lancamentos': typeof AuthenticatedLancamentosRoute
+  '/_authenticated/metas': typeof AuthenticatedMetasRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/orcamentos': typeof AuthenticatedOrcamentosRoute
   '/_authenticated/painel': typeof AuthenticatedPainelRoute
@@ -183,6 +192,7 @@ export interface FileRouteTypes {
     | '/categorias'
     | '/comprovantes'
     | '/lancamentos'
+    | '/metas'
     | '/onboarding'
     | '/orcamentos'
     | '/painel'
@@ -201,6 +211,7 @@ export interface FileRouteTypes {
     | '/categorias'
     | '/comprovantes'
     | '/lancamentos'
+    | '/metas'
     | '/onboarding'
     | '/orcamentos'
     | '/painel'
@@ -220,6 +231,7 @@ export interface FileRouteTypes {
     | '/_authenticated/categorias'
     | '/_authenticated/comprovantes'
     | '/_authenticated/lancamentos'
+    | '/_authenticated/metas'
     | '/_authenticated/onboarding'
     | '/_authenticated/orcamentos'
     | '/_authenticated/painel'
@@ -297,6 +309,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLancamentosRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/metas': {
+      id: '/_authenticated/metas'
+      path: '/metas'
+      fullPath: '/metas'
+      preLoaderRoute: typeof AuthenticatedMetasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/onboarding': {
       id: '/_authenticated/onboarding'
       path: '/onboarding'
@@ -367,6 +386,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedCategoriasRoute: typeof AuthenticatedCategoriasRoute
   AuthenticatedComprovantesRoute: typeof AuthenticatedComprovantesRoute
   AuthenticatedLancamentosRoute: typeof AuthenticatedLancamentosRoute
+  AuthenticatedMetasRoute: typeof AuthenticatedMetasRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedOrcamentosRoute: typeof AuthenticatedOrcamentosRoute
   AuthenticatedPainelRoute: typeof AuthenticatedPainelRoute
@@ -382,6 +402,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCategoriasRoute: AuthenticatedCategoriasRoute,
   AuthenticatedComprovantesRoute: AuthenticatedComprovantesRoute,
   AuthenticatedLancamentosRoute: AuthenticatedLancamentosRoute,
+  AuthenticatedMetasRoute: AuthenticatedMetasRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedOrcamentosRoute: AuthenticatedOrcamentosRoute,
   AuthenticatedPainelRoute: AuthenticatedPainelRoute,
