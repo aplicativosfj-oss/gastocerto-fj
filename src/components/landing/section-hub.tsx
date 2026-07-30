@@ -131,7 +131,7 @@ function CardBody({ item }: { item: HubItem }) {
 
 export function SectionHub() {
   return (
-    <section id="explorar" className="relative isolate overflow-hidden py-7 sm:py-10">
+    <section id="explorar" className="relative isolate overflow-hidden section-y">
       <GridPattern className="absolute inset-0 -z-10 size-full text-foreground/[0.06]" />
 
       <div className="section-shell">

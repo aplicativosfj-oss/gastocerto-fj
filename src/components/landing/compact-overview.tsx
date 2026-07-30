@@ -79,7 +79,7 @@ export function CompactOverview() {
   }, []);
 
   return (
-    <section id="recursos" className="border-y border-border bg-secondary/30 py-8 sm:py-10">
+    <section id="recursos" className="border-y border-border bg-secondary/30 section-y">
       <span id="como-funciona" className="block" />
       <span id="seguranca" className="block" />
       <span id="faq" className="block" />
