@@ -12,6 +12,8 @@ export function PageBackground() {
         alt=""
         width={1920}
         height={1280}
+        loading="lazy"
+        decoding="async"
         className="size-full object-cover opacity-[0.10] dark:opacity-[0.22]"
       />
       <div className="absolute inset-0 bg-background/85 dark:bg-background/80" />

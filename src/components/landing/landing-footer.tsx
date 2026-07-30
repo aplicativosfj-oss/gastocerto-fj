@@ -42,20 +42,20 @@ const socials = [
 export function LandingFooter() {
   return (
     <footer className="border-t border-border bg-secondary/30">
-      <div className="section-shell grid gap-7 py-8 lg:grid-cols-[1.2fr_2fr]">
+      <div className="section-shell grid gap-6 py-6 lg:grid-cols-[1.2fr_2fr]">
         <div>
           <Logo />
-          <p className="mt-4 max-w-sm text-sm leading-relaxed text-muted-foreground">
+          <p className="mt-3 max-w-sm text-xs leading-relaxed text-muted-foreground sm:text-sm">
             O GastoCerto ajuda você a registrar, entender e reduzir seus gastos com clareza e
             segurança.
           </p>
-          <div className="mt-5 flex items-center gap-2">
+          <div className="mt-3 flex items-center gap-2">
             {socials.map((social) => (
               <a
                 key={social.label}
                 href={social.href}
                 aria-label={social.label}
-                className="grid size-9 place-items-center rounded-lg border border-border bg-card text-muted-foreground transition-colors hover:text-foreground"
+                className="grid size-8 place-items-center rounded-lg border border-border bg-card text-muted-foreground transition-colors hover:text-foreground"
               >
                 <social.icon className="size-4" aria-hidden="true" />
               </a>
@@ -63,16 +63,18 @@ export function LandingFooter() {
           </div>
         </div>
 
-        <div className="grid gap-8 sm:grid-cols-3">
+        <div className="grid grid-cols-3 gap-4 sm:gap-8">
           {columns.map((column) => (
-            <div key={column.title}>
-              <h3 className="text-sm font-semibold">{column.title}</h3>
-              <ul className="mt-3 space-y-2">
+            <div key={column.title} className="min-w-0">
+              <h3 className="text-xs font-semibold uppercase tracking-wide sm:text-sm">
+                {column.title}
+              </h3>
+              <ul className="mt-2 space-y-1.5">
                 {column.links.map((link) => (
                   <li key={link.label}>
                     <a
                       href={link.href}
-                      className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                      className="text-xs text-muted-foreground transition-colors hover:text-foreground sm:text-sm"
                     >
                       {link.label}
                     </a>

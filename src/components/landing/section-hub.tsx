@@ -106,7 +106,7 @@ const items: HubItem[] = [
 ];
 
 const cardClass =
-  "group relative flex min-w-0 flex-col justify-between gap-2 overflow-hidden rounded-xl border border-border/70 bg-card/70 p-3.5 text-left shadow-soft backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:border-brand/40 hover:shadow-lifted";
+  "group relative flex min-w-0 flex-col justify-between gap-1.5 overflow-hidden rounded-xl border border-border/70 bg-card/70 p-2.5 sm:p-3.5 text-left shadow-soft backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:border-brand/40 hover:shadow-lifted";
 
 function CardBody({ item }: { item: HubItem }) {
   const Icon = item.icon;
@@ -120,7 +120,7 @@ function CardBody({ item }: { item: HubItem }) {
           {item.label}
         </span>
       </span>
-      <span className="text-xs leading-snug text-muted-foreground">{item.description}</span>
+      <span className="hidden text-xs leading-snug text-muted-foreground sm:block">{item.description}</span>
       <ArrowUpRight
         className="absolute right-3 top-3 size-3.5 text-muted-foreground/50 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-brand"
         aria-hidden="true"
@@ -131,7 +131,7 @@ function CardBody({ item }: { item: HubItem }) {
 
 export function SectionHub() {
   return (
-    <section id="explorar" className="relative isolate overflow-hidden py-7 sm:py-10">
+    <section id="explorar" className="relative isolate overflow-hidden section-y">
       <GridPattern className="absolute inset-0 -z-10 size-full text-foreground/[0.06]" />
 
       <div className="section-shell">
@@ -140,7 +140,7 @@ export function SectionHub() {
             <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-brand">
               Tudo em um só lugar
             </span>
-            <h2 className="font-display mt-1 text-[1.5rem] font-bold tracking-[-0.02em] text-foreground sm:text-[1.75rem] lg:text-3xl">
+            <h2 className="section-title mt-1 text-foreground">
               Comece pela homepage e vá direto ao que precisa
             </h2>
           </div>
@@ -149,7 +149,7 @@ export function SectionHub() {
           </p>
         </div>
 
-        <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
+        <div className="mt-4 grid grid-cols-2 gap-2.5 sm:mt-6 sm:gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
           {items.map((item) =>
             item.demo ? (
               <DemoDialog key={item.label}>

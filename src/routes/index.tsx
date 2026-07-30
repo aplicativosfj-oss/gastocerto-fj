@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
+import heroBg from "@/assets/hero-workspace.jpg";
 import { CompactOverview } from "@/components/landing/compact-overview";
 import { CtaBanner } from "@/components/landing/cta-banner";
 import { Hero } from "@/components/landing/hero";
@@ -23,6 +24,7 @@ export const Route = createFileRoute("/")({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
+    links: [{ rel: "preload", as: "image", href: heroBg, fetchPriority: "high" }],
   }),
   component: LandingPage,
 });

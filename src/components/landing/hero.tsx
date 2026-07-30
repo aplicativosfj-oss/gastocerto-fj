@@ -1,13 +1,17 @@
 import { Link } from "@tanstack/react-router";
+import { Suspense, lazy } from "react";
 import { ArrowRight, ChevronDown, PlayCircle, ShieldCheck, TrendingDown, Wallet } from "lucide-react";
 
 import heroBg from "@/assets/hero-workspace.jpg";
 import { Button } from "@/components/ui/button";
-import { DashboardPreview } from "@/components/landing/dashboard-preview";
 import { DemoDialog } from "@/components/landing/demo-dialog";
 import { GridPattern, RingChart, Sparkline } from "@/components/landing/decor";
 import { formatCurrency } from "@/lib/format";
 import { handleAnchorClick } from "@/lib/scroll";
+
+const DashboardPreview = lazy(() =>
+  import("@/components/landing/dashboard-preview").then((m) => ({ default: m.DashboardPreview })),
+);
 
 const stats = [
   { label: "Gasto do mês", value: formatCurrency(3782.45), hint: "-8,2% vs. junho" },
@@ -19,7 +23,7 @@ export function Hero() {
   return (
     <section
       id="inicio"
-      className="relative isolate flex min-h-[78svh] max-h-[900px] items-center overflow-hidden bg-[oklch(0.16_0.03_258)] pt-24 pb-10 text-white"
+      className="relative isolate flex min-h-[62svh] max-h-[820px] items-center overflow-hidden bg-[oklch(0.16_0.03_258)] pt-20 pb-8 sm:pt-24 sm:pb-10 text-white"
     >
       <img
         src={heroBg}
@@ -27,6 +31,8 @@ export function Hero() {
         aria-hidden="true"
         width={1920}
         height={1280}
+        fetchPriority="high"
+        decoding="async"
         className="absolute inset-0 -z-20 size-full object-cover object-right opacity-80"
       />
       <div
@@ -46,16 +52,16 @@ export function Hero() {
             Gestão financeira pessoal
           </span>
 
-          <h1 className="font-display mt-5 text-[2rem] font-extrabold leading-[1.05] tracking-[-0.03em] text-white sm:text-[2.75rem] lg:text-5xl xl:text-[3.4rem]">
+          <h1 className="font-display mt-4 text-[1.75rem] font-extrabold leading-[1.05] tracking-[-0.03em] text-white sm:text-[2.75rem] lg:text-5xl xl:text-[3.4rem]">
             Controle profissional de cada real que você gasta.
           </h1>
 
-          <p className="mt-4 max-w-lg text-sm leading-relaxed text-white/70 sm:text-base">
+          <p className="mt-3 max-w-lg text-sm leading-relaxed text-white/70 sm:text-base">
             Despesas, combustível, contas recorrentes e orçamentos em um só painel — com
             indicadores automáticos e relatórios prontos para decidir.
           </p>
 
-          <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+          <div className="mt-5 flex flex-col gap-2.5 sm:flex-row">
             <Button size="lg" className="shadow-lifted" asChild>
               <Link to="/auth" search={{ mode: "signup" }}>
                 Criar conta gratuita
@@ -82,7 +88,7 @@ export function Hero() {
             </a>
           </div>
 
-          <dl className="mt-8 grid grid-cols-3 gap-3 border-t border-white/10 pt-5">
+          <dl className="mt-6 grid grid-cols-3 gap-2 border-t border-white/10 pt-4">
             {stats.map((stat) => (
               <div key={stat.label} className="min-w-0">
                 <dt className="truncate text-[11px] uppercase tracking-wide text-white/50">
@@ -91,7 +97,7 @@ export function Hero() {
                 <dd className="tabular mt-1 truncate text-base font-bold text-white sm:text-lg">
                   {stat.value}
                 </dd>
-                <p className="truncate text-[11px] text-white/45">{stat.hint}</p>
+                <p className="hidden truncate text-[11px] text-white/45 sm:block">{stat.hint}</p>
               </div>
             ))}
           </dl>
@@ -103,7 +109,9 @@ export function Hero() {
             className="absolute -inset-6 rounded-[2rem] bg-brand/20 blur-3xl"
           />
           <div className="relative origin-top scale-[0.82] text-foreground xl:scale-[0.88]">
-            <DashboardPreview />
+            <Suspense fallback={<div className="h-[420px] rounded-2xl bg-white/5" />}>
+              <DashboardPreview />
+            </Suspense>
           </div>
 
           <div className="absolute -left-16 bottom-6 w-48 rounded-2xl border border-white/15 bg-[oklch(0.2_0.03_258/0.85)] p-3 shadow-lifted backdrop-blur-md">

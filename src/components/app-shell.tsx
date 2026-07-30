@@ -4,18 +4,12 @@ import {
   ArrowLeftRight,
   BarChart3,
   Bell,
-  CalendarClock,
-  CalendarDays,
   Car,
   LayoutDashboard,
-  ListTree,
   LogOut,
   Menu,
-  Paperclip,
   PiggyBank,
   ShieldCheck,
-  Target,
-  TrendingUp,
   User2,
   X,
 } from "lucide-react";
@@ -30,21 +24,58 @@ import { useAvatarUrl, useProfile, useRoles } from "@/lib/queries";
 import { useNotifications } from "@/lib/notifications";
 import { cn } from "@/lib/utils";
 
-export const navItems = [
-  { label: "Visão geral", to: "/painel", icon: LayoutDashboard },
-  { label: "Transações", to: "/lancamentos", icon: ArrowLeftRight },
-  { label: "Receitas", to: "/receitas", icon: TrendingUp },
-  { label: "Recorrentes", to: "/recorrencia", icon: CalendarClock },
-  { label: "Veículos", to: "/veiculos", icon: Car },
-  { label: "Categorias", to: "/categorias", icon: ListTree },
-  { label: "Orçamentos", to: "/orcamentos", icon: PiggyBank },
-  { label: "Metas", to: "/metas", icon: Target },
-  { label: "Relatórios", to: "/relatorios", icon: BarChart3 },
-  { label: "Calendário", to: "/calendario", icon: CalendarDays },
-  { label: "Comprovantes", to: "/comprovantes", icon: Paperclip },
-  { label: "Meu perfil", to: "/perfil", icon: User2 },
-] as const;
+type NavChild = { label: string; to: string };
+type NavGroup = {
+  label: string;
+  to: string;
+  icon: typeof LayoutDashboard;
+  children?: NavChild[];
+};
 
+export const navGroups: NavGroup[] = [
+  { label: "Visão geral", to: "/painel", icon: LayoutDashboard },
+  {
+    label: "Lançamentos",
+    to: "/lancamentos",
+    icon: ArrowLeftRight,
+    children: [
+      { label: "Despesas", to: "/lancamentos" },
+      { label: "Receitas", to: "/receitas" },
+      { label: "Recorrentes", to: "/recorrencia" },
+      { label: "Comprovantes", to: "/comprovantes" },
+    ],
+  },
+  {
+    label: "Veículos",
+    to: "/veiculos",
+    icon: Car,
+    children: [
+      { label: "Abastecimentos", to: "/veiculos" },
+      { label: "Configurações", to: "/veiculos-configuracoes" },
+      { label: "Auditoria", to: "/veiculos-auditoria" },
+    ],
+  },
+  {
+    label: "Planejamento",
+    to: "/orcamentos",
+    icon: PiggyBank,
+    children: [
+      { label: "Orçamentos", to: "/orcamentos" },
+      { label: "Metas", to: "/metas" },
+      { label: "Categorias", to: "/categorias" },
+    ],
+  },
+  {
+    label: "Análises",
+    to: "/relatorios",
+    icon: BarChart3,
+    children: [
+      { label: "Relatórios", to: "/relatorios" },
+      { label: "Calendário", to: "/calendario" },
+    ],
+  },
+  { label: "Meu perfil", to: "/perfil", icon: User2 },
+];
 
 export function AppShell({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
@@ -57,9 +88,15 @@ export function AppShell({ children }: { children: ReactNode }) {
   const avatarUrl = useAvatarUrl(profile?.avatar_url);
   const unreadCount = (notifications ?? []).filter((item) => !item.read_at).length;
   const isStaff = (roles ?? []).some((role) => role === "admin" || role === "support");
-  const items: Array<{ label: string; to: string; icon: typeof LayoutDashboard }> = isStaff
-    ? [...navItems, { label: "Administração", to: "/admin", icon: ShieldCheck }]
-    : [...navItems];
+  const items: NavGroup[] = isStaff
+    ? [...navGroups, { label: "Administração", to: "/admin", icon: ShieldCheck }]
+    : [...navGroups];
+
+  const activeGroup = items.find(
+    (group) => group.to === pathname || group.children?.some((child) => child.to === pathname),
+  );
+  const subTabs = activeGroup?.children ?? [];
+
 
   const initials = (profile?.full_name ?? "GC")
     .split(" ")
@@ -84,7 +121,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
         <nav className="flex-1 space-y-1 overflow-y-auto p-3">
           {items.map((item) => (
-            <NavLink key={item.to} item={item} active={pathname === item.to} />
+            <NavLink key={item.to} item={item} active={activeGroup?.to === item.to} />
           ))}
         </nav>
         <div className="border-t border-border p-3">
@@ -145,7 +182,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <NavLink
                   key={item.to}
                   item={item}
-                  active={pathname === item.to}
+                  active={activeGroup?.to === item.to}
                   onNavigate={() => setOpen(false)}
                 />
               ))}
@@ -159,9 +196,34 @@ export function AppShell({ children }: { children: ReactNode }) {
               </Button>
             </nav>
           ) : null}
+
+          {subTabs.length > 1 ? (
+            <div className="border-t border-border bg-background/80">
+              <nav
+                aria-label="Seções da área"
+                className="mx-auto flex w-full max-w-6xl gap-1 overflow-x-auto px-4 py-2"
+              >
+                {subTabs.map((tab) => (
+                  <Link
+                    key={tab.to}
+                    to={tab.to as never}
+                    aria-current={pathname === tab.to ? "page" : undefined}
+                    className={cn(
+                      "shrink-0 rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
+                      pathname === tab.to
+                        ? "bg-brand text-brand-foreground"
+                        : "text-muted-foreground hover:bg-secondary hover:text-foreground",
+                    )}
+                  >
+                    {tab.label}
+                  </Link>
+                ))}
+              </nav>
+            </div>
+          ) : null}
         </header>
 
-        <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8">{children}</main>
+        <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-5 sm:py-6">{children}</main>
         <footer className="border-t border-border px-4 py-4 text-center text-xs text-muted-foreground">
           Dev. Franc D&apos;nis · Feijó-AC
         </footer>

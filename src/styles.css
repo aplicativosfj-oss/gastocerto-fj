@@ -198,8 +198,43 @@
   margin-inline: auto;
   width: 100%;
   max-width: 80rem;
-  padding-inline: 1.25rem;
+  padding-inline: 1rem;
+
+  @media (min-width: 640px) {
+    padding-inline: 1.5rem;
+  }
 }
+
+/* Ritmo vertical único para todas as seções da homepage. */
+@utility section-y {
+  padding-block: 1.75rem;
+
+  @media (min-width: 640px) {
+    padding-block: 2.25rem;
+  }
+
+  @media (min-width: 1024px) {
+    padding-block: 2.75rem;
+  }
+}
+
+/* Título de seção consistente entre mobile e desktop. */
+@utility section-title {
+  font-family: var(--font-display, inherit);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  font-size: 1.3rem;
+
+  @media (min-width: 640px) {
+    font-size: 1.6rem;
+  }
+
+  @media (min-width: 1024px) {
+    font-size: 1.85rem;
+  }
+}
+
 
 @layer base {
   * {

@@ -6,9 +6,9 @@ import { GridPattern } from "@/components/landing/decor";
 
 export function CtaBanner() {
   return (
-    <section className="py-8 sm:py-11">
+    <section className="section-y">
       <div className="section-shell">
-        <div className="relative isolate overflow-hidden rounded-3xl bg-[oklch(0.18_0.032_258)] px-5 py-9 text-white shadow-lifted sm:px-12 sm:py-11">
+        <div className="relative isolate overflow-hidden rounded-3xl bg-[oklch(0.18_0.032_258)] px-5 py-7 text-white shadow-lifted sm:px-10 sm:py-9">
           <GridPattern className="absolute inset-0 -z-10 size-full text-white/10" />
           <div
             aria-hidden="true"
@@ -17,7 +17,7 @@ export function CtaBanner() {
 
           <div className="grid items-center gap-8 lg:grid-cols-[1.3fr_1fr]">
             <div>
-              <h2 className="font-display text-[1.5rem] font-bold leading-tight tracking-[-0.025em] sm:text-[2rem] lg:text-4xl">
+              <h2 className="section-title">
                 Comece hoje a controlar cada real que você gasta
               </h2>
               <p className="mt-3 max-w-xl text-sm text-white/70 sm:text-base">
