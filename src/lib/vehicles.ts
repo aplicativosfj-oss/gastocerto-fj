@@ -227,6 +227,65 @@ export function validateOdometer(
   return { ok: true };
 }
 
+/**
+ * Avisos não bloqueantes sobre um abastecimento: variações fora do padrão que
+ * merecem uma segunda conferência antes de salvar.
+ */
+export function odometerWarnings(
+  odometer: number,
+  liters: number,
+  entryDate: string,
+  vehicle: Vehicle | undefined,
+  entries: FuelEntry[],
+  ignoreId?: string,
+): string[] {
+  const warnings: string[] = [];
+  if (!Number.isFinite(odometer)) return warnings;
+
+  const previous = entries
+    .filter((entry) => entry.id !== ignoreId && entry.entry_date <= entryDate)
+    .slice()
+    .sort((a, b) => b.entry_date.localeCompare(a.entry_date) || Number(b.odometer) - Number(a.odometer))
+    .find((entry) => Number(entry.odometer) < odometer);
+
+  if (previous) {
+    const distance = odometer - Number(previous.odometer);
+    if (distance < 5) {
+      warnings.push(
+        `Apenas ${round(distance, 1)} km desde o último abastecimento. Confira o odômetro.`,
+      );
+    }
+    if (distance > 3000) {
+      warnings.push(
+        `Variação alta: ${round(distance, 1)} km desde o último abastecimento.`,
+      );
+    }
+    if (Number.isFinite(liters) && liters > 0 && distance > 0) {
+      const consumption = distance / liters;
+      if (consumption > 40) {
+        warnings.push(`Consumo calculado muito alto (${round(consumption, 1)} km/l).`);
+      }
+      if (consumption < 3) {
+        warnings.push(`Consumo calculado muito baixo (${round(consumption, 1)} km/l).`);
+      }
+      const reference = Number(vehicle?.average_consumption ?? 0);
+      if (reference > 0 && Math.abs(consumption - reference) / reference > 0.4) {
+        warnings.push(
+          `Consumo ${round(consumption, 1)} km/l está longe da média cadastrada (${reference} km/l).`,
+        );
+      }
+    }
+  }
+
+  const tank = Number(vehicle?.tank_capacity ?? 0);
+  if (tank > 0 && Number.isFinite(liters) && liters > tank * 1.1) {
+    warnings.push(`Litros acima da capacidade do tanque (${tank} L).`);
+  }
+
+  return warnings;
+}
+
+
 /** Distância, consumo (km/l) e custo por km em relação ao abastecimento anterior. */
 export function computeFuelMetrics(
   odometer: number,
