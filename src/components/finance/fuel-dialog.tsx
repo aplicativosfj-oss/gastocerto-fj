@@ -113,6 +113,19 @@ export function FuelDialog({
   );
   const [accountId, setAccountId] = useState("");
 
+  const warnings = useMemo(
+    () =>
+      odometerWarnings(
+        parseAmount(odometer),
+        litersValue,
+        date,
+        vehicle,
+        entries ?? [],
+        entry?.id,
+      ),
+    [odometer, litersValue, date, vehicle, entries, entry?.id],
+  );
+
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     const nextErrors: Record<string, string> = {};
@@ -121,6 +134,7 @@ export function FuelDialog({
 
     if (!vehicleId) nextErrors.vehicle = "Selecione um veículo.";
     if (!date) nextErrors.date = "Informe a data.";
+    if (date > isoDate(new Date())) nextErrors.date = "A data não pode ser futura.";
     if (!Number.isFinite(litersValue) || litersValue <= 0) nextErrors.liters = "Informe os litros.";
     if (litersValue > 1000) nextErrors.liters = "Quantidade de litros muito alta.";
     if (!Number.isFinite(priceValue) || priceValue <= 0)
@@ -138,6 +152,12 @@ export function FuelDialog({
 
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) return;
+
+    if (warnings.length > 0 && !acknowledged) {
+      setAcknowledged(true);
+      toast.warning("Confira os avisos e clique em salvar novamente para confirmar.");
+      return;
+    }
 
     const metrics = computeFuelMetrics(
       odometerValue,
