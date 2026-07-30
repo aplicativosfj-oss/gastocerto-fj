@@ -64,7 +64,7 @@ const benefits = [
 
 export function Benefits() {
   return (
-    <section id="beneficios" className="py-14 sm:py-16">
+    <section id="beneficios" className="py-12 sm:py-14">
       <div className="section-shell">
         <div className="max-w-2xl">
           <p className="text-sm font-semibold text-brand">Benefícios</p>

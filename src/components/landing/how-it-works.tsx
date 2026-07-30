@@ -25,7 +25,7 @@ const steps = [
 
 export function HowItWorks() {
   return (
-    <section id="como-funciona" className="border-y border-border bg-secondary/40 py-14 sm:py-16">
+    <section id="como-funciona" className="border-y border-border bg-secondary/40 py-12 sm:py-14">
       <div className="section-shell">
         <div className="max-w-2xl">
           <p className="text-sm font-semibold text-brand">Como funciona</p>

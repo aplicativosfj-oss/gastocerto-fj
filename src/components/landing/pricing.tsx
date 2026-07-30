@@ -44,7 +44,7 @@ const plans = [
 
 export function Pricing() {
   return (
-    <section id="planos" className="py-14 sm:py-16">
+    <section id="planos" className="py-12 sm:py-14">
       <div className="section-shell">
         <div className="mx-auto max-w-2xl text-center">
           <p className="text-sm font-semibold text-brand">Planos</p>
