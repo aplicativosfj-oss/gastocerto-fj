@@ -15,6 +15,9 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
+import { setupServiceWorker } from "@/lib/pwa";
+import { OfflineBanner } from "@/components/offline-banner";
+
 
 export const SITE_URL = "https://pagina-limpa-controle.lovable.app";
 
