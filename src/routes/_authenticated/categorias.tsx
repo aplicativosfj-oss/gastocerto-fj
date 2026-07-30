@@ -188,9 +188,17 @@ function CategoriesPage() {
                 <div className="min-w-0">
                   <div className="flex min-w-0 items-center gap-2">
                     <span
-                      className="size-3 shrink-0 rounded-full"
-                      style={{ backgroundColor: category.color ?? "#94a3b8" }}
-                    />
+                      className="grid size-8 shrink-0 place-items-center rounded-lg"
+                      style={{
+                        backgroundColor: `${category.color ?? "#94a3b8"}22`,
+                        color: category.color ?? "#94a3b8",
+                      }}
+                    >
+                      {(() => {
+                        const Icon = categoryIcon(category.icon);
+                        return <Icon className="size-4" />;
+                      })()}
+                    </span>
                     <span className="truncate font-medium">{category.name}</span>
                   </div>
                   <p className="mt-1 text-xs text-muted-foreground">
@@ -209,6 +217,7 @@ function CategoriesPage() {
                         name: category.name,
                         type: category.type as "expense" | "income",
                         color: category.color ?? COLORS[0],
+                        icon: category.icon ?? "circle-ellipsis",
                       });
                     }}
                   >
