@@ -45,23 +45,24 @@ export function Hero() {
         className="absolute -left-32 top-1/4 -z-10 size-[420px] rounded-full bg-brand/25 blur-[120px]"
       />
 
-      <div className="section-shell relative grid w-full items-center gap-10 lg:grid-cols-[1.05fr_1fr] xl:gap-14">
+      <div className="section-shell relative grid w-full items-center gap-6 lg:grid-cols-[1.05fr_1fr] lg:gap-10 xl:gap-12">
         <div>
-          <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/80 backdrop-blur">
+          <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/80 backdrop-blur sm:text-[11px]">
             <ShieldCheck className="size-3.5 text-success" aria-hidden="true" />
             Gestão financeira pessoal
           </span>
 
-          <h1 className="font-display mt-4 text-[1.75rem] font-extrabold leading-[1.05] tracking-[-0.03em] text-white sm:text-[2.75rem] lg:text-5xl xl:text-[3.4rem]">
+          <h1 className="font-display mt-3 text-[1.6rem] font-extrabold leading-[1.05] tracking-[-0.03em] text-white sm:text-[2.4rem] lg:text-[2.75rem] xl:text-[3.1rem]">
             Controle profissional de cada real que você gasta.
           </h1>
 
-          <p className="mt-3 max-w-lg text-sm leading-relaxed text-white/70 sm:text-base">
+          <p className="mt-2.5 max-w-lg text-[13px] leading-relaxed text-white/70 sm:text-[15px]">
             Despesas, combustível, contas recorrentes e orçamentos em um só painel — com
             indicadores automáticos e relatórios prontos para decidir.
           </p>
 
-          <div className="mt-5 flex flex-col gap-2.5 sm:flex-row">
+          <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+
             <Button size="lg" className="shadow-lifted" asChild>
               <Link to="/auth" search={{ mode: "signup" }}>
                 Criar conta gratuita
