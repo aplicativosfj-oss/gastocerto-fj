@@ -188,7 +188,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <NavLink
                   key={item.to}
                   item={item}
-                  active={pathname === item.to}
+                  active={activeGroup?.to === item.to}
                   onNavigate={() => setOpen(false)}
                 />
               ))}
@@ -202,9 +202,34 @@ export function AppShell({ children }: { children: ReactNode }) {
               </Button>
             </nav>
           ) : null}
+
+          {subTabs.length > 1 ? (
+            <div className="border-t border-border bg-background/80">
+              <nav
+                aria-label="Seções da área"
+                className="mx-auto flex w-full max-w-6xl gap-1 overflow-x-auto px-4 py-2"
+              >
+                {subTabs.map((tab) => (
+                  <Link
+                    key={tab.to}
+                    to={tab.to as never}
+                    aria-current={pathname === tab.to ? "page" : undefined}
+                    className={cn(
+                      "shrink-0 rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
+                      pathname === tab.to
+                        ? "bg-brand text-brand-foreground"
+                        : "text-muted-foreground hover:bg-secondary hover:text-foreground",
+                    )}
+                  >
+                    {tab.label}
+                  </Link>
+                ))}
+              </nav>
+            </div>
+          ) : null}
         </header>
 
-        <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8">{children}</main>
+        <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-5 sm:py-6">{children}</main>
         <footer className="border-t border-border px-4 py-4 text-center text-xs text-muted-foreground">
           Dev. Franc D&apos;nis · Feijó-AC
         </footer>
