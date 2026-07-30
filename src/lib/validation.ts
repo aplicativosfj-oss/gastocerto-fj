@@ -72,7 +72,53 @@ export const signInSchema = z.object({
   password: z.string().min(1, "Informe sua senha").max(72),
 });
 
+/** CPF: aceita com ou sem máscara, valida dígitos verificadores. */
+export const cpfSchema = z
+  .string()
+  .transform(onlyDigits)
+  .pipe(
+    z
+      .string()
+      .length(11, "O CPF deve ter 11 dígitos")
+      .refine(isValidCpf, "CPF inválido"),
+  );
+
+/** Senha numérica de 6 dígitos usada no acesso por CPF. */
+export const pinSchema = z
+  .string()
+  .trim()
+  .regex(/^\d{6}$/, "A senha deve ter exatamente 6 dígitos numéricos");
+
+export const cpfSignInSchema = z.object({
+  cpf: cpfSchema,
+  pin: pinSchema,
+});
+
+export const cpfSignUpSchema = z
+  .object({
+    fullName: fullNameSchema,
+    cpf: cpfSchema,
+    contactEmail: z.string().trim().max(255).optional().or(z.literal("")),
+    pin: pinSchema,
+    confirmPin: z.string(),
+    acceptTerms: z.literal(true, {
+      errorMap: () => ({ message: "É necessário aceitar os termos de uso" }),
+    }),
+    acceptPrivacy: z.literal(true, {
+      errorMap: () => ({ message: "É necessário aceitar a política de privacidade" }),
+    }),
+  })
+  .refine((data) => data.pin === data.confirmPin, {
+    path: ["confirmPin"],
+    message: "As senhas não conferem",
+  })
+  .refine((data) => !data.contactEmail || z.string().email().safeParse(data.contactEmail).success, {
+    path: ["contactEmail"],
+    message: "E-mail inválido",
+  });
+
 export const forgotPasswordSchema = z.object({ email: emailSchema });
+
 
 export const newPasswordSchema = z
   .object({
