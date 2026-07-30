@@ -89,6 +89,19 @@ export const pinSchema = z
   .trim()
   .regex(/^\d{6}$/, "A senha deve ter exatamente 6 dígitos numéricos");
 
+/** Recusa PINs triviais (todos iguais ou sequenciais). */
+export function isWeakPin(pin: string): boolean {
+  if (/^(\d)\1{5}$/.test(pin)) return true;
+  const asc = "0123456789";
+  const desc = "9876543210";
+  return asc.includes(pin) || desc.includes(pin);
+}
+
+export const strongPinSchema = pinSchema.refine(
+  (pin) => !isWeakPin(pin),
+  "Evite senhas óbvias como 111111 ou 123456",
+);
+
 export const cpfSignInSchema = z.object({
   cpf: cpfSchema,
   pin: pinSchema,
@@ -98,8 +111,8 @@ export const cpfSignUpSchema = z
   .object({
     fullName: fullNameSchema,
     cpf: cpfSchema,
-    contactEmail: z.string().trim().max(255).optional().or(z.literal("")),
-    pin: pinSchema,
+    contactEmail: z.string().trim().max(255, "E-mail muito longo").optional().or(z.literal("")),
+    pin: strongPinSchema,
     confirmPin: z.string(),
     acceptTerms: z.literal(true, {
       errorMap: () => ({ message: "É necessário aceitar os termos de uso" }),
@@ -110,11 +123,11 @@ export const cpfSignUpSchema = z
   })
   .refine((data) => data.pin === data.confirmPin, {
     path: ["confirmPin"],
-    message: "As senhas não conferem",
+    message: "As senhas não conferem. Digite os mesmos 6 dígitos.",
   })
   .refine((data) => !data.contactEmail || z.string().email().safeParse(data.contactEmail).success, {
     path: ["contactEmail"],
-    message: "E-mail inválido",
+    message: "E-mail inválido. Use o formato nome@dominio.com",
   });
 
 export const forgotPasswordSchema = z.object({ email: emailSchema });

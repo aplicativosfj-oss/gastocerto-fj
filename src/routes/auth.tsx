@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
-import { Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { AlertCircle, Loader2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -143,9 +143,51 @@ function AuthPage() {
   );
 }
 
-function FieldError({ message }: { message?: string }) {
+function FieldError({ id, message }: { id?: string; message?: string }) {
   if (!message) return null;
-  return <p className="mt-1 text-xs text-destructive">{message}</p>;
+  return (
+    <p id={id} role="alert" className="mt-1 flex items-start gap-1 text-xs text-destructive">
+      <AlertCircle className="mt-px size-3.5 shrink-0" aria-hidden="true" />
+      <span>{message}</span>
+    </p>
+  );
+}
+
+/** Resumo de erros anunciado por leitores de tela ao falhar o envio. */
+function FormAlert({ message }: { message?: string | null }) {
+  if (!message) return null;
+  return (
+    <div
+      role="alert"
+      tabIndex={-1}
+      className="flex items-start gap-2 rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-xs text-destructive"
+    >
+      <AlertCircle className="mt-px size-4 shrink-0" aria-hidden="true" />
+      <span>{message}</span>
+    </div>
+  );
+}
+
+/** Anuncia estados de carregamento sem depender de cor ou spinner. */
+function StatusLive({ busy, label }: { busy: boolean; label: string }) {
+  return (
+    <span className="sr-only" aria-live="polite">
+      {busy ? label : ""}
+    </span>
+  );
+}
+
+function describedBy(...ids: (string | false | undefined)[]) {
+  const list = ids.filter(Boolean) as string[];
+  return list.length ? list.join(" ") : undefined;
+}
+
+function summaryFromErrors(errors: Record<string, string>) {
+  const count = Object.keys(errors).length;
+  if (!count) return null;
+  return count === 1
+    ? "Corrija o campo indicado abaixo para continuar."
+    : `Corrija os ${count} campos indicados abaixo para continuar.`;
 }
 
 function CpfInput({
@@ -153,11 +195,15 @@ function CpfInput({
   name,
   value,
   onChange,
+  invalid,
+  describedById,
 }: {
   id: string;
   name: string;
   value: string;
   onChange: (value: string) => void;
+  invalid?: boolean;
+  describedById?: string;
 }) {
   return (
     <Input
@@ -168,6 +214,9 @@ function CpfInput({
       autoComplete="username"
       placeholder="000.000.000-00"
       maxLength={14}
+      required
+      aria-invalid={invalid || undefined}
+      aria-describedby={describedById}
       className="mt-1.5"
       onChange={(event) => onChange(maskCpf(event.target.value))}
     />
@@ -178,10 +227,14 @@ function PinInput({
   id,
   name,
   autoComplete,
+  invalid,
+  describedById,
 }: {
   id: string;
   name: string;
   autoComplete: "current-password" | "new-password";
+  invalid?: boolean;
+  describedById?: string;
 }) {
   return (
     <Input
@@ -192,6 +245,9 @@ function PinInput({
       autoComplete={autoComplete}
       placeholder="••••••"
       maxLength={6}
+      required
+      aria-invalid={invalid || undefined}
+      aria-describedby={describedById}
       className="mt-1.5 tracking-[0.4em]"
       onChange={(event) => {
         event.target.value = onlyDigits(event.target.value).slice(0, 6);
@@ -204,7 +260,15 @@ function CpfSignInForm({ onForgot, onAdmin }: { onForgot: () => void; onAdmin: (
   const navigate = useNavigate();
   const [cpf, setCpf] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [formError, setFormError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const alertRef = useRef<HTMLDivElement>(null);
+
+  function fail(message: string, fields: Record<string, string> = {}) {
+    setErrors(fields);
+    setFormError(message);
+    requestAnimationFrame(() => alertRef.current?.focus());
+  }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -215,11 +279,13 @@ function CpfSignInForm({ onForgot, onAdmin }: { onForgot: () => void; onAdmin: (
     });
 
     if (!parsed.success) {
-      setErrors(fieldErrors(parsed.error));
+      const fields = fieldErrors(parsed.error);
+      fail(summaryFromErrors(fields) ?? "Revise os dados informados.", fields);
       return;
     }
 
     setErrors({});
+    setFormError(null);
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({
       email: cpfToLoginEmail(parsed.data.cpf),
@@ -229,23 +295,46 @@ function CpfSignInForm({ onForgot, onAdmin }: { onForgot: () => void; onAdmin: (
 
     if (error) {
       console.error("[auth] falha no login por CPF", error.message);
-      toast.error(friendlyAuthError(error.message));
+      const message = error.message.toLowerCase().includes("invalid login credentials")
+        ? "CPF ou senha incorretos. Confira os 11 dígitos do CPF e os 6 dígitos da senha."
+        : friendlyAuthError(error.message);
+      fail(message);
+      toast.error(message);
       return;
     }
     navigate({ to: "/painel", replace: true });
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+    <form onSubmit={handleSubmit} className="space-y-4" noValidate aria-busy={loading}>
+      <div ref={alertRef} tabIndex={-1} className="outline-none">
+        <FormAlert message={formError} />
+      </div>
       <div>
         <Label htmlFor="login-cpf">CPF</Label>
-        <CpfInput id="login-cpf" name="cpf" value={cpf} onChange={setCpf} />
-        <FieldError message={errors.cpf} />
+        <CpfInput
+          id="login-cpf"
+          name="cpf"
+          value={cpf}
+          onChange={setCpf}
+          invalid={Boolean(errors.cpf)}
+          describedById={describedBy(errors.cpf && "login-cpf-error", "login-cpf-hint")}
+        />
+        <p id="login-cpf-hint" className="mt-1 text-xs text-muted-foreground">
+          Digite os 11 dígitos, com ou sem pontuação.
+        </p>
+        <FieldError id="login-cpf-error" message={errors.cpf} />
       </div>
       <div>
         <Label htmlFor="login-pin">Senha (6 dígitos)</Label>
-        <PinInput id="login-pin" name="pin" autoComplete="current-password" />
-        <FieldError message={errors.pin} />
+        <PinInput
+          id="login-pin"
+          name="pin"
+          autoComplete="current-password"
+          invalid={Boolean(errors.pin)}
+          describedById={describedBy(errors.pin && "login-pin-error")}
+        />
+        <FieldError id="login-pin-error" message={errors.pin} />
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -266,10 +355,30 @@ function CpfSignInForm({ onForgot, onAdmin }: { onForgot: () => void; onAdmin: (
       </div>
 
       <Button type="submit" className="w-full" disabled={loading}>
-        {loading ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
+        {loading ? <Loader2 className="mr-2 size-4 animate-spin" aria-hidden="true" /> : null}
         Entrar
+        <StatusLive busy={loading} label="Entrando, aguarde." />
       </Button>
+
+      <LegalNote />
     </form>
+  );
+}
+
+/** Aviso legal com links para termos e privacidade. */
+function LegalNote() {
+  return (
+    <p className="text-center text-[11px] leading-relaxed text-muted-foreground">
+      Ao continuar você concorda com os{" "}
+      <Link to="/termos" className="font-medium text-primary underline underline-offset-2">
+        Termos de Uso
+      </Link>{" "}
+      e a{" "}
+      <Link to="/privacidade" className="font-medium text-primary underline underline-offset-2">
+        Política de Privacidade
+      </Link>
+      .
+    </p>
   );
 }
 
@@ -277,7 +386,15 @@ function CpfSignUpForm({ onDone }: { onDone: () => void }) {
   const navigate = useNavigate();
   const [cpf, setCpf] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [formError, setFormError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const alertRef = useRef<HTMLDivElement>(null);
+
+  function fail(message: string, fields: Record<string, string> = {}) {
+    setErrors(fields);
+    setFormError(message);
+    requestAnimationFrame(() => alertRef.current?.focus());
+  }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -293,11 +410,13 @@ function CpfSignUpForm({ onDone }: { onDone: () => void }) {
     });
 
     if (!parsed.success) {
-      setErrors(fieldErrors(parsed.error));
+      const fields = fieldErrors(parsed.error);
+      fail(summaryFromErrors(fields) ?? "Revise os dados informados.", fields);
       return;
     }
 
     setErrors({});
+    setFormError(null);
     setLoading(true);
     const { error } = await supabase.auth.signUp({
       email: cpfToLoginEmail(parsed.data.cpf),
@@ -314,7 +433,12 @@ function CpfSignUpForm({ onDone }: { onDone: () => void }) {
     if (error) {
       setLoading(false);
       console.error("[auth] falha no cadastro por CPF", error.message);
-      toast.error(friendlyAuthError(error.message));
+      const raw = error.message.toLowerCase();
+      const message = raw.includes("already registered")
+        ? "Já existe uma conta com este CPF. Use a aba Entrar ou recupere a senha."
+        : friendlyAuthError(error.message);
+      fail(message, raw.includes("already registered") ? { cpf: "CPF já cadastrado" } : {});
+      toast.error(message);
       return;
     }
 
@@ -335,16 +459,37 @@ function CpfSignUpForm({ onDone }: { onDone: () => void }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+    <form onSubmit={handleSubmit} className="space-y-4" noValidate aria-busy={loading}>
+      <div ref={alertRef} tabIndex={-1} className="outline-none">
+        <FormAlert message={formError} />
+      </div>
       <div>
         <Label htmlFor="signup-name">Nome completo</Label>
-        <Input id="signup-name" name="fullName" autoComplete="name" className="mt-1.5" />
-        <FieldError message={errors.fullName} />
+        <Input
+          id="signup-name"
+          name="fullName"
+          autoComplete="name"
+          required
+          aria-invalid={Boolean(errors.fullName) || undefined}
+          aria-describedby={describedBy(errors.fullName && "signup-name-error")}
+          className="mt-1.5"
+        />
+        <FieldError id="signup-name-error" message={errors.fullName} />
       </div>
       <div>
         <Label htmlFor="signup-cpf">CPF</Label>
-        <CpfInput id="signup-cpf" name="cpf" value={cpf} onChange={setCpf} />
-        <FieldError message={errors.cpf} />
+        <CpfInput
+          id="signup-cpf"
+          name="cpf"
+          value={cpf}
+          onChange={setCpf}
+          invalid={Boolean(errors.cpf)}
+          describedById={describedBy(errors.cpf && "signup-cpf-error", "signup-cpf-hint")}
+        />
+        <p id="signup-cpf-hint" className="mt-1 text-xs text-muted-foreground">
+          Validamos os dígitos verificadores do CPF.
+        </p>
+        <FieldError id="signup-cpf-error" message={errors.cpf} />
       </div>
       <div>
         <Label htmlFor="signup-contact">E-mail de contato (opcional)</Label>
@@ -353,40 +498,88 @@ function CpfSignUpForm({ onDone }: { onDone: () => void }) {
           name="contactEmail"
           type="email"
           autoComplete="email"
+          aria-invalid={Boolean(errors.contactEmail) || undefined}
+          aria-describedby={describedBy(errors.contactEmail && "signup-contact-error", "signup-contact-hint")}
           className="mt-1.5"
         />
-        <p className="mt-1 text-xs text-muted-foreground">
+        <p id="signup-contact-hint" className="mt-1 text-xs text-muted-foreground">
           Usado apenas para recuperar sua senha. Sem e-mail, a recuperação é feita pelo suporte.
         </p>
-        <FieldError message={errors.contactEmail} />
+        <FieldError id="signup-contact-error" message={errors.contactEmail} />
       </div>
       <div>
         <Label htmlFor="signup-pin">Senha (6 dígitos)</Label>
-        <PinInput id="signup-pin" name="pin" autoComplete="new-password" />
-        <FieldError message={errors.pin} />
+        <PinInput
+          id="signup-pin"
+          name="pin"
+          autoComplete="new-password"
+          invalid={Boolean(errors.pin)}
+          describedById={describedBy(errors.pin && "signup-pin-error", "signup-pin-hint")}
+        />
+        <p id="signup-pin-hint" className="mt-1 text-xs text-muted-foreground">
+          Somente números. Evite sequências como 123456 ou datas de nascimento.
+        </p>
+        <FieldError id="signup-pin-error" message={errors.pin} />
       </div>
       <div>
         <Label htmlFor="signup-confirm">Confirmar senha</Label>
-        <PinInput id="signup-confirm" name="confirmPin" autoComplete="new-password" />
-        <FieldError message={errors.confirmPin} />
+        <PinInput
+          id="signup-confirm"
+          name="confirmPin"
+          autoComplete="new-password"
+          invalid={Boolean(errors.confirmPin)}
+          describedById={describedBy(errors.confirmPin && "signup-confirm-error")}
+        />
+        <FieldError id="signup-confirm-error" message={errors.confirmPin} />
       </div>
 
       <div className="space-y-2">
-        <label className="flex items-start gap-2 text-xs text-muted-foreground">
-          <Checkbox name="acceptTerms" className="mt-0.5" />
-          <span>Li e aceito os termos de uso do GastoCerto.</span>
-        </label>
-        <FieldError message={errors.acceptTerms} />
-        <label className="flex items-start gap-2 text-xs text-muted-foreground">
-          <Checkbox name="acceptPrivacy" className="mt-0.5" />
-          <span>Li e aceito a política de privacidade e o tratamento de dados conforme a LGPD.</span>
-        </label>
-        <FieldError message={errors.acceptPrivacy} />
+        <div className="flex items-start gap-2 text-xs text-muted-foreground">
+          <Checkbox
+            id="signup-terms"
+            name="acceptTerms"
+            className="mt-0.5"
+            aria-invalid={Boolean(errors.acceptTerms) || undefined}
+            aria-describedby={describedBy(errors.acceptTerms && "signup-terms-error")}
+          />
+          <Label htmlFor="signup-terms" className="text-xs font-normal leading-snug text-muted-foreground">
+            Li e aceito os{" "}
+            <Link
+              to="/termos"
+              className="font-medium text-primary underline underline-offset-2"
+            >
+              Termos de Uso
+            </Link>{" "}
+            do GastoCerto.
+          </Label>
+        </div>
+        <FieldError id="signup-terms-error" message={errors.acceptTerms} />
+        <div className="flex items-start gap-2 text-xs text-muted-foreground">
+          <Checkbox
+            id="signup-privacy"
+            name="acceptPrivacy"
+            className="mt-0.5"
+            aria-invalid={Boolean(errors.acceptPrivacy) || undefined}
+            aria-describedby={describedBy(errors.acceptPrivacy && "signup-privacy-error")}
+          />
+          <Label htmlFor="signup-privacy" className="text-xs font-normal leading-snug text-muted-foreground">
+            Li e aceito a{" "}
+            <Link
+              to="/privacidade"
+              className="font-medium text-primary underline underline-offset-2"
+            >
+              Política de Privacidade
+            </Link>{" "}
+            e o tratamento de dados conforme a LGPD.
+          </Label>
+        </div>
+        <FieldError id="signup-privacy-error" message={errors.acceptPrivacy} />
       </div>
 
       <Button type="submit" className="w-full" disabled={loading}>
-        {loading ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
+        {loading ? <Loader2 className="mr-2 size-4 animate-spin" aria-hidden="true" /> : null}
         Criar conta gratuita
+        <StatusLive busy={loading} label="Criando sua conta, aguarde." />
       </Button>
     </form>
   );
@@ -395,7 +588,15 @@ function CpfSignUpForm({ onDone }: { onDone: () => void }) {
 function AdminSignInForm({ onBack }: { onBack: () => void }) {
   const navigate = useNavigate();
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [formError, setFormError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const alertRef = useRef<HTMLDivElement>(null);
+
+  function fail(message: string, fields: Record<string, string> = {}) {
+    setErrors(fields);
+    setFormError(message);
+    requestAnimationFrame(() => alertRef.current?.focus());
+  }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -405,11 +606,13 @@ function AdminSignInForm({ onBack }: { onBack: () => void }) {
       password: String(form.get("password") ?? ""),
     });
     if (!parsed.success) {
-      setErrors(fieldErrors(parsed.error));
+      const fields = fieldErrors(parsed.error);
+      fail(summaryFromErrors(fields) ?? "Revise os dados informados.", fields);
       return;
     }
 
     setErrors({});
+    setFormError(null);
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword(parsed.data);
 
@@ -425,6 +628,7 @@ function AdminSignInForm({ onBack }: { onBack: () => void }) {
       });
       if (signUpError) {
         setLoading(false);
+        fail(friendlyAuthError(signUpError.message));
         toast.error(friendlyAuthError(signUpError.message));
         return;
       }
@@ -440,6 +644,7 @@ function AdminSignInForm({ onBack }: { onBack: () => void }) {
 
     setLoading(false);
     if (error) {
+      fail(friendlyAuthError(error.message));
       toast.error(friendlyAuthError(error.message));
       return;
     }
@@ -447,7 +652,10 @@ function AdminSignInForm({ onBack }: { onBack: () => void }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+    <form onSubmit={handleSubmit} className="space-y-4" noValidate aria-busy={loading}>
+      <div ref={alertRef} tabIndex={-1} className="outline-none">
+        <FormAlert message={formError} />
+      </div>
       <div>
         <h2 className="text-lg font-semibold">Acesso administrativo</h2>
         <p className="mt-1 text-sm text-muted-foreground">
@@ -456,8 +664,17 @@ function AdminSignInForm({ onBack }: { onBack: () => void }) {
       </div>
       <div>
         <Label htmlFor="admin-email">E-mail</Label>
-        <Input id="admin-email" name="email" type="email" autoComplete="email" className="mt-1.5" />
-        <FieldError message={errors.email} />
+        <Input
+          id="admin-email"
+          name="email"
+          type="email"
+          autoComplete="email"
+          required
+          aria-invalid={Boolean(errors.email) || undefined}
+          aria-describedby={describedBy(errors.email && "admin-email-error")}
+          className="mt-1.5"
+        />
+        <FieldError id="admin-email-error" message={errors.email} />
       </div>
       <div>
         <Label htmlFor="admin-password">Senha</Label>
@@ -466,13 +683,17 @@ function AdminSignInForm({ onBack }: { onBack: () => void }) {
           name="password"
           type="password"
           autoComplete="current-password"
+          required
+          aria-invalid={Boolean(errors.password) || undefined}
+          aria-describedby={describedBy(errors.password && "admin-password-error")}
           className="mt-1.5"
         />
-        <FieldError message={errors.password} />
+        <FieldError id="admin-password-error" message={errors.password} />
       </div>
       <Button type="submit" className="w-full" disabled={loading}>
-        {loading ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
+        {loading ? <Loader2 className="mr-2 size-4 animate-spin" aria-hidden="true" /> : null}
         Entrar
+        <StatusLive busy={loading} label="Entrando, aguarde." />
       </Button>
       <Button type="button" variant="ghost" className="w-full" onClick={onBack}>
         Voltar para o acesso por CPF
@@ -536,13 +757,17 @@ function ForgotPasswordForm({ onBack }: { onBack: () => void }) {
           name="email"
           type="email"
           autoComplete="email"
+          required
+          aria-invalid={Boolean(errors.email) || undefined}
+          aria-describedby={describedBy(errors.email && "forgot-email-error")}
           className="mt-1.5"
         />
-        <FieldError message={errors.email} />
+        <FieldError id="forgot-email-error" message={errors.email} />
       </div>
       <Button type="submit" className="w-full" disabled={loading}>
-        {loading ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
+        {loading ? <Loader2 className="mr-2 size-4 animate-spin" aria-hidden="true" /> : null}
         Enviar link de recuperação
+        <StatusLive busy={loading} label="Enviando link, aguarde." />
       </Button>
       <Button type="button" variant="ghost" className="w-full" onClick={onBack}>
         Voltar
