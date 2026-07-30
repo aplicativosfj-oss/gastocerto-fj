@@ -343,6 +343,27 @@ export function FuelDialog({
             </div>
           ) : null}
 
+          {warnings.length > 0 ? (
+            <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-3 text-sm sm:col-span-2">
+              <p className="flex items-center gap-2 font-medium">
+                <TriangleAlert className="size-4" />
+                Variações fora do padrão
+              </p>
+              <ul className="mt-1 list-disc space-y-0.5 pl-5 text-muted-foreground">
+                {warnings.map((warning) => (
+                  <li key={warning}>{warning}</li>
+                ))}
+              </ul>
+              {acknowledged ? (
+                <p className="mt-2 text-xs font-medium">
+                  Clique em salvar novamente para confirmar mesmo assim.
+                </p>
+              ) : null}
+            </div>
+          ) : null}
+
+
+
           <div className="flex items-center justify-between rounded-xl border border-border p-3 sm:col-span-2">
             <Label htmlFor="fuel-full" className="text-sm font-normal">
               Tanque cheio (melhora a precisão do consumo)
