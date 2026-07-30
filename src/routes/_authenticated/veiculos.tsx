@@ -41,6 +41,7 @@ import { labelFor } from "@/lib/finance";
 import {
   FUEL_TYPES,
   VEHICLE_TYPES,
+  statsByVehicle,
   summarizeFuel,
   useDeleteFuelEntry,
   useDeleteVehicle,
