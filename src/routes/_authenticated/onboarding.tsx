@@ -115,7 +115,11 @@ function OnboardingPage() {
       {
         user_id: user.id,
         main_goal: goal,
-        interests: selected,
+        monthly_income: parsedIncome,
+        used_categories: selected,
+        track_fuel: selected.includes("combustivel"),
+        track_gas_cylinder: selected.includes("gas"),
+        has_vehicle: selected.includes("combustivel"),
       },
       { onConflict: "user_id" },
     );
