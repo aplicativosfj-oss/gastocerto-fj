@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
+import { LicensesPanel, PaymentsPanel } from "@/components/admin/licenses-panel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -206,8 +207,22 @@ function AdminContent({ isAdmin }: { isAdmin: boolean }) {
         <Tabs defaultValue="users">
           <TabsList>
             <TabsTrigger value="users">Usuários</TabsTrigger>
+            {isAdmin ? <TabsTrigger value="licenses">Licenças</TabsTrigger> : null}
+            {isAdmin ? <TabsTrigger value="payments">Pagamentos</TabsTrigger> : null}
             <TabsTrigger value="logs">Logs</TabsTrigger>
           </TabsList>
+
+          {isAdmin ? (
+            <TabsContent value="licenses" className="mt-4">
+              <LicensesPanel />
+            </TabsContent>
+          ) : null}
+
+          {isAdmin ? (
+            <TabsContent value="payments" className="mt-4">
+              <PaymentsPanel />
+            </TabsContent>
+          ) : null}
 
           <TabsContent value="users" className="mt-4 space-y-3">
             <div className="flex flex-wrap gap-3">

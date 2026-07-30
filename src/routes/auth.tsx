@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
+import { resolveHomeRoute, resolveHomeRouteForSession } from "@/lib/post-login";
 import { cpfToLoginEmail, maskCpf, onlyDigits, pinToPassword } from "@/lib/cpf";
 import {
   cpfSignInSchema,
@@ -56,9 +57,14 @@ function AuthPage() {
   const [mode, setMode] = useState<Mode>(search.mode === "signup" ? "signup" : "login");
 
   useEffect(() => {
-    if (!loading && session) {
-      navigate({ to: "/painel", replace: true });
-    }
+    if (loading || !session) return;
+    let cancelled = false;
+    void resolveHomeRoute(session.user?.id).then((to) => {
+      if (!cancelled) navigate({ to, replace: true });
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [loading, session, navigate]);
 
   return (
@@ -302,7 +308,7 @@ function CpfSignInForm({ onForgot, onAdmin }: { onForgot: () => void; onAdmin: (
       toast.error(message);
       return;
     }
-    navigate({ to: "/painel", replace: true });
+    navigate({ to: await resolveHomeRouteForSession(), replace: true });
   }
 
   return (
@@ -638,7 +644,7 @@ function AdminSignInForm({ onBack }: { onBack: () => void }) {
         toast.success("Conta criada. Confirme o e-mail para acessar.");
         return;
       }
-      navigate({ to: "/painel", replace: true });
+      navigate({ to: await resolveHomeRouteForSession(), replace: true });
       return;
     }
 
@@ -648,7 +654,7 @@ function AdminSignInForm({ onBack }: { onBack: () => void }) {
       toast.error(friendlyAuthError(error.message));
       return;
     }
-    navigate({ to: "/painel", replace: true });
+    navigate({ to: await resolveHomeRouteForSession(), replace: true });
   }
 
   return (

@@ -401,6 +401,77 @@ export type Database = {
         }
         Relationships: []
       }
+      licenses: {
+        Row: {
+          activated_at: string | null
+          amount: number
+          billing_cycle: string
+          cpf: string | null
+          created_at: string
+          created_by: string | null
+          email: string | null
+          expires_at: string | null
+          full_name: string | null
+          id: string
+          issued_at: string
+          license_key: string
+          notes: string | null
+          plan_id: string | null
+          source: string
+          status: Database["public"]["Enums"]["license_status"]
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          activated_at?: string | null
+          amount?: number
+          billing_cycle?: string
+          cpf?: string | null
+          created_at?: string
+          created_by?: string | null
+          email?: string | null
+          expires_at?: string | null
+          full_name?: string | null
+          id?: string
+          issued_at?: string
+          license_key?: string
+          notes?: string | null
+          plan_id?: string | null
+          source?: string
+          status?: Database["public"]["Enums"]["license_status"]
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          activated_at?: string | null
+          amount?: number
+          billing_cycle?: string
+          cpf?: string | null
+          created_at?: string
+          created_by?: string | null
+          email?: string | null
+          expires_at?: string | null
+          full_name?: string | null
+          id?: string
+          issued_at?: string
+          license_key?: string
+          notes?: string | null
+          plan_id?: string | null
+          source?: string
+          status?: Database["public"]["Enums"]["license_status"]
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "licenses_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notification_preferences: {
         Row: {
           budget_alerts: boolean
@@ -535,6 +606,71 @@ export type Database = {
           wants_alerts?: boolean
         }
         Relationships: []
+      }
+      payments: {
+        Row: {
+          amount: number
+          created_at: string
+          email: string | null
+          external_id: string | null
+          id: string
+          license_id: string | null
+          method: string
+          paid_at: string | null
+          provider: string
+          qr_code: string | null
+          qr_code_base64: string | null
+          raw: Json
+          status: string
+          ticket_url: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          email?: string | null
+          external_id?: string | null
+          id?: string
+          license_id?: string | null
+          method?: string
+          paid_at?: string | null
+          provider?: string
+          qr_code?: string | null
+          qr_code_base64?: string | null
+          raw?: Json
+          status?: string
+          ticket_url?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          email?: string | null
+          external_id?: string | null
+          id?: string
+          license_id?: string | null
+          method?: string
+          paid_at?: string | null
+          provider?: string
+          qr_code?: string | null
+          qr_code_base64?: string | null
+          raw?: Json
+          status?: string
+          ticket_url?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_license_id_fkey"
+            columns: ["license_id"]
+            isOneToOne: false
+            referencedRelation: "licenses"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       plans: {
         Row: {
@@ -941,6 +1077,7 @@ export type Database = {
         Args: { _user_id: string }
         Returns: undefined
       }
+      generate_license_key: { Args: never; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -952,6 +1089,7 @@ export type Database = {
     Enums: {
       app_role: "user" | "admin" | "support"
       category_type: "expense" | "income"
+      license_status: "pending" | "active" | "expired" | "revoked"
       transaction_status:
         | "pending"
         | "paid"
@@ -1088,6 +1226,7 @@ export const Constants = {
     Enums: {
       app_role: ["user", "admin", "support"],
       category_type: ["expense", "income"],
+      license_status: ["pending", "active", "expired", "revoked"],
       transaction_status: [
         "pending",
         "paid",

@@ -4,6 +4,8 @@ import { useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
+import { LicenseCard } from "@/components/finance/license-card";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -243,7 +245,10 @@ function ProfilePage() {
             Salvar alterações
           </Button>
         </form>
+
+        <LicenseCard />
       </div>
+
     </AppShell>
   );
 }
