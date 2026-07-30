@@ -33,6 +33,7 @@ import {
   parseAmount,
   toCents,
 } from "@/lib/finance";
+import { formatDate } from "@/lib/format";
 import { useCategories } from "@/lib/queries";
 import {
   useAccounts,
