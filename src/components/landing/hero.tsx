@@ -89,7 +89,7 @@ export function Hero() {
             aria-hidden="true"
             className="absolute -inset-6 rounded-[2rem] bg-brand/20 blur-3xl"
           />
-          <div className="relative origin-top scale-[0.82] xl:scale-[0.88]">
+          <div className="relative origin-top scale-[0.82] text-foreground xl:scale-[0.88]">
             <DashboardPreview />
           </div>
 
