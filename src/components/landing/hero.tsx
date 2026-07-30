@@ -62,7 +62,6 @@ export function Hero() {
           </p>
 
           <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-
             <Button size="lg" className="shadow-lifted" asChild>
               <Link to="/auth" search={{ mode: "signup" }}>
                 Criar conta gratuita
