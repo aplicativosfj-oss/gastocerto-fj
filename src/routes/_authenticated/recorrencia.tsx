@@ -78,10 +78,13 @@ function RecurringPage() {
   const toggle = useToggleRecurringRule();
   const remove = useDeleteRecurringRule();
   const settle = useSettleTransaction();
+  const syncStatus = useSyncRecurringStatus();
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<RecurringRule | null>(null);
   const [confirm, setConfirm] = useState<RecurringRule | null>(null);
+  const [statusFilter, setStatusFilter] = useState("open");
+  const [sortBy, setSortBy] = useState("due-asc");
 
   const categoryNames = useMemo(
     () => new Map((categories ?? []).map((category) => [category.id, category.name])),
@@ -89,17 +92,53 @@ function RecurringPage() {
   );
 
   const today = isoDate(new Date());
-  const upcoming = useMemo(
-    () =>
-      (generated ?? [])
-        .slice()
-        .sort((a, b) => (a.due_date ?? "").localeCompare(b.due_date ?? "")),
-    [generated],
-  );
 
-  const pendingTotal = upcoming
+  // Sincroniza uma vez por visita: pendentes vencidos viram atrasados.
+  const synced = useRef(false);
+  useEffect(() => {
+    if (synced.current || !generated) return;
+    synced.current = true;
+    syncStatus.mutate(undefined, {
+      onError: (error) => console.error("[recorrentes] falha ao sincronizar status", error),
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [generated]);
+
+  const rows = useMemo(() => (generated ?? []).slice(), [generated]);
+
+  const counts = useMemo(() => {
+    const base = { paid: 0, pending: 0, overdue: 0 };
+    for (const row of rows) {
+      if (row.status === "paid" || row.status === "received") base.paid += 1;
+      else if (row.due_date && row.due_date < today) base.overdue += 1;
+      else base.pending += 1;
+    }
+    return base;
+  }, [rows, today]);
+
+  const upcoming = useMemo(() => {
+    const filtered = rows.filter((row) => {
+      const paid = row.status === "paid" || row.status === "received";
+      const overdue = !paid && row.due_date != null && row.due_date < today;
+      if (statusFilter === "all") return true;
+      if (statusFilter === "paid") return paid;
+      if (statusFilter === "overdue") return overdue;
+      if (statusFilter === "pending") return !paid && !overdue;
+      return !paid; // "open" = pendentes + atrasados
+    });
+
+    return filtered.sort((a, b) => {
+      if (sortBy === "due-desc") return (b.due_date ?? "").localeCompare(a.due_date ?? "");
+      if (sortBy === "amount-desc") return Number(b.amount) - Number(a.amount);
+      if (sortBy === "amount-asc") return Number(a.amount) - Number(b.amount);
+      return (a.due_date ?? "").localeCompare(b.due_date ?? "");
+    });
+  }, [rows, statusFilter, sortBy, today]);
+
+  const pendingTotal = rows
     .filter((row) => row.status !== "paid" && row.status !== "received")
     .reduce((sum, row) => sum + Number(row.amount), 0);
+
 
   async function handleGenerate() {
     try {
