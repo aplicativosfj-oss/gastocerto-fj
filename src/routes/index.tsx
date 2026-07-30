@@ -32,10 +32,12 @@ export const Route = createFileRoute("/")({
 
 function LandingPage() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="relative min-h-screen bg-background">
+      <PageBackground />
       <LandingHeader />
       <main>
         <Hero />
+        <SectionHub />
         <Features />
         <Benefits />
         <HowItWorks />
@@ -49,3 +51,4 @@ function LandingPage() {
     </div>
   );
 }
+
