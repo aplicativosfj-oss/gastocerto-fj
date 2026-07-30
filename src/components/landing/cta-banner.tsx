@@ -6,7 +6,7 @@ import { GridPattern } from "@/components/landing/decor";
 
 export function CtaBanner() {
   return (
-    <section className="section-y">
+    <section className="section-y pb-4 sm:pb-6">
       <div className="section-shell">
         <div className="relative isolate overflow-hidden rounded-3xl bg-[oklch(0.18_0.032_258)] px-5 py-7 text-white shadow-lifted sm:px-10 sm:py-9">
           <GridPattern className="absolute inset-0 -z-10 size-full text-white/10" />
