@@ -45,47 +45,49 @@ export function Hero() {
         className="absolute -left-32 top-1/4 -z-10 size-[420px] rounded-full bg-brand/25 blur-[120px]"
       />
 
-      <div className="section-shell relative grid w-full items-center gap-6 lg:grid-cols-[1.05fr_1fr] lg:gap-10 xl:gap-12">
+      <div className="section-shell relative grid w-full items-center gap-5 lg:grid-cols-[1.05fr_1fr] lg:gap-9 xl:gap-11">
         <div>
           <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/80 backdrop-blur sm:text-[11px]">
             <ShieldCheck className="size-3.5 text-success" aria-hidden="true" />
             Gestão financeira pessoal
           </span>
 
-          <h1 className="font-display mt-3 text-[1.6rem] font-extrabold leading-[1.05] tracking-[-0.03em] text-white sm:text-[2.4rem] lg:text-[2.75rem] xl:text-[3.1rem]">
+          <h1 className="font-display mt-2.5 text-[1.6rem] font-extrabold leading-[1.05] tracking-[-0.03em] text-white sm:text-[2.4rem] lg:text-[2.75rem] xl:text-[3.1rem]">
             Controle profissional de cada real que você gasta.
           </h1>
 
-          <p className="mt-2.5 max-w-lg text-[13px] leading-relaxed text-white/70 sm:text-[15px]">
+          <p className="mt-2 max-w-lg text-[13px] leading-snug text-white/70 sm:text-[15px] sm:leading-relaxed">
             Despesas, combustível, contas recorrentes e orçamentos em um só painel — com
             indicadores automáticos e relatórios prontos para decidir.
           </p>
 
-          <div className="mt-4 grid grid-cols-2 items-center gap-2 sm:flex sm:flex-wrap">
-            <Button className="shadow-lifted sm:h-11 sm:px-6" asChild>
+          <div className="mt-3.5 grid grid-cols-[1fr_1fr_auto] items-center gap-1.5 sm:flex sm:flex-wrap sm:gap-2">
+            <Button className="h-10 min-w-0 px-3 text-[13px] shadow-lifted sm:h-11 sm:px-6 sm:text-sm" asChild>
               <Link to="/auth" search={{ mode: "signup" }}>
-                Criar conta
-                <ArrowRight className="size-4" aria-hidden="true" />
+                <span className="truncate">Criar conta</span>
+                <ArrowRight className="size-4 shrink-0" aria-hidden="true" />
               </Link>
             </Button>
             <DemoDialog>
               <Button
                 variant="outline"
-                className="border-white/25 bg-white/5 text-white hover:bg-white/15 hover:text-white sm:h-11 sm:px-6"
+                className="h-10 min-w-0 border-white/25 bg-white/5 px-3 text-[13px] text-white hover:bg-white/15 hover:text-white sm:h-11 sm:px-6 sm:text-sm"
               >
-                <PlayCircle className="size-4" aria-hidden="true" />
-                Demonstração
+                <PlayCircle className="size-4 shrink-0" aria-hidden="true" />
+                <span className="truncate">Demonstração</span>
               </Button>
             </DemoDialog>
             <a
               href="#explorar"
               onClick={(event) => handleAnchorClick(event, "#explorar")}
-              className="col-span-2 inline-flex items-center justify-center gap-1.5 rounded-md px-3 py-1.5 text-[13px] font-medium text-white/75 transition-colors hover:text-white sm:col-span-1 sm:py-2 sm:text-sm"
+              aria-label="Explorar seções"
+              className="inline-flex size-10 items-center justify-center gap-1.5 rounded-md text-[13px] font-medium text-white/75 outline-none transition-colors hover:text-white focus-visible:ring-2 focus-visible:ring-white/60 sm:h-11 sm:w-auto sm:px-3 sm:text-sm"
             >
-              Explorar seções
-              <ChevronDown className="size-4" aria-hidden="true" />
+              <span className="hidden sm:inline">Explorar seções</span>
+              <ChevronDown className="size-4 shrink-0" aria-hidden="true" />
             </a>
           </div>
+
 
 
           <dl className="mt-4 grid grid-cols-3 gap-2 border-t border-white/10 pt-3">
