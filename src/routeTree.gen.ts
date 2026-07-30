@@ -23,6 +23,7 @@ import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedReceitasRouteImport } from './routes/_authenticated/receitas'
 import { Route as AuthenticatedRecorrenciaRouteImport } from './routes/_authenticated/recorrencia'
 import { Route as AuthenticatedVeiculosRouteImport } from './routes/_authenticated/veiculos'
+import { Route as AuthenticatedVeiculosAuditoriaRouteImport } from './routes/_authenticated/veiculos-auditoria'
 import { Route as AuthenticatedVeiculosConfiguracoesRouteImport } from './routes/_authenticated/veiculos-configuracoes'
 
 const IndexRoute = IndexRouteImport.update({
@@ -97,6 +98,12 @@ const AuthenticatedVeiculosRoute = AuthenticatedVeiculosRouteImport.update({
   path: '/veiculos',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedVeiculosAuditoriaRoute =
+  AuthenticatedVeiculosAuditoriaRouteImport.update({
+    id: '/veiculos-auditoria',
+    path: '/veiculos-auditoria',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedVeiculosConfiguracoesRoute =
   AuthenticatedVeiculosConfiguracoesRouteImport.update({
     id: '/veiculos-configuracoes',
@@ -118,6 +125,7 @@ export interface FileRoutesByFullPath {
   '/receitas': typeof AuthenticatedReceitasRoute
   '/recorrencia': typeof AuthenticatedRecorrenciaRoute
   '/veiculos': typeof AuthenticatedVeiculosRoute
+  '/veiculos-auditoria': typeof AuthenticatedVeiculosAuditoriaRoute
   '/veiculos-configuracoes': typeof AuthenticatedVeiculosConfiguracoesRoute
 }
 export interface FileRoutesByTo {
@@ -134,6 +142,7 @@ export interface FileRoutesByTo {
   '/receitas': typeof AuthenticatedReceitasRoute
   '/recorrencia': typeof AuthenticatedRecorrenciaRoute
   '/veiculos': typeof AuthenticatedVeiculosRoute
+  '/veiculos-auditoria': typeof AuthenticatedVeiculosAuditoriaRoute
   '/veiculos-configuracoes': typeof AuthenticatedVeiculosConfiguracoesRoute
 }
 export interface FileRoutesById {
@@ -152,6 +161,7 @@ export interface FileRoutesById {
   '/_authenticated/receitas': typeof AuthenticatedReceitasRoute
   '/_authenticated/recorrencia': typeof AuthenticatedRecorrenciaRoute
   '/_authenticated/veiculos': typeof AuthenticatedVeiculosRoute
+  '/_authenticated/veiculos-auditoria': typeof AuthenticatedVeiculosAuditoriaRoute
   '/_authenticated/veiculos-configuracoes': typeof AuthenticatedVeiculosConfiguracoesRoute
 }
 export interface FileRouteTypes {
@@ -170,6 +180,7 @@ export interface FileRouteTypes {
     | '/receitas'
     | '/recorrencia'
     | '/veiculos'
+    | '/veiculos-auditoria'
     | '/veiculos-configuracoes'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -186,6 +197,7 @@ export interface FileRouteTypes {
     | '/receitas'
     | '/recorrencia'
     | '/veiculos'
+    | '/veiculos-auditoria'
     | '/veiculos-configuracoes'
   id:
     | '__root__'
@@ -203,6 +215,7 @@ export interface FileRouteTypes {
     | '/_authenticated/receitas'
     | '/_authenticated/recorrencia'
     | '/_authenticated/veiculos'
+    | '/_authenticated/veiculos-auditoria'
     | '/_authenticated/veiculos-configuracoes'
   fileRoutesById: FileRoutesById
 }
@@ -313,6 +326,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedVeiculosRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/veiculos-auditoria': {
+      id: '/_authenticated/veiculos-auditoria'
+      path: '/veiculos-auditoria'
+      fullPath: '/veiculos-auditoria'
+      preLoaderRoute: typeof AuthenticatedVeiculosAuditoriaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/veiculos-configuracoes': {
       id: '/_authenticated/veiculos-configuracoes'
       path: '/veiculos-configuracoes'
@@ -334,6 +354,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedReceitasRoute: typeof AuthenticatedReceitasRoute
   AuthenticatedRecorrenciaRoute: typeof AuthenticatedRecorrenciaRoute
   AuthenticatedVeiculosRoute: typeof AuthenticatedVeiculosRoute
+  AuthenticatedVeiculosAuditoriaRoute: typeof AuthenticatedVeiculosAuditoriaRoute
   AuthenticatedVeiculosConfiguracoesRoute: typeof AuthenticatedVeiculosConfiguracoesRoute
 }
 
@@ -348,6 +369,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedReceitasRoute: AuthenticatedReceitasRoute,
   AuthenticatedRecorrenciaRoute: AuthenticatedRecorrenciaRoute,
   AuthenticatedVeiculosRoute: AuthenticatedVeiculosRoute,
+  AuthenticatedVeiculosAuditoriaRoute: AuthenticatedVeiculosAuditoriaRoute,
   AuthenticatedVeiculosConfiguracoesRoute:
     AuthenticatedVeiculosConfiguracoesRoute,
 }

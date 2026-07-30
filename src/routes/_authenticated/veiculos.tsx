@@ -210,6 +210,12 @@ function VehiclesPage() {
                 Metas e alertas
               </Link>
             </Button>
+            <Button variant="outline" asChild>
+              <Link to="/veiculos-auditoria">
+                <History className="mr-2 size-4" />
+                Auditoria
+              </Link>
+            </Button>
             <Button
               variant="outline"
               disabled={perVehicle.length === 0}
