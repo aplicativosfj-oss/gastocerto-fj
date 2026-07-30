@@ -30,21 +30,58 @@ import { useAvatarUrl, useProfile, useRoles } from "@/lib/queries";
 import { useNotifications } from "@/lib/notifications";
 import { cn } from "@/lib/utils";
 
-export const navItems = [
-  { label: "Visão geral", to: "/painel", icon: LayoutDashboard },
-  { label: "Transações", to: "/lancamentos", icon: ArrowLeftRight },
-  { label: "Receitas", to: "/receitas", icon: TrendingUp },
-  { label: "Recorrentes", to: "/recorrencia", icon: CalendarClock },
-  { label: "Veículos", to: "/veiculos", icon: Car },
-  { label: "Categorias", to: "/categorias", icon: ListTree },
-  { label: "Orçamentos", to: "/orcamentos", icon: PiggyBank },
-  { label: "Metas", to: "/metas", icon: Target },
-  { label: "Relatórios", to: "/relatorios", icon: BarChart3 },
-  { label: "Calendário", to: "/calendario", icon: CalendarDays },
-  { label: "Comprovantes", to: "/comprovantes", icon: Paperclip },
-  { label: "Meu perfil", to: "/perfil", icon: User2 },
-] as const;
+type NavChild = { label: string; to: string };
+type NavGroup = {
+  label: string;
+  to: string;
+  icon: typeof LayoutDashboard;
+  children?: NavChild[];
+};
 
+export const navGroups: NavGroup[] = [
+  { label: "Visão geral", to: "/painel", icon: LayoutDashboard },
+  {
+    label: "Lançamentos",
+    to: "/lancamentos",
+    icon: ArrowLeftRight,
+    children: [
+      { label: "Despesas", to: "/lancamentos" },
+      { label: "Receitas", to: "/receitas" },
+      { label: "Recorrentes", to: "/recorrencia" },
+      { label: "Comprovantes", to: "/comprovantes" },
+    ],
+  },
+  {
+    label: "Veículos",
+    to: "/veiculos",
+    icon: Car,
+    children: [
+      { label: "Abastecimentos", to: "/veiculos" },
+      { label: "Configurações", to: "/veiculos-configuracoes" },
+      { label: "Auditoria", to: "/veiculos-auditoria" },
+    ],
+  },
+  {
+    label: "Planejamento",
+    to: "/orcamentos",
+    icon: PiggyBank,
+    children: [
+      { label: "Orçamentos", to: "/orcamentos" },
+      { label: "Metas", to: "/metas" },
+      { label: "Categorias", to: "/categorias" },
+    ],
+  },
+  {
+    label: "Análises",
+    to: "/relatorios",
+    icon: BarChart3,
+    children: [
+      { label: "Relatórios", to: "/relatorios" },
+      { label: "Calendário", to: "/calendario" },
+    ],
+  },
+  { label: "Meu perfil", to: "/perfil", icon: User2 },
+];
 
 export function AppShell({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
@@ -57,9 +94,15 @@ export function AppShell({ children }: { children: ReactNode }) {
   const avatarUrl = useAvatarUrl(profile?.avatar_url);
   const unreadCount = (notifications ?? []).filter((item) => !item.read_at).length;
   const isStaff = (roles ?? []).some((role) => role === "admin" || role === "support");
-  const items: Array<{ label: string; to: string; icon: typeof LayoutDashboard }> = isStaff
-    ? [...navItems, { label: "Administração", to: "/admin", icon: ShieldCheck }]
-    : [...navItems];
+  const items: NavGroup[] = isStaff
+    ? [...navGroups, { label: "Administração", to: "/admin", icon: ShieldCheck }]
+    : [...navGroups];
+
+  const activeGroup = items.find(
+    (group) => group.to === pathname || group.children?.some((child) => child.to === pathname),
+  );
+  const subTabs = activeGroup?.children ?? [];
+
 
   const initials = (profile?.full_name ?? "GC")
     .split(" ")
