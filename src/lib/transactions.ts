@@ -36,6 +36,32 @@ export function useTransactions(range?: TransactionRange) {
   });
 }
 
+/** Último lançamento do tipo informado — usado para pré-preencher o formulário. */
+export function useLastTransaction(kind: Transaction["transaction_type"]) {
+  const { user } = useAuth();
+
+  return useQuery({
+    queryKey: ["last-transaction", user?.id, kind],
+    enabled: Boolean(user?.id),
+    staleTime: 60_000,
+    queryFn: async (): Promise<Transaction | null> => {
+      const { data, error } = await supabase
+        .from("transactions")
+        .select("*")
+        .eq("transaction_type", kind)
+        .is("deleted_at", null)
+        .order("transaction_date", { ascending: false })
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (error) throw error;
+      return data ?? null;
+    },
+  });
+}
+
+
+
 export function useAccounts() {
   const { user } = useAuth();
   return useQuery({
