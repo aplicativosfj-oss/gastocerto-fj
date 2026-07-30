@@ -286,7 +286,12 @@ export function TransactionDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+        <form
+          onSubmit={handleSubmit}
+          onKeyDown={handleFormKeyDown}
+          className="space-y-4"
+          noValidate
+        >
           <Tabs
             value={advanced ? "avancado" : "rapido"}
             onValueChange={(value) => setAdvanced(value === "avancado")}
