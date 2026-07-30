@@ -37,11 +37,32 @@ const faqs = [
       "Sim. A interface é totalmente responsiva, com navegação otimizada para celular, tablet e desktop, incluindo modo claro e escuro.",
   },
   {
+    question: "Preciso criar conta para ver a demonstração?",
+    answer:
+      "Não. A demonstração é aberta: acesse a página de demonstração pela homepage e navegue por um painel completo com dados fictícios, sem cadastro e sem cartão de crédito.",
+  },
+  {
+    question: "Qual a diferença entre o plano mensal e o anual?",
+    answer:
+      "O conteúdo é o mesmo. No plano anual o valor mensal do Premium cai de R$ 19,90 para R$ 15,90, com cobrança única no ano — a melhor economia disponível.",
+  },
+  {
+    question: "Posso trocar de plano ou cancelar depois?",
+    answer:
+      "Sim. Você pode migrar entre Gratuito e Premium, alternar entre cobrança mensal e anual e cancelar quando quiser. Não há fidelidade nem multa.",
+  },
+  {
+    question: "Os dados da demonstração viram meus dados?",
+    answer:
+      "Não. Os números da demonstração são fictícios e servem apenas para você entender a experiência. Ao criar sua conta, o painel começa vazio e passa a refletir seus próprios lançamentos.",
+  },
+  {
     question: "Posso excluir minha conta?",
     answer:
       "Sim. A exclusão pode ser solicitada a qualquer momento nas configurações e remove seus dados pessoais e financeiros, após confirmação.",
   },
 ];
+
 
 export function Faq() {
   return (
