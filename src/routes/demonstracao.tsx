@@ -34,7 +34,7 @@ const highlights = [
 
 function DemoPage() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="flex min-h-dvh flex-col bg-background">
       <header className="border-b border-border bg-background/90 backdrop-blur-md">
         <div className="section-shell flex h-16 items-center justify-between gap-4">
           <Link to="/" aria-label="GastoCerto — início">
@@ -56,7 +56,7 @@ function DemoPage() {
         </div>
       </header>
 
-      <main className="section-shell py-10 sm:py-14">
+      <main className="section-shell flex-1 py-10 sm:py-14">
         <Link
           to="/"
           className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
