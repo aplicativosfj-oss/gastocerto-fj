@@ -172,7 +172,7 @@ export function CompactOverview() {
             <h3 className="sr-only">{tabMeta["recursos"].label}</h3>
             <div className="grid grid-cols-2 gap-2 sm:gap-2.5 lg:grid-cols-3">
               {features.map((item) => (
-                <div key={item.title} className="flex min-w-0 flex-col gap-2 rounded-xl border border-border bg-card p-2.5 sm:flex-row sm:gap-3 sm:p-3">
+                <div key={item.title} className="interactive-card flex min-w-0 flex-col gap-2 rounded-xl border border-border bg-card p-2.5 sm:flex-row sm:gap-3 sm:p-3">
                   <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-brand/10 text-brand">
                     <item.icon className="size-4" />
                   </span>
@@ -189,7 +189,7 @@ export function CompactOverview() {
             <h3 className="sr-only">{tabMeta["como-funciona"].label}</h3>
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-2.5">
               {steps.map((step, index) => (
-                <div key={step.title} className="rounded-xl border border-border bg-card p-3 sm:p-3.5">
+                <div key={step.title} className="interactive-card rounded-xl border border-border bg-card p-3 sm:p-3.5">
                   <span className="grid size-8 place-items-center rounded-lg bg-brand text-sm font-bold text-brand-foreground">
                     {index + 1}
                   </span>
@@ -200,7 +200,7 @@ export function CompactOverview() {
             </div>
             <div id="depoimentos" className="mt-3 grid gap-2.5 sm:grid-cols-3">
               {proofs.map((p) => (
-                <div key={p.name} className="rounded-xl border border-border bg-card p-3">
+                <div key={p.name} className="interactive-card rounded-xl border border-border bg-card p-3">
                   <div className="flex gap-0.5 text-warning">
                     {Array.from({ length: 5 }).map((_, i) => (
                       <Star key={i} className="size-3 fill-current" />
@@ -219,7 +219,7 @@ export function CompactOverview() {
             <h3 className="sr-only">{tabMeta["seguranca"].label}</h3>
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-2.5">
               {pillars.map((pillar) => (
-                <div key={pillar.title} className="rounded-xl border border-border bg-card p-3 sm:p-3.5">
+                <div key={pillar.title} className="interactive-card rounded-xl border border-border bg-card p-3 sm:p-3.5">
                   <span className="grid size-9 place-items-center rounded-lg bg-brand/10 text-brand">
                     <pillar.icon className="size-4" />
                   </span>

@@ -81,12 +81,13 @@ export function LandingHeader() {
                 aria-current={isActive ? "location" : undefined}
                 onClick={(event) => handleAnchorClick(event, item.href)}
                 className={cn(
-                  "relative inline-flex min-h-11 items-center rounded-md px-3 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent after:absolute after:inset-x-3 after:-bottom-0.5 after:h-0.5 after:rounded-full after:bg-brand after:opacity-0 after:transition-opacity",
-                  isActive && "after:opacity-100",
+                  "nav-underline relative inline-flex min-h-11 items-center rounded-md px-3 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent after:bg-brand",
+                  isActive && "after:scale-x-100",
                   scrolled
                     ? cn("text-muted-foreground hover:bg-accent hover:text-foreground focus-visible:ring-ring", isActive && "text-foreground")
                     : cn("text-white/75 hover:bg-white/10 hover:text-white focus-visible:ring-white/70", isActive && "text-white"),
                 )}
+
               >
                 {item.label}
               </a>
