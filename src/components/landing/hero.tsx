@@ -105,7 +105,7 @@ export function Hero() {
           </dl>
         </div>
 
-        <div className="relative hidden lg:block">
+        <div className="relative hidden pt-8 lg:block">
           <div
             aria-hidden="true"
             className="absolute -inset-6 rounded-[2rem] bg-brand/20 blur-3xl"
@@ -127,7 +127,7 @@ export function Hero() {
             <Sparkline className="mt-2 h-12 w-full text-success" />
           </div>
 
-          <div className="absolute -right-6 top-4 flex w-40 items-center gap-3 rounded-2xl border border-white/15 bg-[oklch(0.2_0.03_258/0.85)] p-3 shadow-lifted backdrop-blur-md">
+          <div className="absolute right-0 top-10 flex w-40 items-center gap-3 rounded-2xl border border-white/15 bg-[oklch(0.2_0.03_258/0.85)] p-3 shadow-lifted backdrop-blur-md">
             <RingChart className="size-12 shrink-0 text-brand" value={68} />
             <div className="min-w-0">
               <p className="text-[11px] text-white/75">Orçamento</p>
