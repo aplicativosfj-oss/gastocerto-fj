@@ -127,7 +127,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
         <nav className="flex-1 space-y-1 overflow-y-auto p-3">
           {items.map((item) => (
-            <NavLink key={item.to} item={item} active={pathname === item.to} />
+            <NavLink key={item.to} item={item} active={activeGroup?.to === item.to} />
           ))}
         </nav>
         <div className="border-t border-border p-3">
