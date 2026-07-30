@@ -89,3 +89,14 @@ export const MONTH_NAMES = [
   "Novembro",
   "Dezembro",
 ];
+
+/**
+ * Data padrão sugerida ao criar um lançamento no período visualizado.
+ * Permite registrar gastos de meses anteriores sem digitar a data manualmente.
+ */
+export function periodDefaultDate(year: number, month: number): string {
+  const today = new Date();
+  if (year === today.getFullYear() && month === today.getMonth() + 1) return isoDate(today);
+  const lastDay = new Date(year, month, 0).getDate();
+  return isoDate(new Date(year, month - 1, Math.min(today.getDate(), lastDay)));
+}

@@ -39,7 +39,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { formatCurrency, formatDate } from "@/lib/format";
-import { PAYMENT_METHODS, TRANSACTION_STATUS, labelFor, monthRange } from "@/lib/finance";
+import { PAYMENT_METHODS, TRANSACTION_STATUS, labelFor, monthRange, periodDefaultDate } from "@/lib/finance";
 import { useCategories } from "@/lib/queries";
 import {
   useDeleteTransaction,
@@ -472,7 +472,13 @@ function TransactionsPage() {
           onOpenChange={setDialogOpen}
           kind={editing?.transaction_type === "income" ? "income" : "expense"}
           transaction={editing}
+          defaultDate={periodDefaultDate(period.year, period.month)}
+          onSaved={(savedDate) => {
+            const [y, m] = savedDate.split("-").map(Number);
+            if (y && m && (y !== period.year || m !== period.month)) setPeriod({ year: y, month: m });
+          }}
         />
+
       ) : null}
 
       <TransactionDetailsDialog

@@ -272,6 +272,9 @@ export function FuelDialog({
               onChange={(event) => setDate(event.target.value)}
               className="mt-1.5"
             />
+            <p className="mt-1.5 text-xs text-muted-foreground">
+              Aceita abastecimentos de dias e meses anteriores.
+            </p>
             {errors.date ? <p className="mt-1 text-xs text-destructive">{errors.date}</p> : null}
           </div>
 

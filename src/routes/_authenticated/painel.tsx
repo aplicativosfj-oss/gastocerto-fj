@@ -34,7 +34,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatCurrency } from "@/lib/format";
-import { MONTH_NAMES, isoDate, monthRange } from "@/lib/finance";
+import { MONTH_NAMES, isoDate, monthRange, periodDefaultDate } from "@/lib/finance";
 import { useCategories, useProfile } from "@/lib/queries";
 import { useBudgets, useTransactions } from "@/lib/transactions";
 
@@ -465,7 +465,16 @@ function DashboardPage() {
         )}
       </div>
 
-      <TransactionDialog open={dialogOpen} onOpenChange={setDialogOpen} kind="expense" />
+      <TransactionDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        kind="expense"
+        defaultDate={periodDefaultDate(period.year, period.month)}
+        onSaved={(savedDate) => {
+          const [y, m] = savedDate.split("-").map(Number);
+          if (y && m && (y !== period.year || m !== period.month)) setPeriod({ year: y, month: m });
+        }}
+      />
     </AppShell>
   );
 }

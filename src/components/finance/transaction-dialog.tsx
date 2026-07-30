@@ -33,6 +33,7 @@ import {
   parseAmount,
   toCents,
 } from "@/lib/finance";
+import { formatDate } from "@/lib/format";
 import { useCategories } from "@/lib/queries";
 import {
   useAccounts,
@@ -50,11 +51,16 @@ export function TransactionDialog({
   onOpenChange,
   kind = "expense",
   transaction,
+  defaultDate,
+  onSaved,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   kind?: Kind;
   transaction?: Transaction | null;
+  /** Data inicial sugerida (permite lançar em meses anteriores). */
+  defaultDate?: string;
+  onSaved?: (date: string) => void;
 }) {
   const editing = Boolean(transaction);
   const { data: categories } = useCategories();
@@ -76,7 +82,9 @@ export function TransactionDialog({
     transaction ? String(transaction.amount).replace(".", ",") : "",
   );
   const [categoryId, setCategoryId] = useState(transaction?.category_id ?? "");
-  const [date, setDate] = useState(transaction?.transaction_date ?? isoDate(new Date()));
+  const [date, setDate] = useState(
+    transaction?.transaction_date ?? defaultDate ?? isoDate(new Date()),
+  );
   const [time, setTime] = useState(transaction?.transaction_time ?? "");
   const [paymentMethod, setPaymentMethod] = useState(transaction?.payment_method ?? "pix");
   const [expenseType, setExpenseType] = useState(transaction?.expense_type ?? "variavel");
@@ -93,12 +101,23 @@ export function TransactionDialog({
   const [dueDate, setDueDate] = useState(transaction?.due_date ?? "");
   const [attachment, setAttachment] = useState<string | null>(transaction?.attachment_url ?? null);
 
+  const isPastMonth = date.slice(0, 7) < isoDate(new Date()).slice(0, 7);
+
+  function shiftDate(kindOfShift: "today" | "yesterday" | "lastMonth") {
+    const base = new Date();
+    if (kindOfShift === "yesterday") base.setDate(base.getDate() - 1);
+    if (kindOfShift === "lastMonth") base.setMonth(base.getMonth() - 1);
+    setDate(isoDate(base));
+  }
+
+
+
 
   function reset() {
     setDescription("");
     setAmount("");
     setCategoryId("");
-    setDate(isoDate(new Date()));
+    setDate(defaultDate ?? isoDate(new Date()));
     setTime("");
     setMerchant("");
     setNotes("");
@@ -158,11 +177,15 @@ export function TransactionDialog({
         },
       });
 
+      const savedDate = date;
       onOpenChange(false);
       reset();
+      onSaved?.(savedDate);
 
       if (editing) {
-        toast.success("Lançamento atualizado.");
+        toast.success("Lançamento atualizado.", {
+          description: isPastMonth ? `Registrado em ${formatDate(savedDate)}.` : undefined,
+        });
         return;
       }
 
@@ -254,8 +277,35 @@ export function TransactionDialog({
                 onChange={(event) => setDate(event.target.value)}
                 className="mt-1.5"
               />
+              <div className="mt-2 flex flex-wrap gap-2">
+                <Button type="button" variant="outline" size="sm" onClick={() => shiftDate("today")}>
+                  Hoje
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => shiftDate("yesterday")}
+                >
+                  Ontem
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => shiftDate("lastMonth")}
+                >
+                  Mês passado
+                </Button>
+              </div>
+              <p className="mt-1.5 text-xs text-muted-foreground">
+                {isPastMonth
+                  ? `Lançamento retroativo: será contabilizado em ${formatDate(date)}.`
+                  : "Você pode registrar gastos de dias ou meses anteriores."}
+              </p>
               {errors.date ? <p className="mt-1 text-xs text-destructive">{errors.date}</p> : null}
             </div>
+
 
             <div>
               <Label>Categoria</Label>
