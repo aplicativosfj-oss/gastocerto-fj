@@ -35,14 +35,8 @@ function LandingPage() {
       <main>
         <Hero />
         <SectionHub />
-        <ShowcaseCarousel />
-        <Features />
-        <HowItWorks />
-        <Benefits />
+        <CompactOverview />
         <Pricing />
-        <Testimonials />
-        <Security />
-        <Faq />
         <CtaBanner />
       </main>
       <LandingFooter />
