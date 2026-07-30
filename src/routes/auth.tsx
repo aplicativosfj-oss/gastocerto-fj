@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
 
+import authSide from "@/assets/auth-side.jpg";
 import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -61,45 +62,83 @@ function AuthPage() {
   }, [loading, session, navigate]);
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-secondary/30 px-4 py-12">
-      <div className="w-full max-w-md">
-        <div className="mb-8 flex justify-center">
-          <Link to="/">
-            <Logo />
-          </Link>
+    <main className="grid min-h-dvh lg:grid-cols-[1.05fr_minmax(0,26rem)]">
+      <section className="relative isolate hidden overflow-hidden bg-[oklch(0.16_0.03_258)] text-white lg:flex lg:flex-col lg:justify-between lg:p-8">
+        <img
+          src={authSide}
+          alt=""
+          aria-hidden="true"
+          width={1024}
+          height={1280}
+          decoding="async"
+          className="absolute inset-0 -z-20 size-full object-cover opacity-70"
+        />
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 -z-10 bg-[linear-gradient(160deg,oklch(0.16_0.03_258/0.92)_10%,oklch(0.16_0.03_258/0.6)_60%,oklch(0.16_0.03_258/0.9)_100%)]"
+        />
+        <Link to="/" className="inline-flex w-fit rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70">
+          <Logo onDark />
+        </Link>
+        <div className="max-w-sm">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/70">
+            Seu dinheiro, sob controle
+          </p>
+          <h2 className="font-display mt-2 text-3xl font-extrabold leading-tight tracking-[-0.02em]">
+            Cada abastecimento, conta e gasto no mesmo lugar.
+          </h2>
+          <p className="mt-2 text-sm leading-relaxed text-white/75">
+            Entre com CPF e senha de 6 dígitos. Sem cartão de crédito, sem burocracia.
+          </p>
+          <ul className="mt-4 grid gap-1.5 text-[13px] text-white/80">
+            <li>• Painel mensal com gastos por categoria</li>
+            <li>• Combustível com custo por km automático</li>
+            <li>• Alertas de vencimento e orçamento</li>
+          </ul>
         </div>
+        <p className="text-[11px] text-white/60">Dev. Franc D&apos;nis · Feijó-AC</p>
+      </section>
 
-        <div className="rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-8">
-          {mode === "forgot" ? (
-            <ForgotPasswordForm onBack={() => setMode("login")} />
-          ) : mode === "admin" ? (
-            <AdminSignInForm onBack={() => setMode("login")} />
-          ) : (
-            <Tabs value={mode} onValueChange={(value) => setMode(value as Mode)}>
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="login">Entrar</TabsTrigger>
-                <TabsTrigger value="signup">Criar conta</TabsTrigger>
-              </TabsList>
+      <section className="relative flex items-center justify-center bg-secondary/30 px-4 py-8">
+        <div className="w-full max-w-sm">
+          <div className="mb-5 flex justify-center lg:hidden">
+            <Link to="/">
+              <Logo />
+            </Link>
+          </div>
 
-              <TabsContent value="login" className="mt-6">
-                <CpfSignInForm
-                  onForgot={() => setMode("forgot")}
-                  onAdmin={() => setMode("admin")}
-                />
-              </TabsContent>
-              <TabsContent value="signup" className="mt-6">
-                <CpfSignUpForm onDone={() => setMode("login")} />
-              </TabsContent>
-            </Tabs>
-          )}
+          <div className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6">
+            {mode === "forgot" ? (
+              <ForgotPasswordForm onBack={() => setMode("login")} />
+            ) : mode === "admin" ? (
+              <AdminSignInForm onBack={() => setMode("login")} />
+            ) : (
+              <Tabs value={mode} onValueChange={(value) => setMode(value as Mode)}>
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="login">Entrar</TabsTrigger>
+                  <TabsTrigger value="signup">Criar conta</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="login" className="mt-5">
+                  <CpfSignInForm
+                    onForgot={() => setMode("forgot")}
+                    onAdmin={() => setMode("admin")}
+                  />
+                </TabsContent>
+                <TabsContent value="signup" className="mt-5">
+                  <CpfSignUpForm onDone={() => setMode("login")} />
+                </TabsContent>
+              </Tabs>
+            )}
+          </div>
+
+          <p className="mt-4 text-center text-xs text-muted-foreground">
+            <Link to="/" className="hover:text-foreground">
+              Voltar para a página inicial
+            </Link>
+          </p>
         </div>
-
-        <p className="mt-6 text-center text-xs text-muted-foreground">
-          <Link to="/" className="hover:text-foreground">
-            Voltar para a página inicial
-          </Link>
-        </p>
-      </div>
+      </section>
     </main>
   );
 }
