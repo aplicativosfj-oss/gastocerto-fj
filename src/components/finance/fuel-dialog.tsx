@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, TriangleAlert } from "lucide-react";
 import { toast } from "sonner";
 
 import { ReceiptField } from "@/components/finance/receipt-field";
