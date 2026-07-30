@@ -87,7 +87,7 @@ export function DemoDialog({
 
           <TabsContent value="imediato" className="mt-4 space-y-4">
             <div className="overflow-hidden rounded-xl border border-border bg-card p-2 shadow-soft">
-              <div className="origin-top scale-[0.78] sm:scale-90">
+              <div className="h-[420px] origin-top scale-[0.78] sm:h-[500px] sm:scale-90">
                 <DashboardPreview />
               </div>
             </div>
