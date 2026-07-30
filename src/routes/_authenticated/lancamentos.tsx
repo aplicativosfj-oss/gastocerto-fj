@@ -87,6 +87,8 @@ function TransactionsPage() {
   const [editing, setEditing] = useState<Transaction | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [details, setDetails] = useState<Transaction | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<string[] | null>(null);
+
 
 
   const categoryNames = useMemo(
