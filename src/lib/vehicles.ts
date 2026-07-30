@@ -357,3 +357,37 @@ export function summarizeFuel(entries: FuelEntry[]): FuelSummary {
     worst: sorted.length > 1 ? sorted[sorted.length - 1] : null,
   };
 }
+
+export type VehicleFuelStats = {
+  vehicle: Vehicle;
+  summary: FuelSummary;
+  /** Meta de consumo (média cadastrada ou média histórica do próprio veículo). */
+  target: number | null;
+  /** Consumo abaixo da meta em mais de 10%. */
+  alert: boolean;
+  /** Variação percentual em relação à meta. */
+  deviation: number | null;
+};
+
+/** Agrupa os abastecimentos filtrados por veículo e calcula alertas de consumo. */
+export function statsByVehicle(
+  vehicles: Vehicle[],
+  entries: FuelEntry[],
+): VehicleFuelStats[] {
+  return vehicles.map((vehicle) => {
+    const own = entries.filter((entry) => entry.vehicle_id === vehicle.id);
+    const summary = summarizeFuel(own);
+    const target = Number(vehicle.average_consumption ?? 0) || null;
+    const deviation =
+      target && summary.averageConsumption
+        ? round(((summary.averageConsumption - target) / target) * 100, 1)
+        : null;
+    return {
+      vehicle,
+      summary,
+      target,
+      deviation,
+      alert: deviation != null && deviation <= -10,
+    };
+  });
+}
