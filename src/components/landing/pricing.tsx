@@ -1,8 +1,8 @@
+import { Link } from "@tanstack/react-router";
 import { Check, Sparkles } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -11,14 +11,14 @@ const plans = [
     slug: "free",
     name: "Gratuito",
     price: 0,
-    description: "Para começar a organizar suas despesas hoje mesmo.",
+    description: "Para começar a organizar hoje mesmo.",
     highlighted: false,
-    cta: "Começar gratuitamente",
+    cta: "Criar conta grátis",
+    mode: "signup" as const,
     features: [
-      "Registro de despesas",
-      "Dashboard mensal",
-      "Categorias básicas",
-      "Um veículo",
+      "Registro de despesas e receitas",
+      "Painel mensal completo",
+      "Categorias e 1 veículo",
       "Relatórios simplificados",
     ],
   },
@@ -26,18 +26,15 @@ const plans = [
     slug: "premium",
     name: "Premium",
     price: 19.9,
-    description: "Para quem quer controle completo, previsões e relatórios avançados.",
+    description: "Controle total, previsões e relatórios.",
     highlighted: true,
-    cta: "Quero o Premium",
+    cta: "Assinar o Premium",
+    mode: "signup" as const,
     features: [
-      "Lançamentos ilimitados",
-      "Veículos ilimitados",
-      "Metas financeiras",
-      "Relatórios avançados",
-      "Exportação em PDF e CSV",
-      "Alertas personalizados",
-      "Histórico completo",
-      "Comparações anuais",
+      "Lançamentos e veículos ilimitados",
+      "Orçamentos, metas e alertas",
+      "Combustível com custo por km",
+      "Exportação em CSV e PDF",
     ],
   },
 ];
@@ -46,56 +43,68 @@ export function Pricing() {
   return (
     <section id="planos" className="py-12 sm:py-14">
       <div className="section-shell">
-        <div className="mx-auto max-w-2xl text-center">
-          <p className="text-sm font-semibold text-brand">Planos</p>
-          <h2 className="mt-2 font-display text-[1.75rem] font-bold tracking-[-0.025em] sm:text-4xl">
+        <div className="mx-auto max-w-xl text-center">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-brand">
+            Planos
+          </p>
+          <h2 className="font-display mt-1.5 text-2xl font-bold tracking-[-0.025em] sm:text-3xl">
             Comece de graça e evolua quando fizer sentido
           </h2>
-          <p className="mt-4 text-muted-foreground">
-            Sem pegadinhas. Você pode exportar ou excluir seus dados a qualquer momento.
+          <p className="mt-2 text-sm text-muted-foreground">
+            Sem fidelidade. Exporte ou exclua seus dados quando quiser.
           </p>
         </div>
 
-        <div className="mx-auto mt-9 grid max-w-4xl gap-6 md:grid-cols-2">
+        <div className="mx-auto mt-7 grid max-w-3xl gap-4 md:grid-cols-2">
           {plans.map((plan) => (
-            <Card
+            <div
               key={plan.slug}
               className={cn(
-                "relative flex flex-col border-border bg-card shadow-soft transition-all duration-300 hover:shadow-lifted",
+                "relative flex flex-col rounded-2xl border border-border bg-card/80 p-5 shadow-soft backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:shadow-lifted",
                 plan.highlighted && "border-brand/50 ring-1 ring-brand/30",
               )}
             >
               {plan.highlighted && (
-                <Badge className="absolute -top-3 left-6 gap-1 bg-brand text-brand-foreground">
+                <Badge className="absolute -top-2.5 right-5 gap-1 bg-brand text-brand-foreground">
                   <Sparkles className="size-3" aria-hidden="true" /> Mais completo
                 </Badge>
               )}
-              <CardHeader>
-                <CardTitle className="text-xl">{plan.name}</CardTitle>
-                <CardDescription>{plan.description}</CardDescription>
-                <p className="tabular mt-4 text-3xl font-extrabold tracking-tight">
-                  {plan.price === 0 ? "R$ 0,00" : formatCurrency(plan.price)}
-                  <span className="ml-1 text-sm font-medium text-muted-foreground">/mês</span>
+
+              <div className="flex items-baseline justify-between gap-3">
+                <h3 className="text-base font-semibold">{plan.name}</h3>
+                <p className="tabular text-2xl font-extrabold tracking-tight">
+                  {plan.price === 0 ? "R$ 0" : formatCurrency(plan.price)}
+                  <span className="ml-1 text-xs font-medium text-muted-foreground">/mês</span>
                 </p>
-              </CardHeader>
-              <CardContent className="flex flex-1 flex-col">
-                <ul className="flex-1 space-y-3">
-                  {plan.features.map((feature) => (
-                    <li key={feature} className="flex items-start gap-2 text-sm">
-                      <Check className="mt-0.5 size-4 shrink-0 text-success" aria-hidden="true" />
-                      <span>{feature}</span>
-                    </li>
-                  ))}
-                </ul>
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground">{plan.description}</p>
+
+              <ul className="mt-4 flex-1 space-y-2">
+                {plan.features.map((feature) => (
+                  <li key={feature} className="flex items-start gap-2 text-sm">
+                    <Check className="mt-0.5 size-4 shrink-0 text-success" aria-hidden="true" />
+                    <span className="text-muted-foreground">{feature}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <div className="mt-5 flex flex-col gap-2 sm:flex-row">
                 <Button
-                  className="mt-8 w-full"
+                  className="sm:flex-1"
                   variant={plan.highlighted ? "default" : "outline"}
                   asChild
                 >
-                  <a href="#inicio">{plan.cta}</a>
+                  <Link to="/auth" search={{ mode: plan.mode }}>
+                    {plan.cta}
+                  </Link>
                 </Button>
-              </CardContent>
-            </Card>
+                <Button variant="ghost" className="sm:w-auto" asChild>
+                  <Link to="/auth" search={{ mode: "login" }}>
+                    Entrar
+                  </Link>
+                </Button>
+              </div>
+            </div>
           ))}
         </div>
       </div>

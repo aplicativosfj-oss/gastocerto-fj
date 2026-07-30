@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { cn } from "@/lib/utils";
+import { handleAnchorClick } from "@/lib/scroll";
 
 const navItems = [
   { label: "Início", href: "#inicio" },
@@ -41,7 +42,12 @@ export function LandingHeader() {
       )}
     >
       <div className="section-shell flex h-16 items-center justify-between gap-4">
-        <a href="#inicio" className="rounded-md" aria-label="GastoCerto — início">
+        <a
+          href="#inicio"
+          onClick={(event) => handleAnchorClick(event, "#inicio")}
+          className="rounded-md"
+          aria-label="GastoCerto — início"
+        >
           <Logo />
         </a>
 
@@ -50,6 +56,7 @@ export function LandingHeader() {
             <a
               key={item.href}
               href={item.href}
+              onClick={(event) => handleAnchorClick(event, item.href)}
               className={cn(
                 "rounded-md px-3 py-2 text-sm font-medium transition-colors",
                 scrolled
@@ -94,7 +101,7 @@ export function LandingHeader() {
               <a
                 key={item.href}
                 href={item.href}
-                onClick={() => setOpen(false)}
+                onClick={(event) => handleAnchorClick(event, item.href, () => setOpen(false))}
                 className="rounded-md px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
               >
                 {item.label}
@@ -105,7 +112,12 @@ export function LandingHeader() {
                 <Link to="/auth" search={{ mode: "login" }}>Entrar</Link>
               </Button>
               <Button className="flex-1" asChild>
-                <a href="#planos">Começar</a>
+                <a
+                  href="#planos"
+                  onClick={(event) => handleAnchorClick(event, "#planos", () => setOpen(false))}
+                >
+                  Começar
+                </a>
               </Button>
               <ThemeToggle />
             </div>
