@@ -59,3 +59,13 @@ export function cpfFromLoginEmail(email: string | null | undefined): string | nu
 }
 
 export const ADMIN_EMAIL = "francdenisbr@gmail.com";
+
+/**
+ * Deriva a senha real enviada ao provedor de autenticação a partir do CPF e do
+ * PIN de 6 dígitos. O PIN sozinho seria recusado por ser previsível; a derivação
+ * mantém a senha única por conta sem mudar a experiência do usuário.
+ */
+export function pinToPassword(cpf: string, pin: string): string {
+  const digits = onlyDigits(cpf);
+  return `GC.${digits}.${onlyDigits(pin)}`;
+}

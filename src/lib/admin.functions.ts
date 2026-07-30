@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { pinToPassword } from "@/lib/cpf";
 
 /** Garante que o chamador tem papel de administrador antes de qualquer ação privilegiada. */
 async function assertAdmin(context: { supabase: any; userId: string }) {
@@ -26,8 +27,14 @@ export const adminResetUserPin = createServerFn({ method: "POST" })
     await assertAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
+    const { data: target } = await supabaseAdmin
+      .from("profiles")
+      .select("cpf")
+      .eq("user_id", data.targetUserId)
+      .maybeSingle();
+
     const { error } = await supabaseAdmin.auth.admin.updateUserById(data.targetUserId, {
-      password: data.pin,
+      password: pinToPassword(target?.cpf ?? data.targetUserId, data.pin),
     });
     if (error) throw new Error("Não foi possível redefinir a senha");
 

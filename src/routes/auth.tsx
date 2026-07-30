@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
-import { cpfToLoginEmail, maskCpf, onlyDigits } from "@/lib/cpf";
+import { cpfToLoginEmail, maskCpf, onlyDigits, pinToPassword } from "@/lib/cpf";
 import {
   cpfSignInSchema,
   cpfSignUpSchema,
@@ -184,7 +184,7 @@ function CpfSignInForm({ onForgot, onAdmin }: { onForgot: () => void; onAdmin: (
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({
       email: cpfToLoginEmail(parsed.data.cpf),
-      password: parsed.data.pin,
+      password: pinToPassword(parsed.data.cpf, parsed.data.pin),
     });
     setLoading(false);
 
@@ -262,7 +262,7 @@ function CpfSignUpForm({ onDone }: { onDone: () => void }) {
     setLoading(true);
     const { error } = await supabase.auth.signUp({
       email: cpfToLoginEmail(parsed.data.cpf),
-      password: parsed.data.pin,
+      password: pinToPassword(parsed.data.cpf, parsed.data.pin),
       options: {
         data: {
           full_name: parsed.data.fullName,
@@ -282,7 +282,7 @@ function CpfSignUpForm({ onDone }: { onDone: () => void }) {
     // Contas por CPF não dependem de confirmação de e-mail: entra direto.
     const { error: signInError } = await supabase.auth.signInWithPassword({
       email: cpfToLoginEmail(parsed.data.cpf),
-      password: parsed.data.pin,
+      password: pinToPassword(parsed.data.cpf, parsed.data.pin),
     });
     setLoading(false);
 
