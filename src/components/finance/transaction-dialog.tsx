@@ -1,8 +1,8 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
-import { CategoryPicker } from "@/components/finance/category-picker";
+import { CategoryPicker, readRecentCategories } from "@/components/finance/category-picker";
 import { ReceiptField } from "@/components/finance/receipt-field";
 
 import { Button } from "@/components/ui/button";
@@ -41,6 +41,7 @@ import { useCategories } from "@/lib/queries";
 import {
   useAccounts,
   useDeleteTransaction,
+  useLastTransaction,
   useRestoreTransaction,
   useSaveTransaction,
   type Transaction,
