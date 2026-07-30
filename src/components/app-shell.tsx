@@ -17,6 +17,7 @@ import { useState, type ReactNode } from "react";
 
 import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { ContrastToggle } from "@/components/contrast-toggle";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -167,6 +168,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 ) : null}
               </Link>
               <ThemeToggle />
+              <ContrastToggle />
               <Link to="/perfil" aria-label="Meu perfil">
                 <Avatar className="size-8">
                   {avatarUrl ? <AvatarImage src={avatarUrl} alt="Foto de perfil" /> : null}
