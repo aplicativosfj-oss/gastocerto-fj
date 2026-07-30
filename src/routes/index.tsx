@@ -1,23 +1,45 @@
 import { createFileRoute } from "@tanstack/react-router";
 
+import { Faq } from "@/components/landing/faq";
+import { Features } from "@/components/landing/features";
+import { Hero } from "@/components/landing/hero";
+import { HowItWorks } from "@/components/landing/how-it-works";
+import { LandingFooter } from "@/components/landing/landing-footer";
+import { LandingHeader } from "@/components/landing/landing-header";
+import { Pricing } from "@/components/landing/pricing";
+import { Security } from "@/components/landing/security";
+
+const title = "GastoCerto — Controle total dos seus gastos";
+const description =
+  "Registre despesas, combustível, gás, contas recorrentes e orçamentos. Acompanhe seus hábitos e descubra para onde seu dinheiro está indo.";
+
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Controlaê" },
-      { name: "description", content: "Controlaê — página inicial." },
-      { property: "og:title", content: "Controlaê" },
-      { property: "og:description", content: "Controlaê — página inicial." },
+      { title },
+      { name: "description", content: description },
+      { property: "og:title", content: title },
+      { property: "og:description", content: description },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: Index,
+  component: LandingPage,
 });
 
-function Index() {
+function LandingPage() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-background px-6">
-      <h1 className="text-4xl font-semibold tracking-tight text-foreground">Controlaê</h1>
-    </main>
+    <div className="min-h-screen bg-background">
+      <LandingHeader />
+      <main>
+        <Hero />
+        <Features />
+        <HowItWorks />
+        <Pricing />
+        <Security />
+        <Faq />
+      </main>
+      <LandingFooter />
+    </div>
   );
 }
