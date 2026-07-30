@@ -23,7 +23,7 @@ export function Hero() {
   return (
     <section
       id="inicio"
-      className="relative isolate flex min-h-[42svh] sm:min-h-[52svh] max-h-[620px] items-center overflow-hidden bg-[oklch(0.16_0.03_258)] pt-16 pb-5 sm:pt-20 sm:pb-7 lg:pt-24 text-white"
+      className="relative isolate flex min-h-[40svh] sm:min-h-[46svh] max-h-[540px] items-center overflow-hidden bg-[oklch(0.16_0.03_258)] pt-16 pb-5 sm:pt-20 sm:pb-7 lg:pt-24 text-white"
     >
       <img
         src={heroBg}
@@ -110,13 +110,13 @@ export function Hero() {
             aria-hidden="true"
             className="absolute -inset-6 rounded-[2rem] bg-brand/20 blur-3xl"
           />
-          <div className="relative origin-top scale-[0.64] text-foreground -mb-[26%] xl:-mb-[20%] xl:scale-[0.7]">
+          <div className="relative origin-top scale-[0.56] text-foreground -mb-[36%] xl:-mb-[31%] xl:scale-[0.62]">
             <Suspense fallback={<div className="h-[420px] rounded-2xl bg-white/5" />}>
               <DashboardPreview />
             </Suspense>
           </div>
 
-          <div className="absolute -left-16 bottom-6 w-48 rounded-2xl border border-white/15 bg-[oklch(0.2_0.03_258/0.85)] p-3 shadow-lifted backdrop-blur-md">
+          <div className="absolute -left-10 bottom-2 w-44 rounded-2xl border border-white/15 bg-[oklch(0.2_0.03_258/0.85)] p-3 shadow-lifted backdrop-blur-md">
             <div className="flex items-center justify-between text-[11px] text-white/75">
               <span className="inline-flex items-center gap-1.5 font-medium text-white/80">
                 <TrendingDown className="size-3.5 text-success" aria-hidden="true" />
@@ -127,7 +127,7 @@ export function Hero() {
             <Sparkline className="mt-2 h-12 w-full text-success" />
           </div>
 
-          <div className="absolute -right-10 -top-6 flex w-44 items-center gap-3 rounded-2xl border border-white/15 bg-[oklch(0.2_0.03_258/0.85)] p-3 shadow-lifted backdrop-blur-md">
+          <div className="absolute -right-6 top-4 flex w-40 items-center gap-3 rounded-2xl border border-white/15 bg-[oklch(0.2_0.03_258/0.85)] p-3 shadow-lifted backdrop-blur-md">
             <RingChart className="size-12 shrink-0 text-brand" value={68} />
             <div className="min-w-0">
               <p className="text-[11px] text-white/75">Orçamento</p>
@@ -135,7 +135,7 @@ export function Hero() {
             </div>
           </div>
 
-          <div className="absolute -bottom-8 right-6 inline-flex items-center gap-2 rounded-full border border-white/15 bg-[oklch(0.2_0.03_258/0.85)] px-3 py-1.5 text-[11px] font-medium text-white/80 shadow-lifted backdrop-blur-md">
+          <div className="absolute -bottom-2 right-4 inline-flex items-center gap-2 rounded-full border border-white/15 bg-[oklch(0.2_0.03_258/0.85)] px-3 py-1.5 text-[11px] font-medium text-white/80 shadow-lifted backdrop-blur-md">
             <Wallet className="size-3.5 text-brand" aria-hidden="true" />
             Atualiza sozinho, todo dia
           </div>
