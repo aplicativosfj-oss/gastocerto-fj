@@ -152,7 +152,9 @@ export function TransactionDialog({
           total_installments: total && total > 1 ? total : null,
           installment_number: total && total > 1 ? 1 : null,
           due_date: dueDate || null,
+          attachment_url: attachment,
           status: status as Transaction["status"],
+
         },
       });
 
