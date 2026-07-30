@@ -8,6 +8,7 @@ import {
   Wallet,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { useState } from "react";
 import {
   Area,
   AreaChart,
@@ -23,6 +24,7 @@ import {
   YAxis,
 } from "recharts";
 
+import { DemoOnboarding, type DemoTab } from "@/components/demo/demo-onboarding";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -155,6 +157,8 @@ const tooltipStyle = {
 } as const;
 
 export function DemoDashboard() {
+  const [tab, setTab] = useState<DemoTab>("visao");
+
   return (
     <div className="rounded-2xl border border-border bg-secondary/30 p-3 shadow-soft sm:p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -167,7 +171,11 @@ export function DemoDashboard() {
         </Badge>
       </div>
 
-      <Tabs defaultValue="visao" className="mt-4">
+      <div className="mt-4">
+        <DemoOnboarding onSelectTab={setTab} />
+      </div>
+
+      <Tabs value={tab} onValueChange={(value) => setTab(value as DemoTab)} className="mt-4">
         <TabsList className="flex w-full flex-wrap justify-start gap-1">
           <TabsTrigger value="visao">Visão geral</TabsTrigger>
           <TabsTrigger value="lancamentos">Lançamentos</TabsTrigger>
