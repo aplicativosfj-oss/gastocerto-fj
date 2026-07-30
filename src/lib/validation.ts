@@ -156,9 +156,9 @@ export function validateAvatarFile(file: File): string | null {
 /** Mensagens de erro amigáveis, sem vazar detalhes internos. */
 export function friendlyAuthError(message?: string): string {
   const raw = (message ?? "").toLowerCase();
-  if (raw.includes("invalid login credentials")) return "E-mail ou senha incorretos.";
+  if (raw.includes("invalid login credentials")) return "CPF/e-mail ou senha incorretos.";
   if (raw.includes("email not confirmed")) return "Confirme seu e-mail antes de entrar.";
-  if (raw.includes("user already registered")) return "Já existe uma conta com este e-mail.";
+  if (raw.includes("user already registered")) return "Já existe uma conta com este CPF ou e-mail.";
   if (raw.includes("pwned") || raw.includes("compromised"))
     return "Esta senha já apareceu em vazamentos. Escolha outra.";
   if (raw.includes("rate limit") || raw.includes("too many"))
