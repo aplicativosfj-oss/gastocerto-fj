@@ -367,13 +367,13 @@ function ReportsPage() {
               <div className="mt-4 h-64">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={byMonth}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.3} />
-                    <XAxis dataKey="month" fontSize={11} />
-                    <YAxis fontSize={11} width={70} />
-                    <Tooltip formatter={(value: number) => formatCurrency(value)} />
-                    <Legend />
-                    <Bar dataKey="receitas" fill="#10b981" radius={[4, 4, 0, 0]} />
-                    <Bar dataKey="despesas" fill="#ef4444" radius={[4, 4, 0, 0]} />
+                    <CartesianGrid {...gridProps} />
+                    <XAxis dataKey="month" {...axisProps} />
+                    <YAxis {...axisProps} width={70} />
+                    <Tooltip {...tooltipProps} formatter={(value: number) => formatCurrency(value)} />
+                    <Legend {...legendProps} />
+                    <Bar dataKey="receitas" name="Receitas" fill={CHART_TOKENS.income} radius={barRadius} />
+                    <Bar dataKey="despesas" name="Despesas" fill={CHART_TOKENS.expense} radius={barRadius} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -393,11 +393,11 @@ function ReportsPage() {
                       paddingAngle={2}
                     >
                       {byCategory.slice(0, 8).map((entry, index) => (
-                        <Cell key={entry.name} fill={CHART_COLORS[index % CHART_COLORS.length]} />
+                        <Cell key={entry.name} fill={seriesColor(index)} stroke="var(--card)" strokeWidth={2} />
                       ))}
                     </Pie>
-                    <Tooltip formatter={(value: number) => formatCurrency(value)} />
-                    <Legend />
+                    <Tooltip {...tooltipProps} formatter={(value: number) => formatCurrency(value)} />
+                    <Legend {...legendProps} />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
