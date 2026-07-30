@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
-import type { Tables } from "@/integrations/supabase/types";
+import type { Json, Tables } from "@/integrations/supabase/types";
 
 export type FuelAuditEntry = Tables<"fuel_audit_log">;
 
@@ -66,7 +66,7 @@ export function useLogFuelAudit() {
           null,
         odometer_before: input.odometerBefore ?? null,
         odometer_after: input.odometerAfter ?? null,
-        changes: input.changes ?? {},
+        changes: (input.changes ?? {}) as unknown as Json,
         warnings: input.warnings ?? [],
         notes: input.notes ?? null,
       });
