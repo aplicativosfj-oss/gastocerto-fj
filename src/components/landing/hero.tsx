@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, PlayCircle, ShieldCheck, TrendingDown, Wallet } from "lucide-react";
+import { ArrowRight, ChevronDown, PlayCircle, ShieldCheck, TrendingDown, Wallet } from "lucide-react";
 
 import heroBg from "@/assets/hero-workspace.jpg";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,7 @@ import { DashboardPreview } from "@/components/landing/dashboard-preview";
 import { DemoDialog } from "@/components/landing/demo-dialog";
 import { GridPattern, RingChart, Sparkline } from "@/components/landing/decor";
 import { formatCurrency } from "@/lib/format";
+import { handleAnchorClick } from "@/lib/scroll";
 
 const stats = [
   { label: "Gasto do mês", value: formatCurrency(3782.45), hint: "-8,2% vs. junho" },
@@ -71,6 +72,14 @@ export function Hero() {
                 Ver demonstração
               </Button>
             </DemoDialog>
+            <a
+              href="#explorar"
+              onClick={(event) => handleAnchorClick(event, "#explorar")}
+              className="inline-flex items-center justify-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium text-white/75 transition-colors hover:text-white"
+            >
+              Explorar seções
+              <ChevronDown className="size-4" aria-hidden="true" />
+            </a>
           </div>
 
           <dl className="mt-8 grid grid-cols-3 gap-3 border-t border-white/10 pt-5">
