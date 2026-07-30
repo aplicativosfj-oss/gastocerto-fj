@@ -279,8 +279,35 @@ export function TransactionDialog({
                 onChange={(event) => setDate(event.target.value)}
                 className="mt-1.5"
               />
+              <div className="mt-2 flex flex-wrap gap-2">
+                <Button type="button" variant="outline" size="sm" onClick={() => shiftDate("today")}>
+                  Hoje
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => shiftDate("yesterday")}
+                >
+                  Ontem
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => shiftDate("lastMonth")}
+                >
+                  Mês passado
+                </Button>
+              </div>
+              <p className="mt-1.5 text-xs text-muted-foreground">
+                {isPastMonth
+                  ? `Lançamento retroativo: será contabilizado em ${formatDate(date)}.`
+                  : "Você pode registrar gastos de dias ou meses anteriores."}
+              </p>
               {errors.date ? <p className="mt-1 text-xs text-destructive">{errors.date}</p> : null}
             </div>
+
 
             <div>
               <Label>Categoria</Label>
