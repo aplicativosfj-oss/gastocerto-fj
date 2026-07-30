@@ -51,13 +51,13 @@ export function Pricing() {
   const isYearly = cycle === "yearly";
 
   return (
-    <section id="planos" className="py-9 sm:py-11">
+    <section id="planos" className="py-7 sm:py-10">
       <div className="section-shell">
         <div className="mx-auto max-w-xl text-center">
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-brand">
             Planos
           </p>
-          <h2 className="font-display mt-1.5 text-2xl font-bold tracking-[-0.025em] sm:text-3xl">
+          <h2 className="font-display mt-1.5 text-[1.5rem] font-bold tracking-[-0.025em] sm:text-[1.75rem] lg:text-3xl">
             Comece de graça e evolua quando fizer sentido
           </h2>
           <p className="mt-2 text-sm text-muted-foreground">

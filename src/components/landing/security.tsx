@@ -53,11 +53,11 @@ const extras = [
 
 export function Security() {
   return (
-    <section id="seguranca" className="border-y border-border bg-secondary/40 py-9 sm:py-11">
+    <section id="seguranca" className="border-y border-border bg-secondary/40 py-7 sm:py-10">
       <div className="section-shell">
         <div className="max-w-2xl">
           <p className="text-sm font-semibold text-brand">Segurança e privacidade</p>
-          <h2 className="mt-2 font-display text-[1.75rem] font-bold tracking-[-0.025em] sm:text-4xl">
+          <h2 className="mt-2 font-display text-[1.5rem] font-bold tracking-[-0.025em] sm:text-[2rem] lg:text-4xl">
             Seus dados financeiros são seus — e só seus
           </h2>
           <p className="mt-4 text-muted-foreground">

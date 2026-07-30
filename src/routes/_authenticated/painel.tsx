@@ -33,6 +33,15 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  CHART_TOKENS,
+  axisProps,
+  barRadius,
+  gridProps,
+  legendProps,
+  seriesColor,
+  tooltipProps,
+} from "@/lib/chart-theme";
 import { formatCurrency } from "@/lib/format";
 import { MONTH_NAMES, isoDate, monthRange, periodDefaultDate } from "@/lib/finance";
 import { useCategories, useProfile } from "@/lib/queries";
@@ -153,8 +162,8 @@ function DashboardPage() {
       .filter((row) => row.is_essential)
       .reduce((total, row) => total + Number(row.amount), 0);
     return [
-      { name: "Essenciais", value: essential, color: "#10b981" },
-      { name: "Não essenciais", value: metrics.totalExpense - essential, color: "#f97316" },
+      { name: "Essenciais", value: essential, color: CHART_TOKENS.income },
+      { name: "Não essenciais", value: metrics.totalExpense - essential, color: CHART_TOKENS.warning },
     ];
   }, [metrics.expenses, metrics.totalExpense]);
 
@@ -312,11 +321,11 @@ function DashboardPage() {
               >
                 <ResponsiveContainer width="100%" height={240}>
                   <BarChart data={byDay}>
-                    <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                    <XAxis dataKey="day" fontSize={11} tickLine={false} axisLine={false} />
-                    <YAxis fontSize={11} tickLine={false} axisLine={false} width={40} />
-                    <Tooltip formatter={(value: number) => formatCurrency(value)} />
-                    <Bar dataKey="gasto" name="Gasto" fill="oklch(0.55 0.18 260)" radius={[4, 4, 0, 0]} />
+                    <CartesianGrid {...gridProps} />
+                    <XAxis dataKey="day" {...axisProps} />
+                    <YAxis {...axisProps} width={44} />
+                    <Tooltip {...tooltipProps} formatter={(value: number) => formatCurrency(value)} />
+                    <Bar dataKey="gasto" name="Gasto" fill={CHART_TOKENS.neutral} radius={barRadius} />
                   </BarChart>
                 </ResponsiveContainer>
               </ChartCard>
@@ -332,11 +341,16 @@ function DashboardPage() {
                 <ResponsiveContainer width="100%" height={240}>
                   <PieChart>
                     <Pie data={byCategory} dataKey="value" nameKey="name" innerRadius={55} outerRadius={90}>
-                      {byCategory.map((entry) => (
-                        <Cell key={entry.name} fill={entry.color} />
+                      {byCategory.map((entry, index) => (
+                        <Cell
+                          key={entry.name}
+                          fill={entry.color ?? seriesColor(index)}
+                          stroke="var(--card)"
+                          strokeWidth={2}
+                        />
                       ))}
                     </Pie>
-                    <Tooltip formatter={(value: number) => formatCurrency(value)} />
+                    <Tooltip {...tooltipProps} formatter={(value: number) => formatCurrency(value)} />
                   </PieChart>
                 </ResponsiveContainer>
               </ChartCard>
@@ -347,13 +361,27 @@ function DashboardPage() {
               >
                 <ResponsiveContainer width="100%" height={240}>
                   <LineChart data={byDay}>
-                    <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                    <XAxis dataKey="day" fontSize={11} tickLine={false} axisLine={false} />
-                    <YAxis fontSize={11} tickLine={false} axisLine={false} width={40} />
-                    <Tooltip formatter={(value: number) => formatCurrency(value)} />
-                    <Legend />
-                    <Line type="monotone" dataKey="receita" name="Receitas" stroke="#10b981" dot={false} />
-                    <Line type="monotone" dataKey="gasto" name="Despesas" stroke="#f43f5e" dot={false} />
+                    <CartesianGrid {...gridProps} />
+                    <XAxis dataKey="day" {...axisProps} />
+                    <YAxis {...axisProps} width={44} />
+                    <Tooltip {...tooltipProps} formatter={(value: number) => formatCurrency(value)} />
+                    <Legend {...legendProps} />
+                    <Line
+                      type="monotone"
+                      dataKey="receita"
+                      name="Receitas"
+                      stroke={CHART_TOKENS.income}
+                      strokeWidth={2}
+                      dot={false}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="gasto"
+                      name="Despesas"
+                      stroke={CHART_TOKENS.expense}
+                      strokeWidth={2}
+                      dot={false}
+                    />
                   </LineChart>
                 </ResponsiveContainer>
               </ChartCard>
@@ -370,11 +398,11 @@ function DashboardPage() {
                   <PieChart>
                     <Pie data={essentialSplit} dataKey="value" nameKey="name" outerRadius={90}>
                       {essentialSplit.map((entry) => (
-                        <Cell key={entry.name} fill={entry.color} />
+                        <Cell key={entry.name} fill={entry.color} stroke="var(--card)" strokeWidth={2} />
                       ))}
                     </Pie>
-                    <Tooltip formatter={(value: number) => formatCurrency(value)} />
-                    <Legend />
+                    <Tooltip {...tooltipProps} formatter={(value: number) => formatCurrency(value)} />
+                    <Legend {...legendProps} />
                   </PieChart>
                 </ResponsiveContainer>
               </ChartCard>

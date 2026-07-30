@@ -36,6 +36,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  CHART_TOKENS,
+  axisProps,
+  barRadius,
+  gridProps,
+  legendProps,
+  seriesColor,
+  tooltipProps,
+} from "@/lib/chart-theme";
 import { isoDate, labelFor, MONTH_NAMES, PAYMENT_METHODS } from "@/lib/finance";
 import { formatCurrency, formatDate, formatPercent } from "@/lib/format";
 import { useCategories } from "@/lib/queries";
@@ -60,17 +69,6 @@ export const Route = createFileRoute("/_authenticated/relatorios")({
   }),
   component: ReportsPage,
 });
-
-const CHART_COLORS = [
-  "#10b981",
-  "#3b82f6",
-  "#f59e0b",
-  "#ef4444",
-  "#8b5cf6",
-  "#14b8a6",
-  "#ec4899",
-  "#64748b",
-];
 
 function defaultRange() {
   const now = new Date();
@@ -367,13 +365,13 @@ function ReportsPage() {
               <div className="mt-4 h-64">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={byMonth}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.3} />
-                    <XAxis dataKey="month" fontSize={11} />
-                    <YAxis fontSize={11} width={70} />
-                    <Tooltip formatter={(value: number) => formatCurrency(value)} />
-                    <Legend />
-                    <Bar dataKey="receitas" fill="#10b981" radius={[4, 4, 0, 0]} />
-                    <Bar dataKey="despesas" fill="#ef4444" radius={[4, 4, 0, 0]} />
+                    <CartesianGrid {...gridProps} />
+                    <XAxis dataKey="month" {...axisProps} />
+                    <YAxis {...axisProps} width={70} />
+                    <Tooltip {...tooltipProps} formatter={(value: number) => formatCurrency(value)} />
+                    <Legend {...legendProps} />
+                    <Bar dataKey="receitas" name="Receitas" fill={CHART_TOKENS.income} radius={barRadius} />
+                    <Bar dataKey="despesas" name="Despesas" fill={CHART_TOKENS.expense} radius={barRadius} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -393,11 +391,11 @@ function ReportsPage() {
                       paddingAngle={2}
                     >
                       {byCategory.slice(0, 8).map((entry, index) => (
-                        <Cell key={entry.name} fill={CHART_COLORS[index % CHART_COLORS.length]} />
+                        <Cell key={entry.name} fill={seriesColor(index)} stroke="var(--card)" strokeWidth={2} />
                       ))}
                     </Pie>
-                    <Tooltip formatter={(value: number) => formatCurrency(value)} />
-                    <Legend />
+                    <Tooltip {...tooltipProps} formatter={(value: number) => formatCurrency(value)} />
+                    <Legend {...legendProps} />
                   </PieChart>
                 </ResponsiveContainer>
               </div>

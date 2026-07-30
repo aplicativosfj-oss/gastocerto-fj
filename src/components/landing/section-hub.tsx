@@ -131,7 +131,7 @@ function CardBody({ item }: { item: HubItem }) {
 
 export function SectionHub() {
   return (
-    <section id="explorar" className="relative isolate overflow-hidden py-9 sm:py-11">
+    <section id="explorar" className="relative isolate overflow-hidden py-7 sm:py-10">
       <GridPattern className="absolute inset-0 -z-10 size-full text-foreground/[0.06]" />
 
       <div className="section-shell">
@@ -140,7 +140,7 @@ export function SectionHub() {
             <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-brand">
               Tudo em um só lugar
             </span>
-            <h2 className="font-display mt-1 text-2xl font-bold tracking-[-0.02em] text-foreground sm:text-3xl">
+            <h2 className="font-display mt-1 text-[1.5rem] font-bold tracking-[-0.02em] text-foreground sm:text-[1.75rem] lg:text-3xl">
               Comece pela homepage e vá direto ao que precisa
             </h2>
           </div>

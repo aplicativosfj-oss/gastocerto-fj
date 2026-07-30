@@ -25,6 +25,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
+import { CATEGORY_ICON_KEYS, categoryIcon } from "@/lib/category-icons";
 import { formatCurrency } from "@/lib/format";
 import { monthRange } from "@/lib/finance";
 import { useCategories } from "@/lib/queries";
@@ -55,6 +56,7 @@ const COLORS = [
   "#eab308",
   "#14b8a6",
   "#ec4899",
+  "#38bdf8",
   "#64748b",
 ];
 
@@ -63,6 +65,7 @@ type Draft = {
   name: string;
   type: "expense" | "income";
   color: string;
+  icon: string;
 };
 
 function CategoriesPage() {
@@ -112,7 +115,7 @@ function CategoriesPage() {
     try {
       await save.mutateAsync({
         id: draft.id,
-        values: { name, type: draft.type, color: draft.color },
+        values: { name, type: draft.type, color: draft.color, icon: draft.icon },
       });
       setDraft(null);
       toast.success(draft.id ? "Categoria atualizada." : "Categoria criada.");
@@ -151,7 +154,7 @@ function CategoriesPage() {
           <Button
             onClick={() => {
               setError(null);
-              setDraft({ name: "", type: tab, color: COLORS[0] });
+              setDraft({ name: "", type: tab, color: COLORS[0], icon: "circle-ellipsis" });
             }}
           >
             <Plus className="mr-2 size-4" />
@@ -186,9 +189,17 @@ function CategoriesPage() {
                 <div className="min-w-0">
                   <div className="flex min-w-0 items-center gap-2">
                     <span
-                      className="size-3 shrink-0 rounded-full"
-                      style={{ backgroundColor: category.color ?? "#94a3b8" }}
-                    />
+                      className="grid size-8 shrink-0 place-items-center rounded-lg"
+                      style={{
+                        backgroundColor: `${category.color ?? "#94a3b8"}22`,
+                        color: category.color ?? "#94a3b8",
+                      }}
+                    >
+                      {(() => {
+                        const Icon = categoryIcon(category.icon);
+                        return <Icon className="size-4" />;
+                      })()}
+                    </span>
                     <span className="truncate font-medium">{category.name}</span>
                   </div>
                   <p className="mt-1 text-xs text-muted-foreground">
@@ -207,6 +218,7 @@ function CategoriesPage() {
                         name: category.name,
                         type: category.type as "expense" | "income",
                         color: category.color ?? COLORS[0],
+                        icon: category.icon ?? "circle-ellipsis",
                       });
                     }}
                   >
@@ -290,7 +302,36 @@ function CategoriesPage() {
                 ))}
               </div>
             </div>
+
+            <div>
+              <Label>Ícone</Label>
+              <div className="mt-2 grid max-h-44 grid-cols-8 gap-1.5 overflow-y-auto rounded-xl border border-border p-2 sm:grid-cols-10">
+                {CATEGORY_ICON_KEYS.map((key) => {
+                  const Icon = categoryIcon(key);
+                  const active = draft?.icon === key;
+                  return (
+                    <button
+                      key={key}
+                      type="button"
+                      aria-label={`Ícone ${key}`}
+                      aria-pressed={active}
+                      onClick={() =>
+                        setDraft((current) => (current ? { ...current, icon: key } : current))
+                      }
+                      className={`grid aspect-square place-items-center rounded-lg border transition-colors ${
+                        active
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-transparent text-muted-foreground hover:bg-secondary"
+                      }`}
+                    >
+                      <Icon className="size-4" />
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           </div>
+
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setDraft(null)}>

@@ -126,7 +126,7 @@ const categories = [
 
 export function Features() {
   return (
-    <section id="recursos" className="py-9 sm:py-11">
+    <section id="recursos" className="py-7 sm:py-10">
       <div className="section-shell">
         <div className="max-w-2xl">
           <p className="text-sm font-semibold text-brand">Recursos</p>
