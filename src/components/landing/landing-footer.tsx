@@ -3,33 +3,14 @@ import { Link } from "@tanstack/react-router";
 
 import { Logo } from "@/components/logo";
 
-const columns = [
-  {
-    title: "Produto",
-    links: [
-      { label: "Recursos", href: "#recursos" },
-      { label: "Como funciona", href: "#como-funciona" },
-      { label: "Planos", href: "#planos" },
-      { label: "Segurança", href: "#seguranca" },
-    ],
-  },
-  {
-    title: "Institucional",
-    links: [
-      { label: "Sobre o GastoCerto", href: "#inicio" },
-      { label: "Central de ajuda", href: "#faq" },
-      { label: "Contato", href: "#faq" },
-      { label: "Perguntas frequentes", href: "#faq" },
-    ],
-  },
-  {
-    title: "Legal",
-    links: [
-      { label: "Termos de uso", href: "#seguranca" },
-      { label: "Política de privacidade", href: "#seguranca" },
-      { label: "LGPD", href: "#seguranca" },
-    ],
-  },
+const links = [
+  { label: "Recursos", href: "#recursos" },
+  { label: "Como funciona", href: "#como-funciona" },
+  { label: "Planos", href: "#planos" },
+  { label: "Segurança", href: "#seguranca" },
+  { label: "FAQ", href: "#faq" },
+  { label: "Termos", href: "#seguranca" },
+  { label: "Privacidade e LGPD", href: "#seguranca" },
 ];
 
 const socials = [
