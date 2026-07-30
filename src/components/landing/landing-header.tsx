@@ -68,9 +68,7 @@ export function LandingHeader() {
             aria-label={open ? "Fechar menu" : "Abrir menu"}
             onClick={() => setOpen((v) => !v)}
           >
-            {open ? <Menu className="size-4" /> : <X className="hidden size-4" />}
-            {!open && <Menu className="size-4" />}
-            {open && <X className="size-4" />}
+            {open ? <X className="size-4" /> : <Menu className="size-4" />}
           </Button>
         </div>
       </div>
