@@ -20,11 +20,11 @@ export function CtaBanner() {
               <h2 className="section-title">
                 Comece hoje a controlar cada real que você gasta
               </h2>
-              <p className="mt-2 max-w-xl text-[13px] leading-snug text-white/70 sm:text-sm">
+              <p className="mt-2 max-w-xl text-[13px] leading-snug text-white/80 sm:text-sm">
                 Crie sua conta gratuita em menos de um minuto ou explore a demonstração com dados
                 de exemplo — sem cartão de crédito.
               </p>
-              <p className="mt-2 inline-flex items-center gap-2 text-[11px] text-white/60">
+              <p className="mt-2 inline-flex items-center gap-2 text-[11px] text-white/75">
                 <ShieldCheck className="size-3.5 shrink-0 text-success" aria-hidden="true" />
                 Exporte ou exclua seus dados quando quiser.
               </p>

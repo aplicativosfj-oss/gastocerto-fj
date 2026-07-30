@@ -82,7 +82,7 @@
   --popover-foreground: oklch(0.22 0.045 258);
   --primary: oklch(0.35 0.11 259);
   --primary-foreground: oklch(0.985 0.005 250);
-  --brand: oklch(0.55 0.16 258);
+  --brand: oklch(0.48 0.16 258);
   --brand-foreground: oklch(0.99 0.004 250);
   --secondary: oklch(0.958 0.008 250);
   --secondary-foreground: oklch(0.3 0.06 258);
@@ -92,7 +92,7 @@
   --accent-foreground: oklch(0.3 0.06 258);
   --destructive: oklch(0.6 0.2 22);
   --destructive-foreground: oklch(0.99 0.004 250);
-  --success: oklch(0.63 0.14 162);
+  --success: oklch(0.52 0.13 162);
   --success-foreground: oklch(0.99 0.004 250);
   --warning: oklch(0.77 0.15 78);
   --warning-foreground: oklch(0.25 0.05 258);

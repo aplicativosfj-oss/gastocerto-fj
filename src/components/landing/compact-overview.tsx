@@ -128,7 +128,7 @@ export function CompactOverview() {
         </div>
 
         <Tabs value={tab} onValueChange={(v) => setTab(v as TabValue)} className="mt-3.5">
-          <TabsList id="recursos" className="flex h-auto w-full flex-nowrap justify-start gap-1 overflow-x-auto p-1 [scrollbar-width:none] sm:flex-wrap [&::-webkit-scrollbar]:hidden">
+          <TabsList id="recursos" aria-label="Seções do produto — use as setas para navegar" className="flex h-auto w-full flex-nowrap justify-start gap-1 overflow-x-auto p-1 [scrollbar-width:none] sm:flex-wrap [&::-webkit-scrollbar]:hidden">
             <TabsTrigger value="recursos" className="shrink-0">Recursos</TabsTrigger>
             <TabsTrigger value="como-funciona" className="shrink-0">Como funciona</TabsTrigger>
             <TabsTrigger value="seguranca" className="shrink-0">Segurança</TabsTrigger>
