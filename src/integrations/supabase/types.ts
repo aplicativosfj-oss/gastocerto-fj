@@ -156,6 +156,87 @@ export type Database = {
           },
         ]
       }
+      fuel_entries: {
+        Row: {
+          attachment_url: string | null
+          consumption: number | null
+          cost_per_km: number | null
+          created_at: string
+          distance: number | null
+          entry_date: string
+          fuel_type: string
+          full_tank: boolean
+          id: string
+          liters: number
+          notes: string | null
+          odometer: number
+          price_per_liter: number
+          station: string | null
+          total_amount: number
+          transaction_id: string | null
+          updated_at: string
+          user_id: string
+          vehicle_id: string
+        }
+        Insert: {
+          attachment_url?: string | null
+          consumption?: number | null
+          cost_per_km?: number | null
+          created_at?: string
+          distance?: number | null
+          entry_date?: string
+          fuel_type?: string
+          full_tank?: boolean
+          id?: string
+          liters: number
+          notes?: string | null
+          odometer: number
+          price_per_liter: number
+          station?: string | null
+          total_amount: number
+          transaction_id?: string | null
+          updated_at?: string
+          user_id: string
+          vehicle_id: string
+        }
+        Update: {
+          attachment_url?: string | null
+          consumption?: number | null
+          cost_per_km?: number | null
+          created_at?: string
+          distance?: number | null
+          entry_date?: string
+          fuel_type?: string
+          full_tank?: boolean
+          id?: string
+          liters?: number
+          notes?: string | null
+          odometer?: number
+          price_per_liter?: number
+          station?: string | null
+          total_amount?: number
+          transaction_id?: string | null
+          updated_at?: string
+          user_id?: string
+          vehicle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fuel_entries_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fuel_entries_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       onboarding_preferences: {
         Row: {
           created_at: string
@@ -311,6 +392,84 @@ export type Database = {
           },
         ]
       }
+      recurring_rules: {
+        Row: {
+          account_id: string | null
+          active: boolean
+          amount: number
+          category_id: string | null
+          created_at: string
+          day_of_month: number | null
+          description: string
+          end_date: string | null
+          frequency: string
+          id: string
+          is_essential: boolean
+          last_generated_date: string | null
+          notes: string | null
+          payment_method: string | null
+          start_date: string
+          transaction_type: Database["public"]["Enums"]["transaction_type"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_id?: string | null
+          active?: boolean
+          amount: number
+          category_id?: string | null
+          created_at?: string
+          day_of_month?: number | null
+          description: string
+          end_date?: string | null
+          frequency?: string
+          id?: string
+          is_essential?: boolean
+          last_generated_date?: string | null
+          notes?: string | null
+          payment_method?: string | null
+          start_date?: string
+          transaction_type?: Database["public"]["Enums"]["transaction_type"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_id?: string | null
+          active?: boolean
+          amount?: number
+          category_id?: string | null
+          created_at?: string
+          day_of_month?: number | null
+          description?: string
+          end_date?: string | null
+          frequency?: string
+          id?: string
+          is_essential?: boolean
+          last_generated_date?: string | null
+          notes?: string | null
+          payment_method?: string | null
+          start_date?: string
+          transaction_type?: Database["public"]["Enums"]["transaction_type"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recurring_rules_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recurring_rules_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       transactions: {
         Row: {
           account_id: string | null
@@ -340,6 +499,7 @@ export type Database = {
           transaction_type: Database["public"]["Enums"]["transaction_type"]
           updated_at: string
           user_id: string
+          vehicle_id: string | null
         }
         Insert: {
           account_id?: string | null
@@ -369,6 +529,7 @@ export type Database = {
           transaction_type?: Database["public"]["Enums"]["transaction_type"]
           updated_at?: string
           user_id: string
+          vehicle_id?: string | null
         }
         Update: {
           account_id?: string | null
@@ -398,6 +559,7 @@ export type Database = {
           transaction_type?: Database["public"]["Enums"]["transaction_type"]
           updated_at?: string
           user_id?: string
+          vehicle_id?: string | null
         }
         Relationships: [
           {
@@ -412,6 +574,13 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
             referencedColumns: ["id"]
           },
         ]
@@ -434,6 +603,63 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      vehicles: {
+        Row: {
+          active: boolean
+          average_consumption: number | null
+          brand: string | null
+          color: string | null
+          created_at: string
+          fuel_type: string
+          id: string
+          initial_odometer: number
+          model: string | null
+          name: string
+          plate: string | null
+          tank_capacity: number | null
+          updated_at: string
+          user_id: string
+          vehicle_type: string
+          year: number | null
+        }
+        Insert: {
+          active?: boolean
+          average_consumption?: number | null
+          brand?: string | null
+          color?: string | null
+          created_at?: string
+          fuel_type?: string
+          id?: string
+          initial_odometer?: number
+          model?: string | null
+          name: string
+          plate?: string | null
+          tank_capacity?: number | null
+          updated_at?: string
+          user_id: string
+          vehicle_type?: string
+          year?: number | null
+        }
+        Update: {
+          active?: boolean
+          average_consumption?: number | null
+          brand?: string | null
+          color?: string | null
+          created_at?: string
+          fuel_type?: string
+          id?: string
+          initial_odometer?: number
+          model?: string | null
+          name?: string
+          plate?: string | null
+          tank_capacity?: number | null
+          updated_at?: string
+          user_id?: string
+          vehicle_type?: string
+          year?: number | null
         }
         Relationships: []
       }
