@@ -278,15 +278,46 @@ function RecurringPage() {
 
         <section className="rounded-2xl border border-border bg-card">
           <div className="border-b border-border p-4">
-            <h2 className="font-semibold">Próximos vencimentos</h2>
-            <p className="mt-0.5 text-sm text-muted-foreground">
-              Lançamentos gerados automaticamente. Marque como pago quando quitar a conta.
-            </p>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="min-w-0">
+                <h2 className="font-semibold">Próximos vencimentos</h2>
+                <p className="mt-0.5 text-sm text-muted-foreground">
+                  {counts.overdue} atrasado(s) · {counts.pending} pendente(s) · {counts.paid}{" "}
+                  pago(s). O status é atualizado automaticamente.
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger className="w-[170px]" aria-label="Filtrar por status">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="open">Em aberto</SelectItem>
+                    <SelectItem value="overdue">Atrasados</SelectItem>
+                    <SelectItem value="pending">Pendentes</SelectItem>
+                    <SelectItem value="paid">Pagos</SelectItem>
+                    <SelectItem value="all">Todos</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select value={sortBy} onValueChange={setSortBy}>
+                  <SelectTrigger className="w-[190px]" aria-label="Ordenar">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="due-asc">Vencimento (mais próximo)</SelectItem>
+                    <SelectItem value="due-desc">Vencimento (mais distante)</SelectItem>
+                    <SelectItem value="amount-desc">Maior valor</SelectItem>
+                    <SelectItem value="amount-asc">Menor valor</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
           </div>
           {upcoming.length === 0 ? (
             <p className="p-8 text-center text-sm text-muted-foreground">
-              Nenhum lançamento gerado ainda. Use “Gerar próximos”.
+              Nenhum lançamento neste filtro. Use “Gerar próximos” ou troque o status.
             </p>
+
           ) : (
             <ul className="divide-y divide-border">
               {upcoming.slice(0, 30).map((row) => {
