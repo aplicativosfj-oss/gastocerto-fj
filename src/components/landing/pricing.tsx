@@ -97,7 +97,7 @@ export function Pricing() {
                     className={cn(
                       "ml-1.5 rounded-full px-1.5 py-0.5 text-[10px]",
                       cycle === "yearly"
-                        ? "bg-brand-foreground/15 text-brand-foreground"
+                        ? "bg-brand-foreground text-brand"
                         : "bg-success/15 text-success",
                     )}
                   >
