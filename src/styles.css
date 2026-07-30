@@ -207,14 +207,14 @@
 
 /* Ritmo vertical único para todas as seções da homepage. */
 @utility section-y {
-  padding-block: 1.75rem;
+  padding-block: 1.25rem;
 
   @media (min-width: 640px) {
-    padding-block: 2.25rem;
+    padding-block: 1.75rem;
   }
 
   @media (min-width: 1024px) {
-    padding-block: 2.75rem;
+    padding-block: 2.25rem;
   }
 }
 

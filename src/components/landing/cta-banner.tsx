@@ -8,14 +8,14 @@ export function CtaBanner() {
   return (
     <section className="section-y pb-4 sm:pb-6">
       <div className="section-shell">
-        <div className="relative isolate overflow-hidden rounded-3xl bg-[oklch(0.18_0.032_258)] px-5 py-7 text-white shadow-lifted sm:px-10 sm:py-9">
+        <div className="relative isolate overflow-hidden rounded-3xl bg-[oklch(0.18_0.032_258)] px-5 py-5 text-white shadow-lifted sm:px-10 sm:py-7">
           <GridPattern className="absolute inset-0 -z-10 size-full text-white/10" />
           <div
             aria-hidden="true"
             className="absolute -right-24 -top-24 -z-10 size-[320px] rounded-full bg-brand/30 blur-[120px]"
           />
 
-          <div className="grid items-center gap-8 lg:grid-cols-[1.3fr_1fr]">
+          <div className="grid items-center gap-6 lg:grid-cols-[1.3fr_1fr]">
             <div>
               <h2 className="section-title">
                 Comece hoje a controlar cada real que você gasta

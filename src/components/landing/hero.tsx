@@ -23,7 +23,7 @@ export function Hero() {
   return (
     <section
       id="inicio"
-      className="relative isolate flex min-h-[62svh] max-h-[820px] items-center overflow-hidden bg-[oklch(0.16_0.03_258)] pt-20 pb-8 sm:pt-24 sm:pb-10 text-white"
+      className="relative isolate flex min-h-[52svh] max-h-[620px] items-center overflow-hidden bg-[oklch(0.16_0.03_258)] pt-16 pb-5 sm:pt-20 sm:pb-7 lg:pt-24 text-white"
     >
       <img
         src={heroBg}
@@ -45,56 +45,56 @@ export function Hero() {
         className="absolute -left-32 top-1/4 -z-10 size-[420px] rounded-full bg-brand/25 blur-[120px]"
       />
 
-      <div className="section-shell relative grid w-full items-center gap-10 lg:grid-cols-[1.05fr_1fr] xl:gap-14">
+      <div className="section-shell relative grid w-full items-center gap-6 lg:grid-cols-[1.05fr_1fr] lg:gap-10 xl:gap-12">
         <div>
-          <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/80 backdrop-blur">
+          <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/80 backdrop-blur sm:text-[11px]">
             <ShieldCheck className="size-3.5 text-success" aria-hidden="true" />
             Gestão financeira pessoal
           </span>
 
-          <h1 className="font-display mt-4 text-[1.75rem] font-extrabold leading-[1.05] tracking-[-0.03em] text-white sm:text-[2.75rem] lg:text-5xl xl:text-[3.4rem]">
+          <h1 className="font-display mt-3 text-[1.6rem] font-extrabold leading-[1.05] tracking-[-0.03em] text-white sm:text-[2.4rem] lg:text-[2.75rem] xl:text-[3.1rem]">
             Controle profissional de cada real que você gasta.
           </h1>
 
-          <p className="mt-3 max-w-lg text-sm leading-relaxed text-white/70 sm:text-base">
+          <p className="mt-2.5 max-w-lg text-[13px] leading-relaxed text-white/70 sm:text-[15px]">
             Despesas, combustível, contas recorrentes e orçamentos em um só painel — com
             indicadores automáticos e relatórios prontos para decidir.
           </p>
 
-          <div className="mt-5 flex flex-col gap-2.5 sm:flex-row">
-            <Button size="lg" className="shadow-lifted" asChild>
+          <div className="mt-4 grid grid-cols-2 items-center gap-2 sm:flex sm:flex-wrap">
+            <Button className="shadow-lifted sm:h-11 sm:px-6" asChild>
               <Link to="/auth" search={{ mode: "signup" }}>
-                Criar conta gratuita
+                Criar conta
                 <ArrowRight className="size-4" aria-hidden="true" />
               </Link>
             </Button>
             <DemoDialog>
               <Button
-                size="lg"
                 variant="outline"
-                className="border-white/25 bg-white/5 text-white hover:bg-white/15 hover:text-white"
+                className="border-white/25 bg-white/5 text-white hover:bg-white/15 hover:text-white sm:h-11 sm:px-6"
               >
                 <PlayCircle className="size-4" aria-hidden="true" />
-                Ver demonstração
+                Demonstração
               </Button>
             </DemoDialog>
             <a
               href="#explorar"
               onClick={(event) => handleAnchorClick(event, "#explorar")}
-              className="inline-flex items-center justify-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium text-white/75 transition-colors hover:text-white"
+              className="col-span-2 inline-flex items-center justify-center gap-1.5 rounded-md px-3 py-1.5 text-[13px] font-medium text-white/75 transition-colors hover:text-white sm:col-span-1 sm:py-2 sm:text-sm"
             >
               Explorar seções
               <ChevronDown className="size-4" aria-hidden="true" />
             </a>
           </div>
 
-          <dl className="mt-6 grid grid-cols-3 gap-2 border-t border-white/10 pt-4">
+
+          <dl className="mt-4 grid grid-cols-3 gap-2 border-t border-white/10 pt-3">
             {stats.map((stat) => (
               <div key={stat.label} className="min-w-0">
-                <dt className="truncate text-[11px] uppercase tracking-wide text-white/50">
+                <dt className="truncate text-[10px] uppercase tracking-wide text-white/50 sm:text-[11px]">
                   {stat.label}
                 </dt>
-                <dd className="tabular mt-1 truncate text-base font-bold text-white sm:text-lg">
+                <dd className="tabular mt-0.5 truncate text-sm font-bold text-white sm:text-base">
                   {stat.value}
                 </dd>
                 <p className="hidden truncate text-[11px] text-white/45 sm:block">{stat.hint}</p>
@@ -108,7 +108,7 @@ export function Hero() {
             aria-hidden="true"
             className="absolute -inset-6 rounded-[2rem] bg-brand/20 blur-3xl"
           />
-          <div className="relative origin-top scale-[0.82] text-foreground xl:scale-[0.88]">
+          <div className="relative origin-top scale-[0.64] text-foreground -mb-[26%] xl:-mb-[20%] xl:scale-[0.7]">
             <Suspense fallback={<div className="h-[420px] rounded-2xl bg-white/5" />}>
               <DashboardPreview />
             </Suspense>

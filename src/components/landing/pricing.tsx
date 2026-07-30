@@ -65,7 +65,7 @@ export function Pricing() {
           </p>
         </div>
 
-        <div className="mt-5 flex flex-col items-center gap-2">
+        <div className="mt-4 flex flex-col items-center gap-2">
           <div
             role="tablist"
             aria-label="Ciclo de cobrança"
@@ -113,7 +113,7 @@ export function Pricing() {
           </p>
         </div>
 
-        <div className="mx-auto mt-7 grid max-w-3xl gap-4 md:grid-cols-2">
+        <div className="mx-auto mt-5 grid max-w-3xl gap-4 md:grid-cols-2">
           {plans.map((plan) => {
             const price = isYearly ? plan.yearly : plan.monthly;
             return (
@@ -150,7 +150,7 @@ export function Pricing() {
                   )}
                 </p>
 
-                <ul className="mt-4 flex-1 space-y-2">
+                <ul className="mt-3 flex-1 space-y-1.5">
                   {plan.features.map((feature) => (
                     <li key={feature} className="flex items-start gap-2 text-sm">
                       <Check className="mt-0.5 size-4 shrink-0 text-success" aria-hidden="true" />
@@ -159,7 +159,7 @@ export function Pricing() {
                   ))}
                 </ul>
 
-                <div className="mt-5 flex flex-col gap-2 sm:flex-row">
+                <div className="mt-4 flex flex-col gap-2 sm:flex-row">
                   <Button
                     className="sm:flex-1"
                     variant={plan.highlighted ? "default" : "outline"}
