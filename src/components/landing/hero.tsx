@@ -61,32 +61,32 @@ export function Hero() {
             indicadores automáticos e relatórios prontos para decidir.
           </p>
 
-          <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-            <Button size="lg" className="shadow-lifted" asChild>
+          <div className="mt-4 grid grid-cols-2 items-center gap-2 sm:flex sm:flex-wrap">
+            <Button className="shadow-lifted sm:h-11 sm:px-6" asChild>
               <Link to="/auth" search={{ mode: "signup" }}>
-                Criar conta gratuita
+                Criar conta
                 <ArrowRight className="size-4" aria-hidden="true" />
               </Link>
             </Button>
             <DemoDialog>
               <Button
-                size="lg"
                 variant="outline"
-                className="border-white/25 bg-white/5 text-white hover:bg-white/15 hover:text-white"
+                className="border-white/25 bg-white/5 text-white hover:bg-white/15 hover:text-white sm:h-11 sm:px-6"
               >
                 <PlayCircle className="size-4" aria-hidden="true" />
-                Ver demonstração
+                Demonstração
               </Button>
             </DemoDialog>
             <a
               href="#explorar"
               onClick={(event) => handleAnchorClick(event, "#explorar")}
-              className="inline-flex items-center justify-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium text-white/75 transition-colors hover:text-white"
+              className="col-span-2 inline-flex items-center justify-center gap-1.5 rounded-md px-3 py-1.5 text-[13px] font-medium text-white/75 transition-colors hover:text-white sm:col-span-1 sm:py-2 sm:text-sm"
             >
               Explorar seções
               <ChevronDown className="size-4" aria-hidden="true" />
             </a>
           </div>
+
 
           <dl className="mt-4 grid grid-cols-3 gap-2 border-t border-white/10 pt-3">
             {stats.map((stat) => (
