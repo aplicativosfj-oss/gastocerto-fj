@@ -55,6 +55,7 @@ const COLORS = [
   "#eab308",
   "#14b8a6",
   "#ec4899",
+  "#38bdf8",
   "#64748b",
 ];
 
@@ -63,6 +64,7 @@ type Draft = {
   name: string;
   type: "expense" | "income";
   color: string;
+  icon: string;
 };
 
 function CategoriesPage() {
