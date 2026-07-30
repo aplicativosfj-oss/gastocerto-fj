@@ -10,7 +10,7 @@ export function Logo({ className, compact = false }: { className?: string; compa
       </span>
       {!compact && (
         <span className="text-lg font-extrabold tracking-tight">
-          Gasto<span className="text-brand">Certo</span>
+          Gasto<span className="text-brand [.logo-on-dark_&]:text-[oklch(0.86_0.09_255)]">Certo</span>
         </span>
       )}
     </span>

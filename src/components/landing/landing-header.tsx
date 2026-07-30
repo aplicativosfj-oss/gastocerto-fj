@@ -62,7 +62,10 @@ export function LandingHeader() {
         <a
           href="#inicio"
           onClick={(event) => handleAnchorClick(event, "#inicio")}
-          className="inline-flex rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
+          className={cn(
+            !scrolled && "logo-on-dark",
+            "inline-flex rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
+          )}
           aria-label="GastoCerto — início"
         >
           <Logo />
