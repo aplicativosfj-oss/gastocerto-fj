@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as DemonstracaoRouteImport } from './routes/demonstracao'
 import { Route as RedefinirSenhaRouteImport } from './routes/redefinir-senha'
+import { Route as AuthenticatedCalendarioRouteImport } from './routes/_authenticated/calendario'
 import { Route as AuthenticatedCategoriasRouteImport } from './routes/_authenticated/categorias'
 import { Route as AuthenticatedComprovantesRouteImport } from './routes/_authenticated/comprovantes'
 import { Route as AuthenticatedLancamentosRouteImport } from './routes/_authenticated/lancamentos'
@@ -52,6 +53,11 @@ const RedefinirSenhaRoute = RedefinirSenhaRouteImport.update({
   id: '/redefinir-senha',
   path: '/redefinir-senha',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedCalendarioRoute = AuthenticatedCalendarioRouteImport.update({
+  id: '/calendario',
+  path: '/calendario',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedCategoriasRoute = AuthenticatedCategoriasRouteImport.update({
   id: '/categorias',
@@ -134,6 +140,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/demonstracao': typeof DemonstracaoRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
+  '/calendario': typeof AuthenticatedCalendarioRoute
   '/categorias': typeof AuthenticatedCategoriasRoute
   '/comprovantes': typeof AuthenticatedComprovantesRoute
   '/lancamentos': typeof AuthenticatedLancamentosRoute
@@ -154,6 +161,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/demonstracao': typeof DemonstracaoRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
+  '/calendario': typeof AuthenticatedCalendarioRoute
   '/categorias': typeof AuthenticatedCategoriasRoute
   '/comprovantes': typeof AuthenticatedComprovantesRoute
   '/lancamentos': typeof AuthenticatedLancamentosRoute
@@ -176,6 +184,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/demonstracao': typeof DemonstracaoRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
+  '/_authenticated/calendario': typeof AuthenticatedCalendarioRoute
   '/_authenticated/categorias': typeof AuthenticatedCategoriasRoute
   '/_authenticated/comprovantes': typeof AuthenticatedComprovantesRoute
   '/_authenticated/lancamentos': typeof AuthenticatedLancamentosRoute
@@ -198,6 +207,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/demonstracao'
     | '/redefinir-senha'
+    | '/calendario'
     | '/categorias'
     | '/comprovantes'
     | '/lancamentos'
@@ -218,6 +228,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/demonstracao'
     | '/redefinir-senha'
+    | '/calendario'
     | '/categorias'
     | '/comprovantes'
     | '/lancamentos'
@@ -239,6 +250,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/demonstracao'
     | '/redefinir-senha'
+    | '/_authenticated/calendario'
     | '/_authenticated/categorias'
     | '/_authenticated/comprovantes'
     | '/_authenticated/lancamentos'
@@ -299,6 +311,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/redefinir-senha'
       preLoaderRoute: typeof RedefinirSenhaRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/calendario': {
+      id: '/_authenticated/calendario'
+      path: '/calendario'
+      fullPath: '/calendario'
+      preLoaderRoute: typeof AuthenticatedCalendarioRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/categorias': {
       id: '/_authenticated/categorias'
@@ -402,6 +421,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedCalendarioRoute: typeof AuthenticatedCalendarioRoute
   AuthenticatedCategoriasRoute: typeof AuthenticatedCategoriasRoute
   AuthenticatedComprovantesRoute: typeof AuthenticatedComprovantesRoute
   AuthenticatedLancamentosRoute: typeof AuthenticatedLancamentosRoute
@@ -419,6 +439,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedCalendarioRoute: AuthenticatedCalendarioRoute,
   AuthenticatedCategoriasRoute: AuthenticatedCategoriasRoute,
   AuthenticatedComprovantesRoute: AuthenticatedComprovantesRoute,
   AuthenticatedLancamentosRoute: AuthenticatedLancamentosRoute,
