@@ -36,6 +36,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  CHART_TOKENS,
+  axisProps,
+  barRadius,
+  gridProps,
+  legendProps,
+  seriesColor,
+  tooltipProps,
+} from "@/lib/chart-theme";
 import { isoDate, labelFor, MONTH_NAMES, PAYMENT_METHODS } from "@/lib/finance";
 import { formatCurrency, formatDate, formatPercent } from "@/lib/format";
 import { useCategories } from "@/lib/queries";
@@ -60,17 +69,6 @@ export const Route = createFileRoute("/_authenticated/relatorios")({
   }),
   component: ReportsPage,
 });
-
-const CHART_COLORS = [
-  "#10b981",
-  "#3b82f6",
-  "#f59e0b",
-  "#ef4444",
-  "#8b5cf6",
-  "#14b8a6",
-  "#ec4899",
-  "#64748b",
-];
 
 function defaultRange() {
   const now = new Date();
