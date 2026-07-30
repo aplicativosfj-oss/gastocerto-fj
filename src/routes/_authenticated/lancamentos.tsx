@@ -1,11 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Copy, Download, Pencil, Plus, Search, Trash2 } from "lucide-react";
+import { Copy, Download, Paperclip, Pencil, Plus, Search, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
 import { PeriodPicker } from "@/components/finance/period-picker";
+import { TransactionDetailsDialog } from "@/components/finance/transaction-details-dialog";
 import { TransactionDialog } from "@/components/finance/transaction-dialog";
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -84,7 +86,10 @@ function TransactionsPage() {
   const [selected, setSelected] = useState<string[]>([]);
   const [editing, setEditing] = useState<Transaction | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [details, setDetails] = useState<Transaction | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<string[] | null>(null);
+
+
 
   const categoryNames = useMemo(
     () => new Map((categories ?? []).map((category) => [category.id, category.name])),
@@ -352,9 +357,22 @@ function TransactionsPage() {
                     <TableCell className="whitespace-nowrap tabular-nums">
                       {formatDate(row.transaction_date)}
                     </TableCell>
-                    <TableCell className="max-w-[220px] truncate font-medium">
-                      {row.description}
+                    <TableCell className="max-w-[220px] font-medium">
+                      <button
+                        type="button"
+                        className="flex w-full items-center gap-1.5 truncate text-left hover:underline"
+                        onClick={() => setDetails(row)}
+                      >
+                        <span className="truncate">{row.description}</span>
+                        {row.attachment_url ? (
+                          <Paperclip
+                            className="size-3.5 shrink-0 text-muted-foreground"
+                            aria-label="Possui comprovante"
+                          />
+                        ) : null}
+                      </button>
                     </TableCell>
+
                     <TableCell className="hidden md:table-cell">
                       {row.category_id ? (categoryNames.get(row.category_id) ?? "—") : "—"}
                     </TableCell>
@@ -456,6 +474,18 @@ function TransactionsPage() {
           transaction={editing}
         />
       ) : null}
+
+      <TransactionDetailsDialog
+        transaction={details}
+        open={details !== null}
+        onOpenChange={(value) => !value && setDetails(null)}
+        onEdit={(row) => {
+          setEditing(row);
+          setDialogOpen(true);
+        }}
+      />
+
+
 
       <AlertDialog open={confirmDelete !== null} onOpenChange={() => setConfirmDelete(null)}>
         <AlertDialogContent>

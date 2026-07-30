@@ -2,7 +2,9 @@ import { useMemo, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
+import { ReceiptField } from "@/components/finance/receipt-field";
 import { Button } from "@/components/ui/button";
+
 import {
   Dialog,
   DialogContent,
@@ -89,6 +91,8 @@ export function TransactionDialog({
     transaction?.total_installments ? String(transaction.total_installments) : "",
   );
   const [dueDate, setDueDate] = useState(transaction?.due_date ?? "");
+  const [attachment, setAttachment] = useState<string | null>(transaction?.attachment_url ?? null);
+
 
   function reset() {
     setDescription("");
@@ -101,7 +105,9 @@ export function TransactionDialog({
     setTags("");
     setInstallments("");
     setDueDate("");
+    setAttachment(null);
     setErrors({});
+
   }
 
   async function handleSubmit(event: React.FormEvent) {
@@ -146,7 +152,9 @@ export function TransactionDialog({
           total_installments: total && total > 1 ? total : null,
           installment_number: total && total > 1 ? 1 : null,
           due_date: dueDate || null,
+          attachment_url: attachment,
           status: status as Transaction["status"],
+
         },
       });
 
@@ -418,7 +426,12 @@ export function TransactionDialog({
                 </div>
               </>
             ) : null}
+
+            <div className="sm:col-span-2">
+              <ReceiptField value={attachment} onChange={setAttachment} />
+            </div>
           </div>
+
 
           <DialogFooter>
             <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
