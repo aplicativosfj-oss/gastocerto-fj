@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
-import { CategoryPicker, readRecentCategories } from "@/components/finance/category-picker";
+import { CategoryPicker, readRecentCategories, rememberCategory } from "@/components/finance/category-picker";
 import { ReceiptField } from "@/components/finance/receipt-field";
 
 import { Button } from "@/components/ui/button";
@@ -189,6 +189,7 @@ export function TransactionDialog({
     setDueDate("");
     setAttachment(null);
     setErrors({});
+    setAutoFilled(false);
 
   }
 
@@ -240,6 +241,7 @@ export function TransactionDialog({
         },
       });
 
+      if (categoryId) rememberCategory(categoryId);
       const savedDate = date;
       onOpenChange(false);
       reset();
@@ -282,7 +284,8 @@ export function TransactionDialog({
             {editing ? "Editar lançamento" : kind === "income" ? "Nova receita" : "Novo gasto"}
           </DialogTitle>
           <DialogDescription>
-            Preencha os campos essenciais ou abra o cadastro avançado para mais detalhes.
+            Preencha os campos essenciais ou abra o cadastro avançado. Atalhos: Enter avança,
+            Ctrl/Cmd + Enter salva e Alt + C abre as categorias.
           </DialogDescription>
         </DialogHeader>
 
