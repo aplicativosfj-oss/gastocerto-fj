@@ -66,11 +66,11 @@ const faqs = [
 
 export function Faq() {
   return (
-    <section id="faq" className="py-9 sm:py-11">
+    <section id="faq" className="py-7 sm:py-10">
       <div className="section-shell grid gap-10 lg:grid-cols-[0.8fr_1.2fr]">
         <div>
           <p className="text-sm font-semibold text-brand">Perguntas frequentes</p>
-          <h2 className="mt-2 font-display text-[1.75rem] font-bold tracking-[-0.025em] sm:text-4xl">
+          <h2 className="mt-2 font-display text-[1.5rem] font-bold tracking-[-0.025em] sm:text-[2rem] lg:text-4xl">
             Ainda com dúvidas?
           </h2>
           <p className="mt-4 text-muted-foreground">

@@ -46,7 +46,7 @@ export function Hero() {
             Gestão financeira pessoal
           </span>
 
-          <h1 className="font-display mt-5 text-[2.5rem] font-extrabold leading-[1.02] tracking-[-0.03em] text-white sm:text-5xl xl:text-6xl">
+          <h1 className="font-display mt-5 text-[2rem] font-extrabold leading-[1.05] tracking-[-0.03em] text-white sm:text-[2.75rem] lg:text-5xl xl:text-[3.4rem]">
             Controle profissional de cada real que você gasta.
           </h1>
 
