@@ -357,9 +357,22 @@ function TransactionsPage() {
                     <TableCell className="whitespace-nowrap tabular-nums">
                       {formatDate(row.transaction_date)}
                     </TableCell>
-                    <TableCell className="max-w-[220px] truncate font-medium">
-                      {row.description}
+                    <TableCell className="max-w-[220px] font-medium">
+                      <button
+                        type="button"
+                        className="flex w-full items-center gap-1.5 truncate text-left hover:underline"
+                        onClick={() => setDetails(row)}
+                      >
+                        <span className="truncate">{row.description}</span>
+                        {row.attachment_url ? (
+                          <Paperclip
+                            className="size-3.5 shrink-0 text-muted-foreground"
+                            aria-label="Possui comprovante"
+                          />
+                        ) : null}
+                      </button>
                     </TableCell>
+
                     <TableCell className="hidden md:table-cell">
                       {row.category_id ? (categoryNames.get(row.category_id) ?? "—") : "—"}
                     </TableCell>
