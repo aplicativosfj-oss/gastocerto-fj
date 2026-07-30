@@ -103,6 +103,31 @@ export function TransactionDialog({
   );
   const [dueDate, setDueDate] = useState(transaction?.due_date ?? "");
   const [attachment, setAttachment] = useState<string | null>(transaction?.attachment_url ?? null);
+  const [autoFilled, setAutoFilled] = useState(false);
+
+  const { data: lastTransaction } = useLastTransaction(kind);
+
+  /**
+   * Ao abrir um novo lançamento, herda categoria/forma de pagamento/conta do
+   * último registro do mesmo tipo (nunca sobrescreve o que o usuário digitou).
+   */
+  useEffect(() => {
+    if (!open || editing || !lastTransaction) return;
+    setAutoFilled(true);
+    setCategoryId((current) => {
+      if (current) return current;
+      const recent = readRecentCategories().find((id) =>
+        options.some((option) => option.id === id),
+      );
+      return recent ?? lastTransaction.category_id ?? "";
+    });
+    setPaymentMethod((current) => current || lastTransaction.payment_method || "pix");
+    setAccountId((current) => current || lastTransaction.account_id || "");
+    if (kind === "expense") {
+      setExpenseType((current) => current || lastTransaction.expense_type || "variavel");
+      setEssential((current) => current || Boolean(lastTransaction.is_essential));
+    }
+  }, [open, editing, lastTransaction, kind, options]);
 
   const isPastMonth = date.slice(0, 7) < isoDate(new Date()).slice(0, 7);
 
@@ -112,6 +137,40 @@ export function TransactionDialog({
     if (kindOfShift === "lastMonth") base.setMonth(base.getMonth() - 1);
     setDate(isoDate(base));
   }
+
+  /** Ctrl/Cmd + Enter salva; Alt + C abre o seletor de categoria. */
+  function handleFormKeyDown(event: React.KeyboardEvent<HTMLFormElement>) {
+    const target = event.target as HTMLElement | null;
+    const isTextarea = target?.tagName === "TEXTAREA";
+
+    if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
+      event.preventDefault();
+      event.currentTarget.requestSubmit();
+      return;
+    }
+
+    if (event.key === "Enter" && !isTextarea && target?.tagName === "INPUT") {
+      event.preventDefault();
+      const fields = Array.from(
+        event.currentTarget.querySelectorAll<HTMLElement>(
+          "input:not([type=hidden]), button[data-category-trigger], textarea",
+        ),
+      );
+      const index = fields.indexOf(target);
+      const next = fields[index + 1];
+      if (next) next.focus();
+      else event.currentTarget.requestSubmit();
+      return;
+    }
+
+    if (event.altKey && (event.key === "c" || event.key === "C")) {
+      event.preventDefault();
+      event.currentTarget
+        .querySelector<HTMLButtonElement>("button[data-category-trigger]")
+        ?.click();
+    }
+  }
+
 
 
 
