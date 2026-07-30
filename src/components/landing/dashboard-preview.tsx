@@ -104,9 +104,9 @@ export function DashboardPreview() {
         </div>
         <div className="mt-3 flex h-24 items-end gap-1.5" aria-hidden="true">
           {chartBars.map((bar) => (
-            <div key={bar.day} className="flex flex-1 flex-col items-center gap-1">
+            <div key={bar.day} className="flex h-full flex-1 flex-col items-center justify-end gap-1">
               <div
-                className="w-full rounded-t-md bg-brand/85"
+                className="w-full rounded-t-md bg-gradient-to-t from-brand/70 to-brand"
                 style={{ height: `${bar.value}%` }}
               />
               <span className="text-[9px] text-muted-foreground">{bar.day}</span>
