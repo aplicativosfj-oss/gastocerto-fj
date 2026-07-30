@@ -93,7 +93,7 @@ export function CompactOverview() {
           </div>
         </div>
 
-        <Tabs value={tab} onValueChange={(v) => setTab(v as TabValue)} className="mt-4">
+        <Tabs value={tab} onValueChange={(v) => setTab(v as TabValue)} className="mt-3.5">
           <TabsList className="flex w-full flex-wrap justify-start gap-1">
             <TabsTrigger value="recursos">Recursos</TabsTrigger>
             <TabsTrigger value="como-funciona">Como funciona</TabsTrigger>
@@ -101,7 +101,7 @@ export function CompactOverview() {
             <TabsTrigger value="faq">FAQ</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="recursos" className="mt-4">
+          <TabsContent value="recursos" className="mt-3.5">
             <div className="grid grid-cols-2 gap-2 sm:gap-2.5 lg:grid-cols-3">
               {features.map((item) => (
                 <div key={item.title} className="flex min-w-0 flex-col gap-2 rounded-xl border border-border bg-card p-2.5 sm:flex-row sm:gap-3 sm:p-3">
@@ -117,10 +117,10 @@ export function CompactOverview() {
             </div>
           </TabsContent>
 
-          <TabsContent value="como-funciona" className="mt-4">
+          <TabsContent value="como-funciona" className="mt-3.5">
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-2.5">
               {steps.map((step, index) => (
-                <div key={step.title} className="rounded-xl border border-border bg-card p-4">
+                <div key={step.title} className="rounded-xl border border-border bg-card p-3 sm:p-3.5">
                   <span className="grid size-8 place-items-center rounded-lg bg-brand text-sm font-bold text-brand-foreground">
                     {index + 1}
                   </span>
@@ -146,10 +146,10 @@ export function CompactOverview() {
             </div>
           </TabsContent>
 
-          <TabsContent value="seguranca" className="mt-4">
+          <TabsContent value="seguranca" className="mt-3.5">
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-2.5">
               {pillars.map((pillar) => (
-                <div key={pillar.title} className="rounded-xl border border-border bg-card p-4">
+                <div key={pillar.title} className="rounded-xl border border-border bg-card p-3 sm:p-3.5">
                   <span className="grid size-9 place-items-center rounded-lg bg-brand/10 text-brand">
                     <pillar.icon className="size-4" />
                   </span>
@@ -160,11 +160,11 @@ export function CompactOverview() {
             </div>
           </TabsContent>
 
-          <TabsContent value="faq" className="mt-4">
+          <TabsContent value="faq" className="mt-3.5">
             <Accordion type="single" collapsible className="grid gap-x-6 sm:grid-cols-2">
               {faqs.map((faq, index) => (
                 <AccordionItem key={faq.q} value={`item-${index}`}>
-                  <AccordionTrigger className="py-3 text-left text-sm font-semibold">{faq.q}</AccordionTrigger>
+                  <AccordionTrigger className="py-2.5 text-left text-[13px] font-semibold sm:text-sm">{faq.q}</AccordionTrigger>
                   <AccordionContent className="text-xs leading-relaxed text-muted-foreground">
                     {faq.a}
                   </AccordionContent>
