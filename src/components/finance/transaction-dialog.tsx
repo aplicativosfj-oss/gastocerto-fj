@@ -165,11 +165,15 @@ export function TransactionDialog({
         },
       });
 
+      const savedDate = date;
       onOpenChange(false);
       reset();
+      onSaved?.(savedDate);
 
       if (editing) {
-        toast.success("Lançamento atualizado.");
+        toast.success("Lançamento atualizado.", {
+          description: isPastMonth ? `Registrado em ${formatDate(savedDate)}.` : undefined,
+        });
         return;
       }
 
