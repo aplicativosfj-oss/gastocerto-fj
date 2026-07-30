@@ -112,11 +112,16 @@ export const adminSetLicenseStatus = createServerFn({ method: "POST" })
     if (!license) throw new Error("Licença não encontrada");
 
     const now = new Date();
-    const patch: Record<string, unknown> = { status: data.status };
+    const patch: {
+      status: "pending" | "active" | "expired" | "revoked";
+      activated_at?: string;
+      expires_at?: string;
+    } = { status: data.status };
     if (data.status === "active") {
       patch.activated_at = license.activated_at ?? now.toISOString();
       patch.expires_at = addMonths(now, monthsFromCycle(license.billing_cycle)).toISOString();
     }
+
 
     const { error } = await supabaseAdmin.from("licenses").update(patch).eq("id", data.licenseId);
     if (error) throw new Error("Não foi possível atualizar a licença");
