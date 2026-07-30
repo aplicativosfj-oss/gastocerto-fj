@@ -93,7 +93,7 @@ export function Hero() {
             <DashboardPreview />
           </div>
 
-          <div className="absolute -left-10 bottom-24 w-48 rounded-2xl border border-white/15 bg-[oklch(0.2_0.03_258/0.85)] p-3 shadow-lifted backdrop-blur-md">
+          <div className="absolute -left-16 bottom-6 w-48 rounded-2xl border border-white/15 bg-[oklch(0.2_0.03_258/0.85)] p-3 shadow-lifted backdrop-blur-md">
             <div className="flex items-center justify-between text-[11px] text-white/60">
               <span className="inline-flex items-center gap-1.5 font-medium text-white/80">
                 <TrendingDown className="size-3.5 text-success" aria-hidden="true" />
@@ -104,7 +104,7 @@ export function Hero() {
             <Sparkline className="mt-2 h-12 w-full text-success" />
           </div>
 
-          <div className="absolute -right-6 top-2 flex w-44 items-center gap-3 rounded-2xl border border-white/15 bg-[oklch(0.2_0.03_258/0.85)] p-3 shadow-lifted backdrop-blur-md">
+          <div className="absolute -right-10 -top-6 flex w-44 items-center gap-3 rounded-2xl border border-white/15 bg-[oklch(0.2_0.03_258/0.85)] p-3 shadow-lifted backdrop-blur-md">
             <RingChart className="size-12 shrink-0 text-brand" value={68} />
             <div className="min-w-0">
               <p className="text-[11px] text-white/60">Orçamento</p>
@@ -112,7 +112,7 @@ export function Hero() {
             </div>
           </div>
 
-          <div className="absolute bottom-4 right-0 inline-flex items-center gap-2 rounded-full border border-white/15 bg-[oklch(0.2_0.03_258/0.85)] px-3 py-1.5 text-[11px] font-medium text-white/80 shadow-lifted backdrop-blur-md">
+          <div className="absolute -bottom-8 right-6 inline-flex items-center gap-2 rounded-full border border-white/15 bg-[oklch(0.2_0.03_258/0.85)] px-3 py-1.5 text-[11px] font-medium text-white/80 shadow-lifted backdrop-blur-md">
             <Wallet className="size-3.5 text-brand" aria-hidden="true" />
             Sincronizado em tempo real
           </div>
