@@ -15,43 +15,41 @@ export function CtaBanner() {
             className="absolute -right-24 -top-24 -z-10 size-[320px] rounded-full bg-brand/30 blur-[120px]"
           />
 
-          <div className="grid items-center gap-6 lg:grid-cols-[1.3fr_1fr]">
-            <div>
+          <div className="grid items-center gap-4 lg:grid-cols-[1.35fr_1fr]">
+            <div className="min-w-0">
               <h2 className="section-title">
                 Comece hoje a controlar cada real que você gasta
               </h2>
-              <p className="mt-3 max-w-xl text-sm text-white/70 sm:text-base">
+              <p className="mt-2 max-w-xl text-[13px] leading-snug text-white/70 sm:text-sm">
                 Crie sua conta gratuita em menos de um minuto ou explore a demonstração com dados
-                de exemplo antes de decidir.
+                de exemplo — sem cartão de crédito.
               </p>
-              <p className="mt-4 inline-flex items-center gap-2 text-xs text-white/60">
-                <ShieldCheck className="size-4 text-success" aria-hidden="true" />
-                Sem cartão de crédito. Seus dados podem ser exportados ou excluídos quando quiser.
+              <p className="mt-2 inline-flex items-center gap-2 text-[11px] text-white/60">
+                <ShieldCheck className="size-3.5 shrink-0 text-success" aria-hidden="true" />
+                Exporte ou exclua seus dados quando quiser.
               </p>
             </div>
 
-            <div className="flex flex-col gap-3">
-              <Button size="lg" className="w-full shadow-lifted" asChild>
+            <div className="grid grid-cols-2 gap-2 lg:grid-cols-1">
+              <Button className="h-10 w-full shadow-lifted" asChild>
                 <Link to="/auth" search={{ mode: "signup" }}>
-                  Criar conta gratuita
+                  Criar conta
                   <ArrowRight className="size-4" aria-hidden="true" />
                 </Link>
               </Button>
               <Button
-                size="lg"
                 variant="outline"
-                className="w-full border-white/25 bg-white/5 text-white hover:bg-white/15 hover:text-white"
+                className="h-10 w-full border-white/25 bg-white/5 text-white hover:bg-white/15 hover:text-white"
                 asChild
               >
                 <Link to="/demonstracao">
                   <PlayCircle className="size-4" aria-hidden="true" />
-                  Ver demonstração
+                  Demonstração
                 </Link>
               </Button>
               <Button
-                size="lg"
                 variant="ghost"
-                className="w-full text-white/80 hover:bg-white/10 hover:text-white"
+                className="col-span-2 h-9 w-full text-white/80 hover:bg-white/10 hover:text-white lg:col-span-1"
                 asChild
               >
                 <Link to="/auth" search={{ mode: "login" }}>
@@ -60,6 +58,7 @@ export function CtaBanner() {
               </Button>
             </div>
           </div>
+
         </div>
       </div>
     </section>

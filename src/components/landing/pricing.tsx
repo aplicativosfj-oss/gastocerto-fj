@@ -53,19 +53,20 @@ export function Pricing() {
   return (
     <section id="planos" className="section-y">
       <div className="section-shell">
-        <div className="mx-auto max-w-xl text-center">
+        <div className="grid gap-2.5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
+         <div className="min-w-0">
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-brand">
             Planos
           </p>
           <h2 className="section-title mt-1.5">
             Comece de graça e evolua quando fizer sentido
           </h2>
-          <p className="mt-2 text-sm text-muted-foreground">
+          <p className="mt-1.5 text-sm text-muted-foreground">
             Sem fidelidade. Exporte ou exclua seus dados quando quiser.
           </p>
-        </div>
+         </div>
 
-        <div className="mt-4 flex flex-col items-center gap-2">
+        <div className="flex flex-col items-start gap-1 sm:items-end">
           <div
             role="tablist"
             aria-label="Ciclo de cobrança"
@@ -84,7 +85,7 @@ export function Pricing() {
                 aria-selected={cycle === option.key}
                 onClick={() => setCycle(option.key)}
                 className={cn(
-                  "rounded-full px-4 py-1.5 text-xs font-semibold transition-colors",
+                  "rounded-full px-3.5 py-1 text-xs font-semibold transition-colors",
                   cycle === option.key
                     ? "bg-brand text-brand-foreground shadow-soft"
                     : "text-muted-foreground hover:text-foreground",
@@ -113,14 +114,16 @@ export function Pricing() {
           </p>
         </div>
 
-        <div className="mx-auto mt-5 grid max-w-3xl gap-4 md:grid-cols-2">
+        </div>
+
+        <div className="mx-auto mt-4 grid max-w-3xl gap-3 md:grid-cols-2">
           {plans.map((plan) => {
             const price = isYearly ? plan.yearly : plan.monthly;
             return (
               <div
                 key={plan.slug}
                 className={cn(
-                  "relative flex flex-col rounded-2xl border border-border bg-card/80 p-5 shadow-soft backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:shadow-lifted",
+                  "relative flex flex-col rounded-2xl border border-border bg-card/80 p-4 shadow-soft backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:shadow-lifted",
                   plan.highlighted && "border-brand/50 ring-1 ring-brand/30",
                 )}
               >
@@ -150,18 +153,18 @@ export function Pricing() {
                   )}
                 </p>
 
-                <ul className="mt-3 flex-1 space-y-1.5">
+                <ul className="mt-2.5 flex-1 space-y-1">
                   {plan.features.map((feature) => (
-                    <li key={feature} className="flex items-start gap-2 text-sm">
+                    <li key={feature} className="flex items-start gap-2 text-[13px]">
                       <Check className="mt-0.5 size-4 shrink-0 text-success" aria-hidden="true" />
                       <span className="text-muted-foreground">{feature}</span>
                     </li>
                   ))}
                 </ul>
 
-                <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+                <div className="mt-3 flex gap-2">
                   <Button
-                    className="sm:flex-1"
+                    className="h-10 flex-1"
                     variant={plan.highlighted ? "default" : "outline"}
                     asChild
                   >
@@ -169,7 +172,7 @@ export function Pricing() {
                       {plan.cta}
                     </Link>
                   </Button>
-                  <Button variant="ghost" className="sm:w-auto" asChild>
+                  <Button variant="ghost" className="h-10 shrink-0" asChild>
                     <Link to="/auth" search={{ mode: "login" }}>
                       Entrar
                     </Link>

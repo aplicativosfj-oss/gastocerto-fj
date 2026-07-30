@@ -6,15 +6,20 @@ import {
   Car,
   Fingerprint,
   Flame,
+  HelpCircle,
+  LayoutDashboard,
   Lock,
   PiggyBank,
   Receipt,
   ScrollText,
+  Sparkles,
   Star,
   Target,
   Wallet,
 } from "lucide-react";
 
+import { DemoDialog } from "@/components/landing/demo-dialog";
+import { handleAnchorClick } from "@/lib/scroll";
 import {
   Accordion,
   AccordionContent,
@@ -62,6 +67,13 @@ const faqs = [
   { q: "Preciso de conta para a demonstração?", a: "Não. A demonstração é aberta, com dados fictícios e sem cartão de crédito." },
 ];
 
+const shortcuts = [
+  { label: "Recursos", href: "#recursos", icon: Wallet },
+  { label: "Planos", href: "#planos", icon: Sparkles },
+  { label: "Segurança", href: "#seguranca", icon: Lock },
+  { label: "FAQ", href: "#faq", icon: HelpCircle },
+] as const;
+
 const tabs = ["recursos", "como-funciona", "seguranca", "faq"] as const;
 type TabValue = (typeof tabs)[number];
 
@@ -79,27 +91,50 @@ export function CompactOverview() {
   }, []);
 
   return (
-    <section id="recursos" className="border-y border-border bg-secondary/30 section-y">
-      <span id="como-funciona" className="block" />
+    <section id="explorar" className="border-y border-border bg-secondary/30 section-y">
       <span id="seguranca" className="block" />
-      <span id="faq" className="block" />
       <div className="section-shell">
-        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3 sm:flex sm:justify-between">
+        <div className="grid gap-2.5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
           <div className="min-w-0">
-            <p className="text-xs font-semibold uppercase tracking-wide text-brand">Visão geral</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-brand">
+              Tudo em um só lugar
+            </p>
             <h2 className="mt-1 section-title">
-              Tudo o que você precisa, em uma página
+              Explore o produto sem sair da página
             </h2>
+          </div>
+          <div className="flex min-w-0 flex-wrap items-center gap-1.5 sm:justify-end">
+            <DemoDialog>
+              <button
+                type="button"
+                className="inline-flex h-8 items-center gap-1.5 rounded-full border border-brand/30 bg-brand/10 px-3 text-xs font-semibold text-brand transition-colors hover:bg-brand hover:text-brand-foreground"
+              >
+                <LayoutDashboard className="size-3.5" aria-hidden="true" />
+                Ver painel ao vivo
+              </button>
+            </DemoDialog>
+            {shortcuts.map((item) => (
+              <a
+                key={item.label}
+                href={item.href}
+                onClick={(event) => handleAnchorClick(event, item.href)}
+                className="inline-flex h-8 items-center gap-1.5 rounded-full border border-border bg-card px-3 text-xs font-medium text-muted-foreground transition-colors hover:border-brand/40 hover:text-foreground"
+              >
+                <item.icon className="size-3.5" aria-hidden="true" />
+                {item.label}
+              </a>
+            ))}
           </div>
         </div>
 
         <Tabs value={tab} onValueChange={(v) => setTab(v as TabValue)} className="mt-3.5">
-          <TabsList className="flex w-full flex-wrap justify-start gap-1">
-            <TabsTrigger value="recursos">Recursos</TabsTrigger>
-            <TabsTrigger value="como-funciona">Como funciona</TabsTrigger>
-            <TabsTrigger value="seguranca">Segurança</TabsTrigger>
-            <TabsTrigger value="faq">FAQ</TabsTrigger>
+          <TabsList id="recursos" className="flex h-auto w-full flex-nowrap justify-start gap-1 overflow-x-auto p-1 [scrollbar-width:none] sm:flex-wrap [&::-webkit-scrollbar]:hidden">
+            <TabsTrigger value="recursos" className="shrink-0">Recursos</TabsTrigger>
+            <TabsTrigger value="como-funciona" className="shrink-0">Como funciona</TabsTrigger>
+            <TabsTrigger value="seguranca" className="shrink-0">Segurança</TabsTrigger>
+            <TabsTrigger value="faq" id="faq" className="shrink-0 scroll-mt-24">FAQ</TabsTrigger>
           </TabsList>
+
 
           <TabsContent value="recursos" className="mt-3.5">
             <div className="grid grid-cols-2 gap-2 sm:gap-2.5 lg:grid-cols-3">
