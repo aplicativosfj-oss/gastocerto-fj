@@ -310,28 +310,13 @@ export function TransactionDialog({
 
             <div>
               <Label>Categoria</Label>
-              <Select value={categoryId} onValueChange={setCategoryId}>
-                <SelectTrigger className="mt-1.5">
-                  <SelectValue placeholder="Selecione" />
-                </SelectTrigger>
-                <SelectContent>
-                  {options.map((category) => {
-                    const Icon = categoryIcon(category.icon);
-                    return (
-                      <SelectItem key={category.id} value={category.id}>
-                        <span className="flex items-center gap-2">
-                          <Icon
-                            className="size-4 shrink-0"
-                            style={{ color: category.color ?? undefined }}
-                          />
-                          {category.name}
-                        </span>
-                      </SelectItem>
-                    );
-                  })}
-                </SelectContent>
-              </Select>
+              <CategoryPicker
+                categories={options}
+                value={categoryId}
+                onChange={setCategoryId}
+              />
             </div>
+
 
             <div>
               <Label>Forma de pagamento</Label>
