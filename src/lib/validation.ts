@@ -1,0 +1,121 @@
+import { z } from "zod";
+
+/** Remove caracteres de controle e espaços extras. */
+export function sanitizeText(value: string): string {
+  return value
+    .replace(/[\u0000-\u001F\u007F]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+export function sanitizePhone(value: string): string {
+  return value.replace(/[^\d+()\-\s]/g, "").trim();
+}
+
+export const emailSchema = z
+  .string()
+  .trim()
+  .min(1, "Informe seu e-mail")
+  .email("E-mail inválido")
+  .max(255, "E-mail muito longo");
+
+export const passwordSchema = z
+  .string()
+  .min(8, "A senha deve ter ao menos 8 caracteres")
+  .max(72, "A senha deve ter no máximo 72 caracteres")
+  .regex(/[a-zA-Z]/, "A senha deve conter ao menos uma letra")
+  .regex(/[0-9]/, "A senha deve conter ao menos um número");
+
+export const fullNameSchema = z
+  .string()
+  .transform(sanitizeText)
+  .pipe(
+    z
+      .string()
+      .min(3, "Informe seu nome completo")
+      .max(100, "Nome muito longo")
+      .regex(/^[\p{L}\p{M}'\-\s.]+$/u, "O nome contém caracteres inválidos"),
+  );
+
+export const phoneSchema = z
+  .string()
+  .transform(sanitizePhone)
+  .pipe(
+    z
+      .string()
+      .max(20, "Telefone muito longo")
+      .regex(/^$|^[\d+()\-\s]{8,20}$/, "Telefone inválido"),
+  );
+
+export const signUpSchema = z
+  .object({
+    fullName: fullNameSchema,
+    email: emailSchema,
+    password: passwordSchema,
+    confirmPassword: z.string(),
+    acceptTerms: z.literal(true, {
+      errorMap: () => ({ message: "É necessário aceitar os termos de uso" }),
+    }),
+    acceptPrivacy: z.literal(true, {
+      errorMap: () => ({ message: "É necessário aceitar a política de privacidade" }),
+    }),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    path: ["confirmPassword"],
+    message: "As senhas não conferem",
+  });
+
+export const signInSchema = z.object({
+  email: emailSchema,
+  password: z.string().min(1, "Informe sua senha").max(72),
+});
+
+export const forgotPasswordSchema = z.object({ email: emailSchema });
+
+export const newPasswordSchema = z
+  .object({
+    password: passwordSchema,
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    path: ["confirmPassword"],
+    message: "As senhas não conferem",
+  });
+
+export const profileSchema = z.object({
+  fullName: fullNameSchema,
+  phone: phoneSchema.optional().or(z.literal("")),
+  monthlyIncome: z
+    .number({ invalid_type_error: "Valor inválido" })
+    .min(0, "O valor não pode ser negativo")
+    .max(100_000_000, "Valor muito alto")
+    .optional(),
+});
+
+export const AVATAR_MAX_BYTES = 2 * 1024 * 1024; // 2 MB
+export const AVATAR_ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
+
+export function validateAvatarFile(file: File): string | null {
+  if (!AVATAR_ALLOWED_TYPES.includes(file.type)) {
+    return "Use uma imagem JPG, PNG ou WEBP.";
+  }
+  if (file.size > AVATAR_MAX_BYTES) {
+    return "A imagem deve ter no máximo 2 MB.";
+  }
+  return null;
+}
+
+/** Mensagens de erro amigáveis, sem vazar detalhes internos. */
+export function friendlyAuthError(message?: string): string {
+  const raw = (message ?? "").toLowerCase();
+  if (raw.includes("invalid login credentials")) return "E-mail ou senha incorretos.";
+  if (raw.includes("email not confirmed")) return "Confirme seu e-mail antes de entrar.";
+  if (raw.includes("user already registered")) return "Já existe uma conta com este e-mail.";
+  if (raw.includes("pwned") || raw.includes("compromised"))
+    return "Esta senha já apareceu em vazamentos. Escolha outra.";
+  if (raw.includes("rate limit") || raw.includes("too many"))
+    return "Muitas tentativas. Aguarde alguns minutos e tente novamente.";
+  if (raw.includes("same password"))
+    return "A nova senha precisa ser diferente da anterior.";
+  return "Não foi possível concluir a operação. Tente novamente.";
+}
