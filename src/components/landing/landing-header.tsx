@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 
@@ -10,7 +11,9 @@ const navItems = [
   { label: "Início", href: "#inicio" },
   { label: "Recursos", href: "#recursos" },
   { label: "Como funciona", href: "#como-funciona" },
+  { label: "Benefícios", href: "#beneficios" },
   { label: "Planos", href: "#planos" },
+  { label: "Depoimentos", href: "#depoimentos" },
   { label: "Segurança", href: "#seguranca" },
   { label: "Perguntas frequentes", href: "#faq" },
 ];
@@ -64,10 +67,10 @@ export function LandingHeader() {
             className={cn("hidden sm:inline-flex", !scrolled && "text-white hover:bg-white/10 hover:text-white")}
             asChild
           >
-            <a href="#planos">Entrar</a>
+            <Link to="/auth" search={{ mode: "login" }}>Entrar</Link>
           </Button>
           <Button className="hidden shadow-soft sm:inline-flex" asChild>
-            <a href="#planos">Começar gratuitamente</a>
+            <Link to="/auth" search={{ mode: "signup" }}>Criar conta gratuita</Link>
           </Button>
           <Button
             variant="outline"
@@ -97,7 +100,7 @@ export function LandingHeader() {
             ))}
             <div className="mt-3 flex items-center gap-2">
               <Button variant="outline" className="flex-1" asChild>
-                <a href="#planos">Entrar</a>
+                <Link to="/auth" search={{ mode: "login" }}>Entrar</Link>
               </Button>
               <Button className="flex-1" asChild>
                 <a href="#planos">Começar</a>
