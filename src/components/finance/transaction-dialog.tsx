@@ -380,7 +380,11 @@ export function TransactionDialog({
               <CategoryPicker
                 categories={options}
                 value={categoryId}
-                onChange={setCategoryId}
+                onChange={(id) => {
+                  setAutoFilled(false);
+                  setCategoryId(id);
+                }}
+                autoFilled={autoFilled}
               />
             </div>
 
