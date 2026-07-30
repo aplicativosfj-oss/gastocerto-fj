@@ -314,11 +314,20 @@ export function TransactionDialog({
                   <SelectValue placeholder="Selecione" />
                 </SelectTrigger>
                 <SelectContent>
-                  {options.map((category) => (
-                    <SelectItem key={category.id} value={category.id}>
-                      {category.name}
-                    </SelectItem>
-                  ))}
+                  {options.map((category) => {
+                    const Icon = categoryIcon(category.icon);
+                    return (
+                      <SelectItem key={category.id} value={category.id}>
+                        <span className="flex items-center gap-2">
+                          <Icon
+                            className="size-4 shrink-0"
+                            style={{ color: category.color ?? undefined }}
+                          />
+                          {category.name}
+                        </span>
+                      </SelectItem>
+                    );
+                  })}
                 </SelectContent>
               </Select>
             </div>
