@@ -81,7 +81,9 @@ export function TransactionDialog({
     transaction ? String(transaction.amount).replace(".", ",") : "",
   );
   const [categoryId, setCategoryId] = useState(transaction?.category_id ?? "");
-  const [date, setDate] = useState(transaction?.transaction_date ?? isoDate(new Date()));
+  const [date, setDate] = useState(
+    transaction?.transaction_date ?? defaultDate ?? isoDate(new Date()),
+  );
   const [time, setTime] = useState(transaction?.transaction_time ?? "");
   const [paymentMethod, setPaymentMethod] = useState(transaction?.payment_method ?? "pix");
   const [expenseType, setExpenseType] = useState(transaction?.expense_type ?? "variavel");
