@@ -9,7 +9,11 @@ const links = [
   { label: "Planos", href: "#planos" },
   { label: "Segurança", href: "#seguranca" },
   { label: "FAQ", href: "#faq" },
-  { label: "Privacidade", href: "#seguranca" },
+];
+
+const legalLinks = [
+  { label: "Termos de uso", to: "/termos" as const },
+  { label: "Privacidade", to: "/privacidade" as const },
 ];
 
 const socials = [
@@ -51,6 +55,15 @@ export function LandingFooter() {
           aria-label="Links do rodapé"
           className="col-span-2 -mx-4 flex h-7 min-w-0 items-center gap-x-3 overflow-x-auto whitespace-nowrap px-4 sm:col-span-1 sm:mx-0 sm:h-auto sm:justify-center sm:gap-x-4 sm:px-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
+          {legalLinks.map((link) => (
+            <Link
+              key={link.label}
+              to={link.to}
+              className={`shrink-0 py-1 text-[11px] text-foreground/70 transition-colors hover:text-foreground focus-visible:text-foreground sm:text-xs ${focusRing}`}
+            >
+              {link.label}
+            </Link>
+          ))}
           {links.map((link) => (
             <a
               key={link.label}
