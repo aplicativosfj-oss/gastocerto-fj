@@ -13,6 +13,8 @@ const title = "GastoCerto — Onde cada real vai parar, você sabe";
 const description =
   "Combustível, gás, mercado, contas e assinaturas em um painel só. Lance em 10 segundos, receba alertas antes do vencimento e feche o mês no azul.";
 
+const ogImage = "https://pagina-limpa-controle.lovable.app/og-gastocerto.jpg";
+
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
@@ -21,10 +23,24 @@ export const Route = createFileRoute("/")({
       { property: "og:title", content: title },
       { property: "og:description", content: description },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://pagina-limpa-controle.lovable.app/" },
+      { property: "og:image", content: ogImage },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      { property: "og:image:alt", content: "Painel do GastoCerto com gráficos de gastos" },
+      { property: "og:locale", content: "pt_BR" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: title },
+      { name: "twitter:description", content: description },
+      { name: "twitter:image", content: ogImage },
+      { name: "twitter:image:alt", content: "Painel do GastoCerto com gráficos de gastos" },
     ],
-    links: [{ rel: "preload", as: "image", href: heroBg, fetchPriority: "high" }],
+    links: [
+      { rel: "canonical", href: "https://pagina-limpa-controle.lovable.app/" },
+      { rel: "preload", as: "image", href: heroBg, fetchPriority: "high" },
+    ],
   }),
+
   component: LandingPage,
 });
 
