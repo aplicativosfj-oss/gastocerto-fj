@@ -50,11 +50,16 @@ export function TransactionDialog({
   onOpenChange,
   kind = "expense",
   transaction,
+  defaultDate,
+  onSaved,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   kind?: Kind;
   transaction?: Transaction | null;
+  /** Data inicial sugerida (permite lançar em meses anteriores). */
+  defaultDate?: string;
+  onSaved?: (date: string) => void;
 }) {
   const editing = Boolean(transaction);
   const { data: categories } = useCategories();
