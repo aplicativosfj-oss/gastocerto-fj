@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Car, Droplets, Fuel, Pencil, Plus, Trash2 } from "lucide-react";
+import { Car, Droplets, Fuel, Pencil, Plus, Trash2, TriangleAlert } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -114,10 +114,21 @@ function VehiclesPage() {
   }, [entries, fuelFilter, from, to]);
 
   const summary = useMemo(() => summarizeFuel(filtered), [filtered]);
+  const perVehicle = useMemo(
+    () =>
+      statsByVehicle(
+        (vehicles ?? []).filter(
+          (vehicle) => vehicleFilter === "all" || vehicle.id === vehicleFilter,
+        ),
+        filtered,
+      ).filter((item) => item.summary.entries > 0),
+    [vehicles, filtered, vehicleFilter],
+  );
   const vehicleNames = useMemo(
     () => new Map((vehicles ?? []).map((vehicle) => [vehicle.id, vehicle.name])),
     [vehicles],
   );
+
 
   async function handleDeleteVehicle(vehicle: Vehicle) {
     try {
