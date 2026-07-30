@@ -86,7 +86,7 @@ export function LandingFooter() {
       <div className="border-t border-border">
         <div className="section-shell flex flex-col items-center justify-between gap-2 py-5 text-xs text-muted-foreground sm:flex-row">
           <p>© {new Date().getFullYear()} GastoCerto. Todos os direitos reservados.</p>
-          <p>Feito no Brasil · Valores em Real (R$)</p>
+          <p>Feito no Brasil · Dev. Franc D&apos;nis · Feijó-AC</p>
         </div>
       </div>
     </footer>
