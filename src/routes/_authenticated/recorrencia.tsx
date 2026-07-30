@@ -17,6 +17,13 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -37,6 +44,7 @@ import {
   useRecurringRules,
   useRecurringTransactions,
   useSettleTransaction,
+  useSyncRecurringStatus,
   useToggleRecurringRule,
   type RecurringRule,
 } from "@/lib/recurring";
