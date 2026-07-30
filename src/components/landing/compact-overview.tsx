@@ -6,11 +6,13 @@ import {
   Car,
   Fingerprint,
   Flame,
+  HelpCircle,
   LayoutDashboard,
   Lock,
   PiggyBank,
   Receipt,
   ScrollText,
+  Sparkles,
   Star,
   Target,
   Wallet,
@@ -67,9 +69,9 @@ const faqs = [
 
 const shortcuts = [
   { label: "Recursos", href: "#recursos", icon: Wallet },
-  { label: "Planos", href: "#planos", icon: Star },
+  { label: "Planos", href: "#planos", icon: Sparkles },
   { label: "Segurança", href: "#seguranca", icon: Lock },
-  { label: "FAQ", href: "#faq", icon: Bell },
+  { label: "FAQ", href: "#faq", icon: HelpCircle },
 ] as const;
 
 const tabs = ["recursos", "como-funciona", "seguranca", "faq"] as const;
