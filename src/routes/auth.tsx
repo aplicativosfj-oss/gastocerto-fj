@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
-import { Loader2 } from "lucide-react";
+import { AlertCircle, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -143,9 +143,51 @@ function AuthPage() {
   );
 }
 
-function FieldError({ message }: { message?: string }) {
+function FieldError({ id, message }: { id?: string; message?: string }) {
   if (!message) return null;
-  return <p className="mt-1 text-xs text-destructive">{message}</p>;
+  return (
+    <p id={id} role="alert" className="mt-1 flex items-start gap-1 text-xs text-destructive">
+      <AlertCircle className="mt-px size-3.5 shrink-0" aria-hidden="true" />
+      <span>{message}</span>
+    </p>
+  );
+}
+
+/** Resumo de erros anunciado por leitores de tela ao falhar o envio. */
+function FormAlert({ message }: { message?: string | null }) {
+  if (!message) return null;
+  return (
+    <div
+      role="alert"
+      tabIndex={-1}
+      className="flex items-start gap-2 rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-xs text-destructive"
+    >
+      <AlertCircle className="mt-px size-4 shrink-0" aria-hidden="true" />
+      <span>{message}</span>
+    </div>
+  );
+}
+
+/** Anuncia estados de carregamento sem depender de cor ou spinner. */
+function StatusLive({ busy, label }: { busy: boolean; label: string }) {
+  return (
+    <span className="sr-only" aria-live="polite">
+      {busy ? label : ""}
+    </span>
+  );
+}
+
+function describedBy(...ids: (string | false | undefined)[]) {
+  const list = ids.filter(Boolean) as string[];
+  return list.length ? list.join(" ") : undefined;
+}
+
+function summaryFromErrors(errors: Record<string, string>) {
+  const count = Object.keys(errors).length;
+  if (!count) return null;
+  return count === 1
+    ? "Corrija o campo indicado abaixo para continuar."
+    : `Corrija os ${count} campos indicados abaixo para continuar.`;
 }
 
 function CpfInput({
@@ -153,11 +195,15 @@ function CpfInput({
   name,
   value,
   onChange,
+  invalid,
+  describedById,
 }: {
   id: string;
   name: string;
   value: string;
   onChange: (value: string) => void;
+  invalid?: boolean;
+  describedById?: string;
 }) {
   return (
     <Input
@@ -168,6 +214,9 @@ function CpfInput({
       autoComplete="username"
       placeholder="000.000.000-00"
       maxLength={14}
+      required
+      aria-invalid={invalid || undefined}
+      aria-describedby={describedById}
       className="mt-1.5"
       onChange={(event) => onChange(maskCpf(event.target.value))}
     />
@@ -178,10 +227,14 @@ function PinInput({
   id,
   name,
   autoComplete,
+  invalid,
+  describedById,
 }: {
   id: string;
   name: string;
   autoComplete: "current-password" | "new-password";
+  invalid?: boolean;
+  describedById?: string;
 }) {
   return (
     <Input
@@ -192,6 +245,9 @@ function PinInput({
       autoComplete={autoComplete}
       placeholder="••••••"
       maxLength={6}
+      required
+      aria-invalid={invalid || undefined}
+      aria-describedby={describedById}
       className="mt-1.5 tracking-[0.4em]"
       onChange={(event) => {
         event.target.value = onlyDigits(event.target.value).slice(0, 6);
