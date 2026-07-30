@@ -160,7 +160,7 @@ export function DemoDashboard() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-xs text-muted-foreground">Julho de 2026 · conta de exemplo</p>
-          <p className="font-display text-lg font-bold tracking-tight">Olá, Marina 👋</p>
+          <p className="font-display text-lg font-bold tracking-tight">Olá, Marina</p>
         </div>
         <Badge variant="outline" className="border-brand/40 text-brand">
           Dados fictícios
