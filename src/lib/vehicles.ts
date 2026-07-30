@@ -361,10 +361,14 @@ export function summarizeFuel(entries: FuelEntry[]): FuelSummary {
 export type VehicleFuelStats = {
   vehicle: Vehicle;
   summary: FuelSummary;
-  /** Meta de consumo (média cadastrada ou média histórica do próprio veículo). */
+  /** Meta de consumo configurada (ou média cadastrada do veículo). */
   target: number | null;
-  /** Consumo abaixo da meta em mais de 10%. */
+  /** Percentual de tolerância antes de disparar o alerta. */
+  threshold: number;
+  /** Consumo abaixo da meta além da tolerância configurada. */
   alert: boolean;
+  /** Gasto acima do teto mensal configurado. */
+  budgetAlert: boolean;
   /** Variação percentual em relação à meta. */
   deviation: number | null;
 };
@@ -377,17 +381,129 @@ export function statsByVehicle(
   return vehicles.map((vehicle) => {
     const own = entries.filter((entry) => entry.vehicle_id === vehicle.id);
     const summary = summarizeFuel(own);
-    const target = Number(vehicle.average_consumption ?? 0) || null;
+    const target =
+      Number(vehicle.target_consumption ?? 0) || Number(vehicle.average_consumption ?? 0) || null;
+    const threshold = Math.max(1, Number(vehicle.alert_threshold ?? 10));
+    const enabled = vehicle.alerts_enabled !== false;
     const deviation =
       target && summary.averageConsumption
         ? round(((summary.averageConsumption - target) / target) * 100, 1)
         : null;
+    const budget = Number(vehicle.monthly_fuel_budget ?? 0);
     return {
       vehicle,
       summary,
       target,
+      threshold,
       deviation,
-      alert: deviation != null && deviation <= -10,
+      alert: enabled && deviation != null && deviation <= -threshold,
+      budgetAlert: enabled && budget > 0 && summary.total > budget,
     };
+  });
+}
+
+/** Gera o CSV do dashboard de combustível por veículo. */
+export function fuelStatsCsv(
+  stats: VehicleFuelStats[],
+  period: { from?: string; to?: string } = {},
+): string {
+  const header = [
+    "Veiculo",
+    "Placa",
+    "Periodo inicial",
+    "Periodo final",
+    "Abastecimentos",
+    "Litros",
+    "Distancia (km)",
+    "Consumo medio (km/l)",
+    "Meta (km/l)",
+    "Variacao (%)",
+    "Preco medio (R$/L)",
+    "Custo por km (R$)",
+    "Total no periodo (R$)",
+    "Alerta",
+  ];
+
+  const rows = stats.map((item) =>
+    [
+      item.vehicle.name,
+      item.vehicle.plate ?? "",
+      period.from ?? "",
+      period.to ?? "",
+      item.summary.entries,
+      item.summary.liters,
+      item.summary.distance,
+      item.summary.averageConsumption ?? "",
+      item.target ?? "",
+      item.deviation ?? "",
+      item.summary.averagePrice ?? "",
+      item.summary.costPerKm ?? "",
+      item.summary.total,
+      item.alert ? "Consumo abaixo da meta" : item.budgetAlert ? "Gasto acima do teto" : "",
+    ]
+      .map((value) => String(value).replace(/;/g, ","))
+      .join(";"),
+  );
+
+  const totals = stats.reduce(
+    (acc, item) => ({
+      entries: acc.entries + item.summary.entries,
+      liters: round(acc.liters + item.summary.liters, 2),
+      distance: round(acc.distance + item.summary.distance, 1),
+      total: round(acc.total + item.summary.total, 2),
+    }),
+    { entries: 0, liters: 0, distance: 0, total: 0 },
+  );
+
+  const totalRow = [
+    "TOTAL",
+    "",
+    period.from ?? "",
+    period.to ?? "",
+    totals.entries,
+    totals.liters,
+    totals.distance,
+    totals.distance > 0 && totals.liters > 0 ? round(totals.distance / totals.liters, 2) : "",
+    "",
+    "",
+    totals.liters > 0 ? round(totals.total / totals.liters, 3) : "",
+    totals.distance > 0 ? round(totals.total / totals.distance, 3) : "",
+    totals.total,
+    "",
+  ].join(";");
+
+  return [header.join(";"), ...rows, totalRow].join("\n");
+}
+
+export function downloadCsv(content: string, filename: string) {
+  const url = URL.createObjectURL(
+    new Blob([`\uFEFF${content}`], { type: "text/csv;charset=utf-8" }),
+  );
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+
+export type VehicleAlertSettings = {
+  target_consumption: number | null;
+  alert_threshold: number;
+  monthly_fuel_budget: number | null;
+  alerts_enabled: boolean;
+};
+
+/** Salva metas e limites de alerta de um veículo. */
+export function useSaveVehicleSettings() {
+  const refresh = useRefreshFleet();
+  return useMutation({
+    mutationFn: async (input: { id: string; values: VehicleAlertSettings }) => {
+      const { error } = await supabase.from("vehicles").update(input.values).eq("id", input.id);
+      if (error) throw error;
+    },
+    onSuccess: refresh,
   });
 }

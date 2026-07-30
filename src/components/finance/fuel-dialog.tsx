@@ -24,6 +24,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { isoDate, parseAmount, toCents } from "@/lib/finance";
+import { diffValues, useLogFuelAudit } from "@/lib/fuel-audit";
 import { formatCurrency } from "@/lib/format";
 import { useCategories } from "@/lib/queries";
 import { useAccounts } from "@/lib/transactions";
@@ -54,6 +55,7 @@ export function FuelDialog({
   entry?: FuelEntry | null;
 }) {
   const save = useSaveFuelEntry();
+  const logAudit = useLogFuelAudit();
   const { data: categories } = useCategories();
   const { data: accounts } = useAccounts();
 
@@ -192,6 +194,36 @@ export function FuelDialog({
             ? { categoryId: fuelCategoryId, accountId: accountId || null }
             : undefined,
       });
+      const values = {
+        entry_date: date,
+        odometer: odometerValue,
+        liters: round(litersValue, 3),
+        price_per_liter: round(priceValue, 3),
+        total_amount: totalValue,
+        fuel_type: fuelType,
+        station: station ? sanitizeText(station) : null,
+        full_tank: fullTank,
+        notes: notes ? sanitizeText(notes) : null,
+        attachment_url: attachment,
+      };
+
+      await logAudit
+        .mutateAsync({
+          action: entry ? "update" : "create",
+          vehicleId: vehicleId,
+          fuelEntryId: entry?.id ?? null,
+          odometerBefore: entry ? Number(entry.odometer) : null,
+          odometerAfter: odometerValue,
+          changes: diffValues(
+            entry as unknown as Record<string, unknown> | null,
+            values,
+            Object.keys(values),
+          ),
+          warnings,
+          notes: warnings.length > 0 ? "Salvo com avisos confirmados pelo usuário." : null,
+        })
+        .catch((error) => console.error("[auditoria] falha ao registrar", error));
+
       toast.success(entry ? "Abastecimento atualizado." : "Abastecimento registrado.");
       onOpenChange(false);
     } catch (error) {

@@ -1,5 +1,16 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { Car, Droplets, Fuel, Pencil, Plus, Trash2, TriangleAlert } from "lucide-react";
+import { Link, createFileRoute } from "@tanstack/react-router";
+import {
+  Car,
+  Download,
+  Droplets,
+  Fuel,
+  History,
+  Pencil,
+  Plus,
+  Settings2,
+  Trash2,
+  TriangleAlert,
+} from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -39,8 +50,16 @@ import {
 import { formatCurrency, formatDate } from "@/lib/format";
 import { labelFor } from "@/lib/finance";
 import {
+  AUDIT_ACTIONS,
+  AUDIT_FIELD_LABELS,
+  useFuelAudit,
+  useLogFuelAudit,
+} from "@/lib/fuel-audit";
+import {
   FUEL_TYPES,
   VEHICLE_TYPES,
+  downloadCsv,
+  fuelStatsCsv,
   statsByVehicle,
   summarizeFuel,
   useDeleteFuelEntry,
@@ -95,6 +114,11 @@ function VehiclesPage() {
 
   const deleteVehicle = useDeleteVehicle();
   const deleteEntry = useDeleteFuelEntry();
+  const logAudit = useLogFuelAudit();
+  const { data: auditLog } = useFuelAudit(
+    vehicleFilter === "all" ? undefined : vehicleFilter,
+    30,
+  );
 
   const [vehicleDialog, setVehicleDialog] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
@@ -130,6 +154,13 @@ function VehiclesPage() {
   );
 
 
+  function exportFuelCsv() {
+    const csv = fuelStatsCsv(perVehicle, { from, to });
+    const suffix = from || to ? `${from || "inicio"}_${to || "hoje"}` : "geral";
+    downloadCsv(csv, `combustivel-por-veiculo-${suffix}.csv`);
+    toast.success("CSV exportado.");
+  }
+
   async function handleDeleteVehicle(vehicle: Vehicle) {
     try {
       await deleteVehicle.mutateAsync(vehicle.id);
@@ -144,6 +175,16 @@ function VehiclesPage() {
   async function handleDeleteEntry(entry: FuelEntry) {
     try {
       await deleteEntry.mutateAsync(entry);
+      await logAudit
+        .mutateAsync({
+          action: "delete",
+          vehicleId: entry.vehicle_id,
+          fuelEntryId: entry.id,
+          odometerBefore: Number(entry.odometer),
+          odometerAfter: null,
+          notes: `Abastecimento de ${entry.entry_date} removido.`,
+        })
+        .catch((error) => console.error("[auditoria] falha ao registrar", error));
       setConfirmEntry(null);
       toast.success("Abastecimento removido.");
     } catch (error) {
@@ -163,6 +204,20 @@ function VehiclesPage() {
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
+            <Button variant="outline" asChild>
+              <Link to="/veiculos-configuracoes">
+                <Settings2 className="mr-2 size-4" />
+                Metas e alertas
+              </Link>
+            </Button>
+            <Button
+              variant="outline"
+              disabled={perVehicle.length === 0}
+              onClick={exportFuelCsv}
+            >
+              <Download className="mr-2 size-4" />
+              CSV
+            </Button>
             <Button
               variant="outline"
               onClick={() => {
@@ -339,7 +394,7 @@ function VehiclesPage() {
           <section className="space-y-3">
             <h2 className="text-lg font-semibold tracking-tight">Desempenho por veículo</h2>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {perVehicle.map(({ vehicle, summary: stats, target, deviation, alert }) => (
+              {perVehicle.map(({ vehicle, summary: stats, target, threshold, deviation, alert, budgetAlert }) => (
                 <article
                   key={vehicle.id}
                   className={`rounded-2xl border bg-card p-4 ${
@@ -374,7 +429,7 @@ function VehiclesPage() {
                   </dl>
                   <p className="mt-3 text-xs text-muted-foreground">
                     {target
-                      ? `Meta de consumo: ${target} km/l${
+                      ? `Meta: ${target} km/l · tolerância ${threshold}%${
                           deviation != null ? ` · variação ${deviation > 0 ? "+" : ""}${deviation}%` : ""
                         }`
                       : "Cadastre o consumo médio do veículo para receber alertas de limite."}
@@ -384,6 +439,12 @@ function VehiclesPage() {
                       <TriangleAlert className="mt-0.5 size-3.5 shrink-0" />
                       Consumo abaixo da meta no período. Verifique calibragem, trajeto ou
                       manutenção.
+                    </p>
+                  ) : null}
+                  {budgetAlert ? (
+                    <p className="mt-2 flex items-start gap-2 rounded-lg bg-amber-500/10 p-2 text-xs text-amber-600 dark:text-amber-400">
+                      <TriangleAlert className="mt-0.5 size-3.5 shrink-0" />
+                      Gasto acima do teto mensal definido para este veículo.
                     </p>
                   ) : null}
                 </article>
@@ -477,6 +538,68 @@ function VehiclesPage() {
                 ))}
               </TableBody>
             </Table>
+          )}
+        </section>
+
+        <section className="rounded-2xl border border-border bg-card p-4">
+          <h2 className="flex items-center gap-2 text-lg font-semibold tracking-tight">
+            <History className="size-4" />
+            Histórico de auditoria
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Cada edição de odômetro ou abastecimento fica registrada com autor, valores anteriores
+            e alertas acionados no momento de salvar.
+          </p>
+          {(auditLog ?? []).length === 0 ? (
+            <p className="mt-4 text-sm text-muted-foreground">
+              Nenhum registro de auditoria ainda.
+            </p>
+          ) : (
+            <ul className="mt-4 space-y-3">
+              {(auditLog ?? []).map((log) => (
+                <li key={log.id} className="rounded-xl border border-border p-3 text-sm">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <span className="font-medium">
+                      {AUDIT_ACTIONS[log.action] ?? log.action}
+                      {log.vehicle_id ? ` · ${vehicleNames.get(log.vehicle_id) ?? "veículo"}` : ""}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {new Date(log.created_at).toLocaleString("pt-BR")} ·{" "}
+                      {log.actor_name ?? "Você"}
+                    </span>
+                  </div>
+                  {log.odometer_after != null || log.odometer_before != null ? (
+                    <p className="mt-1 text-xs text-muted-foreground tabular-nums">
+                      Odômetro: {log.odometer_before ?? "—"} → {log.odometer_after ?? "—"} km
+                    </p>
+                  ) : null}
+                  {Object.keys((log.changes ?? {}) as Record<string, unknown>).length > 0 ? (
+                    <ul className="mt-1 list-disc space-y-0.5 pl-5 text-xs text-muted-foreground">
+                      {Object.entries(
+                        log.changes as Record<string, { before: unknown; after: unknown }>,
+                      ).map(([field, value]) => (
+                        <li key={field}>
+                          {AUDIT_FIELD_LABELS[field] ?? field}: {String(value.before ?? "—")} →{" "}
+                          {String(value.after ?? "—")}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
+                  {(log.warnings ?? []).length > 0 ? (
+                    <div className="mt-2 flex flex-wrap gap-1">
+                      {(log.warnings ?? []).map((warning) => (
+                        <Badge key={warning} variant="outline" className="text-amber-600">
+                          {warning}
+                        </Badge>
+                      ))}
+                    </div>
+                  ) : null}
+                  {log.notes ? (
+                    <p className="mt-1 text-xs text-muted-foreground">{log.notes}</p>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
           )}
         </section>
       </div>
