@@ -102,9 +102,9 @@ export function CompactOverview() {
           </TabsList>
 
           <TabsContent value="recursos" className="mt-4">
-            <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-2 gap-2 sm:gap-2.5 lg:grid-cols-3">
               {features.map((item) => (
-                <div key={item.title} className="flex min-w-0 gap-3 rounded-xl border border-border bg-card p-3">
+                <div key={item.title} className="flex min-w-0 flex-col gap-2 rounded-xl border border-border bg-card p-2.5 sm:flex-row sm:gap-3 sm:p-3">
                   <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-brand/10 text-brand">
                     <item.icon className="size-4" />
                   </span>
@@ -118,7 +118,7 @@ export function CompactOverview() {
           </TabsContent>
 
           <TabsContent value="como-funciona" className="mt-4">
-            <div className="grid gap-2.5 sm:grid-cols-3">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-2.5">
               {steps.map((step, index) => (
                 <div key={step.title} className="rounded-xl border border-border bg-card p-4">
                   <span className="grid size-8 place-items-center rounded-lg bg-brand text-sm font-bold text-brand-foreground">
@@ -147,7 +147,7 @@ export function CompactOverview() {
           </TabsContent>
 
           <TabsContent value="seguranca" className="mt-4">
-            <div className="grid gap-2.5 sm:grid-cols-3">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-2.5">
               {pillars.map((pillar) => (
                 <div key={pillar.title} className="rounded-xl border border-border bg-card p-4">
                   <span className="grid size-9 place-items-center rounded-lg bg-brand/10 text-brand">

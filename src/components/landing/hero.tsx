@@ -23,7 +23,7 @@ export function Hero() {
   return (
     <section
       id="inicio"
-      className="relative isolate flex min-h-[70svh] max-h-[820px] items-center overflow-hidden bg-[oklch(0.16_0.03_258)] pt-20 pb-8 sm:pt-24 sm:pb-10 text-white"
+      className="relative isolate flex min-h-[62svh] max-h-[820px] items-center overflow-hidden bg-[oklch(0.16_0.03_258)] pt-20 pb-8 sm:pt-24 sm:pb-10 text-white"
     >
       <img
         src={heroBg}
@@ -52,16 +52,16 @@ export function Hero() {
             Gestão financeira pessoal
           </span>
 
-          <h1 className="font-display mt-5 text-[2rem] font-extrabold leading-[1.05] tracking-[-0.03em] text-white sm:text-[2.75rem] lg:text-5xl xl:text-[3.4rem]">
+          <h1 className="font-display mt-4 text-[1.75rem] font-extrabold leading-[1.05] tracking-[-0.03em] text-white sm:text-[2.75rem] lg:text-5xl xl:text-[3.4rem]">
             Controle profissional de cada real que você gasta.
           </h1>
 
-          <p className="mt-4 max-w-lg text-sm leading-relaxed text-white/70 sm:text-base">
+          <p className="mt-3 max-w-lg text-sm leading-relaxed text-white/70 sm:text-base">
             Despesas, combustível, contas recorrentes e orçamentos em um só painel — com
             indicadores automáticos e relatórios prontos para decidir.
           </p>
 
-          <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+          <div className="mt-5 flex flex-col gap-2.5 sm:flex-row">
             <Button size="lg" className="shadow-lifted" asChild>
               <Link to="/auth" search={{ mode: "signup" }}>
                 Criar conta gratuita
@@ -88,7 +88,7 @@ export function Hero() {
             </a>
           </div>
 
-          <dl className="mt-8 grid grid-cols-3 gap-3 border-t border-white/10 pt-5">
+          <dl className="mt-6 grid grid-cols-3 gap-2 border-t border-white/10 pt-4">
             {stats.map((stat) => (
               <div key={stat.label} className="min-w-0">
                 <dt className="truncate text-[11px] uppercase tracking-wide text-white/50">
@@ -97,7 +97,7 @@ export function Hero() {
                 <dd className="tabular mt-1 truncate text-base font-bold text-white sm:text-lg">
                   {stat.value}
                 </dd>
-                <p className="truncate text-[11px] text-white/45">{stat.hint}</p>
+                <p className="hidden truncate text-[11px] text-white/45 sm:block">{stat.hint}</p>
               </div>
             ))}
           </dl>
