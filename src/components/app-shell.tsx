@@ -57,9 +57,9 @@ export function AppShell({ children }: { children: ReactNode }) {
   const avatarUrl = useAvatarUrl(profile?.avatar_url);
   const unreadCount = (notifications ?? []).filter((item) => !item.read_at).length;
   const isStaff = (roles ?? []).some((role) => role === "admin" || role === "support");
-  const items = isStaff
-    ? [...navItems, { label: "Administração", to: "/admin", icon: ShieldCheck } as const]
-    : navItems;
+  const items: Array<{ label: string; to: string; icon: typeof LayoutDashboard }> = isStaff
+    ? [...navItems, { label: "Administração", to: "/admin", icon: ShieldCheck }]
+    : [...navItems];
 
   const initials = (profile?.full_name ?? "GC")
     .split(" ")
@@ -120,9 +120,9 @@ export function AppShell({ children }: { children: ReactNode }) {
 
             <div className="flex shrink-0 items-center gap-2">
               <Link to="/calendario" aria-label="Notificações" className="relative">
-                <Button variant="ghost" size="icon" asChild={false}>
+                <span className="inline-flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground">
                   <Bell className="size-5" />
-                </Button>
+                </span>
                 {unreadCount > 0 ? (
                   <span className="absolute -right-0.5 -top-0.5 flex size-4 items-center justify-center rounded-full bg-destructive text-[10px] font-semibold text-destructive-foreground">
                     {unreadCount > 9 ? "9+" : unreadCount}
@@ -173,12 +173,13 @@ function NavLink({
   onNavigate,
 }: {
   item: { label: string; to: string; icon: typeof LayoutDashboard };
+  /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
   active: boolean;
   onNavigate?: () => void;
 }) {
   return (
     <Link
-      to={item.to}
+      to={item.to as never}
       onClick={onNavigate}
       aria-current={active ? "page" : undefined}
       className={cn(
