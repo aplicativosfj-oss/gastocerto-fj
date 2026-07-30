@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as DemonstracaoRouteImport } from './routes/demonstracao'
 import { Route as RedefinirSenhaRouteImport } from './routes/redefinir-senha'
 import { Route as AuthenticatedCategoriasRouteImport } from './routes/_authenticated/categorias'
 import { Route as AuthenticatedComprovantesRouteImport } from './routes/_authenticated/comprovantes'
@@ -38,6 +39,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemonstracaoRoute = DemonstracaoRouteImport.update({
+  id: '/demonstracao',
+  path: '/demonstracao',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RedefinirSenhaRoute = RedefinirSenhaRouteImport.update({
@@ -114,6 +120,7 @@ const AuthenticatedVeiculosConfiguracoesRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/demonstracao': typeof DemonstracaoRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/categorias': typeof AuthenticatedCategoriasRoute
   '/comprovantes': typeof AuthenticatedComprovantesRoute
@@ -131,6 +138,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/demonstracao': typeof DemonstracaoRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/categorias': typeof AuthenticatedCategoriasRoute
   '/comprovantes': typeof AuthenticatedComprovantesRoute
@@ -150,6 +158,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/demonstracao': typeof DemonstracaoRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/_authenticated/categorias': typeof AuthenticatedCategoriasRoute
   '/_authenticated/comprovantes': typeof AuthenticatedComprovantesRoute
@@ -169,6 +178,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/demonstracao'
     | '/redefinir-senha'
     | '/categorias'
     | '/comprovantes'
@@ -186,6 +196,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/demonstracao'
     | '/redefinir-senha'
     | '/categorias'
     | '/comprovantes'
@@ -204,6 +215,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/demonstracao'
     | '/redefinir-senha'
     | '/_authenticated/categorias'
     | '/_authenticated/comprovantes'
@@ -223,6 +235,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  DemonstracaoRoute: typeof DemonstracaoRoute
   RedefinirSenhaRoute: typeof RedefinirSenhaRoute
 }
 
@@ -247,6 +260,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demonstracao': {
+      id: '/demonstracao'
+      path: '/demonstracao'
+      fullPath: '/demonstracao'
+      preLoaderRoute: typeof DemonstracaoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/redefinir-senha': {
@@ -381,6 +401,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  DemonstracaoRoute: DemonstracaoRoute,
   RedefinirSenhaRoute: RedefinirSenhaRoute,
 }
 export const routeTree = rootRouteImport

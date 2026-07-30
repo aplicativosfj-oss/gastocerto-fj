@@ -1,4 +1,5 @@
-import { ArrowRight, ShieldCheck, TrendingDown, Wallet } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { ArrowRight, PlayCircle, ShieldCheck, TrendingDown, Wallet } from "lucide-react";
 
 import heroBg from "@/assets/hero-finance.jpg";
 import { Button } from "@/components/ui/button";
@@ -54,10 +55,10 @@ export function Hero() {
 
           <div className="mt-7 flex flex-col gap-3 sm:flex-row">
             <Button size="lg" className="shadow-lifted" asChild>
-              <a href="#planos">
-                Começar gratuitamente
+              <Link to="/auth" search={{ mode: "signup" }}>
+                Criar conta gratuita
                 <ArrowRight className="size-4" aria-hidden="true" />
-              </a>
+              </Link>
             </Button>
             <Button
               size="lg"
@@ -65,7 +66,10 @@ export function Hero() {
               className="border-white/25 bg-white/5 text-white hover:bg-white/15 hover:text-white"
               asChild
             >
-              <a href="#recursos">Ver recursos</a>
+              <Link to="/demonstracao">
+                <PlayCircle className="size-4" aria-hidden="true" />
+                Ver demonstração
+              </Link>
             </Button>
           </div>
 

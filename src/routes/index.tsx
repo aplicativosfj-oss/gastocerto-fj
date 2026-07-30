@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
+import { Benefits } from "@/components/landing/benefits";
+import { CtaBanner } from "@/components/landing/cta-banner";
 import { Faq } from "@/components/landing/faq";
 import { Features } from "@/components/landing/features";
 import { Hero } from "@/components/landing/hero";
@@ -8,6 +10,7 @@ import { LandingFooter } from "@/components/landing/landing-footer";
 import { LandingHeader } from "@/components/landing/landing-header";
 import { Pricing } from "@/components/landing/pricing";
 import { Security } from "@/components/landing/security";
+import { Testimonials } from "@/components/landing/testimonials";
 
 const title = "GastoCerto — Controle total dos seus gastos";
 const description =
@@ -34,10 +37,13 @@ function LandingPage() {
       <main>
         <Hero />
         <Features />
+        <Benefits />
         <HowItWorks />
         <Pricing />
+        <Testimonials />
         <Security />
         <Faq />
+        <CtaBanner />
       </main>
       <LandingFooter />
     </div>
