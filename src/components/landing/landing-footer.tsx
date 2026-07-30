@@ -1,4 +1,5 @@
-import { Instagram, Linkedin, Mail, Youtube } from "lucide-react";
+import { Instagram, Linkedin, Lock, Mail, Youtube } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 
 import { Logo } from "@/components/logo";
 
@@ -86,7 +87,17 @@ export function LandingFooter() {
       <div className="border-t border-border">
         <div className="section-shell flex flex-col items-center justify-between gap-2 py-5 text-xs text-muted-foreground sm:flex-row">
           <p>© {new Date().getFullYear()} GastoCerto. Todos os direitos reservados.</p>
-          <p>Feito no Brasil · Dev. Franc D&apos;nis · Feijó-AC</p>
+          <div className="flex items-center gap-2">
+            <p>Feito no Brasil · Dev. Franc D&apos;nis · Feijó-AC</p>
+            <Link
+              to="/admin"
+              aria-label="Acesso restrito da equipe"
+              title="Acesso da equipe"
+              className="grid size-6 place-items-center rounded-md text-muted-foreground/40 transition-colors hover:text-foreground"
+            >
+              <Lock className="size-3" aria-hidden="true" />
+            </Link>
+          </div>
         </div>
       </div>
     </footer>
