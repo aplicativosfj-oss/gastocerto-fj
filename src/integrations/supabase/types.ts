@@ -156,6 +156,51 @@ export type Database = {
           },
         ]
       }
+      fuel_audit_log: {
+        Row: {
+          action: string
+          actor_name: string | null
+          changes: Json
+          created_at: string
+          fuel_entry_id: string | null
+          id: string
+          notes: string | null
+          odometer_after: number | null
+          odometer_before: number | null
+          user_id: string
+          vehicle_id: string | null
+          warnings: string[]
+        }
+        Insert: {
+          action: string
+          actor_name?: string | null
+          changes?: Json
+          created_at?: string
+          fuel_entry_id?: string | null
+          id?: string
+          notes?: string | null
+          odometer_after?: number | null
+          odometer_before?: number | null
+          user_id: string
+          vehicle_id?: string | null
+          warnings?: string[]
+        }
+        Update: {
+          action?: string
+          actor_name?: string | null
+          changes?: Json
+          created_at?: string
+          fuel_entry_id?: string | null
+          id?: string
+          notes?: string | null
+          odometer_after?: number | null
+          odometer_before?: number | null
+          user_id?: string
+          vehicle_id?: string | null
+          warnings?: string[]
+        }
+        Relationships: []
+      }
       fuel_entries: {
         Row: {
           attachment_url: string | null
@@ -609,6 +654,8 @@ export type Database = {
       vehicles: {
         Row: {
           active: boolean
+          alert_threshold: number
+          alerts_enabled: boolean
           average_consumption: number | null
           brand: string | null
           color: string | null
@@ -617,9 +664,11 @@ export type Database = {
           id: string
           initial_odometer: number
           model: string | null
+          monthly_fuel_budget: number | null
           name: string
           plate: string | null
           tank_capacity: number | null
+          target_consumption: number | null
           updated_at: string
           user_id: string
           vehicle_type: string
@@ -627,6 +676,8 @@ export type Database = {
         }
         Insert: {
           active?: boolean
+          alert_threshold?: number
+          alerts_enabled?: boolean
           average_consumption?: number | null
           brand?: string | null
           color?: string | null
@@ -635,9 +686,11 @@ export type Database = {
           id?: string
           initial_odometer?: number
           model?: string | null
+          monthly_fuel_budget?: number | null
           name: string
           plate?: string | null
           tank_capacity?: number | null
+          target_consumption?: number | null
           updated_at?: string
           user_id: string
           vehicle_type?: string
@@ -645,6 +698,8 @@ export type Database = {
         }
         Update: {
           active?: boolean
+          alert_threshold?: number
+          alerts_enabled?: boolean
           average_consumption?: number | null
           brand?: string | null
           color?: string | null
@@ -653,9 +708,11 @@ export type Database = {
           id?: string
           initial_odometer?: number
           model?: string | null
+          monthly_fuel_budget?: number | null
           name?: string
           plate?: string | null
           tank_capacity?: number | null
+          target_consumption?: number | null
           updated_at?: string
           user_id?: string
           vehicle_type?: string
