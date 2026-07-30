@@ -81,7 +81,7 @@ const tabMeta: Record<TabValue, { label: string; description: string }> = {
   recursos: { label: "Recursos", description: "Nove recursos de controle de gastos" },
   "como-funciona": { label: "Como funciona", description: "Três passos e depoimentos de clientes" },
   seguranca: { label: "Segurança", description: "LGPD, criptografia e controle de acesso" },
-  faq: { label: "Perguntas frequentes", description: "Seis dúvidas comuns sobre planos e demonstração" },
+  faq: { label: "FAQ", description: "Perguntas frequentes: seis dúvidas comuns sobre planos e demonstração" },
 };
 
 export function CompactOverview() {
