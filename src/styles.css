@@ -331,6 +331,69 @@
   }
 }
 
+/* Micro-interações profissionais: link de navegação com sublinhado animado. */
+@utility nav-underline {
+  position: relative;
+  transition: color 200ms ease, background-color 200ms ease;
+
+  &::after {
+    content: "";
+    position: absolute;
+    left: 0.75rem;
+    right: 0.75rem;
+    bottom: 0.15rem;
+    height: 2px;
+    border-radius: 999px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  &:hover::after,
+  &:focus-visible::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+}
+
+/* Cartões e superfícies clicáveis com elevação suave. */
+@utility interactive-card {
+  transition: transform 240ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 240ms ease,
+    border-color 240ms ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    border-color: color-mix(in oklab, var(--ring) 45%, transparent);
+    box-shadow: var(--shadow-lifted);
+  }
+
+  &:active {
+    transform: translateY(-1px);
+  }
+}
+
+@layer base {
+  /* Setas dos botões avançam levemente no hover. */
+  button:hover > svg:last-child,
+  a:hover > svg:last-child {
+    transform: translateX(2px);
+  }
+
+  a:not([class*="button"]) {
+    transition: color 200ms ease, opacity 200ms ease;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+}
+
 
 @layer base {
   * {
