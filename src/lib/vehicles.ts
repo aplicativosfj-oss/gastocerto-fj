@@ -488,3 +488,22 @@ export function downloadCsv(content: string, filename: string) {
   URL.revokeObjectURL(url);
 }
 
+
+export type VehicleAlertSettings = {
+  target_consumption: number | null;
+  alert_threshold: number;
+  monthly_fuel_budget: number | null;
+  alerts_enabled: boolean;
+};
+
+/** Salva metas e limites de alerta de um veículo. */
+export function useSaveVehicleSettings() {
+  const refresh = useRefreshFleet();
+  return useMutation({
+    mutationFn: async (input: { id: string; values: VehicleAlertSettings }) => {
+      const { error } = await supabase.from("vehicles").update(input.values).eq("id", input.id);
+      if (error) throw error;
+    },
+    onSuccess: refresh,
+  });
+}
