@@ -28,8 +28,6 @@ export default defineConfig({
           globPatterns: ["**/*.{js,css,html,ico,png,jpg,svg,webmanifest,woff2}"],
           globIgnores: ["**/node_modules/**", "_headers", "**/*.map"],
           maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
-          navigateFallback: "/",
-          navigateFallbackDenylist: [/^\/~oauth/, /^\/api\//],
           cleanupOutdatedCaches: true,
           clientsClaim: true,
           skipWaiting: true,
