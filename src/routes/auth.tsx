@@ -588,7 +588,15 @@ function CpfSignUpForm({ onDone }: { onDone: () => void }) {
 function AdminSignInForm({ onBack }: { onBack: () => void }) {
   const navigate = useNavigate();
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [formError, setFormError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const alertRef = useRef<HTMLDivElement>(null);
+
+  function fail(message: string, fields: Record<string, string> = {}) {
+    setErrors(fields);
+    setFormError(message);
+    requestAnimationFrame(() => alertRef.current?.focus());
+  }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -598,11 +606,13 @@ function AdminSignInForm({ onBack }: { onBack: () => void }) {
       password: String(form.get("password") ?? ""),
     });
     if (!parsed.success) {
-      setErrors(fieldErrors(parsed.error));
+      const fields = fieldErrors(parsed.error);
+      fail(summaryFromErrors(fields) ?? "Revise os dados informados.", fields);
       return;
     }
 
     setErrors({});
+    setFormError(null);
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword(parsed.data);
 
@@ -618,6 +628,7 @@ function AdminSignInForm({ onBack }: { onBack: () => void }) {
       });
       if (signUpError) {
         setLoading(false);
+        fail(friendlyAuthError(signUpError.message));
         toast.error(friendlyAuthError(signUpError.message));
         return;
       }
@@ -633,6 +644,7 @@ function AdminSignInForm({ onBack }: { onBack: () => void }) {
 
     setLoading(false);
     if (error) {
+      fail(friendlyAuthError(error.message));
       toast.error(friendlyAuthError(error.message));
       return;
     }
@@ -640,7 +652,10 @@ function AdminSignInForm({ onBack }: { onBack: () => void }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+    <form onSubmit={handleSubmit} className="space-y-4" noValidate aria-busy={loading}>
+      <div ref={alertRef} tabIndex={-1} className="outline-none">
+        <FormAlert message={formError} />
+      </div>
       <div>
         <h2 className="text-lg font-semibold">Acesso administrativo</h2>
         <p className="mt-1 text-sm text-muted-foreground">
@@ -649,8 +664,17 @@ function AdminSignInForm({ onBack }: { onBack: () => void }) {
       </div>
       <div>
         <Label htmlFor="admin-email">E-mail</Label>
-        <Input id="admin-email" name="email" type="email" autoComplete="email" className="mt-1.5" />
-        <FieldError message={errors.email} />
+        <Input
+          id="admin-email"
+          name="email"
+          type="email"
+          autoComplete="email"
+          required
+          aria-invalid={Boolean(errors.email) || undefined}
+          aria-describedby={describedBy(errors.email && "admin-email-error")}
+          className="mt-1.5"
+        />
+        <FieldError id="admin-email-error" message={errors.email} />
       </div>
       <div>
         <Label htmlFor="admin-password">Senha</Label>
@@ -659,13 +683,17 @@ function AdminSignInForm({ onBack }: { onBack: () => void }) {
           name="password"
           type="password"
           autoComplete="current-password"
+          required
+          aria-invalid={Boolean(errors.password) || undefined}
+          aria-describedby={describedBy(errors.password && "admin-password-error")}
           className="mt-1.5"
         />
-        <FieldError message={errors.password} />
+        <FieldError id="admin-password-error" message={errors.password} />
       </div>
       <Button type="submit" className="w-full" disabled={loading}>
-        {loading ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
+        {loading ? <Loader2 className="mr-2 size-4 animate-spin" aria-hidden="true" /> : null}
         Entrar
+        <StatusLive busy={loading} label="Entrando, aguarde." />
       </Button>
       <Button type="button" variant="ghost" className="w-full" onClick={onBack}>
         Voltar para o acesso por CPF
@@ -729,13 +757,17 @@ function ForgotPasswordForm({ onBack }: { onBack: () => void }) {
           name="email"
           type="email"
           autoComplete="email"
+          required
+          aria-invalid={Boolean(errors.email) || undefined}
+          aria-describedby={describedBy(errors.email && "forgot-email-error")}
           className="mt-1.5"
         />
-        <FieldError message={errors.email} />
+        <FieldError id="forgot-email-error" message={errors.email} />
       </div>
       <Button type="submit" className="w-full" disabled={loading}>
-        {loading ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
+        {loading ? <Loader2 className="mr-2 size-4 animate-spin" aria-hidden="true" /> : null}
         Enviar link de recuperação
+        <StatusLive busy={loading} label="Enviando link, aguarde." />
       </Button>
       <Button type="button" variant="ghost" className="w-full" onClick={onBack}>
         Voltar
