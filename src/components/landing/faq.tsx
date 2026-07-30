@@ -45,7 +45,7 @@ const faqs = [
 
 export function Faq() {
   return (
-    <section id="faq" className="py-20 sm:py-24">
+    <section id="faq" className="py-14 sm:py-16">
       <div className="section-shell grid gap-10 lg:grid-cols-[0.8fr_1.2fr]">
         <div>
           <p className="text-sm font-semibold text-brand">Perguntas frequentes</p>
