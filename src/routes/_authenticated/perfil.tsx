@@ -243,7 +243,10 @@ function ProfilePage() {
             Salvar alterações
           </Button>
         </form>
+
+        <LicenseCard />
       </div>
+
     </AppShell>
   );
 }
