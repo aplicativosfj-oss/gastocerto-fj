@@ -41,15 +41,15 @@ const features = [
 ];
 
 const steps = [
-  { title: "Crie sua conta", text: "Cadastro com CPF e senha em menos de um minuto." },
-  { title: "Registre seus gastos", text: "Categorias prontas: gás, combustível, alimentação, streaming e mais." },
-  { title: "Acompanhe e economize", text: "Painel, orçamentos e relatórios mostram para onde vai seu dinheiro." },
+  { title: "Entre com seu CPF", text: "Cadastro em menos de um minuto, com senha de 6 dígitos." },
+  { title: "Lance o gasto na hora", text: "Gás, combustível, mercado, roupas, academia, streaming — tudo pronto." },
+  { title: "Veja a sobra crescer", text: "Painel, orçamentos e alertas mostram onde cortar sem sufoco." },
 ];
 
 const proofs = [
-  { name: "Ana Paula", role: "Autônoma", text: "Descobri R$ 380 por mês em assinaturas esquecidas." },
-  { name: "Rafael Lima", role: "Motorista de app", text: "O controle de combustível mostrou meu custo real por km." },
-  { name: "Juliana Costa", role: "Professora", text: "Os alertas de vencimento acabaram com os juros por atraso." },
+  { name: "Ana Paula", role: "Autônoma · Rio Branco", text: "Achei R$ 380 por mês em assinaturas que eu nem lembrava que existiam." },
+  { name: "Rafael Lima", role: "Motorista de app · Feijó", text: "Descobri que rodava por R$ 0,52 o km. Reajustei minha meta no mesmo dia." },
+  { name: "Juliana Costa", role: "Professora · Cruzeiro do Sul", text: "Zerei juros de atraso: o app avisa três dias antes de cada conta." },
 ];
 
 const pillars = [
@@ -104,10 +104,10 @@ export function CompactOverview() {
         <div className="grid gap-2.5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
           <div className="min-w-0">
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-brand">
-              Tudo em um só lugar
+              Sem planilha, sem caderninho
             </p>
             <h2 className="mt-1 section-title">
-              Explore o produto sem sair da página
+              Veja o GastoCerto funcionando aqui mesmo
             </h2>
           </div>
           <nav aria-label="Atalhos para seções da página" className="flex min-w-0 flex-wrap items-center gap-1.5 sm:justify-end">
