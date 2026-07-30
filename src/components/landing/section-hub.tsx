@@ -140,7 +140,7 @@ export function SectionHub() {
             <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-brand">
               Tudo em um só lugar
             </span>
-            <h2 className="font-display mt-1 text-[1.5rem] font-bold tracking-[-0.02em] text-foreground sm:text-[1.75rem] lg:text-3xl">
+            <h2 className="section-title mt-1 text-foreground">
               Comece pela homepage e vá direto ao que precisa
             </h2>
           </div>

@@ -57,7 +57,7 @@ export function Pricing() {
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-brand">
             Planos
           </p>
-          <h2 className="font-display mt-1.5 text-[1.5rem] font-bold tracking-[-0.025em] sm:text-[1.75rem] lg:text-3xl">
+          <h2 className="section-title mt-1.5">
             Comece de graça e evolua quando fizer sentido
           </h2>
           <p className="mt-2 text-sm text-muted-foreground">
