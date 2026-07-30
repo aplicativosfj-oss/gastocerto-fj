@@ -27,7 +27,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { categoryIcon } from "@/lib/category-icons";
+
 import {
   EXPENSE_TYPES,
   PAYMENT_METHODS,
