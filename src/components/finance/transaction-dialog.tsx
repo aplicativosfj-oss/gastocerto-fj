@@ -101,6 +101,19 @@ export function TransactionDialog({
   const [dueDate, setDueDate] = useState(transaction?.due_date ?? "");
   const [attachment, setAttachment] = useState<string | null>(transaction?.attachment_url ?? null);
 
+  const today = new Date();
+  const isPastMonth =
+    date.slice(0, 7) < isoDate(today).slice(0, 7) ? true : false;
+
+  function shiftDate(kindOfShift: "today" | "yesterday" | "lastMonth") {
+    const base = new Date();
+    if (kindOfShift === "yesterday") base.setDate(base.getDate() - 1);
+    if (kindOfShift === "lastMonth") base.setMonth(base.getMonth() - 1);
+    setDate(isoDate(base));
+  }
+
+
+
 
   function reset() {
     setDescription("");
