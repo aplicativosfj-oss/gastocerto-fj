@@ -2,7 +2,9 @@ import { useMemo, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
+import { CategoryPicker } from "@/components/finance/category-picker";
 import { ReceiptField } from "@/components/finance/receipt-field";
+
 import { Button } from "@/components/ui/button";
 
 import {
@@ -25,7 +27,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { categoryIcon } from "@/lib/category-icons";
+
 import {
   EXPENSE_TYPES,
   PAYMENT_METHODS,
@@ -310,28 +312,13 @@ export function TransactionDialog({
 
             <div>
               <Label>Categoria</Label>
-              <Select value={categoryId} onValueChange={setCategoryId}>
-                <SelectTrigger className="mt-1.5">
-                  <SelectValue placeholder="Selecione" />
-                </SelectTrigger>
-                <SelectContent>
-                  {options.map((category) => {
-                    const Icon = categoryIcon(category.icon);
-                    return (
-                      <SelectItem key={category.id} value={category.id}>
-                        <span className="flex items-center gap-2">
-                          <Icon
-                            className="size-4 shrink-0"
-                            style={{ color: category.color ?? undefined }}
-                          />
-                          {category.name}
-                        </span>
-                      </SelectItem>
-                    );
-                  })}
-                </SelectContent>
-              </Select>
+              <CategoryPicker
+                categories={options}
+                value={categoryId}
+                onChange={setCategoryId}
+              />
             </div>
+
 
             <div>
               <Label>Forma de pagamento</Label>
