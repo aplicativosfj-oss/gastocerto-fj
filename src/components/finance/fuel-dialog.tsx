@@ -79,6 +79,7 @@ export function FuelDialog({
   const [attachment, setAttachment] = useState<string | null>(entry?.attachment_url ?? null);
   const [createExpense, setCreateExpense] = useState(!entry);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [acknowledged, setAcknowledged] = useState(false);
 
   const vehicle = vehicles.find((item) => item.id === vehicleId);
 
