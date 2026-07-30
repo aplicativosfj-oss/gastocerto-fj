@@ -1,24 +1,35 @@
 import { useEffect, useState } from "react";
 import {
+  Banknote,
   BarChart3,
   Bell,
   CalendarClock,
   Car,
+  CreditCard,
+  Droplets,
+  Dumbbell,
   Fingerprint,
   Flame,
+  Fuel,
   HelpCircle,
   LayoutDashboard,
   Lock,
   PiggyBank,
   Receipt,
+  Repeat,
   ScrollText,
+  ShieldCheck,
+  ShoppingBasket,
   Sparkles,
   Star,
   Target,
+  Tv,
   Wallet,
+  type LucideIcon,
 } from "lucide-react";
 
 import { DemoDialog } from "@/components/landing/demo-dialog";
+import { Reveal } from "@/components/landing/reveal";
 import { handleAnchorClick } from "@/lib/scroll";
 import {
   Accordion,
@@ -28,16 +39,135 @@ import {
 } from "@/components/ui/accordion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-const features = [
-  { icon: Receipt, title: "Lançamentos rápidos", text: "Despesas e receitas em segundos, com categorias, anexos e parcelas." },
-  { icon: Car, title: "Combustível", text: "Consumo médio, custo por km e alertas por veículo." },
-  { icon: Flame, title: "Gás e recorrentes", text: "Água, energia, internet e assinaturas com vencimento automático." },
-  { icon: PiggyBank, title: "Orçamentos", text: "Limites por categoria com aviso antes de estourar." },
-  { icon: Target, title: "Metas", text: "Objetivos com progresso mensal e aportes." },
-  { icon: BarChart3, title: "Relatórios", text: "Gráficos por período com exportação em CSV e PDF." },
-  { icon: CalendarClock, title: "Calendário", text: "Vencimentos, recorrências e pendências em um só lugar." },
-  { icon: Bell, title: "Alertas", text: "Notificações de contas a vencer, atrasos e orçamento." },
-  { icon: Wallet, title: "Contas e cartões", text: "Saldos, faturas e formas de pagamento organizados." },
+type Feature = { icon: LucideIcon; title: string; text: string; tag: string };
+
+const featureGroups: { group: string; caption: string; items: Feature[] }[] = [
+  {
+    group: "Dia a dia",
+    caption: "O básico resolvido em segundos",
+    items: [
+      {
+        icon: Receipt,
+        title: "Lançamentos em 10s",
+        text: "Despesa ou receita com categoria, anexo, parcelas e data retroativa.",
+        tag: "Rápido",
+      },
+      {
+        icon: ShoppingBasket,
+        title: "Mercado e alimentação",
+        text: "Compras do mês, feira, delivery e água mineral separados por categoria.",
+        tag: "Casa",
+      },
+      {
+        icon: Repeat,
+        title: "Contas recorrentes",
+        text: "Água, energia, internet e mensalidades lançadas sozinhas todo mês.",
+        tag: "Automático",
+      },
+      {
+        icon: Flame,
+        title: "Gás de cozinha",
+        text: "Histórico de botijões, duração média e aviso quando estiver acabando.",
+        tag: "Casa",
+      },
+    ],
+  },
+  {
+    group: "Veículos e trabalho",
+    caption: "Controle profissional de rodagem",
+    items: [
+      {
+        icon: Fuel,
+        title: "Abastecimentos",
+        text: "Litros, preço por litro, odômetro validado e detecção de anomalias.",
+        tag: "Combustível",
+      },
+      {
+        icon: Car,
+        title: "Custo por km",
+        text: "Consumo médio por veículo, metas de eficiência e alertas de desvio.",
+        tag: "Frota",
+      },
+      {
+        icon: ScrollText,
+        title: "Auditoria de odômetro",
+        text: "Histórico de alterações, comparação antes/depois e alertas acionados.",
+        tag: "Rastreável",
+      },
+      {
+        icon: Banknote,
+        title: "Receitas variáveis",
+        text: "Ideal para autônomos: entradas por dia, semana ou corrida.",
+        tag: "Autônomo",
+      },
+    ],
+  },
+  {
+    group: "Planejamento",
+    caption: "Onde o dinheiro passa a sobrar",
+    items: [
+      {
+        icon: PiggyBank,
+        title: "Orçamentos por categoria",
+        text: "Limite mensal com barra de consumo e aviso antes de estourar.",
+        tag: "Limites",
+      },
+      {
+        icon: Target,
+        title: "Metas e aportes",
+        text: "Objetivos com progresso mensal, prazo e quanto falta guardar.",
+        tag: "Objetivos",
+      },
+      {
+        icon: Wallet,
+        title: "Contas e cartões",
+        text: "Saldos, faturas, formas de pagamento e conciliação simples.",
+        tag: "Carteira",
+      },
+      {
+        icon: Tv,
+        title: "Assinaturas e academia",
+        text: "Streaming, apps e mensalidades: veja o total escondido do mês.",
+        tag: "Recorrente",
+      },
+    ],
+  },
+  {
+    group: "Inteligência",
+    caption: "Você enxerga antes de acontecer",
+    items: [
+      {
+        icon: BarChart3,
+        title: "Relatórios avançados",
+        text: "Filtros por período, categoria e conta, com exportação em CSV e PDF.",
+        tag: "Análise",
+      },
+      {
+        icon: CalendarClock,
+        title: "Calendário financeiro",
+        text: "Vencimentos, recorrências e pendências em uma única linha do tempo.",
+        tag: "Agenda",
+      },
+      {
+        icon: Bell,
+        title: "Alertas inteligentes",
+        text: "Conta a vencer, atraso, orçamento estourado e consumo fora do padrão.",
+        tag: "Avisos",
+      },
+      {
+        icon: CreditCard,
+        title: "Comprovantes",
+        text: "Anexe notas, visualize, baixe em lote e mantenha tudo auditável.",
+        tag: "Arquivo",
+      },
+    ],
+  },
+];
+
+const highlights = [
+  { icon: Droplets, value: "20+", label: "categorias prontas", hint: "gás, combustível, água, roupas…" },
+  { icon: Dumbbell, value: "7", label: "módulos integrados", hint: "de lançamentos a auditoria" },
+  { icon: ShieldCheck, value: "100%", label: "dados isolados", hint: "cada conta vê só o que é seu" },
 ];
 
 const steps = [
@@ -78,7 +208,7 @@ const tabs = ["recursos", "como-funciona", "seguranca", "faq"] as const;
 type TabValue = (typeof tabs)[number];
 
 const tabMeta: Record<TabValue, { label: string; description: string }> = {
-  recursos: { label: "Recursos", description: "Nove recursos de controle de gastos" },
+  recursos: { label: "Recursos", description: "Dezesseis recursos de controle de gastos em quatro frentes" },
   "como-funciona": { label: "Como funciona", description: "Três passos e depoimentos de clientes" },
   seguranca: { label: "Segurança", description: "LGPD, criptografia e controle de acesso" },
   faq: { label: "FAQ", description: "Perguntas frequentes: seis dúvidas comuns sobre planos e demonstração" },
@@ -98,23 +228,32 @@ export function CompactOverview() {
   }, []);
 
   return (
-    <section id="explorar" className="border-y border-border bg-secondary/30 section-y">
+    <section id="explorar" className="relative border-y border-border bg-secondary/30 section-y">
       <span id="seguranca" className="block" />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-[linear-gradient(90deg,transparent,color-mix(in_oklab,var(--brand)_45%,transparent),transparent)]"
+      />
       <div className="section-shell">
-        <div className="grid gap-2.5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
+        <Reveal className="grid gap-2.5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
           <div className="min-w-0">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-brand">
+            <p className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-brand">
+              <Sparkles className="size-3.5" aria-hidden="true" />
               Sem planilha, sem caderninho
             </p>
             <h2 className="mt-1 section-title">
-              Veja o GastoCerto funcionando aqui mesmo
+              Tudo o que você gasta, em uma plataforma só
             </h2>
+            <p className="mt-1 max-w-xl text-[13px] leading-relaxed text-muted-foreground">
+              Do botijão de gás ao custo por quilômetro rodado: dezesseis recursos integrados
+              para você lançar rápido, prever o mês e parar de descobrir o prejuízo só na fatura.
+            </p>
           </div>
           <nav aria-label="Atalhos para seções da página" className="flex min-w-0 flex-wrap items-center gap-1.5 sm:justify-end">
             <DemoDialog>
               <button
                 type="button"
-                className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-brand/30 bg-brand/10 px-3 text-xs font-semibold text-brand transition-colors hover:bg-brand hover:text-brand-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                className="group inline-flex min-h-9 items-center gap-1.5 rounded-full border border-brand/30 bg-brand/10 px-3 text-xs font-semibold text-brand transition-colors hover:bg-brand hover:text-brand-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
               >
                 <LayoutDashboard className="size-3.5" aria-hidden="true" />
                 Ver painel ao vivo
@@ -132,14 +271,25 @@ export function CompactOverview() {
               </a>
             ))}
           </nav>
-        </div>
+        </Reveal>
+
+        <Reveal delay={80} className="mt-3 grid grid-cols-3 gap-2 rounded-xl border border-border bg-card/70 p-2 backdrop-blur sm:gap-3 sm:p-2.5">
+          {highlights.map((item) => (
+            <div key={item.label} className="flex min-w-0 items-center gap-2">
+              <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-brand/10 text-brand">
+                <item.icon className="size-4" aria-hidden="true" />
+              </span>
+              <div className="min-w-0">
+                <p className="tabular text-sm font-bold leading-none">{item.value}</p>
+                <p className="truncate text-[11px] text-muted-foreground">{item.label}</p>
+                <p className="hidden truncate text-[10px] text-muted-foreground/80 sm:block">{item.hint}</p>
+              </div>
+            </div>
+          ))}
+        </Reveal>
 
         <Tabs value={tab} onValueChange={(v) => setTab(v as TabValue)} className="mt-3.5">
-          <div
-            role="region"
-            aria-label="Navegação das seções do produto"
-            className="w-full"
-          >
+          <div role="region" aria-label="Navegação das seções do produto" className="w-full">
             <p id="tabs-hint" className="sr-only">
               Lista de 4 seções em rolagem horizontal. Use as setas esquerda e direita para trocar de seção; o conteúdo é atualizado automaticamente.
             </p>
@@ -167,70 +317,99 @@ export function CompactOverview() {
             {`Seção ativa: ${tabMeta[tab].label}. ${tabMeta[tab].description}.`}
           </p>
 
-
-          <TabsContent value="recursos" className="mt-3.5 outline-none" tabIndex={0}>
+          <TabsContent value="recursos" className="mt-3.5 outline-none panel-enter" tabIndex={0}>
             <h3 className="sr-only">{tabMeta["recursos"].label}</h3>
-            <div className="grid grid-cols-2 gap-2 sm:gap-2.5 lg:grid-cols-3">
-              {features.map((item) => (
-                <div key={item.title} className="interactive-card flex min-w-0 flex-col gap-2 rounded-xl border border-border bg-card p-2.5 sm:flex-row sm:gap-3 sm:p-3">
-                  <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-brand/10 text-brand">
-                    <item.icon className="size-4" />
-                  </span>
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold">{item.title}</p>
-                    <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">{item.text}</p>
+            <div className="grid gap-2.5 lg:grid-cols-2">
+              {featureGroups.map((group, groupIndex) => (
+                <Reveal
+                  key={group.group}
+                  delay={groupIndex * 70}
+                  className="rounded-2xl border border-border bg-card/60 p-2.5 backdrop-blur sm:p-3"
+                >
+                  <div className="flex items-baseline justify-between gap-2">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-brand">
+                      {group.group}
+                    </p>
+                    <p className="truncate text-[11px] text-muted-foreground">{group.caption}</p>
                   </div>
-                </div>
+                  <div className="mt-2 grid gap-1.5 sm:grid-cols-2">
+                    {group.items.map((item) => (
+                      <div
+                        key={item.title}
+                        className="interactive-card group flex min-w-0 gap-2.5 rounded-xl border border-border/70 bg-background/60 p-2.5"
+                      >
+                        <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-brand/10 text-brand transition-colors group-hover:bg-brand group-hover:text-brand-foreground">
+                          <item.icon className="size-4" aria-hidden="true" />
+                        </span>
+                        <div className="min-w-0">
+                          <div className="flex min-w-0 items-center gap-1.5">
+                            <p className="truncate text-sm font-semibold">{item.title}</p>
+                            <span className="shrink-0 rounded-full border border-border bg-secondary/60 px-1.5 text-[9px] font-semibold uppercase tracking-wide text-muted-foreground">
+                              {item.tag}
+                            </span>
+                          </div>
+                          <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">{item.text}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </Reveal>
               ))}
             </div>
           </TabsContent>
 
-          <TabsContent value="como-funciona" className="mt-3.5 outline-none" tabIndex={0}>
+          <TabsContent value="como-funciona" className="mt-3.5 outline-none panel-enter" tabIndex={0}>
             <h3 className="sr-only">{tabMeta["como-funciona"].label}</h3>
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-2.5">
               {steps.map((step, index) => (
-                <div key={step.title} className="interactive-card rounded-xl border border-border bg-card p-3 sm:p-3.5">
-                  <span className="grid size-8 place-items-center rounded-lg bg-brand text-sm font-bold text-brand-foreground">
-                    {index + 1}
-                  </span>
-                  <p className="mt-2 text-sm font-semibold">{step.title}</p>
-                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{step.text}</p>
-                </div>
+                <Reveal key={step.title} delay={index * 70}>
+                  <div className="interactive-card h-full rounded-xl border border-border bg-card p-3 sm:p-3.5">
+                    <span className="grid size-8 place-items-center rounded-lg bg-brand text-sm font-bold text-brand-foreground">
+                      {index + 1}
+                    </span>
+                    <p className="mt-2 text-sm font-semibold">{step.title}</p>
+                    <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{step.text}</p>
+                  </div>
+                </Reveal>
               ))}
             </div>
             <div id="depoimentos" className="mt-3 grid gap-2.5 sm:grid-cols-3">
-              {proofs.map((p) => (
-                <div key={p.name} className="interactive-card rounded-xl border border-border bg-card p-3">
-                  <div className="flex gap-0.5 text-warning">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <Star key={i} className="size-3 fill-current" />
-                    ))}
+              {proofs.map((p, index) => (
+                <Reveal key={p.name} delay={index * 70}>
+                  <div className="interactive-card h-full rounded-xl border border-border bg-card p-3">
+                    <div className="flex gap-0.5 text-warning">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <Star key={i} className="size-3 fill-current" />
+                      ))}
+                    </div>
+                    <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">“{p.text}”</p>
+                    <p className="mt-1.5 truncate text-xs font-semibold">
+                      {p.name} · <span className="font-normal text-muted-foreground">{p.role}</span>
+                    </p>
                   </div>
-                  <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">“{p.text}”</p>
-                  <p className="mt-1.5 truncate text-xs font-semibold">
-                    {p.name} · <span className="font-normal text-muted-foreground">{p.role}</span>
-                  </p>
-                </div>
+                </Reveal>
               ))}
             </div>
           </TabsContent>
 
-          <TabsContent value="seguranca" className="mt-3.5 outline-none" tabIndex={0}>
+          <TabsContent value="seguranca" className="mt-3.5 outline-none panel-enter" tabIndex={0}>
             <h3 className="sr-only">{tabMeta["seguranca"].label}</h3>
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-2.5">
-              {pillars.map((pillar) => (
-                <div key={pillar.title} className="interactive-card rounded-xl border border-border bg-card p-3 sm:p-3.5">
-                  <span className="grid size-9 place-items-center rounded-lg bg-brand/10 text-brand">
-                    <pillar.icon className="size-4" />
-                  </span>
-                  <p className="mt-2 text-sm font-semibold">{pillar.title}</p>
-                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{pillar.text}</p>
-                </div>
+              {pillars.map((pillar, index) => (
+                <Reveal key={pillar.title} delay={index * 70}>
+                  <div className="interactive-card h-full rounded-xl border border-border bg-card p-3 sm:p-3.5">
+                    <span className="grid size-9 place-items-center rounded-lg bg-brand/10 text-brand">
+                      <pillar.icon className="size-4" aria-hidden="true" />
+                    </span>
+                    <p className="mt-2 text-sm font-semibold">{pillar.title}</p>
+                    <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{pillar.text}</p>
+                  </div>
+                </Reveal>
               ))}
             </div>
           </TabsContent>
 
-          <TabsContent value="faq" className="mt-3.5 outline-none" tabIndex={0}>
+          <TabsContent value="faq" className="mt-3.5 outline-none panel-enter" tabIndex={0}>
             <h3 className="sr-only">{tabMeta["faq"].label}</h3>
             <Accordion type="single" collapsible className="grid gap-x-6 sm:grid-cols-2">
               {faqs.map((faq, index) => (
