@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { isValidCpf, onlyDigits } from "@/lib/cpf";
+
 /** Remove caracteres de controle e espaços extras. */
 export function sanitizeText(value: string): string {
   return value
