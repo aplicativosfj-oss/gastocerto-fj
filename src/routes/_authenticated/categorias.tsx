@@ -302,7 +302,36 @@ function CategoriesPage() {
                 ))}
               </div>
             </div>
+
+            <div>
+              <Label>Ícone</Label>
+              <div className="mt-2 grid max-h-44 grid-cols-8 gap-1.5 overflow-y-auto rounded-xl border border-border p-2 sm:grid-cols-10">
+                {CATEGORY_ICON_KEYS.map((key) => {
+                  const Icon = categoryIcon(key);
+                  const active = draft?.icon === key;
+                  return (
+                    <button
+                      key={key}
+                      type="button"
+                      aria-label={`Ícone ${key}`}
+                      aria-pressed={active}
+                      onClick={() =>
+                        setDraft((current) => (current ? { ...current, icon: key } : current))
+                      }
+                      className={`grid aspect-square place-items-center rounded-lg border transition-colors ${
+                        active
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-transparent text-muted-foreground hover:bg-secondary"
+                      }`}
+                    >
+                      <Icon className="size-4" />
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           </div>
+
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setDraft(null)}>
