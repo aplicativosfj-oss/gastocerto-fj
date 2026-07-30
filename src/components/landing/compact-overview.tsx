@@ -87,7 +87,7 @@ export function CompactOverview() {
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3 sm:flex sm:justify-between">
           <div className="min-w-0">
             <p className="text-xs font-semibold uppercase tracking-wide text-brand">Visão geral</p>
-            <h2 className="mt-1 font-display text-[1.35rem] font-bold tracking-[-0.025em] sm:text-[1.75rem]">
+            <h2 className="mt-1 section-title">
               Tudo o que você precisa, em uma página
             </h2>
           </div>
