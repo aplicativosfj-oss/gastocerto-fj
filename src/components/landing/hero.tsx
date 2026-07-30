@@ -108,7 +108,7 @@ export function Hero() {
             aria-hidden="true"
             className="absolute -inset-6 rounded-[2rem] bg-brand/20 blur-3xl"
           />
-          <div className="relative origin-top scale-[0.82] text-foreground xl:scale-[0.88]">
+          <div className="relative origin-top scale-[0.72] text-foreground xl:scale-[0.78]">
             <Suspense fallback={<div className="h-[420px] rounded-2xl bg-white/5" />}>
               <DashboardPreview />
             </Suspense>
