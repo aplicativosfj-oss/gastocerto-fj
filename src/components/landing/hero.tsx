@@ -23,7 +23,7 @@ export function Hero() {
   return (
     <section
       id="inicio"
-      className="relative isolate flex min-h-[52svh] max-h-[680px] items-center overflow-hidden bg-[oklch(0.16_0.03_258)] pt-16 pb-5 sm:pt-20 sm:pb-7 lg:pt-24 text-white"
+      className="relative isolate flex min-h-[52svh] max-h-[700px] items-center overflow-hidden bg-[oklch(0.16_0.03_258)] pt-16 pb-5 sm:pt-20 sm:pb-7 lg:pt-24 text-white"
     >
       <img
         src={heroBg}
@@ -108,7 +108,7 @@ export function Hero() {
             aria-hidden="true"
             className="absolute -inset-6 rounded-[2rem] bg-brand/20 blur-3xl"
           />
-          <div className="relative origin-top scale-[0.72] text-foreground -mb-[26%] xl:-mb-[20%] xl:scale-[0.78]">
+          <div className="relative origin-top scale-[0.64] text-foreground -mb-[26%] xl:-mb-[20%] xl:scale-[0.7]">
             <Suspense fallback={<div className="h-[420px] rounded-2xl bg-white/5" />}>
               <DashboardPreview />
             </Suspense>
