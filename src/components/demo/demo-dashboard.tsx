@@ -241,6 +241,7 @@ export function DemoDashboard() {
                       stroke="var(--brand)"
                       strokeWidth={2}
                       fill="url(#demoArea)"
+                      isAnimationActive={false}
                     />
                   </AreaChart>
                 </ResponsiveContainer>
@@ -259,6 +260,7 @@ export function DemoDashboard() {
                       outerRadius={68}
                       paddingAngle={2}
                       stroke="none"
+                      isAnimationActive={false}
                     >
                       {categories.map((entry) => (
                         <Cell key={entry.name} fill={entry.color} />
@@ -311,8 +313,8 @@ export function DemoDashboard() {
                     contentStyle={tooltipStyle}
                     formatter={(value: number) => formatCurrency(value)}
                   />
-                  <Bar dataKey="receita" fill="var(--success)" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="despesa" fill="var(--brand)" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="receita" fill="var(--success)" radius={[4, 4, 0, 0]} isAnimationActive={false} />
+                  <Bar dataKey="despesa" fill="var(--brand)" radius={[4, 4, 0, 0]} isAnimationActive={false} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
