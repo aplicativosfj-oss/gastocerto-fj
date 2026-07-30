@@ -124,7 +124,12 @@ export function LandingHeader() {
                 key={item.href}
                 href={item.href}
                 onClick={(event) => handleAnchorClick(event, item.href, () => setOpen(false))}
-                className="rounded-md px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                className={cn(
+                  "rounded-md px-3 py-2.5 text-sm font-medium transition-colors hover:bg-accent hover:text-foreground",
+                  active === item.href
+                    ? "bg-accent text-foreground"
+                    : "text-muted-foreground",
+                )}
               >
                 {item.label}
               </a>
