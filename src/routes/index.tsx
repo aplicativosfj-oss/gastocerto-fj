@@ -10,6 +10,7 @@ import { LandingFooter } from "@/components/landing/landing-footer";
 import { LandingHeader } from "@/components/landing/landing-header";
 import { PageBackground } from "@/components/landing/page-background";
 import { SectionHub } from "@/components/landing/section-hub";
+import { ShowcaseCarousel } from "@/components/landing/showcase-carousel";
 
 import { Pricing } from "@/components/landing/pricing";
 import { Security } from "@/components/landing/security";
@@ -41,6 +42,7 @@ function LandingPage() {
       <main>
         <Hero />
         <SectionHub />
+        <ShowcaseCarousel />
         <Features />
         <Benefits />
         <HowItWorks />
