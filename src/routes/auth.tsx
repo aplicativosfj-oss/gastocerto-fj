@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { AlertCircle, Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -260,7 +260,15 @@ function CpfSignInForm({ onForgot, onAdmin }: { onForgot: () => void; onAdmin: (
   const navigate = useNavigate();
   const [cpf, setCpf] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [formError, setFormError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const alertRef = useRef<HTMLDivElement>(null);
+
+  function fail(message: string, fields: Record<string, string> = {}) {
+    setErrors(fields);
+    setFormError(message);
+    requestAnimationFrame(() => alertRef.current?.focus());
+  }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -271,11 +279,13 @@ function CpfSignInForm({ onForgot, onAdmin }: { onForgot: () => void; onAdmin: (
     });
 
     if (!parsed.success) {
-      setErrors(fieldErrors(parsed.error));
+      const fields = fieldErrors(parsed.error);
+      fail(summaryFromErrors(fields) ?? "Revise os dados informados.", fields);
       return;
     }
 
     setErrors({});
+    setFormError(null);
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({
       email: cpfToLoginEmail(parsed.data.cpf),
@@ -285,23 +295,46 @@ function CpfSignInForm({ onForgot, onAdmin }: { onForgot: () => void; onAdmin: (
 
     if (error) {
       console.error("[auth] falha no login por CPF", error.message);
-      toast.error(friendlyAuthError(error.message));
+      const message = error.message.toLowerCase().includes("invalid login credentials")
+        ? "CPF ou senha incorretos. Confira os 11 dígitos do CPF e os 6 dígitos da senha."
+        : friendlyAuthError(error.message);
+      fail(message);
+      toast.error(message);
       return;
     }
     navigate({ to: "/painel", replace: true });
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+    <form onSubmit={handleSubmit} className="space-y-4" noValidate aria-busy={loading}>
+      <div ref={alertRef} tabIndex={-1} className="outline-none">
+        <FormAlert message={formError} />
+      </div>
       <div>
         <Label htmlFor="login-cpf">CPF</Label>
-        <CpfInput id="login-cpf" name="cpf" value={cpf} onChange={setCpf} />
-        <FieldError message={errors.cpf} />
+        <CpfInput
+          id="login-cpf"
+          name="cpf"
+          value={cpf}
+          onChange={setCpf}
+          invalid={Boolean(errors.cpf)}
+          describedById={describedBy(errors.cpf && "login-cpf-error", "login-cpf-hint")}
+        />
+        <p id="login-cpf-hint" className="mt-1 text-xs text-muted-foreground">
+          Digite os 11 dígitos, com ou sem pontuação.
+        </p>
+        <FieldError id="login-cpf-error" message={errors.cpf} />
       </div>
       <div>
         <Label htmlFor="login-pin">Senha (6 dígitos)</Label>
-        <PinInput id="login-pin" name="pin" autoComplete="current-password" />
-        <FieldError message={errors.pin} />
+        <PinInput
+          id="login-pin"
+          name="pin"
+          autoComplete="current-password"
+          invalid={Boolean(errors.pin)}
+          describedById={describedBy(errors.pin && "login-pin-error")}
+        />
+        <FieldError id="login-pin-error" message={errors.pin} />
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -322,10 +355,30 @@ function CpfSignInForm({ onForgot, onAdmin }: { onForgot: () => void; onAdmin: (
       </div>
 
       <Button type="submit" className="w-full" disabled={loading}>
-        {loading ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
+        {loading ? <Loader2 className="mr-2 size-4 animate-spin" aria-hidden="true" /> : null}
         Entrar
+        <StatusLive busy={loading} label="Entrando, aguarde." />
       </Button>
+
+      <LegalNote />
     </form>
+  );
+}
+
+/** Aviso legal com links para termos e privacidade. */
+function LegalNote() {
+  return (
+    <p className="text-center text-[11px] leading-relaxed text-muted-foreground">
+      Ao continuar você concorda com os{" "}
+      <Link to="/termos" className="font-medium text-primary underline underline-offset-2">
+        Termos de Uso
+      </Link>{" "}
+      e a{" "}
+      <Link to="/privacidade" className="font-medium text-primary underline underline-offset-2">
+        Política de Privacidade
+      </Link>
+      .
+    </p>
   );
 }
 
