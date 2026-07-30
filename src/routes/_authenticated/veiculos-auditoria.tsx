@@ -1,10 +1,17 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { ArrowLeft, History, TriangleAlert } from "lucide-react";
+import { ArrowLeft, ArrowRight, Diff, History, TriangleAlert } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { AppShell } from "@/components/app-shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -15,7 +22,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AUDIT_ACTIONS, AUDIT_FIELD_LABELS, useFuelAudit } from "@/lib/fuel-audit";
+import {
+  AUDIT_ACTIONS,
+  AUDIT_FIELD_LABELS,
+  useFuelAudit,
+  type FuelAuditEntry,
+} from "@/lib/fuel-audit";
 import { useVehicles } from "@/lib/vehicles";
 
 export const Route = createFileRoute("/_authenticated/veiculos-auditoria")({
