@@ -31,6 +31,7 @@ import { sanitizeText } from "@/lib/validation";
 import {
   FUEL_TYPES,
   computeFuelMetrics,
+  odometerWarnings,
   round,
   useFuelEntries,
   useSaveFuelEntry,
