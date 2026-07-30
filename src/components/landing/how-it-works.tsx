@@ -25,16 +25,16 @@ const steps = [
 
 export function HowItWorks() {
   return (
-    <section id="como-funciona" className="border-y border-border bg-secondary/40 py-20 sm:py-24">
+    <section id="como-funciona" className="border-y border-border bg-secondary/40 py-14 sm:py-16">
       <div className="section-shell">
         <div className="max-w-2xl">
           <p className="text-sm font-semibold text-brand">Como funciona</p>
-          <h2 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
+          <h2 className="mt-2 font-display text-[1.75rem] font-bold tracking-[-0.025em] sm:text-4xl">
             Do primeiro lançamento ao controle total em quatro passos
           </h2>
         </div>
 
-        <ol className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <ol className="mt-9 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           {steps.map((step, index) => (
             <li
               key={step.title}

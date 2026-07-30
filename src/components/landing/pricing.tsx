@@ -44,11 +44,11 @@ const plans = [
 
 export function Pricing() {
   return (
-    <section id="planos" className="py-20 sm:py-24">
+    <section id="planos" className="py-14 sm:py-16">
       <div className="section-shell">
         <div className="mx-auto max-w-2xl text-center">
           <p className="text-sm font-semibold text-brand">Planos</p>
-          <h2 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
+          <h2 className="mt-2 font-display text-[1.75rem] font-bold tracking-[-0.025em] sm:text-4xl">
             Comece de graça e evolua quando fizer sentido
           </h2>
           <p className="mt-4 text-muted-foreground">
@@ -56,7 +56,7 @@ export function Pricing() {
           </p>
         </div>
 
-        <div className="mx-auto mt-12 grid max-w-4xl gap-6 md:grid-cols-2">
+        <div className="mx-auto mt-9 grid max-w-4xl gap-6 md:grid-cols-2">
           {plans.map((plan) => (
             <Card
               key={plan.slug}

@@ -31,8 +31,8 @@ export function LandingHeader() {
       className={cn(
         "fixed inset-x-0 top-0 z-50 transition-all duration-300",
         scrolled
-          ? "border-b border-border bg-background/85 backdrop-blur-md shadow-soft"
-          : "border-b border-transparent bg-background/40 backdrop-blur-sm",
+          ? "border-b border-border bg-background/90 text-foreground backdrop-blur-md shadow-soft"
+          : "border-b border-white/10 bg-transparent text-white",
       )}
     >
       <div className="section-shell flex h-16 items-center justify-between gap-4">
@@ -45,7 +45,12 @@ export function LandingHeader() {
             <a
               key={item.href}
               href={item.href}
-              className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+              className={cn(
+                "rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                scrolled
+                  ? "text-muted-foreground hover:bg-accent hover:text-foreground"
+                  : "text-white/75 hover:bg-white/10 hover:text-white",
+              )}
             >
               {item.label}
             </a>
@@ -53,8 +58,12 @@ export function LandingHeader() {
         </nav>
 
         <div className="flex items-center gap-2">
-          <ThemeToggle className="hidden sm:inline-flex" />
-          <Button variant="ghost" className="hidden sm:inline-flex" asChild>
+          <ThemeToggle className={cn("hidden sm:inline-flex", !scrolled && "text-white hover:bg-white/10 hover:text-white")} />
+          <Button
+            variant="ghost"
+            className={cn("hidden sm:inline-flex", !scrolled && "text-white hover:bg-white/10 hover:text-white")}
+            asChild
+          >
             <a href="#planos">Entrar</a>
           </Button>
           <Button className="hidden shadow-soft sm:inline-flex" asChild>
@@ -63,7 +72,7 @@ export function LandingHeader() {
           <Button
             variant="outline"
             size="icon"
-            className="lg:hidden"
+            className={cn("lg:hidden", !scrolled && "border-white/25 bg-white/5 text-white hover:bg-white/15 hover:text-white")}
             aria-expanded={open}
             aria-label={open ? "Fechar menu" : "Abrir menu"}
             onClick={() => setOpen((v) => !v)}
