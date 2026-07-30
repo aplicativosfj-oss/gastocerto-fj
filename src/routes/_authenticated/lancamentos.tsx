@@ -39,7 +39,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { formatCurrency, formatDate } from "@/lib/format";
-import { PAYMENT_METHODS, TRANSACTION_STATUS, labelFor, monthRange } from "@/lib/finance";
+import { PAYMENT_METHODS, TRANSACTION_STATUS, labelFor, monthRange, periodDefaultDate } from "@/lib/finance";
 import { useCategories } from "@/lib/queries";
 import {
   useDeleteTransaction,

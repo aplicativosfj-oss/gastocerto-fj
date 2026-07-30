@@ -17,7 +17,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { formatCurrency, formatDate } from "@/lib/format";
-import { monthRange } from "@/lib/finance";
+import { monthRange, periodDefaultDate } from "@/lib/finance";
 import { useCategories } from "@/lib/queries";
 import { useDeleteTransaction, useTransactions, type Transaction } from "@/lib/transactions";
 

@@ -34,7 +34,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatCurrency } from "@/lib/format";
-import { MONTH_NAMES, isoDate, monthRange } from "@/lib/finance";
+import { MONTH_NAMES, isoDate, monthRange, periodDefaultDate } from "@/lib/finance";
 import { useCategories, useProfile } from "@/lib/queries";
 import { useBudgets, useTransactions } from "@/lib/transactions";
 
