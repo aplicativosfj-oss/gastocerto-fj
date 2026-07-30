@@ -12,13 +12,8 @@ const navItems = [
   { label: "Início", href: "#inicio" },
   { label: "Explorar", href: "#explorar" },
   { label: "Recursos", href: "#recursos" },
-  { label: "Como funciona", href: "#como-funciona" },
-  { label: "Benefícios", href: "#beneficios" },
   { label: "Planos", href: "#planos" },
-  { label: "Depoimentos", href: "#depoimentos" },
-  { label: "Segurança", href: "#seguranca" },
   { label: "FAQ", href: "#faq" },
-
 ];
 
 export function LandingHeader() {

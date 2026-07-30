@@ -46,7 +46,7 @@ const items: HubItem[] = [
     label: "Orçamentos",
     description: "Limites por categoria com alertas",
     icon: PieChart,
-    href: "#beneficios",
+    href: "#recursos",
   },
   {
     label: "Combustível",
@@ -82,7 +82,7 @@ const items: HubItem[] = [
     label: "Depoimentos",
     description: "Resultados reais de usuários",
     icon: Quote,
-    href: "#depoimentos",
+    href: "#como-funciona",
   },
   {
     label: "Segurança",

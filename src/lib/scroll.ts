@@ -11,6 +11,7 @@ export function scrollToSection(id: string) {
 
   window.scrollTo({ top: Math.max(top, 0), behavior: prefersReduced ? "auto" : "smooth" });
   window.history.replaceState(null, "", `#${id}`);
+  window.dispatchEvent(new HashChangeEvent("hashchange"));
 }
 
 /** Handler pronto para links âncora (`#secao`). */
