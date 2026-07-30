@@ -88,13 +88,13 @@ export function Hero() {
             </a>
           </div>
 
-          <dl className="mt-6 grid grid-cols-3 gap-2 border-t border-white/10 pt-4">
+          <dl className="mt-4 grid grid-cols-3 gap-2 border-t border-white/10 pt-3">
             {stats.map((stat) => (
               <div key={stat.label} className="min-w-0">
-                <dt className="truncate text-[11px] uppercase tracking-wide text-white/50">
+                <dt className="truncate text-[10px] uppercase tracking-wide text-white/50 sm:text-[11px]">
                   {stat.label}
                 </dt>
-                <dd className="tabular mt-1 truncate text-base font-bold text-white sm:text-lg">
+                <dd className="tabular mt-0.5 truncate text-sm font-bold text-white sm:text-base">
                   {stat.value}
                 </dd>
                 <p className="hidden truncate text-[11px] text-white/45 sm:block">{stat.hint}</p>
