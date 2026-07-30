@@ -118,10 +118,22 @@ export function useSettleTransaction() {
   const refresh = useRefreshRecurring();
   return useMutation({
     mutationFn: async (input: { id: string; status: "paid" | "pending" }) => {
+      const today = isoDate(new Date());
+      const { data: row } = await supabase
+        .from("transactions")
+        .select("due_date")
+        .eq("id", input.id)
+        .maybeSingle();
+
+      const status =
+        input.status === "pending" && row?.due_date && row.due_date < today
+          ? "overdue"
+          : input.status;
+
       const { error } = await supabase
         .from("transactions")
         .update({
-          status: input.status,
+          status,
           payment_date: input.status === "paid" ? isoDate(new Date()) : null,
         })
         .eq("id", input.id);
@@ -130,6 +142,43 @@ export function useSettleTransaction() {
     onSuccess: refresh,
   });
 }
+
+/**
+ * Atualiza automaticamente o status dos lançamentos recorrentes:
+ * pendentes vencidos viram "atrasado" e atrasados com vencimento futuro voltam
+ * para "pendente".
+ */
+export function useSyncRecurringStatus() {
+  const { user } = useAuth();
+  const refresh = useRefreshRecurring();
+
+  return useMutation({
+    mutationFn: async () => {
+      if (!user) return { updated: 0 };
+      const today = isoDate(new Date());
+
+      const { error: overdueError, count: overdueCount } = await supabase
+        .from("transactions")
+        .update({ status: "overdue" }, { count: "exact" })
+        .eq("status", "pending")
+        .lt("due_date", today)
+        .is("deleted_at", null);
+      if (overdueError) throw overdueError;
+
+      const { error: pendingError, count: pendingCount } = await supabase
+        .from("transactions")
+        .update({ status: "pending" }, { count: "exact" })
+        .eq("status", "overdue")
+        .gte("due_date", today)
+        .is("deleted_at", null);
+      if (pendingError) throw pendingError;
+
+      return { updated: (overdueCount ?? 0) + (pendingCount ?? 0) };
+    },
+    onSuccess: refresh,
+  });
+}
+
 
 /* -------------------------------------------------------------------------- */
 /* Geração automática                                                          */

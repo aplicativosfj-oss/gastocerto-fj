@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { CalendarClock, Check, Pencil, Plus, RefreshCw, Trash2, Undo2 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
@@ -17,6 +17,13 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -37,6 +44,7 @@ import {
   useRecurringRules,
   useRecurringTransactions,
   useSettleTransaction,
+  useSyncRecurringStatus,
   useToggleRecurringRule,
   type RecurringRule,
 } from "@/lib/recurring";
@@ -70,10 +78,13 @@ function RecurringPage() {
   const toggle = useToggleRecurringRule();
   const remove = useDeleteRecurringRule();
   const settle = useSettleTransaction();
+  const syncStatus = useSyncRecurringStatus();
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<RecurringRule | null>(null);
   const [confirm, setConfirm] = useState<RecurringRule | null>(null);
+  const [statusFilter, setStatusFilter] = useState("open");
+  const [sortBy, setSortBy] = useState("due-asc");
 
   const categoryNames = useMemo(
     () => new Map((categories ?? []).map((category) => [category.id, category.name])),
@@ -81,17 +92,53 @@ function RecurringPage() {
   );
 
   const today = isoDate(new Date());
-  const upcoming = useMemo(
-    () =>
-      (generated ?? [])
-        .slice()
-        .sort((a, b) => (a.due_date ?? "").localeCompare(b.due_date ?? "")),
-    [generated],
-  );
 
-  const pendingTotal = upcoming
+  // Sincroniza uma vez por visita: pendentes vencidos viram atrasados.
+  const synced = useRef(false);
+  useEffect(() => {
+    if (synced.current || !generated) return;
+    synced.current = true;
+    syncStatus.mutate(undefined, {
+      onError: (error) => console.error("[recorrentes] falha ao sincronizar status", error),
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [generated]);
+
+  const rows = useMemo(() => (generated ?? []).slice(), [generated]);
+
+  const counts = useMemo(() => {
+    const base = { paid: 0, pending: 0, overdue: 0 };
+    for (const row of rows) {
+      if (row.status === "paid" || row.status === "received") base.paid += 1;
+      else if (row.due_date && row.due_date < today) base.overdue += 1;
+      else base.pending += 1;
+    }
+    return base;
+  }, [rows, today]);
+
+  const upcoming = useMemo(() => {
+    const filtered = rows.filter((row) => {
+      const paid = row.status === "paid" || row.status === "received";
+      const overdue = !paid && row.due_date != null && row.due_date < today;
+      if (statusFilter === "all") return true;
+      if (statusFilter === "paid") return paid;
+      if (statusFilter === "overdue") return overdue;
+      if (statusFilter === "pending") return !paid && !overdue;
+      return !paid; // "open" = pendentes + atrasados
+    });
+
+    return filtered.sort((a, b) => {
+      if (sortBy === "due-desc") return (b.due_date ?? "").localeCompare(a.due_date ?? "");
+      if (sortBy === "amount-desc") return Number(b.amount) - Number(a.amount);
+      if (sortBy === "amount-asc") return Number(a.amount) - Number(b.amount);
+      return (a.due_date ?? "").localeCompare(b.due_date ?? "");
+    });
+  }, [rows, statusFilter, sortBy, today]);
+
+  const pendingTotal = rows
     .filter((row) => row.status !== "paid" && row.status !== "received")
     .reduce((sum, row) => sum + Number(row.amount), 0);
+
 
   async function handleGenerate() {
     try {
@@ -231,15 +278,46 @@ function RecurringPage() {
 
         <section className="rounded-2xl border border-border bg-card">
           <div className="border-b border-border p-4">
-            <h2 className="font-semibold">Próximos vencimentos</h2>
-            <p className="mt-0.5 text-sm text-muted-foreground">
-              Lançamentos gerados automaticamente. Marque como pago quando quitar a conta.
-            </p>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="min-w-0">
+                <h2 className="font-semibold">Próximos vencimentos</h2>
+                <p className="mt-0.5 text-sm text-muted-foreground">
+                  {counts.overdue} atrasado(s) · {counts.pending} pendente(s) · {counts.paid}{" "}
+                  pago(s). O status é atualizado automaticamente.
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger className="w-[170px]" aria-label="Filtrar por status">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="open">Em aberto</SelectItem>
+                    <SelectItem value="overdue">Atrasados</SelectItem>
+                    <SelectItem value="pending">Pendentes</SelectItem>
+                    <SelectItem value="paid">Pagos</SelectItem>
+                    <SelectItem value="all">Todos</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select value={sortBy} onValueChange={setSortBy}>
+                  <SelectTrigger className="w-[190px]" aria-label="Ordenar">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="due-asc">Vencimento (mais próximo)</SelectItem>
+                    <SelectItem value="due-desc">Vencimento (mais distante)</SelectItem>
+                    <SelectItem value="amount-desc">Maior valor</SelectItem>
+                    <SelectItem value="amount-asc">Menor valor</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
           </div>
           {upcoming.length === 0 ? (
             <p className="p-8 text-center text-sm text-muted-foreground">
-              Nenhum lançamento gerado ainda. Use “Gerar próximos”.
+              Nenhum lançamento neste filtro. Use “Gerar próximos” ou troque o status.
             </p>
+
           ) : (
             <ul className="divide-y divide-border">
               {upcoming.slice(0, 30).map((row) => {

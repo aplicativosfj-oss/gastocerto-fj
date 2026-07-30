@@ -64,3 +64,18 @@ export function useReceiptUrl(path: string | null | undefined) {
 export function isPdfPath(path: string | null | undefined) {
   return Boolean(path?.toLowerCase().endsWith(".pdf"));
 }
+
+/** Baixa o arquivo privado usando uma URL assinada temporária. */
+export async function downloadReceipt(path: string) {
+  const { data, error } = await supabase.storage.from(RECEIPTS_BUCKET).download(path);
+  if (error || !data) throw error ?? new Error("Arquivo indisponível");
+
+  const url = URL.createObjectURL(data);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = path.split("/").pop() ?? "comprovante";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}

@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, TriangleAlert } from "lucide-react";
 import { toast } from "sonner";
 
 import { ReceiptField } from "@/components/finance/receipt-field";
@@ -31,6 +31,7 @@ import { sanitizeText } from "@/lib/validation";
 import {
   FUEL_TYPES,
   computeFuelMetrics,
+  odometerWarnings,
   round,
   useFuelEntries,
   useSaveFuelEntry,
@@ -78,6 +79,7 @@ export function FuelDialog({
   const [attachment, setAttachment] = useState<string | null>(entry?.attachment_url ?? null);
   const [createExpense, setCreateExpense] = useState(!entry);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [acknowledged, setAcknowledged] = useState(false);
 
   const vehicle = vehicles.find((item) => item.id === vehicleId);
 
@@ -111,6 +113,19 @@ export function FuelDialog({
   );
   const [accountId, setAccountId] = useState("");
 
+  const warnings = useMemo(
+    () =>
+      odometerWarnings(
+        parseAmount(odometer),
+        litersValue,
+        date,
+        vehicle,
+        entries ?? [],
+        entry?.id,
+      ),
+    [odometer, litersValue, date, vehicle, entries, entry?.id],
+  );
+
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     const nextErrors: Record<string, string> = {};
@@ -119,6 +134,7 @@ export function FuelDialog({
 
     if (!vehicleId) nextErrors.vehicle = "Selecione um veículo.";
     if (!date) nextErrors.date = "Informe a data.";
+    if (date > isoDate(new Date())) nextErrors.date = "A data não pode ser futura.";
     if (!Number.isFinite(litersValue) || litersValue <= 0) nextErrors.liters = "Informe os litros.";
     if (litersValue > 1000) nextErrors.liters = "Quantidade de litros muito alta.";
     if (!Number.isFinite(priceValue) || priceValue <= 0)
@@ -136,6 +152,12 @@ export function FuelDialog({
 
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) return;
+
+    if (warnings.length > 0 && !acknowledged) {
+      setAcknowledged(true);
+      toast.warning("Confira os avisos e clique em salvar novamente para confirmar.");
+      return;
+    }
 
     const metrics = computeFuelMetrics(
       odometerValue,
@@ -320,6 +342,27 @@ export function FuelDialog({
               </p>
             </div>
           ) : null}
+
+          {warnings.length > 0 ? (
+            <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-3 text-sm sm:col-span-2">
+              <p className="flex items-center gap-2 font-medium">
+                <TriangleAlert className="size-4" />
+                Variações fora do padrão
+              </p>
+              <ul className="mt-1 list-disc space-y-0.5 pl-5 text-muted-foreground">
+                {warnings.map((warning) => (
+                  <li key={warning}>{warning}</li>
+                ))}
+              </ul>
+              {acknowledged ? (
+                <p className="mt-2 text-xs font-medium">
+                  Clique em salvar novamente para confirmar mesmo assim.
+                </p>
+              ) : null}
+            </div>
+          ) : null}
+
+
 
           <div className="flex items-center justify-between rounded-xl border border-border p-3 sm:col-span-2">
             <Label htmlFor="fuel-full" className="text-sm font-normal">
