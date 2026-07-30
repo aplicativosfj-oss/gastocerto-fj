@@ -62,7 +62,7 @@ export function Hero() {
           </p>
 
           <div className="mt-3.5 grid grid-cols-[1fr_1fr_auto] items-center gap-1.5 sm:flex sm:flex-wrap sm:gap-2">
-            <Button className="h-10 min-w-0 px-3 text-[13px] shadow-lifted sm:h-11 sm:px-6 sm:text-sm" asChild>
+            <Button className="h-10 min-w-0 px-3 text-[13px] shadow-lifted sm:h-11 sm:px-6 sm:text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent" asChild>
               <Link to="/auth" search={{ mode: "signup" }}>
                 <span className="truncate">Criar conta</span>
                 <ArrowRight className="size-4 shrink-0" aria-hidden="true" />
@@ -71,7 +71,7 @@ export function Hero() {
             <DemoDialog>
               <Button
                 variant="outline"
-                className="h-10 min-w-0 border-white/25 bg-white/5 px-3 text-[13px] text-white hover:bg-white/15 hover:text-white sm:h-11 sm:px-6 sm:text-sm"
+                className="h-10 min-w-0 border-white/25 bg-white/5 px-3 text-[13px] text-white hover:bg-white/15 hover:text-white sm:h-11 sm:px-6 sm:text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
               >
                 <PlayCircle className="size-4 shrink-0" aria-hidden="true" />
                 <span className="truncate">Demonstração</span>
@@ -81,7 +81,7 @@ export function Hero() {
               href="#explorar"
               onClick={(event) => handleAnchorClick(event, "#explorar")}
               aria-label="Explorar seções"
-              className="inline-flex size-10 items-center justify-center gap-1.5 rounded-md text-[13px] font-medium text-white/75 outline-none transition-colors hover:text-white focus-visible:ring-2 focus-visible:ring-white/60 sm:h-11 sm:w-auto sm:px-3 sm:text-sm"
+              className="inline-flex min-h-11 min-w-11 items-center justify-center gap-1.5 rounded-md text-[13px] font-medium text-white/75 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent sm:h-11 sm:w-auto sm:px-3 sm:text-sm"
             >
               <span className="hidden sm:inline">Explorar seções</span>
               <ChevronDown className="size-4 shrink-0" aria-hidden="true" />

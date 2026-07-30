@@ -68,7 +68,7 @@ export function Pricing() {
 
         <div className="flex flex-col items-start gap-1 sm:items-end">
           <div
-            role="tablist"
+            role="group"
             aria-label="Ciclo de cobrança"
             className="inline-flex items-center rounded-full border border-border bg-card/80 p-1 shadow-soft backdrop-blur-sm"
           >
@@ -81,11 +81,11 @@ export function Pricing() {
               <button
                 key={option.key}
                 type="button"
-                role="tab"
-                aria-selected={cycle === option.key}
+                aria-pressed={cycle === option.key}
+                aria-label={`Cobrança ${option.label.toLowerCase()}`}
                 onClick={() => setCycle(option.key)}
                 className={cn(
-                  "rounded-full px-3.5 py-1 text-xs font-semibold transition-colors",
+                  "inline-flex min-h-9 items-center rounded-full px-3.5 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                   cycle === option.key
                     ? "bg-brand text-brand-foreground shadow-soft"
                     : "text-muted-foreground hover:text-foreground",
@@ -107,7 +107,7 @@ export function Pricing() {
               </button>
             ))}
           </div>
-          <p className="text-[11px] text-muted-foreground">
+          <p aria-live="polite" className="text-[11px] text-muted-foreground">
             {isYearly
               ? `Melhor economia: você poupa ${formatCurrency(savingsPerYear)} por ano no Premium.`
               : `Mude para o anual e economize ${formatCurrency(savingsPerYear)} por ano.`}
