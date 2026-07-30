@@ -31,6 +31,7 @@ export const navItems = [
   { label: "Veículos", to: "/veiculos", icon: Car },
   { label: "Categorias", to: "/categorias", icon: ListTree },
   { label: "Orçamentos", to: "/orcamentos", icon: PiggyBank },
+  { label: "Comprovantes", to: "/comprovantes", icon: Paperclip },
   { label: "Meu perfil", to: "/perfil", icon: User2 },
 ] as const;
 

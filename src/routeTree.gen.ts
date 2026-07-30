@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as RedefinirSenhaRouteImport } from './routes/redefinir-senha'
 import { Route as AuthenticatedCategoriasRouteImport } from './routes/_authenticated/categorias'
+import { Route as AuthenticatedComprovantesRouteImport } from './routes/_authenticated/comprovantes'
 import { Route as AuthenticatedLancamentosRouteImport } from './routes/_authenticated/lancamentos'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedOrcamentosRouteImport } from './routes/_authenticated/orcamentos'
@@ -47,6 +48,12 @@ const AuthenticatedCategoriasRoute = AuthenticatedCategoriasRouteImport.update({
   path: '/categorias',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedComprovantesRoute =
+  AuthenticatedComprovantesRouteImport.update({
+    id: '/comprovantes',
+    path: '/comprovantes',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedLancamentosRoute =
   AuthenticatedLancamentosRouteImport.update({
     id: '/lancamentos',
@@ -95,6 +102,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/categorias': typeof AuthenticatedCategoriasRoute
+  '/comprovantes': typeof AuthenticatedComprovantesRoute
   '/lancamentos': typeof AuthenticatedLancamentosRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/orcamentos': typeof AuthenticatedOrcamentosRoute
@@ -109,6 +117,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/categorias': typeof AuthenticatedCategoriasRoute
+  '/comprovantes': typeof AuthenticatedComprovantesRoute
   '/lancamentos': typeof AuthenticatedLancamentosRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/orcamentos': typeof AuthenticatedOrcamentosRoute
@@ -125,6 +134,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/_authenticated/categorias': typeof AuthenticatedCategoriasRoute
+  '/_authenticated/comprovantes': typeof AuthenticatedComprovantesRoute
   '/_authenticated/lancamentos': typeof AuthenticatedLancamentosRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/orcamentos': typeof AuthenticatedOrcamentosRoute
@@ -141,6 +151,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/redefinir-senha'
     | '/categorias'
+    | '/comprovantes'
     | '/lancamentos'
     | '/onboarding'
     | '/orcamentos'
@@ -155,6 +166,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/redefinir-senha'
     | '/categorias'
+    | '/comprovantes'
     | '/lancamentos'
     | '/onboarding'
     | '/orcamentos'
@@ -170,6 +182,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/redefinir-senha'
     | '/_authenticated/categorias'
+    | '/_authenticated/comprovantes'
     | '/_authenticated/lancamentos'
     | '/_authenticated/onboarding'
     | '/_authenticated/orcamentos'
@@ -222,6 +235,13 @@ declare module '@tanstack/react-router' {
       path: '/categorias'
       fullPath: '/categorias'
       preLoaderRoute: typeof AuthenticatedCategoriasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/comprovantes': {
+      id: '/_authenticated/comprovantes'
+      path: '/comprovantes'
+      fullPath: '/comprovantes'
+      preLoaderRoute: typeof AuthenticatedComprovantesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/lancamentos': {
@@ -285,6 +305,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedCategoriasRoute: typeof AuthenticatedCategoriasRoute
+  AuthenticatedComprovantesRoute: typeof AuthenticatedComprovantesRoute
   AuthenticatedLancamentosRoute: typeof AuthenticatedLancamentosRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedOrcamentosRoute: typeof AuthenticatedOrcamentosRoute
@@ -297,6 +318,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCategoriasRoute: AuthenticatedCategoriasRoute,
+  AuthenticatedComprovantesRoute: AuthenticatedComprovantesRoute,
   AuthenticatedLancamentosRoute: AuthenticatedLancamentosRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedOrcamentosRoute: AuthenticatedOrcamentosRoute,
