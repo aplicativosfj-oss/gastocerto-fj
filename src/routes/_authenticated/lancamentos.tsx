@@ -86,7 +86,8 @@ function TransactionsPage() {
   const [selected, setSelected] = useState<string[]>([]);
   const [editing, setEditing] = useState<Transaction | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [confirmDelete, setConfirmDelete] = useState<string[] | null>(null);
+  const [details, setDetails] = useState<Transaction | null>(null);
+
 
   const categoryNames = useMemo(
     () => new Map((categories ?? []).map((category) => [category.id, category.name])),
