@@ -114,7 +114,7 @@ function CategoriesPage() {
     try {
       await save.mutateAsync({
         id: draft.id,
-        values: { name, type: draft.type, color: draft.color },
+        values: { name, type: draft.type, color: draft.color, icon: draft.icon },
       });
       setDraft(null);
       toast.success(draft.id ? "Categoria atualizada." : "Categoria criada.");
