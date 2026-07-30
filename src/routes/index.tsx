@@ -31,10 +31,11 @@ export const Route = createFileRoute("/")({
 
 function LandingPage() {
   return (
-    <div className="relative min-h-screen bg-background">
+    <div className="relative flex min-h-dvh flex-col bg-background">
       <PageBackground />
       <LandingHeader />
-      <main>
+      <main className="flex-1">
+
         <Hero />
         <SectionHub />
         <CompactOverview />
