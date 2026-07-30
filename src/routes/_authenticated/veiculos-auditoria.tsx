@@ -60,6 +60,7 @@ function FuelAuditPage() {
   const [onlyWarnings, setOnlyWarnings] = useState(false);
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
+  const [detail, setDetail] = useState<FuelAuditEntry | null>(null);
 
   const { data: logs, isLoading } = useFuelAudit(
     vehicleFilter === "all" ? undefined : vehicleFilter,
