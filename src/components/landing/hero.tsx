@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, PlayCircle, ShieldCheck, TrendingDown, Wallet } from "lucide-react";
 
-import heroBg from "@/assets/hero-finance.jpg";
+import heroBg from "@/assets/hero-workspace.jpg";
 import { Button } from "@/components/ui/button";
 import { DashboardPreview } from "@/components/landing/dashboard-preview";
 import { GridPattern, RingChart, Sparkline } from "@/components/landing/decor";
@@ -17,7 +17,7 @@ export function Hero() {
   return (
     <section
       id="inicio"
-      className="relative isolate flex min-h-[100svh] items-center overflow-hidden bg-[oklch(0.16_0.03_258)] pt-20 pb-10 text-white"
+      className="relative isolate flex min-h-[92svh] items-center overflow-hidden bg-[oklch(0.16_0.03_258)] pt-24 pb-12 text-white"
     >
       <img
         src={heroBg}
@@ -25,7 +25,7 @@ export function Hero() {
         aria-hidden="true"
         width={1920}
         height={1280}
-        className="absolute inset-0 -z-20 size-full object-cover object-right opacity-70"
+        className="absolute inset-0 -z-20 size-full object-cover object-right opacity-80"
       />
       <div
         aria-hidden="true"
