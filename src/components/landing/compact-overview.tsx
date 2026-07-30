@@ -79,27 +79,50 @@ export function CompactOverview() {
   }, []);
 
   return (
-    <section id="recursos" className="border-y border-border bg-secondary/30 section-y">
-      <span id="como-funciona" className="block" />
+    <section id="explorar" className="border-y border-border bg-secondary/30 section-y">
       <span id="seguranca" className="block" />
-      <span id="faq" className="block" />
       <div className="section-shell">
-        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3 sm:flex sm:justify-between">
+        <div className="grid gap-2.5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
           <div className="min-w-0">
-            <p className="text-xs font-semibold uppercase tracking-wide text-brand">Visão geral</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-brand">
+              Tudo em um só lugar
+            </p>
             <h2 className="mt-1 section-title">
-              Tudo o que você precisa, em uma página
+              Explore o produto sem sair da página
             </h2>
+          </div>
+          <div className="flex min-w-0 flex-wrap items-center gap-1.5 sm:justify-end">
+            <DemoDialog>
+              <button
+                type="button"
+                className="inline-flex h-8 items-center gap-1.5 rounded-full border border-brand/30 bg-brand/10 px-3 text-xs font-semibold text-brand transition-colors hover:bg-brand hover:text-brand-foreground"
+              >
+                <LayoutDashboard className="size-3.5" aria-hidden="true" />
+                Ver painel ao vivo
+              </button>
+            </DemoDialog>
+            {shortcuts.map((item) => (
+              <a
+                key={item.label}
+                href={item.href}
+                onClick={(event) => handleAnchorClick(event, item.href)}
+                className="inline-flex h-8 items-center gap-1.5 rounded-full border border-border bg-card px-3 text-xs font-medium text-muted-foreground transition-colors hover:border-brand/40 hover:text-foreground"
+              >
+                <item.icon className="size-3.5" aria-hidden="true" />
+                {item.label}
+              </a>
+            ))}
           </div>
         </div>
 
         <Tabs value={tab} onValueChange={(v) => setTab(v as TabValue)} className="mt-3.5">
-          <TabsList className="flex w-full flex-wrap justify-start gap-1">
+          <TabsList id="recursos" className="flex w-full flex-wrap justify-start gap-1 scroll-mt-24">
             <TabsTrigger value="recursos">Recursos</TabsTrigger>
             <TabsTrigger value="como-funciona">Como funciona</TabsTrigger>
             <TabsTrigger value="seguranca">Segurança</TabsTrigger>
-            <TabsTrigger value="faq">FAQ</TabsTrigger>
+            <TabsTrigger value="faq" id="faq" className="scroll-mt-24">FAQ</TabsTrigger>
           </TabsList>
+
 
           <TabsContent value="recursos" className="mt-3.5">
             <div className="grid grid-cols-2 gap-2 sm:gap-2.5 lg:grid-cols-3">
