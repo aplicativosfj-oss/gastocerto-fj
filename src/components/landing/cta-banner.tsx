@@ -3,6 +3,7 @@ import { ArrowRight, PlayCircle, ShieldCheck } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { GridPattern } from "@/components/landing/decor";
+import { Reveal } from "@/components/landing/reveal";
 
 export function CtaBanner() {
   return (
