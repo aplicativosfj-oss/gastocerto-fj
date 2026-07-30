@@ -153,7 +153,7 @@ function CategoriesPage() {
           <Button
             onClick={() => {
               setError(null);
-              setDraft({ name: "", type: tab, color: COLORS[0] });
+              setDraft({ name: "", type: tab, color: COLORS[0], icon: "circle-ellipsis" });
             }}
           >
             <Plus className="mr-2 size-4" />
