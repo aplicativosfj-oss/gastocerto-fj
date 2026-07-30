@@ -8,6 +8,7 @@ import {
   ListTree,
   LogOut,
   Menu,
+  Paperclip,
   PiggyBank,
   TrendingUp,
   User2,
