@@ -41,7 +41,7 @@ const socials = [
 export function LandingFooter() {
   return (
     <footer className="border-t border-border bg-secondary/30">
-      <div className="section-shell grid gap-10 py-14 lg:grid-cols-[1.2fr_2fr]">
+      <div className="section-shell grid gap-8 py-10 lg:grid-cols-[1.2fr_2fr]">
         <div>
           <Logo />
           <p className="mt-4 max-w-sm text-sm leading-relaxed text-muted-foreground">

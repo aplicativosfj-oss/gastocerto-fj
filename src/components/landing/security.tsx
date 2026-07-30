@@ -53,7 +53,7 @@ const extras = [
 
 export function Security() {
   return (
-    <section id="seguranca" className="border-y border-border bg-secondary/40 py-12 sm:py-14">
+    <section id="seguranca" className="border-y border-border bg-secondary/40 py-9 sm:py-11">
       <div className="section-shell">
         <div className="max-w-2xl">
           <p className="text-sm font-semibold text-brand">Segurança e privacidade</p>
