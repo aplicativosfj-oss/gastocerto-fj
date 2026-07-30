@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="512" height="512" role="img" aria-label="GastoCerto">
+  <style>
+    .plate { fill: #16203f; }
+    .bars  { fill: #ffffff; }
+    .accent{ stroke: #34d399; }
+    .arrow { fill: #34d399; }
+    @media (prefers-color-scheme: dark) {
+      .plate { fill: #f4f6fb; }
+      .bars  { fill: #16203f; }
+      .accent{ stroke: #0f9d6e; }
+      .arrow { fill: #0f9d6e; }
+    }
+  </style>
+  <rect x="0" y="0" width="64" height="64" rx="14" class="plate"/>
+  <path d="M32 12a20 20 0 1 0 20 20h-9.5a10.5 10.5 0 1 1-6.9-9.9" fill="none" stroke-width="7" stroke-linecap="round" class="accent"/>
+  <path d="M38 26 51 13" fill="none" stroke-width="7" stroke-linecap="round" class="accent"/>
+  <path d="M53 11 54 22 42 10Z" class="arrow"/>
+  <rect x="24" y="35" width="4.5" height="8" rx="2" class="bars"/>
+  <rect x="31" y="30" width="4.5" height="13" rx="2" class="bars"/>
+  <rect x="38" y="33" width="4.5" height="10" rx="2" class="bars" opacity="0.75"/>
+</svg>
