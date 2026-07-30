@@ -75,7 +75,7 @@ export function LandingHeader() {
               <a
                 key={item.href}
                 href={item.href}
-                aria-current={isActive ? "true" : undefined}
+                aria-current={isActive ? "location" : undefined}
                 onClick={(event) => handleAnchorClick(event, item.href)}
                 className={cn(
                   "relative inline-flex min-h-11 items-center rounded-md px-3 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent after:absolute after:inset-x-3 after:-bottom-0.5 after:h-0.5 after:rounded-full after:bg-brand after:opacity-0 after:transition-opacity",
@@ -123,9 +123,10 @@ export function LandingHeader() {
               <a
                 key={item.href}
                 href={item.href}
+                aria-current={active === item.href ? "location" : undefined}
                 onClick={(event) => handleAnchorClick(event, item.href, () => setOpen(false))}
                 className={cn(
-                  "rounded-md px-3 py-2.5 text-sm font-medium transition-colors hover:bg-accent hover:text-foreground",
+                  "flex min-h-11 items-center rounded-md px-3 text-sm font-medium transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                   active === item.href
                     ? "bg-accent text-foreground"
                     : "text-muted-foreground",
