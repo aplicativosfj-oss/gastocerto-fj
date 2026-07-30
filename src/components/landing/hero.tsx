@@ -116,7 +116,7 @@ export function Hero() {
             </Suspense>
           </div>
 
-          <div className="absolute -left-10 bottom-2 w-44 rounded-2xl border border-white/15 bg-[oklch(0.2_0.03_258/0.85)] p-3 shadow-lifted backdrop-blur-md">
+          <div className="absolute -left-10 bottom-16 w-44 rounded-2xl border border-white/15 bg-[oklch(0.2_0.03_258/0.85)] p-3 shadow-lifted backdrop-blur-md">
             <div className="flex items-center justify-between text-[11px] text-white/75">
               <span className="inline-flex items-center gap-1.5 font-medium text-white/80">
                 <TrendingDown className="size-3.5 text-success" aria-hidden="true" />
