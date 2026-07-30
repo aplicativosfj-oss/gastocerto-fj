@@ -22,14 +22,14 @@ const socials = [
 export function LandingFooter() {
   return (
     <footer className="border-t border-border bg-secondary/30">
-      <div className="section-shell flex flex-wrap items-center gap-x-4 gap-y-2 py-2.5 sm:py-3">
+      <div className="section-shell flex flex-wrap items-center justify-between gap-x-4 gap-y-1.5 py-2.5 sm:py-3">
         <div className="flex shrink-0 scale-90 items-center sm:scale-100">
           <Logo />
         </div>
 
         <nav
           aria-label="Links do rodapé"
-          className="-mx-1 flex min-w-0 flex-1 items-center gap-x-3 overflow-x-auto whitespace-nowrap px-1 sm:justify-center sm:gap-x-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="order-last -mx-4 flex w-full min-w-0 items-center gap-x-3 overflow-x-auto whitespace-nowrap px-4 sm:order-none sm:mx-0 sm:w-auto sm:flex-1 sm:justify-center sm:gap-x-4 sm:px-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           {links.map((link) => (
             <a
