@@ -105,7 +105,7 @@ export function TransactionDialog({
     setDescription("");
     setAmount("");
     setCategoryId("");
-    setDate(isoDate(new Date()));
+    setDate(defaultDate ?? isoDate(new Date()));
     setTime("");
     setMerchant("");
     setNotes("");
