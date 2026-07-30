@@ -426,7 +426,12 @@ export function TransactionDialog({
                 </div>
               </>
             ) : null}
+
+            <div className="sm:col-span-2">
+              <ReceiptField value={attachment} onChange={setAttachment} />
+            </div>
           </div>
+
 
           <DialogFooter>
             <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
