@@ -23,6 +23,7 @@ import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedReceitasRouteImport } from './routes/_authenticated/receitas'
 import { Route as AuthenticatedRecorrenciaRouteImport } from './routes/_authenticated/recorrencia'
 import { Route as AuthenticatedVeiculosRouteImport } from './routes/_authenticated/veiculos'
+import { Route as AuthenticatedVeiculosConfiguracoesRouteImport } from './routes/_authenticated/veiculos-configuracoes'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -96,6 +97,12 @@ const AuthenticatedVeiculosRoute = AuthenticatedVeiculosRouteImport.update({
   path: '/veiculos',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedVeiculosConfiguracoesRoute =
+  AuthenticatedVeiculosConfiguracoesRouteImport.update({
+    id: '/veiculos-configuracoes',
+    path: '/veiculos-configuracoes',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -111,6 +118,7 @@ export interface FileRoutesByFullPath {
   '/receitas': typeof AuthenticatedReceitasRoute
   '/recorrencia': typeof AuthenticatedRecorrenciaRoute
   '/veiculos': typeof AuthenticatedVeiculosRoute
+  '/veiculos-configuracoes': typeof AuthenticatedVeiculosConfiguracoesRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -126,6 +134,7 @@ export interface FileRoutesByTo {
   '/receitas': typeof AuthenticatedReceitasRoute
   '/recorrencia': typeof AuthenticatedRecorrenciaRoute
   '/veiculos': typeof AuthenticatedVeiculosRoute
+  '/veiculos-configuracoes': typeof AuthenticatedVeiculosConfiguracoesRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -143,6 +152,7 @@ export interface FileRoutesById {
   '/_authenticated/receitas': typeof AuthenticatedReceitasRoute
   '/_authenticated/recorrencia': typeof AuthenticatedRecorrenciaRoute
   '/_authenticated/veiculos': typeof AuthenticatedVeiculosRoute
+  '/_authenticated/veiculos-configuracoes': typeof AuthenticatedVeiculosConfiguracoesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -160,6 +170,7 @@ export interface FileRouteTypes {
     | '/receitas'
     | '/recorrencia'
     | '/veiculos'
+    | '/veiculos-configuracoes'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -175,6 +186,7 @@ export interface FileRouteTypes {
     | '/receitas'
     | '/recorrencia'
     | '/veiculos'
+    | '/veiculos-configuracoes'
   id:
     | '__root__'
     | '/'
@@ -191,6 +203,7 @@ export interface FileRouteTypes {
     | '/_authenticated/receitas'
     | '/_authenticated/recorrencia'
     | '/_authenticated/veiculos'
+    | '/_authenticated/veiculos-configuracoes'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -300,6 +313,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedVeiculosRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/veiculos-configuracoes': {
+      id: '/_authenticated/veiculos-configuracoes'
+      path: '/veiculos-configuracoes'
+      fullPath: '/veiculos-configuracoes'
+      preLoaderRoute: typeof AuthenticatedVeiculosConfiguracoesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
@@ -314,6 +334,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedReceitasRoute: typeof AuthenticatedReceitasRoute
   AuthenticatedRecorrenciaRoute: typeof AuthenticatedRecorrenciaRoute
   AuthenticatedVeiculosRoute: typeof AuthenticatedVeiculosRoute
+  AuthenticatedVeiculosConfiguracoesRoute: typeof AuthenticatedVeiculosConfiguracoesRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -327,6 +348,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedReceitasRoute: AuthenticatedReceitasRoute,
   AuthenticatedRecorrenciaRoute: AuthenticatedRecorrenciaRoute,
   AuthenticatedVeiculosRoute: AuthenticatedVeiculosRoute,
+  AuthenticatedVeiculosConfiguracoesRoute:
+    AuthenticatedVeiculosConfiguracoesRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -59,6 +60,9 @@ function ReceiptsPage() {
   const [origin, setOrigin] = useState("all");
   const [preview, setPreview] = useState<string | null>(null);
   const [confirm, setConfirm] = useState<ReceiptItem | null>(null);
+  const [selected, setSelected] = useState<string[]>([]);
+  const [confirmBulk, setConfirmBulk] = useState(false);
+  const [busy, setBusy] = useState(false);
 
   const items = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -68,6 +72,56 @@ function ReceiptsPage() {
       return true;
     });
   }, [receipts, search, origin]);
+
+  const keyOf = (item: ReceiptItem) => `${item.origin}-${item.id}`;
+  const selectedItems = items.filter((item) => selected.includes(keyOf(item)));
+  const allSelected = items.length > 0 && selectedItems.length === items.length;
+
+  function toggleItem(item: ReceiptItem, checked: boolean) {
+    const key = keyOf(item);
+    setSelected((current) =>
+      checked ? [...new Set([...current, key])] : current.filter((value) => value !== key),
+    );
+  }
+
+  function toggleAll(checked: boolean) {
+    setSelected(checked ? items.map(keyOf) : []);
+  }
+
+  async function handleBulkDownload() {
+    setBusy(true);
+    let failures = 0;
+    for (const item of selectedItems) {
+      try {
+        await downloadReceipt(item.path);
+        await new Promise((resolve) => setTimeout(resolve, 400));
+      } catch (error) {
+        failures += 1;
+        console.error("[comprovantes] falha ao baixar em lote", error);
+      }
+    }
+    setBusy(false);
+    if (failures > 0) toast.error(`${failures} arquivo(s) não puderam ser baixados.`);
+    else toast.success(`${selectedItems.length} arquivo(s) baixados.`);
+  }
+
+  async function handleBulkRemove() {
+    setBusy(true);
+    let failures = 0;
+    for (const item of selectedItems) {
+      try {
+        await remove.mutateAsync(item);
+      } catch (error) {
+        failures += 1;
+        console.error("[comprovantes] falha ao remover em lote", error);
+      }
+    }
+    setBusy(false);
+    setConfirmBulk(false);
+    setSelected([]);
+    if (failures > 0) toast.error(`${failures} arquivo(s) não puderam ser removidos.`);
+    else toast.success("Comprovantes removidos.");
+  }
 
   async function handleDownload(item: ReceiptItem) {
     try {
@@ -119,6 +173,32 @@ function ReceiptsPage() {
           </Select>
         </section>
 
+        {selectedItems.length > 0 ? (
+          <section className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-secondary/40 p-3">
+            <p className="text-sm font-medium">
+              {selectedItems.length} arquivo(s) selecionado(s)
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <Button variant="ghost" size="sm" onClick={() => setSelected([])}>
+                Limpar seleção
+              </Button>
+              <Button variant="outline" size="sm" disabled={busy} onClick={handleBulkDownload}>
+                <Download className="mr-2 size-4" />
+                Baixar em lote
+              </Button>
+              <Button
+                variant="destructive"
+                size="sm"
+                disabled={busy}
+                onClick={() => setConfirmBulk(true)}
+              >
+                <Trash2 className="mr-2 size-4" />
+                Remover selecionados
+              </Button>
+            </div>
+          </section>
+        ) : null}
+
         {isLoading ? (
           <div className="space-y-2">
             {Array.from({ length: 5 }).map((_, index) => (
@@ -134,13 +214,27 @@ function ReceiptsPage() {
             </p>
           </section>
         ) : (
-          <ul className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card">
+          <div className="overflow-hidden rounded-2xl border border-border bg-card">
+            <div className="flex items-center gap-3 border-b border-border px-4 py-3">
+              <Checkbox
+                checked={allSelected}
+                onCheckedChange={(value) => toggleAll(value === true)}
+                aria-label="Selecionar todos os comprovantes"
+              />
+              <span className="text-sm text-muted-foreground">Selecionar todos</span>
+            </div>
+            <ul className="divide-y divide-border">
             {items.map((item) => (
               <li
                 key={`${item.origin}-${item.id}`}
                 className="flex flex-wrap items-center justify-between gap-3 p-4"
               >
                 <div className="flex min-w-0 items-center gap-3">
+                  <Checkbox
+                    checked={selected.includes(keyOf(item))}
+                    onCheckedChange={(value) => toggleItem(item, value === true)}
+                    aria-label={`Selecionar comprovante de ${item.title}`}
+                  />
                   <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-secondary">
                     {isPdfPath(item.path) ? (
                       <FileText className="size-4" />
@@ -187,7 +281,8 @@ function ReceiptsPage() {
                 </div>
               </li>
             ))}
-          </ul>
+            </ul>
+          </div>
         )}
       </div>
 
@@ -196,6 +291,26 @@ function ReceiptsPage() {
         open={preview !== null}
         onOpenChange={(value) => !value && setPreview(null)}
       />
+
+      <AlertDialog open={confirmBulk} onOpenChange={setConfirmBulk}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              Remover {selectedItems.length} comprovante(s)?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Os arquivos serão excluídos definitivamente e desvinculados dos registros. Os
+              lançamentos permanecem.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction disabled={busy} onClick={handleBulkRemove}>
+              Remover
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <AlertDialog open={confirm !== null} onOpenChange={() => setConfirm(null)}>
         <AlertDialogContent>
