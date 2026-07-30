@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, ArrowRight, Check, PlayCircle } from "lucide-react";
 
-import { DashboardPreview } from "@/components/landing/dashboard-preview";
+import { DemoDashboard } from "@/components/demo/demo-dashboard";
 import { LandingFooter } from "@/components/landing/landing-footer";
 import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -65,7 +65,7 @@ function DemoPage() {
           Voltar para a página inicial
         </Link>
 
-        <div className="mt-6 grid gap-8 lg:grid-cols-[1fr_1.4fr] lg:items-start">
+        <div className="mt-6 grid gap-8 lg:grid-cols-[0.85fr_1.6fr] lg:items-start">
           <div>
             <p className="inline-flex items-center gap-2 text-sm font-semibold text-brand">
               <PlayCircle className="size-4" aria-hidden="true" />
@@ -105,9 +105,7 @@ function DemoPage() {
             </div>
           </div>
 
-          <div className="rounded-3xl border border-border bg-secondary/40 p-3 shadow-soft sm:p-6">
-            <DashboardPreview />
-          </div>
+          <DemoDashboard />
         </div>
       </main>
 
