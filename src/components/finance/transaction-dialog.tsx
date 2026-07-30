@@ -2,7 +2,9 @@ import { useMemo, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
+import { CategoryPicker } from "@/components/finance/category-picker";
 import { ReceiptField } from "@/components/finance/receipt-field";
+
 import { Button } from "@/components/ui/button";
 
 import {
