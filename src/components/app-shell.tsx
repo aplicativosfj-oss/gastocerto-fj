@@ -1,6 +1,16 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { LayoutDashboard, LogOut, Menu, User2, X } from "lucide-react";
+import {
+  ArrowLeftRight,
+  LayoutDashboard,
+  ListTree,
+  LogOut,
+  Menu,
+  PiggyBank,
+  TrendingUp,
+  User2,
+  X,
+} from "lucide-react";
 import { useState, type ReactNode } from "react";
 
 import { Logo } from "@/components/logo";
@@ -11,8 +21,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAvatarUrl, useProfile } from "@/lib/queries";
 import { cn } from "@/lib/utils";
 
-const navItems = [
-  { label: "Painel", to: "/painel", icon: LayoutDashboard },
+export const navItems = [
+  { label: "Visão geral", to: "/painel", icon: LayoutDashboard },
+  { label: "Transações", to: "/lancamentos", icon: ArrowLeftRight },
+  { label: "Receitas", to: "/receitas", icon: TrendingUp },
+  { label: "Categorias", to: "/categorias", icon: ListTree },
+  { label: "Orçamentos", to: "/orcamentos", icon: PiggyBank },
   { label: "Meu perfil", to: "/perfil", icon: User2 },
 ] as const;
 
@@ -38,73 +52,112 @@ export function AppShell({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen bg-secondary/20">
-      <header className="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="md:hidden"
-              onClick={() => setOpen((value) => !value)}
-              aria-label="Abrir menu"
-            >
-              {open ? <Menu className="size-5" /> : <Menu className="size-5" />}
-            </Button>
-            <Link to="/painel">
-              <Logo />
-            </Link>
-          </div>
-
-          <nav className="hidden items-center gap-1 md:flex">
-            {navItems.map((item) => (
-              <Link
-                key={item.to}
-                to={item.to}
-                className={cn(
-                  "flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                  pathname === item.to
-                    ? "bg-secondary text-foreground"
-                    : "text-muted-foreground hover:text-foreground",
-                )}
-              >
-                <item.icon className="size-4" />
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-
-          <div className="flex items-center gap-2">
-            <ThemeToggle />
-            <Avatar className="size-8">
-              {avatarUrl ? <AvatarImage src={avatarUrl} alt="Foto de perfil" /> : null}
-              <AvatarFallback className="text-xs">{initials}</AvatarFallback>
-            </Avatar>
-            <Button variant="ghost" size="icon" onClick={handleSignOut} aria-label="Sair">
-              <LogOut className="size-4" />
-            </Button>
-          </div>
+    <div className="min-h-screen bg-secondary/20 lg:flex">
+      <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r border-border bg-background lg:flex">
+        <div className="flex h-16 items-center border-b border-border px-5">
+          <Link to="/painel" aria-label="Ir para o painel">
+            <Logo />
+          </Link>
         </div>
+        <nav className="flex-1 space-y-1 overflow-y-auto p-3">
+          {navItems.map((item) => (
+            <NavLink key={item.to} item={item} active={pathname === item.to} />
+          ))}
+        </nav>
+        <div className="border-t border-border p-3">
+          <Button
+            variant="ghost"
+            className="w-full justify-start gap-2 text-muted-foreground"
+            onClick={handleSignOut}
+          >
+            <LogOut className="size-4" />
+            Sair
+          </Button>
+        </div>
+      </aside>
 
-        {open ? (
-          <nav className="border-t border-border bg-background px-4 py-3 md:hidden">
-            {navItems.map((item) => (
-              <Link
-                key={item.to}
-                to={item.to}
-                onClick={() => setOpen(false)}
-                className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground"
+      <div className="flex min-w-0 flex-1 flex-col">
+        <header className="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur">
+          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-3">
+            <div className="flex min-w-0 items-center gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="lg:hidden"
+                onClick={() => setOpen((value) => !value)}
+                aria-label={open ? "Fechar menu" : "Abrir menu"}
+                aria-expanded={open}
               >
-                <item.icon className="size-4" />
-                {item.label}
+                {open ? <X className="size-5" /> : <Menu className="size-5" />}
+              </Button>
+              <Link to="/painel" className="lg:hidden">
+                <Logo />
               </Link>
-            ))}
-          </nav>
-        ) : null}
-      </header>
+            </div>
 
-      <main className="mx-auto max-w-6xl px-4 py-8">{children}</main>
+            <div className="flex shrink-0 items-center gap-2">
+              <ThemeToggle />
+              <Link to="/perfil" aria-label="Meu perfil">
+                <Avatar className="size-8">
+                  {avatarUrl ? <AvatarImage src={avatarUrl} alt="Foto de perfil" /> : null}
+                  <AvatarFallback className="text-xs">{initials}</AvatarFallback>
+                </Avatar>
+              </Link>
+            </div>
+          </div>
+
+          {open ? (
+            <nav className="border-t border-border bg-background px-3 py-3 lg:hidden">
+              {navItems.map((item) => (
+                <NavLink
+                  key={item.to}
+                  item={item}
+                  active={pathname === item.to}
+                  onNavigate={() => setOpen(false)}
+                />
+              ))}
+              <Button
+                variant="ghost"
+                className="mt-1 w-full justify-start gap-2 text-muted-foreground"
+                onClick={handleSignOut}
+              >
+                <LogOut className="size-4" />
+                Sair
+              </Button>
+            </nav>
+          ) : null}
+        </header>
+
+        <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8">{children}</main>
+      </div>
     </div>
+  );
+}
+
+function NavLink({
+  item,
+  active,
+  onNavigate,
+}: {
+  item: (typeof navItems)[number];
+  active: boolean;
+  onNavigate?: () => void;
+}) {
+  return (
+    <Link
+      to={item.to}
+      onClick={onNavigate}
+      aria-current={active ? "page" : undefined}
+      className={cn(
+        "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+        active
+          ? "bg-secondary text-foreground"
+          : "text-muted-foreground hover:bg-secondary/60 hover:text-foreground",
+      )}
+    >
+      <item.icon className="size-4 shrink-0" />
+      <span className="truncate">{item.label}</span>
+    </Link>
   );
 }
 

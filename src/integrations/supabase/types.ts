@@ -59,6 +59,53 @@ export type Database = {
         }
         Relationships: []
       }
+      budgets: {
+        Row: {
+          alert_percentage: number
+          category_id: string | null
+          created_at: string
+          id: string
+          limit_amount: number
+          month: number
+          period_type: string
+          updated_at: string
+          user_id: string
+          year: number
+        }
+        Insert: {
+          alert_percentage?: number
+          category_id?: string | null
+          created_at?: string
+          id?: string
+          limit_amount?: number
+          month: number
+          period_type?: string
+          updated_at?: string
+          user_id: string
+          year: number
+        }
+        Update: {
+          alert_percentage?: number
+          category_id?: string | null
+          created_at?: string
+          id?: string
+          limit_amount?: number
+          month?: number
+          period_type?: string
+          updated_at?: string
+          user_id?: string
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "budgets_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       categories: {
         Row: {
           active: boolean
