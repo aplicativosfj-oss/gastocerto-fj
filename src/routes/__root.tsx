@@ -81,13 +81,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "GastoCerto" },
+      { title: "GastoCerto — Controle de gastos pessoais" },
       { name: "description", content: "Controle total dos seus gastos pessoais." },
       { name: "author", content: "GastoCerto" },
-      { property: "og:title", content: "GastoCerto" },
+      { name: "theme-color", content: "#0d1b3e" },
+      { name: "application-name", content: "GastoCerto" },
+      { name: "apple-mobile-web-app-title", content: "GastoCerto" },
+      { property: "og:site_name", content: "GastoCerto" },
+      { property: "og:title", content: "GastoCerto — Controle de gastos pessoais" },
       { property: "og:description", content: "Controle total dos seus gastos pessoais." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+
     ],
     links: [
       {
