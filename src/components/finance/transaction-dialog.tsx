@@ -105,7 +105,9 @@ export function TransactionDialog({
     setTags("");
     setInstallments("");
     setDueDate("");
+    setAttachment(null);
     setErrors({});
+
   }
 
   async function handleSubmit(event: React.FormEvent) {
