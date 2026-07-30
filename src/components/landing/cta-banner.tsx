@@ -60,7 +60,7 @@ export function CtaBanner() {
           </div>
 
         </div>
-      </div>
+      </Reveal>
     </section>
   );
 }
