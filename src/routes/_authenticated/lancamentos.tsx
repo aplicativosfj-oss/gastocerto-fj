@@ -475,6 +475,18 @@ function TransactionsPage() {
         />
       ) : null}
 
+      <TransactionDetailsDialog
+        transaction={details}
+        open={details !== null}
+        onOpenChange={(value) => !value && setDetails(null)}
+        onEdit={(row) => {
+          setEditing(row);
+          setDialogOpen(true);
+        }}
+      />
+
+
+
       <AlertDialog open={confirmDelete !== null} onOpenChange={() => setConfirmDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
