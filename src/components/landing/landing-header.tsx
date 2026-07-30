@@ -69,21 +69,26 @@ export function LandingHeader() {
         </a>
 
         <nav aria-label="Navegação principal" className="hidden items-center gap-1 lg:flex">
-          {navItems.map((item) => (
-            <a
-              key={item.href}
-              href={item.href}
-              onClick={(event) => handleAnchorClick(event, item.href)}
-              className={cn(
-                "rounded-md px-3 py-2 text-sm font-medium transition-colors",
-                scrolled
-                  ? "text-muted-foreground hover:bg-accent hover:text-foreground"
-                  : "text-white/75 hover:bg-white/10 hover:text-white",
-              )}
-            >
-              {item.label}
-            </a>
-          ))}
+          {navItems.map((item) => {
+            const isActive = active === item.href;
+            return (
+              <a
+                key={item.href}
+                href={item.href}
+                aria-current={isActive ? "true" : undefined}
+                onClick={(event) => handleAnchorClick(event, item.href)}
+                className={cn(
+                  "relative rounded-md px-3 py-2 text-sm font-medium transition-colors after:absolute after:inset-x-3 after:-bottom-0.5 after:h-0.5 after:rounded-full after:bg-brand after:opacity-0 after:transition-opacity",
+                  isActive && "after:opacity-100",
+                  scrolled
+                    ? cn("text-muted-foreground hover:bg-accent hover:text-foreground", isActive && "text-foreground")
+                    : cn("text-white/75 hover:bg-white/10 hover:text-white", isActive && "text-white"),
+                )}
+              >
+                {item.label}
+              </a>
+            );
+          })}
         </nav>
 
         <div className="flex items-center gap-2">
