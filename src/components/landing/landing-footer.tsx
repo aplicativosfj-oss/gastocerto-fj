@@ -72,7 +72,7 @@ export function LandingFooter() {
               to="/admin"
               aria-label="Acesso restrito da equipe"
               title="Acesso da equipe"
-              className={`grid size-4 shrink-0 place-items-center text-muted-foreground/50 transition-colors hover:text-foreground focus-visible:text-foreground ${tapTarget} ${focusRing}`}
+              className={`grid size-4 shrink-0 place-items-center text-muted-foreground transition-colors hover:text-foreground focus-visible:text-foreground ${tapTarget} ${focusRing}`}
             >
               <Lock className="size-3" aria-hidden="true" />
             </Link>

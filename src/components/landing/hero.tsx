@@ -93,13 +93,13 @@ export function Hero() {
           <dl className="mt-4 grid grid-cols-3 gap-2 border-t border-white/10 pt-3">
             {stats.map((stat) => (
               <div key={stat.label} className="min-w-0">
-                <dt className="truncate text-[10px] uppercase tracking-wide text-white/50 sm:text-[11px]">
+                <dt className="truncate text-[10px] uppercase tracking-wide text-white/75 sm:text-[11px]">
                   {stat.label}
                 </dt>
                 <dd className="tabular mt-0.5 truncate text-sm font-bold text-white sm:text-base">
                   {stat.value}
                 </dd>
-                <p className="hidden truncate text-[11px] text-white/45 sm:block">{stat.hint}</p>
+                <p className="hidden truncate text-[11px] text-white/70 sm:block">{stat.hint}</p>
               </div>
             ))}
           </dl>
@@ -117,7 +117,7 @@ export function Hero() {
           </div>
 
           <div className="absolute -left-16 bottom-6 w-48 rounded-2xl border border-white/15 bg-[oklch(0.2_0.03_258/0.85)] p-3 shadow-lifted backdrop-blur-md">
-            <div className="flex items-center justify-between text-[11px] text-white/60">
+            <div className="flex items-center justify-between text-[11px] text-white/75">
               <span className="inline-flex items-center gap-1.5 font-medium text-white/80">
                 <TrendingDown className="size-3.5 text-success" aria-hidden="true" />
                 Despesas
@@ -130,7 +130,7 @@ export function Hero() {
           <div className="absolute -right-10 -top-6 flex w-44 items-center gap-3 rounded-2xl border border-white/15 bg-[oklch(0.2_0.03_258/0.85)] p-3 shadow-lifted backdrop-blur-md">
             <RingChart className="size-12 shrink-0 text-brand" value={68} />
             <div className="min-w-0">
-              <p className="text-[11px] text-white/60">Orçamento</p>
+              <p className="text-[11px] text-white/75">Orçamento</p>
               <p className="tabular text-sm font-bold text-white">68% usado</p>
             </div>
           </div>

@@ -32,8 +32,14 @@ function LandingPage() {
   return (
     <div className="relative flex min-h-dvh flex-col bg-background">
       <PageBackground />
+      <a
+        href="#conteudo"
+        className="sr-only z-[60] focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:inline-flex focus:min-h-11 focus:items-center focus:rounded-md focus:bg-primary focus:px-4 focus:text-sm focus:font-semibold focus:text-primary-foreground focus:shadow-lifted focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"
+      >
+        Pular para o conteúdo
+      </a>
       <LandingHeader />
-      <main className="flex-1">
+      <main id="conteudo" tabIndex={-1} className="flex-1 outline-none">
         <Hero />
         <CompactOverview />
         <Pricing />
