@@ -222,23 +222,26 @@ function DashboardPage() {
         ) : (
           <>
             <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <StatCard label="Gasto hoje" value={formatCurrency(metrics.today)} icon={<TrendingDown className="size-4 text-destructive" />} />
-              <StatCard label="Gasto nos 7 dias" value={formatCurrency(metrics.week)} />
-              <StatCard label="Gasto no mês" value={formatCurrency(metrics.totalExpense)} />
-              <StatCard label="Recebido no mês" value={formatCurrency(metrics.totalIncome)} icon={<TrendingUp className="size-4 text-primary" />} />
+              <StatCard tile="var(--acc-4)" label="Gasto hoje" value={formatCurrency(metrics.today)} icon={<TrendingDown className="size-4" />} />
+              <StatCard tile="var(--acc-3)" label="Gasto nos 7 dias" value={formatCurrency(metrics.week)} />
+              <StatCard tile="var(--acc-5)" label="Gasto no mês" value={formatCurrency(metrics.totalExpense)} />
+              <StatCard tile="var(--acc-2)" label="Recebido no mês" value={formatCurrency(metrics.totalIncome)} icon={<TrendingUp className="size-4" />} />
               <StatCard
+                tile={metrics.balance >= 0 ? "var(--acc-2)" : "var(--acc-4)"}
                 label="Saldo do mês"
                 value={formatCurrency(metrics.balance)}
-                icon={<Wallet className="size-4 text-primary" />}
+                icon={<Wallet className="size-4" />}
                 hint={metrics.balance >= 0 ? "Positivo" : "Negativo"}
               />
-              <StatCard label="Média diária" value={formatCurrency(metrics.dailyAverage)} />
+              <StatCard tile="var(--acc-1)" label="Média diária" value={formatCurrency(metrics.dailyAverage)} />
               <StatCard
+                tile="var(--acc-6)"
                 label="Projeção do mês"
                 value={formatCurrency(metrics.projection)}
                 hint="Com base no ritmo atual"
               />
               <StatCard
+                tile={metrics.diffPercent >= 0 ? "var(--acc-4)" : "var(--acc-2)"}
                 label="Comparado ao mês anterior"
                 value={
                   metrics.previousExpense > 0
@@ -484,19 +487,22 @@ function StatCard({
   value,
   icon,
   hint,
+  tile = "var(--acc-1)",
 }: {
   label: string;
   value: string;
   icon?: React.ReactNode;
   hint?: string;
+  tile?: string;
 }) {
   return (
-    <div className="rounded-2xl border border-border bg-card p-5">
-      <div className="flex items-center gap-2">
+    <div
+      className="accent-tile rounded-2xl p-5"
+      style={{ "--tile": tile } as React.CSSProperties}
+    >
+      <div className="flex items-center gap-2" style={{ color: tile }}>
         {icon}
-        <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-          {label}
-        </span>
+        <span className="text-xs font-medium uppercase tracking-wide">{label}</span>
       </div>
       <p className="mt-3 text-xl font-bold tabular-nums">{value}</p>
       {hint ? <p className="mt-1 text-xs text-muted-foreground">{hint}</p> : null}

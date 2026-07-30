@@ -44,8 +44,8 @@ function LandingPage() {
         <SectionHub />
         <ShowcaseCarousel />
         <Features />
-        <Benefits />
         <HowItWorks />
+        <Benefits />
         <Pricing />
         <Testimonials />
         <Security />

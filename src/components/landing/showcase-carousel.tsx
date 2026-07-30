@@ -254,7 +254,7 @@ export function ShowcaseCarousel() {
   }, [api]);
 
   return (
-    <section id="produto" className="py-12 sm:py-14">
+    <section id="produto" className="py-9 sm:py-11">
       <div className="section-shell">
         <div className="mx-auto max-w-xl text-center">
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-brand">
