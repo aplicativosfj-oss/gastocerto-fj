@@ -77,6 +77,13 @@ const shortcuts = [
 const tabs = ["recursos", "como-funciona", "seguranca", "faq"] as const;
 type TabValue = (typeof tabs)[number];
 
+const tabMeta: Record<TabValue, { label: string; description: string }> = {
+  recursos: { label: "Recursos", description: "Nove recursos de controle de gastos" },
+  "como-funciona": { label: "Como funciona", description: "Três passos e depoimentos de clientes" },
+  seguranca: { label: "Segurança", description: "LGPD, criptografia e controle de acesso" },
+  faq: { label: "Perguntas frequentes", description: "Seis dúvidas comuns sobre planos e demonstração" },
+};
+
 export function CompactOverview() {
   const [tab, setTab] = useState<TabValue>("recursos");
 
@@ -103,7 +110,7 @@ export function CompactOverview() {
               Explore o produto sem sair da página
             </h2>
           </div>
-          <div className="flex min-w-0 flex-wrap items-center gap-1.5 sm:justify-end">
+          <nav aria-label="Atalhos para seções da página" className="flex min-w-0 flex-wrap items-center gap-1.5 sm:justify-end">
             <DemoDialog>
               <button
                 type="button"
@@ -124,19 +131,45 @@ export function CompactOverview() {
                 {item.label}
               </a>
             ))}
-          </div>
+          </nav>
         </div>
 
         <Tabs value={tab} onValueChange={(v) => setTab(v as TabValue)} className="mt-3.5">
-          <TabsList id="recursos" aria-label="Seções do produto — use as setas para navegar" className="flex h-auto w-full flex-nowrap justify-start gap-1 overflow-x-auto p-1 [scrollbar-width:none] sm:flex-wrap [&::-webkit-scrollbar]:hidden">
-            <TabsTrigger value="recursos" className="shrink-0">Recursos</TabsTrigger>
-            <TabsTrigger value="como-funciona" className="shrink-0">Como funciona</TabsTrigger>
-            <TabsTrigger value="seguranca" className="shrink-0">Segurança</TabsTrigger>
-            <TabsTrigger value="faq" id="faq" className="shrink-0 scroll-mt-24">FAQ</TabsTrigger>
-          </TabsList>
+          <div
+            role="region"
+            aria-label="Navegação das seções do produto"
+            className="w-full"
+          >
+            <p id="tabs-hint" className="sr-only">
+              Lista de 4 seções em rolagem horizontal. Use as setas esquerda e direita para trocar de seção; o conteúdo é atualizado automaticamente.
+            </p>
+            <TabsList
+              id="recursos"
+              aria-label="Seções do produto"
+              aria-describedby="tabs-hint"
+              className="flex h-auto w-full flex-nowrap justify-start gap-1 overflow-x-auto p-1 [scrollbar-width:none] sm:flex-wrap [&::-webkit-scrollbar]:hidden"
+            >
+              {tabs.map((value, index) => (
+                <TabsTrigger
+                  key={value}
+                  value={value}
+                  id={value === "faq" ? "faq" : undefined}
+                  aria-label={`${tabMeta[value].label}: ${tabMeta[value].description} — seção ${index + 1} de ${tabs.length}`}
+                  className={value === "faq" ? "shrink-0 scroll-mt-24" : "shrink-0"}
+                >
+                  {tabMeta[value].label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </div>
+
+          <p className="sr-only" role="status" aria-live="polite">
+            {`Seção ativa: ${tabMeta[tab].label}. ${tabMeta[tab].description}.`}
+          </p>
 
 
-          <TabsContent value="recursos" className="mt-3.5">
+          <TabsContent value="recursos" className="mt-3.5 outline-none" tabIndex={0}>
+            <h3 className="sr-only">{tabMeta["recursos"].label}</h3>
             <div className="grid grid-cols-2 gap-2 sm:gap-2.5 lg:grid-cols-3">
               {features.map((item) => (
                 <div key={item.title} className="flex min-w-0 flex-col gap-2 rounded-xl border border-border bg-card p-2.5 sm:flex-row sm:gap-3 sm:p-3">
@@ -152,7 +185,8 @@ export function CompactOverview() {
             </div>
           </TabsContent>
 
-          <TabsContent value="como-funciona" className="mt-3.5">
+          <TabsContent value="como-funciona" className="mt-3.5 outline-none" tabIndex={0}>
+            <h3 className="sr-only">{tabMeta["como-funciona"].label}</h3>
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-2.5">
               {steps.map((step, index) => (
                 <div key={step.title} className="rounded-xl border border-border bg-card p-3 sm:p-3.5">
@@ -181,7 +215,8 @@ export function CompactOverview() {
             </div>
           </TabsContent>
 
-          <TabsContent value="seguranca" className="mt-3.5">
+          <TabsContent value="seguranca" className="mt-3.5 outline-none" tabIndex={0}>
+            <h3 className="sr-only">{tabMeta["seguranca"].label}</h3>
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-2.5">
               {pillars.map((pillar) => (
                 <div key={pillar.title} className="rounded-xl border border-border bg-card p-3 sm:p-3.5">
@@ -195,7 +230,8 @@ export function CompactOverview() {
             </div>
           </TabsContent>
 
-          <TabsContent value="faq" className="mt-3.5">
+          <TabsContent value="faq" className="mt-3.5 outline-none" tabIndex={0}>
+            <h3 className="sr-only">{tabMeta["faq"].label}</h3>
             <Accordion type="single" collapsible className="grid gap-x-6 sm:grid-cols-2">
               {faqs.map((faq, index) => (
                 <AccordionItem key={faq.q} value={`item-${index}`}>
