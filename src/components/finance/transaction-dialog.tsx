@@ -91,6 +91,8 @@ export function TransactionDialog({
     transaction?.total_installments ? String(transaction.total_installments) : "",
   );
   const [dueDate, setDueDate] = useState(transaction?.due_date ?? "");
+  const [attachment, setAttachment] = useState<string | null>(transaction?.attachment_url ?? null);
+
 
   function reset() {
     setDescription("");
