@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import heroBg from "@/assets/hero-workspace.jpg";
+import heroBg from "@/assets/hero-desk-night.jpg";
 import { CompactOverview } from "@/components/landing/compact-overview";
 import { CtaBanner } from "@/components/landing/cta-banner";
 import { Hero } from "@/components/landing/hero";
@@ -9,9 +9,9 @@ import { LandingHeader } from "@/components/landing/landing-header";
 import { PageBackground } from "@/components/landing/page-background";
 import { Pricing } from "@/components/landing/pricing";
 
-const title = "GastoCerto — Controle total dos seus gastos";
+const title = "GastoCerto — Onde cada real vai parar, você sabe";
 const description =
-  "Registre despesas, combustível, gás, contas recorrentes e orçamentos. Acompanhe seus hábitos e descubra para onde seu dinheiro está indo.";
+  "Combustível, gás, mercado, contas e assinaturas em um painel só. Lance em 10 segundos, receba alertas antes do vencimento e feche o mês no azul.";
 
 export const Route = createFileRoute("/")({
   head: () => ({

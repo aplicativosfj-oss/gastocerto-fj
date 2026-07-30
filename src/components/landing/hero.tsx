@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Suspense, lazy } from "react";
 import { ArrowRight, ChevronDown, PlayCircle, ShieldCheck, TrendingDown, Wallet } from "lucide-react";
 
-import heroBg from "@/assets/hero-workspace.jpg";
+import heroBg from "@/assets/hero-desk-night.jpg";
 import { Button } from "@/components/ui/button";
 import { DemoDialog } from "@/components/landing/demo-dialog";
 import { GridPattern, RingChart, Sparkline } from "@/components/landing/decor";
@@ -14,9 +14,9 @@ const DashboardPreview = lazy(() =>
 );
 
 const stats = [
-  { label: "Gasto do mês", value: formatCurrency(3782.45), hint: "-8,2% vs. junho" },
-  { label: "Economia média", value: "R$ 640/mês", hint: "após 90 dias de uso" },
-  { label: "Custo por km", value: "R$ 0,52", hint: "calculado automaticamente" },
+  { label: "Fecha o mês em", value: formatCurrency(3782.45), hint: "8,2% menos que junho" },
+  { label: "Sobra no bolso", value: "R$ 640/mês", hint: "média após 90 dias" },
+  { label: "Lançar um gasto", value: "10 segundos", hint: "com categoria e anexo" },
 ];
 
 export function Hero() {
@@ -30,7 +30,7 @@ export function Hero() {
         alt=""
         aria-hidden="true"
         width={1920}
-        height={1280}
+        height={1088}
         fetchPriority="high"
         decoding="async"
         className="absolute inset-0 -z-20 size-full object-cover object-right opacity-80"
@@ -49,22 +49,22 @@ export function Hero() {
         <div>
           <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/80 backdrop-blur sm:text-[11px]">
             <ShieldCheck className="size-3.5 text-success" aria-hidden="true" />
-            Gestão financeira pessoal
+            Novo · Painel 2026 com alertas inteligentes
           </span>
 
           <h1 className="font-display mt-2.5 text-[1.6rem] font-extrabold leading-[1.05] tracking-[-0.03em] text-white sm:text-[2.4rem] lg:text-[2.75rem] xl:text-[3.1rem]">
-            Controle profissional de cada real que você gasta.
+            Você trabalha demais para não saber onde o dinheiro foi parar.
           </h1>
 
           <p className="mt-2 max-w-lg text-[13px] leading-snug text-white/70 sm:text-[15px] sm:leading-relaxed">
-            Despesas, combustível, contas recorrentes e orçamentos em um só painel — com
-            indicadores automáticos e relatórios prontos para decidir.
+            O GastoCerto junta combustível, gás, mercado, assinaturas e contas fixas em um
+            painel só — e avisa você antes da fatura chegar.
           </p>
 
           <div className="mt-3.5 grid grid-cols-[1fr_1fr_auto] items-center gap-1.5 sm:flex sm:flex-wrap sm:gap-2">
             <Button className="h-10 min-w-0 px-3 text-[13px] shadow-lifted sm:h-11 sm:px-6 sm:text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent" asChild>
               <Link to="/auth" search={{ mode: "signup" }}>
-                <span className="truncate">Criar conta</span>
+                <span className="truncate">Começar grátis</span>
                 <ArrowRight className="size-4 shrink-0" aria-hidden="true" />
               </Link>
             </Button>
@@ -74,7 +74,7 @@ export function Hero() {
                 className="h-10 min-w-0 border-white/25 bg-white/5 px-3 text-[13px] text-white hover:bg-white/15 hover:text-white sm:h-11 sm:px-6 sm:text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
               >
                 <PlayCircle className="size-4 shrink-0" aria-hidden="true" />
-                <span className="truncate">Demonstração</span>
+                <span className="truncate">Ver funcionando</span>
               </Button>
             </DemoDialog>
             <a
@@ -137,7 +137,7 @@ export function Hero() {
 
           <div className="absolute -bottom-8 right-6 inline-flex items-center gap-2 rounded-full border border-white/15 bg-[oklch(0.2_0.03_258/0.85)] px-3 py-1.5 text-[11px] font-medium text-white/80 shadow-lifted backdrop-blur-md">
             <Wallet className="size-3.5 text-brand" aria-hidden="true" />
-            Sincronizado em tempo real
+            Atualiza sozinho, todo dia
           </div>
         </div>
       </div>
