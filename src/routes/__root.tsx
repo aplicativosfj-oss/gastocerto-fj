@@ -15,6 +15,9 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
+import { setupServiceWorker } from "@/lib/pwa";
+import { OfflineBanner } from "@/components/offline-banner";
+
 
 export const SITE_URL = "https://pagina-limpa-controle.lovable.app";
 
@@ -185,6 +188,10 @@ function RootComponent() {
   const router = useRouter();
 
   useEffect(() => {
+    void setupServiceWorker();
+  }, []);
+
+  useEffect(() => {
     const { data } = supabase.auth.onAuthStateChange((event) => {
       if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
       router.invalidate();
@@ -193,6 +200,7 @@ function RootComponent() {
     return () => data.subscription.unsubscribe();
   }, [router, queryClient]);
 
+
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
@@ -200,7 +208,9 @@ function RootComponent() {
           {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
           <Outlet />
         </AuthProvider>
+        <OfflineBanner />
         <Toaster richColors position="top-right" />
+
       </ThemeProvider>
     </QueryClientProvider>
   );
