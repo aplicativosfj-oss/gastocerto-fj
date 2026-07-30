@@ -31,7 +31,7 @@ export function CtaBanner() {
             </div>
 
             <div className="grid grid-cols-2 gap-2 lg:grid-cols-1">
-              <Button className="h-10 w-full shadow-lifted" asChild>
+              <Button className="h-10 w-full shadow-lifted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent" asChild>
                 <Link to="/auth" search={{ mode: "signup" }}>
                   Criar conta
                   <ArrowRight className="size-4" aria-hidden="true" />
@@ -39,7 +39,7 @@ export function CtaBanner() {
               </Button>
               <Button
                 variant="outline"
-                className="h-10 w-full border-white/25 bg-white/5 text-white hover:bg-white/15 hover:text-white"
+                className="h-10 w-full border-white/25 bg-white/5 text-white hover:bg-white/15 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
                 asChild
               >
                 <Link to="/demonstracao">
@@ -49,7 +49,7 @@ export function CtaBanner() {
               </Button>
               <Button
                 variant="ghost"
-                className="col-span-2 h-9 w-full text-white/80 hover:bg-white/10 hover:text-white lg:col-span-1"
+                className="col-span-2 h-9 w-full text-white/80 hover:bg-white/10 hover:text-white lg:col-span-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
                 asChild
               >
                 <Link to="/auth" search={{ mode: "login" }}>

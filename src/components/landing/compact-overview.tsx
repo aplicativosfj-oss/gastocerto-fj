@@ -107,7 +107,7 @@ export function CompactOverview() {
             <DemoDialog>
               <button
                 type="button"
-                className="inline-flex h-8 items-center gap-1.5 rounded-full border border-brand/30 bg-brand/10 px-3 text-xs font-semibold text-brand transition-colors hover:bg-brand hover:text-brand-foreground"
+                className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-brand/30 bg-brand/10 px-3 text-xs font-semibold text-brand transition-colors hover:bg-brand hover:text-brand-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
               >
                 <LayoutDashboard className="size-3.5" aria-hidden="true" />
                 Ver painel ao vivo
@@ -118,7 +118,7 @@ export function CompactOverview() {
                 key={item.label}
                 href={item.href}
                 onClick={(event) => handleAnchorClick(event, item.href)}
-                className="inline-flex h-8 items-center gap-1.5 rounded-full border border-border bg-card px-3 text-xs font-medium text-muted-foreground transition-colors hover:border-brand/40 hover:text-foreground"
+                className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-border bg-card px-3 text-xs font-medium text-muted-foreground transition-colors hover:border-brand/40 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
               >
                 <item.icon className="size-3.5" aria-hidden="true" />
                 {item.label}

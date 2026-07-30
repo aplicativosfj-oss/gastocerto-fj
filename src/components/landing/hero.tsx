@@ -81,7 +81,7 @@ export function Hero() {
               href="#explorar"
               onClick={(event) => handleAnchorClick(event, "#explorar")}
               aria-label="Explorar seções"
-              className="inline-flex size-10 items-center justify-center gap-1.5 rounded-md text-[13px] font-medium text-white/75 outline-none transition-colors hover:text-white focus-visible:ring-2 focus-visible:ring-white/60 sm:h-11 sm:w-auto sm:px-3 sm:text-sm"
+              className="inline-flex min-h-11 min-w-11 items-center justify-center gap-1.5 rounded-md text-[13px] font-medium text-white/75 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent sm:h-11 sm:w-auto sm:px-3 sm:text-sm"
             >
               <span className="hidden sm:inline">Explorar seções</span>
               <ChevronDown className="size-4 shrink-0" aria-hidden="true" />
