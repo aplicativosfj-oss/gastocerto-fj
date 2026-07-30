@@ -59,6 +59,33 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_logs: {
+        Row: {
+          action: string
+          actor_id: string
+          created_at: string
+          details: Json
+          id: string
+          target_user_id: string | null
+        }
+        Insert: {
+          action: string
+          actor_id: string
+          created_at?: string
+          details?: Json
+          id?: string
+          target_user_id?: string | null
+        }
+        Update: {
+          action?: string
+          actor_id?: string
+          created_at?: string
+          details?: Json
+          id?: string
+          target_user_id?: string | null
+        }
+        Relationships: []
+      }
       budgets: {
         Row: {
           alert_percentage: number
@@ -282,6 +309,182 @@ export type Database = {
           },
         ]
       }
+      goal_contributions: {
+        Row: {
+          amount: number
+          contribution_date: string
+          created_at: string
+          goal_id: string
+          id: string
+          notes: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          contribution_date?: string
+          created_at?: string
+          goal_id: string
+          id?: string
+          notes?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          contribution_date?: string
+          created_at?: string
+          goal_id?: string
+          id?: string
+          notes?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "goal_contributions_goal_id_fkey"
+            columns: ["goal_id"]
+            isOneToOne: false
+            referencedRelation: "goals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      goals: {
+        Row: {
+          category_id: string | null
+          color: string | null
+          created_at: string
+          current_amount: number
+          goal_type: string
+          icon: string | null
+          id: string
+          name: string
+          notes: string | null
+          start_date: string
+          status: string
+          target_amount: number
+          target_date: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category_id?: string | null
+          color?: string | null
+          created_at?: string
+          current_amount?: number
+          goal_type?: string
+          icon?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          start_date?: string
+          status?: string
+          target_amount?: number
+          target_date?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category_id?: string | null
+          color?: string | null
+          created_at?: string
+          current_amount?: number
+          goal_type?: string
+          icon?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          start_date?: string
+          status?: string
+          target_amount?: number
+          target_date?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      notification_preferences: {
+        Row: {
+          budget_alerts: boolean
+          created_at: string
+          days_before_due: number
+          due_alerts: boolean
+          fuel_alerts: boolean
+          goal_alerts: boolean
+          id: string
+          overdue_alerts: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          budget_alerts?: boolean
+          created_at?: string
+          days_before_due?: number
+          due_alerts?: boolean
+          fuel_alerts?: boolean
+          goal_alerts?: boolean
+          id?: string
+          overdue_alerts?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          budget_alerts?: boolean
+          created_at?: string
+          days_before_due?: number
+          due_alerts?: boolean
+          fuel_alerts?: boolean
+          goal_alerts?: boolean
+          id?: string
+          overdue_alerts?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          dedupe_key: string | null
+          id: string
+          link: string | null
+          message: string
+          notification_type: string
+          read_at: string | null
+          reference_date: string | null
+          reference_id: string | null
+          severity: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          dedupe_key?: string | null
+          id?: string
+          link?: string | null
+          message: string
+          notification_type: string
+          read_at?: string | null
+          reference_date?: string | null
+          reference_id?: string | null
+          severity?: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          dedupe_key?: string | null
+          id?: string
+          link?: string | null
+          message?: string
+          notification_type?: string
+          read_at?: string | null
+          reference_date?: string | null
+          reference_id?: string | null
+          severity?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       onboarding_preferences: {
         Row: {
           created_at: string
@@ -381,6 +584,8 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          contact_email: string | null
+          cpf: string | null
           created_at: string
           full_name: string | null
           id: string
@@ -391,12 +596,15 @@ export type Database = {
           preferred_currency: string
           privacy_accepted_at: string | null
           status: string
+          support_notes: string | null
           terms_accepted_at: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
           avatar_url?: string | null
+          contact_email?: string | null
+          cpf?: string | null
           created_at?: string
           full_name?: string | null
           id?: string
@@ -407,12 +615,15 @@ export type Database = {
           preferred_currency?: string
           privacy_accepted_at?: string | null
           status?: string
+          support_notes?: string | null
           terms_accepted_at?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
           avatar_url?: string | null
+          contact_email?: string | null
+          cpf?: string | null
           created_at?: string
           full_name?: string | null
           id?: string
@@ -423,6 +634,7 @@ export type Database = {
           preferred_currency?: string
           privacy_accepted_at?: string | null
           status?: string
+          support_notes?: string | null
           terms_accepted_at?: string | null
           updated_at?: string
           user_id?: string

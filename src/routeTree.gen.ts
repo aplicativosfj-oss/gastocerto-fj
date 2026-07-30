@@ -14,15 +14,19 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as DemonstracaoRouteImport } from './routes/demonstracao'
 import { Route as RedefinirSenhaRouteImport } from './routes/redefinir-senha'
+import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedCalendarioRouteImport } from './routes/_authenticated/calendario'
 import { Route as AuthenticatedCategoriasRouteImport } from './routes/_authenticated/categorias'
 import { Route as AuthenticatedComprovantesRouteImport } from './routes/_authenticated/comprovantes'
 import { Route as AuthenticatedLancamentosRouteImport } from './routes/_authenticated/lancamentos'
+import { Route as AuthenticatedMetasRouteImport } from './routes/_authenticated/metas'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedOrcamentosRouteImport } from './routes/_authenticated/orcamentos'
 import { Route as AuthenticatedPainelRouteImport } from './routes/_authenticated/painel'
 import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated/perfil'
 import { Route as AuthenticatedReceitasRouteImport } from './routes/_authenticated/receitas'
 import { Route as AuthenticatedRecorrenciaRouteImport } from './routes/_authenticated/recorrencia'
+import { Route as AuthenticatedRelatoriosRouteImport } from './routes/_authenticated/relatorios'
 import { Route as AuthenticatedVeiculosRouteImport } from './routes/_authenticated/veiculos'
 import { Route as AuthenticatedVeiculosAuditoriaRouteImport } from './routes/_authenticated/veiculos-auditoria'
 import { Route as AuthenticatedVeiculosConfiguracoesRouteImport } from './routes/_authenticated/veiculos-configuracoes'
@@ -51,6 +55,16 @@ const RedefinirSenhaRoute = RedefinirSenhaRouteImport.update({
   path: '/redefinir-senha',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedCalendarioRoute = AuthenticatedCalendarioRouteImport.update({
+  id: '/calendario',
+  path: '/calendario',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedCategoriasRoute = AuthenticatedCategoriasRouteImport.update({
   id: '/categorias',
   path: '/categorias',
@@ -68,6 +82,11 @@ const AuthenticatedLancamentosRoute =
     path: '/lancamentos',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedMetasRoute = AuthenticatedMetasRouteImport.update({
+  id: '/metas',
+  path: '/metas',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
@@ -99,6 +118,11 @@ const AuthenticatedRecorrenciaRoute =
     path: '/recorrencia',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedRelatoriosRoute = AuthenticatedRelatoriosRouteImport.update({
+  id: '/relatorios',
+  path: '/relatorios',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedVeiculosRoute = AuthenticatedVeiculosRouteImport.update({
   id: '/veiculos',
   path: '/veiculos',
@@ -122,15 +146,19 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/demonstracao': typeof DemonstracaoRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
+  '/admin': typeof AuthenticatedAdminRoute
+  '/calendario': typeof AuthenticatedCalendarioRoute
   '/categorias': typeof AuthenticatedCategoriasRoute
   '/comprovantes': typeof AuthenticatedComprovantesRoute
   '/lancamentos': typeof AuthenticatedLancamentosRoute
+  '/metas': typeof AuthenticatedMetasRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/orcamentos': typeof AuthenticatedOrcamentosRoute
   '/painel': typeof AuthenticatedPainelRoute
   '/perfil': typeof AuthenticatedPerfilRoute
   '/receitas': typeof AuthenticatedReceitasRoute
   '/recorrencia': typeof AuthenticatedRecorrenciaRoute
+  '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/veiculos': typeof AuthenticatedVeiculosRoute
   '/veiculos-auditoria': typeof AuthenticatedVeiculosAuditoriaRoute
   '/veiculos-configuracoes': typeof AuthenticatedVeiculosConfiguracoesRoute
@@ -140,15 +168,19 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/demonstracao': typeof DemonstracaoRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
+  '/admin': typeof AuthenticatedAdminRoute
+  '/calendario': typeof AuthenticatedCalendarioRoute
   '/categorias': typeof AuthenticatedCategoriasRoute
   '/comprovantes': typeof AuthenticatedComprovantesRoute
   '/lancamentos': typeof AuthenticatedLancamentosRoute
+  '/metas': typeof AuthenticatedMetasRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/orcamentos': typeof AuthenticatedOrcamentosRoute
   '/painel': typeof AuthenticatedPainelRoute
   '/perfil': typeof AuthenticatedPerfilRoute
   '/receitas': typeof AuthenticatedReceitasRoute
   '/recorrencia': typeof AuthenticatedRecorrenciaRoute
+  '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/veiculos': typeof AuthenticatedVeiculosRoute
   '/veiculos-auditoria': typeof AuthenticatedVeiculosAuditoriaRoute
   '/veiculos-configuracoes': typeof AuthenticatedVeiculosConfiguracoesRoute
@@ -160,15 +192,19 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/demonstracao': typeof DemonstracaoRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/calendario': typeof AuthenticatedCalendarioRoute
   '/_authenticated/categorias': typeof AuthenticatedCategoriasRoute
   '/_authenticated/comprovantes': typeof AuthenticatedComprovantesRoute
   '/_authenticated/lancamentos': typeof AuthenticatedLancamentosRoute
+  '/_authenticated/metas': typeof AuthenticatedMetasRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/orcamentos': typeof AuthenticatedOrcamentosRoute
   '/_authenticated/painel': typeof AuthenticatedPainelRoute
   '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
   '/_authenticated/receitas': typeof AuthenticatedReceitasRoute
   '/_authenticated/recorrencia': typeof AuthenticatedRecorrenciaRoute
+  '/_authenticated/relatorios': typeof AuthenticatedRelatoriosRoute
   '/_authenticated/veiculos': typeof AuthenticatedVeiculosRoute
   '/_authenticated/veiculos-auditoria': typeof AuthenticatedVeiculosAuditoriaRoute
   '/_authenticated/veiculos-configuracoes': typeof AuthenticatedVeiculosConfiguracoesRoute
@@ -180,15 +216,19 @@ export interface FileRouteTypes {
     | '/auth'
     | '/demonstracao'
     | '/redefinir-senha'
+    | '/admin'
+    | '/calendario'
     | '/categorias'
     | '/comprovantes'
     | '/lancamentos'
+    | '/metas'
     | '/onboarding'
     | '/orcamentos'
     | '/painel'
     | '/perfil'
     | '/receitas'
     | '/recorrencia'
+    | '/relatorios'
     | '/veiculos'
     | '/veiculos-auditoria'
     | '/veiculos-configuracoes'
@@ -198,15 +238,19 @@ export interface FileRouteTypes {
     | '/auth'
     | '/demonstracao'
     | '/redefinir-senha'
+    | '/admin'
+    | '/calendario'
     | '/categorias'
     | '/comprovantes'
     | '/lancamentos'
+    | '/metas'
     | '/onboarding'
     | '/orcamentos'
     | '/painel'
     | '/perfil'
     | '/receitas'
     | '/recorrencia'
+    | '/relatorios'
     | '/veiculos'
     | '/veiculos-auditoria'
     | '/veiculos-configuracoes'
@@ -217,15 +261,19 @@ export interface FileRouteTypes {
     | '/auth'
     | '/demonstracao'
     | '/redefinir-senha'
+    | '/_authenticated/admin'
+    | '/_authenticated/calendario'
     | '/_authenticated/categorias'
     | '/_authenticated/comprovantes'
     | '/_authenticated/lancamentos'
+    | '/_authenticated/metas'
     | '/_authenticated/onboarding'
     | '/_authenticated/orcamentos'
     | '/_authenticated/painel'
     | '/_authenticated/perfil'
     | '/_authenticated/receitas'
     | '/_authenticated/recorrencia'
+    | '/_authenticated/relatorios'
     | '/_authenticated/veiculos'
     | '/_authenticated/veiculos-auditoria'
     | '/_authenticated/veiculos-configuracoes'
@@ -276,6 +324,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RedefinirSenhaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/calendario': {
+      id: '/_authenticated/calendario'
+      path: '/calendario'
+      fullPath: '/calendario'
+      preLoaderRoute: typeof AuthenticatedCalendarioRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/categorias': {
       id: '/_authenticated/categorias'
       path: '/categorias'
@@ -295,6 +357,13 @@ declare module '@tanstack/react-router' {
       path: '/lancamentos'
       fullPath: '/lancamentos'
       preLoaderRoute: typeof AuthenticatedLancamentosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/metas': {
+      id: '/_authenticated/metas'
+      path: '/metas'
+      fullPath: '/metas'
+      preLoaderRoute: typeof AuthenticatedMetasRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/onboarding': {
@@ -339,6 +408,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRecorrenciaRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/relatorios': {
+      id: '/_authenticated/relatorios'
+      path: '/relatorios'
+      fullPath: '/relatorios'
+      preLoaderRoute: typeof AuthenticatedRelatoriosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/veiculos': {
       id: '/_authenticated/veiculos'
       path: '/veiculos'
@@ -364,30 +440,38 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedCalendarioRoute: typeof AuthenticatedCalendarioRoute
   AuthenticatedCategoriasRoute: typeof AuthenticatedCategoriasRoute
   AuthenticatedComprovantesRoute: typeof AuthenticatedComprovantesRoute
   AuthenticatedLancamentosRoute: typeof AuthenticatedLancamentosRoute
+  AuthenticatedMetasRoute: typeof AuthenticatedMetasRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedOrcamentosRoute: typeof AuthenticatedOrcamentosRoute
   AuthenticatedPainelRoute: typeof AuthenticatedPainelRoute
   AuthenticatedPerfilRoute: typeof AuthenticatedPerfilRoute
   AuthenticatedReceitasRoute: typeof AuthenticatedReceitasRoute
   AuthenticatedRecorrenciaRoute: typeof AuthenticatedRecorrenciaRoute
+  AuthenticatedRelatoriosRoute: typeof AuthenticatedRelatoriosRoute
   AuthenticatedVeiculosRoute: typeof AuthenticatedVeiculosRoute
   AuthenticatedVeiculosAuditoriaRoute: typeof AuthenticatedVeiculosAuditoriaRoute
   AuthenticatedVeiculosConfiguracoesRoute: typeof AuthenticatedVeiculosConfiguracoesRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedCalendarioRoute: AuthenticatedCalendarioRoute,
   AuthenticatedCategoriasRoute: AuthenticatedCategoriasRoute,
   AuthenticatedComprovantesRoute: AuthenticatedComprovantesRoute,
   AuthenticatedLancamentosRoute: AuthenticatedLancamentosRoute,
+  AuthenticatedMetasRoute: AuthenticatedMetasRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedOrcamentosRoute: AuthenticatedOrcamentosRoute,
   AuthenticatedPainelRoute: AuthenticatedPainelRoute,
   AuthenticatedPerfilRoute: AuthenticatedPerfilRoute,
   AuthenticatedReceitasRoute: AuthenticatedReceitasRoute,
   AuthenticatedRecorrenciaRoute: AuthenticatedRecorrenciaRoute,
+  AuthenticatedRelatoriosRoute: AuthenticatedRelatoriosRoute,
   AuthenticatedVeiculosRoute: AuthenticatedVeiculosRoute,
   AuthenticatedVeiculosAuditoriaRoute: AuthenticatedVeiculosAuditoriaRoute,
   AuthenticatedVeiculosConfiguracoesRoute:

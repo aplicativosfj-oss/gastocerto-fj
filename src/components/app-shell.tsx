@@ -2,7 +2,10 @@ import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   ArrowLeftRight,
+  BarChart3,
+  Bell,
   CalendarClock,
+  CalendarDays,
   Car,
   LayoutDashboard,
   ListTree,
@@ -10,6 +13,8 @@ import {
   Menu,
   Paperclip,
   PiggyBank,
+  ShieldCheck,
+  Target,
   TrendingUp,
   User2,
   X,
@@ -21,7 +26,8 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { useAvatarUrl, useProfile } from "@/lib/queries";
+import { useAvatarUrl, useProfile, useRoles } from "@/lib/queries";
+import { useNotifications } from "@/lib/notifications";
 import { cn } from "@/lib/utils";
 
 export const navItems = [
@@ -32,6 +38,9 @@ export const navItems = [
   { label: "Veículos", to: "/veiculos", icon: Car },
   { label: "Categorias", to: "/categorias", icon: ListTree },
   { label: "Orçamentos", to: "/orcamentos", icon: PiggyBank },
+  { label: "Metas", to: "/metas", icon: Target },
+  { label: "Relatórios", to: "/relatorios", icon: BarChart3 },
+  { label: "Calendário", to: "/calendario", icon: CalendarDays },
   { label: "Comprovantes", to: "/comprovantes", icon: Paperclip },
   { label: "Meu perfil", to: "/perfil", icon: User2 },
 ] as const;
@@ -43,7 +52,14 @@ export function AppShell({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const { data: profile } = useProfile();
+  const { data: roles } = useRoles();
+  const { data: notifications } = useNotifications();
   const avatarUrl = useAvatarUrl(profile?.avatar_url);
+  const unreadCount = (notifications ?? []).filter((item) => !item.read_at).length;
+  const isStaff = (roles ?? []).some((role) => role === "admin" || role === "support");
+  const items: Array<{ label: string; to: string; icon: typeof LayoutDashboard }> = isStaff
+    ? [...navItems, { label: "Administração", to: "/admin", icon: ShieldCheck }]
+    : [...navItems];
 
   const initials = (profile?.full_name ?? "GC")
     .split(" ")
@@ -67,7 +83,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </Link>
         </div>
         <nav className="flex-1 space-y-1 overflow-y-auto p-3">
-          {navItems.map((item) => (
+          {items.map((item) => (
             <NavLink key={item.to} item={item} active={pathname === item.to} />
           ))}
         </nav>
@@ -103,6 +119,16 @@ export function AppShell({ children }: { children: ReactNode }) {
             </div>
 
             <div className="flex shrink-0 items-center gap-2">
+              <Link to="/calendario" aria-label="Notificações" className="relative">
+                <span className="inline-flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground">
+                  <Bell className="size-5" />
+                </span>
+                {unreadCount > 0 ? (
+                  <span className="absolute -right-0.5 -top-0.5 flex size-4 items-center justify-center rounded-full bg-destructive text-[10px] font-semibold text-destructive-foreground">
+                    {unreadCount > 9 ? "9+" : unreadCount}
+                  </span>
+                ) : null}
+              </Link>
               <ThemeToggle />
               <Link to="/perfil" aria-label="Meu perfil">
                 <Avatar className="size-8">
@@ -115,7 +141,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
           {open ? (
             <nav className="border-t border-border bg-background px-3 py-3 lg:hidden">
-              {navItems.map((item) => (
+              {items.map((item) => (
                 <NavLink
                   key={item.to}
                   item={item}
@@ -146,13 +172,14 @@ function NavLink({
   active,
   onNavigate,
 }: {
-  item: (typeof navItems)[number];
+  item: { label: string; to: string; icon: typeof LayoutDashboard };
+  /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
   active: boolean;
   onNavigate?: () => void;
 }) {
   return (
     <Link
-      to={item.to}
+      to={item.to as never}
       onClick={onNavigate}
       aria-current={active ? "page" : undefined}
       className={cn(
