@@ -386,7 +386,15 @@ function CpfSignUpForm({ onDone }: { onDone: () => void }) {
   const navigate = useNavigate();
   const [cpf, setCpf] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [formError, setFormError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const alertRef = useRef<HTMLDivElement>(null);
+
+  function fail(message: string, fields: Record<string, string> = {}) {
+    setErrors(fields);
+    setFormError(message);
+    requestAnimationFrame(() => alertRef.current?.focus());
+  }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -402,11 +410,13 @@ function CpfSignUpForm({ onDone }: { onDone: () => void }) {
     });
 
     if (!parsed.success) {
-      setErrors(fieldErrors(parsed.error));
+      const fields = fieldErrors(parsed.error);
+      fail(summaryFromErrors(fields) ?? "Revise os dados informados.", fields);
       return;
     }
 
     setErrors({});
+    setFormError(null);
     setLoading(true);
     const { error } = await supabase.auth.signUp({
       email: cpfToLoginEmail(parsed.data.cpf),
@@ -423,7 +433,12 @@ function CpfSignUpForm({ onDone }: { onDone: () => void }) {
     if (error) {
       setLoading(false);
       console.error("[auth] falha no cadastro por CPF", error.message);
-      toast.error(friendlyAuthError(error.message));
+      const raw = error.message.toLowerCase();
+      const message = raw.includes("already registered")
+        ? "Já existe uma conta com este CPF. Use a aba Entrar ou recupere a senha."
+        : friendlyAuthError(error.message);
+      fail(message, raw.includes("already registered") ? { cpf: "CPF já cadastrado" } : {});
+      toast.error(message);
       return;
     }
 
@@ -444,16 +459,37 @@ function CpfSignUpForm({ onDone }: { onDone: () => void }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+    <form onSubmit={handleSubmit} className="space-y-4" noValidate aria-busy={loading}>
+      <div ref={alertRef} tabIndex={-1} className="outline-none">
+        <FormAlert message={formError} />
+      </div>
       <div>
         <Label htmlFor="signup-name">Nome completo</Label>
-        <Input id="signup-name" name="fullName" autoComplete="name" className="mt-1.5" />
-        <FieldError message={errors.fullName} />
+        <Input
+          id="signup-name"
+          name="fullName"
+          autoComplete="name"
+          required
+          aria-invalid={Boolean(errors.fullName) || undefined}
+          aria-describedby={describedBy(errors.fullName && "signup-name-error")}
+          className="mt-1.5"
+        />
+        <FieldError id="signup-name-error" message={errors.fullName} />
       </div>
       <div>
         <Label htmlFor="signup-cpf">CPF</Label>
-        <CpfInput id="signup-cpf" name="cpf" value={cpf} onChange={setCpf} />
-        <FieldError message={errors.cpf} />
+        <CpfInput
+          id="signup-cpf"
+          name="cpf"
+          value={cpf}
+          onChange={setCpf}
+          invalid={Boolean(errors.cpf)}
+          describedById={describedBy(errors.cpf && "signup-cpf-error", "signup-cpf-hint")}
+        />
+        <p id="signup-cpf-hint" className="mt-1 text-xs text-muted-foreground">
+          Validamos os dígitos verificadores do CPF.
+        </p>
+        <FieldError id="signup-cpf-error" message={errors.cpf} />
       </div>
       <div>
         <Label htmlFor="signup-contact">E-mail de contato (opcional)</Label>
@@ -462,40 +498,88 @@ function CpfSignUpForm({ onDone }: { onDone: () => void }) {
           name="contactEmail"
           type="email"
           autoComplete="email"
+          aria-invalid={Boolean(errors.contactEmail) || undefined}
+          aria-describedby={describedBy(errors.contactEmail && "signup-contact-error", "signup-contact-hint")}
           className="mt-1.5"
         />
-        <p className="mt-1 text-xs text-muted-foreground">
+        <p id="signup-contact-hint" className="mt-1 text-xs text-muted-foreground">
           Usado apenas para recuperar sua senha. Sem e-mail, a recuperação é feita pelo suporte.
         </p>
-        <FieldError message={errors.contactEmail} />
+        <FieldError id="signup-contact-error" message={errors.contactEmail} />
       </div>
       <div>
         <Label htmlFor="signup-pin">Senha (6 dígitos)</Label>
-        <PinInput id="signup-pin" name="pin" autoComplete="new-password" />
-        <FieldError message={errors.pin} />
+        <PinInput
+          id="signup-pin"
+          name="pin"
+          autoComplete="new-password"
+          invalid={Boolean(errors.pin)}
+          describedById={describedBy(errors.pin && "signup-pin-error", "signup-pin-hint")}
+        />
+        <p id="signup-pin-hint" className="mt-1 text-xs text-muted-foreground">
+          Somente números. Evite sequências como 123456 ou datas de nascimento.
+        </p>
+        <FieldError id="signup-pin-error" message={errors.pin} />
       </div>
       <div>
         <Label htmlFor="signup-confirm">Confirmar senha</Label>
-        <PinInput id="signup-confirm" name="confirmPin" autoComplete="new-password" />
-        <FieldError message={errors.confirmPin} />
+        <PinInput
+          id="signup-confirm"
+          name="confirmPin"
+          autoComplete="new-password"
+          invalid={Boolean(errors.confirmPin)}
+          describedById={describedBy(errors.confirmPin && "signup-confirm-error")}
+        />
+        <FieldError id="signup-confirm-error" message={errors.confirmPin} />
       </div>
 
       <div className="space-y-2">
-        <label className="flex items-start gap-2 text-xs text-muted-foreground">
-          <Checkbox name="acceptTerms" className="mt-0.5" />
-          <span>Li e aceito os termos de uso do GastoCerto.</span>
-        </label>
-        <FieldError message={errors.acceptTerms} />
-        <label className="flex items-start gap-2 text-xs text-muted-foreground">
-          <Checkbox name="acceptPrivacy" className="mt-0.5" />
-          <span>Li e aceito a política de privacidade e o tratamento de dados conforme a LGPD.</span>
-        </label>
-        <FieldError message={errors.acceptPrivacy} />
+        <div className="flex items-start gap-2 text-xs text-muted-foreground">
+          <Checkbox
+            id="signup-terms"
+            name="acceptTerms"
+            className="mt-0.5"
+            aria-invalid={Boolean(errors.acceptTerms) || undefined}
+            aria-describedby={describedBy(errors.acceptTerms && "signup-terms-error")}
+          />
+          <Label htmlFor="signup-terms" className="text-xs font-normal leading-snug text-muted-foreground">
+            Li e aceito os{" "}
+            <Link
+              to="/termos"
+              className="font-medium text-primary underline underline-offset-2"
+            >
+              Termos de Uso
+            </Link>{" "}
+            do GastoCerto.
+          </Label>
+        </div>
+        <FieldError id="signup-terms-error" message={errors.acceptTerms} />
+        <div className="flex items-start gap-2 text-xs text-muted-foreground">
+          <Checkbox
+            id="signup-privacy"
+            name="acceptPrivacy"
+            className="mt-0.5"
+            aria-invalid={Boolean(errors.acceptPrivacy) || undefined}
+            aria-describedby={describedBy(errors.acceptPrivacy && "signup-privacy-error")}
+          />
+          <Label htmlFor="signup-privacy" className="text-xs font-normal leading-snug text-muted-foreground">
+            Li e aceito a{" "}
+            <Link
+              to="/privacidade"
+              className="font-medium text-primary underline underline-offset-2"
+            >
+              Política de Privacidade
+            </Link>{" "}
+            e o tratamento de dados conforme a LGPD.
+          </Label>
+        </div>
+        <FieldError id="signup-privacy-error" message={errors.acceptPrivacy} />
       </div>
 
       <Button type="submit" className="w-full" disabled={loading}>
-        {loading ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
+        {loading ? <Loader2 className="mr-2 size-4 animate-spin" aria-hidden="true" /> : null}
         Criar conta gratuita
+        <StatusLive busy={loading} label="Criando sua conta, aguarde." />
       </Button>
     </form>
   );
