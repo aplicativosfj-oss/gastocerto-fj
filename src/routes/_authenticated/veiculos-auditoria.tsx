@@ -1,10 +1,17 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { ArrowLeft, History, TriangleAlert } from "lucide-react";
+import { ArrowLeft, ArrowRight, Diff, History, TriangleAlert } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { AppShell } from "@/components/app-shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -15,7 +22,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AUDIT_ACTIONS, AUDIT_FIELD_LABELS, useFuelAudit } from "@/lib/fuel-audit";
+import {
+  AUDIT_ACTIONS,
+  AUDIT_FIELD_LABELS,
+  useFuelAudit,
+  type FuelAuditEntry,
+} from "@/lib/fuel-audit";
 import { useVehicles } from "@/lib/vehicles";
 
 export const Route = createFileRoute("/_authenticated/veiculos-auditoria")({
@@ -48,6 +60,7 @@ function FuelAuditPage() {
   const [onlyWarnings, setOnlyWarnings] = useState(false);
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
+  const [detail, setDetail] = useState<FuelAuditEntry | null>(null);
 
   const { data: logs, isLoading } = useFuelAudit(
     vehicleFilter === "all" ? undefined : vehicleFilter,
@@ -245,12 +258,190 @@ function FuelAuditPage() {
                   {log.notes ? (
                     <p className="mt-2 text-xs text-muted-foreground">{log.notes}</p>
                   ) : null}
+
+                  <div className="mt-3">
+                    <Button variant="outline" size="sm" onClick={() => setDetail(log)}>
+                      <Diff className="mr-2 size-4" />
+                      Ver antes/depois
+                    </Button>
+                  </div>
                 </li>
               );
             })}
           </ul>
         )}
       </div>
+
+      <AuditDetailDialog
+        log={detail}
+        vehicleName={detail?.vehicle_id ? vehicleNames.get(detail.vehicle_id) : undefined}
+        open={detail !== null}
+        onOpenChange={(value) => !value && setDetail(null)}
+      />
     </AppShell>
+  );
+}
+
+function formatValue(value: unknown) {
+  if (value === null || value === undefined || value === "") return "—";
+  if (typeof value === "boolean") return value ? "Sim" : "Não";
+  return String(value);
+}
+
+function CompareRow({
+  label,
+  before,
+  after,
+}: {
+  label: string;
+  before: unknown;
+  after: unknown;
+}) {
+  return (
+    <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 rounded-xl border border-border p-3">
+      <div className="min-w-0">
+        <p className="text-[11px] uppercase tracking-wide text-muted-foreground">{label} · antes</p>
+        <p className="truncate text-sm tabular-nums text-muted-foreground line-through">
+          {formatValue(before)}
+        </p>
+      </div>
+      <ArrowRight className="size-4 shrink-0 text-muted-foreground" />
+      <div className="min-w-0 text-right">
+        <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+          {label} · depois
+        </p>
+        <p className="truncate text-sm font-semibold tabular-nums">{formatValue(after)}</p>
+      </div>
+    </div>
+  );
+}
+
+function AuditDetailDialog({
+  log,
+  vehicleName,
+  open,
+  onOpenChange,
+}: {
+  log: FuelAuditEntry | null;
+  vehicleName?: string;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) {
+  const changes = (log?.changes ?? {}) as Record<string, { before: unknown; after: unknown }>;
+  const odometerBefore = log?.odometer_before ?? null;
+  const odometerAfter = log?.odometer_after ?? null;
+  const odometerDelta =
+    odometerBefore != null && odometerAfter != null ? Number(odometerAfter) - Number(odometerBefore) : null;
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-xl">
+        <DialogHeader>
+          <DialogTitle>Detalhes da alteração</DialogTitle>
+          <DialogDescription>
+            Comparação antes/depois dos valores e alertas acionados no momento de salvar.
+          </DialogDescription>
+        </DialogHeader>
+
+        {log ? (
+          <div className="space-y-4">
+            <div className="grid gap-2 rounded-xl bg-secondary/50 p-3 text-sm sm:grid-cols-2">
+              <p>
+                <span className="text-muted-foreground">Ação: </span>
+                {AUDIT_ACTIONS[log.action] ?? log.action}
+              </p>
+              <p>
+                <span className="text-muted-foreground">Veículo: </span>
+                {vehicleName ?? "—"}
+              </p>
+              <p>
+                <span className="text-muted-foreground">Autor: </span>
+                {log.actor_name ?? "Você"}
+              </p>
+              <p>
+                <span className="text-muted-foreground">Quando: </span>
+                {new Date(log.created_at).toLocaleString("pt-BR")}
+              </p>
+            </div>
+
+            <section className="space-y-2">
+              <h3 className="text-sm font-semibold">Odômetro</h3>
+              {odometerBefore == null && odometerAfter == null ? (
+                <p className="text-sm text-muted-foreground">
+                  Esta alteração não envolveu o odômetro.
+                </p>
+              ) : (
+                <>
+                  <CompareRow
+                    label="Odômetro (km)"
+                    before={odometerBefore}
+                    after={odometerAfter}
+                  />
+                  {odometerDelta != null ? (
+                    <p
+                      className={
+                        odometerDelta < 0
+                          ? "text-xs font-medium text-destructive"
+                          : "text-xs text-muted-foreground"
+                      }
+                    >
+                      Variação: {odometerDelta > 0 ? "+" : ""}
+                      {odometerDelta.toLocaleString("pt-BR")} km
+                      {odometerDelta < 0 ? " (retrocesso registrado)" : ""}
+                    </p>
+                  ) : null}
+                </>
+              )}
+            </section>
+
+            <section className="space-y-2">
+              <h3 className="text-sm font-semibold">Campos alterados</h3>
+              {Object.keys(changes).length === 0 ? (
+                <p className="text-sm text-muted-foreground">Nenhum campo adicional alterado.</p>
+              ) : (
+                <div className="space-y-2">
+                  {Object.entries(changes).map(([field, value]) => (
+                    <CompareRow
+                      key={field}
+                      label={AUDIT_FIELD_LABELS[field] ?? field}
+                      before={value.before}
+                      after={value.after}
+                    />
+                  ))}
+                </div>
+              )}
+            </section>
+
+            <section className="space-y-2">
+              <h3 className="text-sm font-semibold">Alertas acionados</h3>
+              {(log.warnings ?? []).length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  Nenhum alerta foi acionado nesta alteração.
+                </p>
+              ) : (
+                <ul className="space-y-2">
+                  {(log.warnings ?? []).map((warning) => (
+                    <li
+                      key={warning}
+                      className="flex items-start gap-2 rounded-xl border border-amber-500/40 bg-amber-500/10 p-3 text-sm"
+                    >
+                      <TriangleAlert className="mt-0.5 size-4 shrink-0 text-amber-600" />
+                      <span>{warning}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+
+            {log.notes ? (
+              <section className="space-y-1">
+                <h3 className="text-sm font-semibold">Observações</h3>
+                <p className="text-sm text-muted-foreground">{log.notes}</p>
+              </section>
+            ) : null}
+          </div>
+        ) : null}
+      </DialogContent>
+    </Dialog>
   );
 }
