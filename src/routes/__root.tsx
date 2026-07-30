@@ -81,13 +81,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "GastoCerto" },
+      { title: "GastoCerto — Controle de gastos pessoais" },
       { name: "description", content: "Controle total dos seus gastos pessoais." },
       { name: "author", content: "GastoCerto" },
-      { property: "og:title", content: "GastoCerto" },
+      { name: "theme-color", content: "#0d1b3e" },
+      { name: "application-name", content: "GastoCerto" },
+      { name: "apple-mobile-web-app-title", content: "GastoCerto" },
+      { property: "og:site_name", content: "GastoCerto" },
+      { property: "og:title", content: "GastoCerto — Controle de gastos pessoais" },
       { property: "og:description", content: "Controle total dos seus gastos pessoais." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+
     ],
     links: [
       {
@@ -100,7 +105,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&display=swap",
       },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "icon", href: "/favicon.ico", sizes: "any" },
+      { rel: "icon", type: "image/png", sizes: "32x32", href: "/favicon-32.png" },
+      { rel: "icon", type: "image/png", sizes: "192x192", href: "/favicon-192.png" },
+      { rel: "apple-touch-icon", sizes: "180x180", href: "/apple-touch-icon.png" },
+
     ],
   }),
   shellComponent: RootShell,
