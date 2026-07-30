@@ -19,7 +19,7 @@ export function Hero() {
   return (
     <section
       id="inicio"
-      className="relative isolate flex min-h-[78svh] items-center overflow-hidden bg-[oklch(0.16_0.03_258)] pt-24 pb-10 text-white"
+      className="relative isolate flex min-h-[78svh] max-h-[900px] items-center overflow-hidden bg-[oklch(0.16_0.03_258)] pt-24 pb-10 text-white"
     >
       <img
         src={heroBg}

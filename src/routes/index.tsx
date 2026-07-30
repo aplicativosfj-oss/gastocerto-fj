@@ -5,7 +5,6 @@ import { CtaBanner } from "@/components/landing/cta-banner";
 import { Faq } from "@/components/landing/faq";
 import { Features } from "@/components/landing/features";
 import { Hero } from "@/components/landing/hero";
-import { HowItWorks } from "@/components/landing/how-it-works";
 import { LandingFooter } from "@/components/landing/landing-footer";
 import { LandingHeader } from "@/components/landing/landing-header";
 import { PageBackground } from "@/components/landing/page-background";
@@ -45,7 +44,6 @@ function LandingPage() {
         <ShowcaseCarousel />
         <Features />
         <Benefits />
-        <HowItWorks />
         <Pricing />
         <Testimonials />
         <Security />
