@@ -16,14 +16,17 @@ import {
 import { useState, type ReactNode } from "react";
 
 import { Logo } from "@/components/logo";
+import { NavLabelsDialog } from "@/components/nav-labels-dialog";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { ContrastToggle } from "@/components/contrast-toggle";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAvatarUrl, useProfile, useRoles } from "@/lib/queries";
+import { useNavLabels } from "@/lib/nav-labels";
 import { useNotifications } from "@/lib/notifications";
 import { cn } from "@/lib/utils";
+
 
 type NavChild = { key: string; label: string; to: string };
 type NavGroup = {
