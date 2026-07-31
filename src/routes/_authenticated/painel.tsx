@@ -200,6 +200,13 @@ function DashboardPage() {
       .sort((a, b) => b.percent - a.percent);
   }, [budgets, metrics.expenses, categories]);
 
+  const vehicleSummary = useMemo(
+    () => vehicleSpendBreakdown(transactions ?? [], vehicles ?? [], categories ?? []),
+    [transactions, vehicles, categories],
+  );
+  const vehicleTotal = vehicleSummary.reduce((sum, row) => sum + row.total, 0);
+
+
   if (isLoading) {
     return (
       <AppShell>
