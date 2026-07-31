@@ -86,6 +86,57 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_usage_log: {
+        Row: {
+          action: string
+          allowed: boolean
+          created_at: string
+          credits: number
+          feature: string
+          id: string
+          input_tokens: number
+          model: string | null
+          output_tokens: number
+          plan_slug: string | null
+          question: string | null
+          reason: string | null
+          total_tokens: number
+          user_id: string
+        }
+        Insert: {
+          action: string
+          allowed?: boolean
+          created_at?: string
+          credits?: number
+          feature?: string
+          id?: string
+          input_tokens?: number
+          model?: string | null
+          output_tokens?: number
+          plan_slug?: string | null
+          question?: string | null
+          reason?: string | null
+          total_tokens?: number
+          user_id: string
+        }
+        Update: {
+          action?: string
+          allowed?: boolean
+          created_at?: string
+          credits?: number
+          feature?: string
+          id?: string
+          input_tokens?: number
+          model?: string | null
+          output_tokens?: number
+          plan_slug?: string | null
+          question?: string | null
+          reason?: string | null
+          total_tokens?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       budgets: {
         Row: {
           alert_percentage: number

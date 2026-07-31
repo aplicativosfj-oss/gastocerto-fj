@@ -19,6 +19,7 @@ export const FUEL_TYPES = [
   { value: "gasolina", label: "Gasolina comum" },
   { value: "gasolina_aditivada", label: "Gasolina aditivada" },
   { value: "etanol", label: "Etanol" },
+  { value: "flex", label: "Flex (gasolina + etanol)" },
   { value: "diesel", label: "Diesel" },
   { value: "diesel_s10", label: "Diesel S-10" },
   { value: "gnv", label: "GNV" },

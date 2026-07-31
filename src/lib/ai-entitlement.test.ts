@@ -1,0 +1,89 @@
+import { describe, expect, it } from "vitest";
+
+import {
+  AI_BLOCK_MESSAGE,
+  estimateAiCredits,
+  evaluateAiEntitlement,
+} from "./ai-entitlement";
+
+const future = new Date(Date.now() + 30 * 86_400_000).toISOString();
+const past = new Date(Date.now() - 86_400_000).toISOString();
+
+const paidPlan = { slug: "premium", monthly_price: 19.9, annual_price: 199 };
+const freePlan = { slug: "free", monthly_price: 0, annual_price: 0 };
+const trialPlan = { slug: "trial", monthly_price: 0, annual_price: 0 };
+
+describe("evaluateAiEntitlement", () => {
+  it("libera a IA com licença paga ativa", () => {
+    const result = evaluateAiEntitlement({
+      licenses: [{ status: "active", expires_at: future, source: "mercadopago", amount: 19.9 }],
+      plan: freePlan,
+    });
+    expect(result.entitled).toBe(true);
+    expect(result.reason).toBe("paid_license");
+  });
+
+  it("libera a IA em plano pago", () => {
+    expect(evaluateAiEntitlement({ plan: paidPlan }).entitled).toBe(true);
+  });
+
+  it("libera para administradores", () => {
+    expect(evaluateAiEntitlement({ plan: freePlan, isAdmin: true }).entitled).toBe(true);
+  });
+
+  it("bloqueia plano gratuito com a mensagem correta", () => {
+    const result = evaluateAiEntitlement({ plan: freePlan });
+    expect(result.entitled).toBe(false);
+    expect(result.reason).toBe("free_plan");
+    expect(result.message).toBe(AI_BLOCK_MESSAGE);
+  });
+
+  it("bloqueia plano trial/teste", () => {
+    const trial = evaluateAiEntitlement({ plan: trialPlan });
+    expect(trial.entitled).toBe(false);
+    expect(trial.reason).toBe("trial_plan");
+    expect(trial.message).toBe(AI_BLOCK_MESSAGE);
+
+    const teste = evaluateAiEntitlement({ plan: { slug: "teste", monthly_price: 0 } });
+    expect(teste.entitled).toBe(false);
+  });
+
+  it("bloqueia licença de trial/cortesia mesmo ativa", () => {
+    const result = evaluateAiEntitlement({
+      licenses: [{ status: "active", expires_at: future, source: "trial", amount: 0 }],
+      plan: freePlan,
+    });
+    expect(result.entitled).toBe(false);
+    expect(result.message).toBe(AI_BLOCK_MESSAGE);
+  });
+
+  it("bloqueia licença paga expirada ou pendente", () => {
+    expect(
+      evaluateAiEntitlement({
+        licenses: [{ status: "active", expires_at: past, source: "pix", amount: 199 }],
+        plan: freePlan,
+      }).entitled,
+    ).toBe(false);
+
+    expect(
+      evaluateAiEntitlement({
+        licenses: [{ status: "pending", expires_at: future, source: "pix", amount: 199 }],
+        plan: freePlan,
+      }).entitled,
+    ).toBe(false);
+  });
+
+  it("bloqueia quando não há plano nem licença", () => {
+    const result = evaluateAiEntitlement({});
+    expect(result.entitled).toBe(false);
+    expect(result.reason).toBe("no_plan");
+  });
+});
+
+describe("estimateAiCredits", () => {
+  it("estima créditos a partir dos tokens", () => {
+    expect(estimateAiCredits(1000)).toBeCloseTo(0.05, 4);
+    expect(estimateAiCredits(0)).toBe(0);
+    expect(estimateAiCredits(-10)).toBe(0);
+  });
+});

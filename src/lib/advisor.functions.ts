@@ -1,67 +1,57 @@
 import { createServerFn } from "@tanstack/react-start";
 import { generateText } from "ai";
-import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { AskInput, MODEL, SYSTEM_PROMPT, buildFinancialSummary } from "@/lib/ai-advisor-core";
+import { AI_BLOCK_MESSAGE, AI_QUOTA_MESSAGE } from "@/lib/ai-entitlement";
+import { getMonthlyAiUsage, logAiUsage, resolveAiAccess } from "@/lib/ai-guard";
 
-const AskInput = z.object({
-  question: z.string().trim().min(3).max(400),
-  months: z.number().int().min(1).max(12).optional(),
-});
+/** Direito de uso + consumo do mês (para banner e painel de créditos). */
+export const getAdvisorAccess = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase, userId } = context;
+    const access = await resolveAiAccess(supabase, userId);
+    const usage = await getMonthlyAiUsage(supabase, userId);
+    return { ...access, usage };
+  });
 
-const MODEL = "google/gemini-3.6-flash";
-
-type CategoryTotal = { name: string; total: number; count: number };
-
-/** Consultor de IA: exclusivo para clientes com assinatura ativa. */
+/** Consultor de IA: exclusivo para clientes com licença/plano pago ativo. */
 export const askAdvisor = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => AskInput.parse(input))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 
-    // 1) Direito de uso: só planos PAGOS (licença paga ativa) ou equipe interna.
-    //    Trial/teste/gratuito não usam a IA, pois cada consulta consome créditos.
-    const TRIAL_SOURCES = ["trial", "teste", "test", "demo", "cortesia"];
-    const TRIAL_SLUGS = ["free", "gratuito", "trial", "teste", "test", "demo"];
-
-    const [{ data: licenses }, { data: profile }, { data: isAdmin }] = await Promise.all([
-      supabase.from("licenses").select("status, expires_at, source, amount").eq("user_id", userId),
-      supabase
-        .from("profiles")
-        .select("plan_id, plans(slug, monthly_price, annual_price)")
-        .eq("user_id", userId)
-        .maybeSingle(),
-      supabase.rpc("has_role", { _user_id: userId, _role: "admin" }),
-    ]);
-
-    const paidLicense = (licenses ?? []).some(
-      (license) =>
-        license.status === "active" &&
-        (!license.expires_at || new Date(license.expires_at).getTime() > Date.now()) &&
-        !TRIAL_SOURCES.includes(String(license.source ?? "").toLowerCase()) &&
-        Number(license.amount ?? 0) > 0,
-    );
-
-    const plan = (profile as {
-      plans?: { slug?: string; monthly_price?: number | string; annual_price?: number | string } | null;
-    } | null)?.plans;
-    const planSlug = String(plan?.slug ?? "free").toLowerCase();
-    const planPrice = Math.max(Number(plan?.monthly_price ?? 0), Number(plan?.annual_price ?? 0));
-    const paidPlan = planPrice > 0 && !TRIAL_SLUGS.includes(planSlug);
-
-    const entitled = paidLicense || paidPlan || isAdmin === true;
-
-    if (!entitled) {
-      return {
-        entitled: false as const,
-        answer:
-          "O consultor de IA está disponível apenas nos planos pagos. Períodos de teste e o plano gratuito não incluem a IA, pois cada análise consome créditos. Ative sua assinatura para liberar as análises personalizadas.",
-      };
+    // 1) Guard de plano: trial/teste/free nunca executam a análise, nem via requisição direta.
+    const access = await resolveAiAccess(supabase, userId);
+    if (!access.entitled) {
+      await logAiUsage(supabase, {
+        userId,
+        action: "blocked",
+        allowed: false,
+        reason: access.reason,
+        planSlug: access.planSlug,
+        question: data.question,
+      });
+      return { entitled: false as const, reason: access.reason, answer: AI_BLOCK_MESSAGE };
     }
 
+    // 2) Limite mensal de consumo de créditos.
+    const usage = await getMonthlyAiUsage(supabase, userId);
+    if (usage.quotaExceeded) {
+      await logAiUsage(supabase, {
+        userId,
+        action: "quota_exceeded",
+        allowed: false,
+        reason: "monthly_quota",
+        planSlug: access.planSlug,
+        question: data.question,
+      });
+      return { entitled: true as const, quotaExceeded: true as const, answer: AI_QUOTA_MESSAGE };
+    }
 
-    // 2) Dados do próprio usuário (RLS aplica-se como o usuário autenticado).
+    // 3) Dados do próprio usuário (RLS aplica-se como o usuário autenticado).
     const months = data.months ?? 3;
     const since = new Date();
     since.setMonth(since.getMonth() - months);
@@ -78,64 +68,39 @@ export const askAdvisor = createServerFn({ method: "POST" })
       supabase.from("budgets").select("category_id, limit_amount, month, year"),
     ]);
 
-    const names = new Map((categories ?? []).map((item) => [item.id, item.name]));
-    const byCategory = new Map<string, CategoryTotal>();
-    let income = 0;
-    let expense = 0;
-    let essential = 0;
-
-    (transactions ?? []).forEach((item) => {
-      const amount = Number(item.amount);
-      if (item.transaction_type === "income") {
-        income += amount;
-        return;
-      }
-      if (item.transaction_type !== "expense") return;
-      expense += amount;
-      if (item.is_essential) essential += amount;
-      const key = item.category_id ?? "sem-categoria";
-      const entry = byCategory.get(key) ?? {
-        name: names.get(key) ?? "Sem categoria",
-        total: 0,
-        count: 0,
-      };
-      entry.total += amount;
-      entry.count += 1;
-      byCategory.set(key, entry);
+    const summary = buildFinancialSummary({
+      months,
+      sinceIso,
+      transactions: transactions ?? [],
+      categoryNames: new Map((categories ?? []).map((item) => [item.id, item.name])),
+      budgetCount: (budgets ?? []).length,
     });
 
-    const top = [...byCategory.values()].sort((a, b) => b.total - a.total).slice(0, 12);
-    const brl = (value: number) =>
-      value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-
-    const summary = [
-      `Período analisado: últimos ${months} mês(es), desde ${sinceIso}.`,
-      `Total de entradas: ${brl(income)}.`,
-      `Total de saídas: ${brl(expense)} (essenciais: ${brl(essential)}).`,
-      `Resultado: ${brl(income - expense)}.`,
-      `Lançamentos considerados: ${(transactions ?? []).length}.`,
-      "Gastos por categoria:",
-      ...top.map((item) => `- ${item.name}: ${brl(item.total)} em ${item.count} lançamento(s)`),
-      `Orçamentos definidos: ${(budgets ?? []).length}.`,
-    ].join("\n");
-
-    // 3) Consulta ao modelo.
+    // 4) Consulta ao modelo.
     const key = process.env["LOVABLE_API_KEY"];
     if (!key) throw new Error("Consultor indisponível: chave de IA não configurada.");
 
     const { createLovableAiGatewayProvider } = await import("@/lib/ai-gateway.server");
     const gateway = createLovableAiGatewayProvider(key);
 
-    const { text } = await generateText({
+    const result = await generateText({
       model: gateway(MODEL),
-      system:
-        "Você é o consultor financeiro do GastoCerto, um app brasileiro de controle de gastos pessoais. " +
-        "Responda em português do Brasil, com tom direto e acolhedor. Use os dados fornecidos para: " +
-        "mapear onde o dinheiro está indo, apontar comportamentos de risco, dar dicas práticas e sugerir decisões. " +
-        "Formate em markdown curto, com listas e valores em reais. Nunca invente dados que não estejam no resumo; " +
-        "quando faltar informação, diga o que o usuário precisa registrar para melhorar a análise.",
+      system: SYSTEM_PROMPT,
       prompt: `Resumo financeiro do usuário:\n${summary}\n\nPergunta do usuário: ${data.question}`,
     });
 
-    return { entitled: true as const, answer: text, summary };
+    // 5) Auditoria do consumo de créditos.
+    await logAiUsage(supabase, {
+      userId,
+      action: "allowed",
+      allowed: true,
+      reason: access.reason,
+      planSlug: access.planSlug,
+      model: MODEL,
+      inputTokens: result.usage?.inputTokens ?? 0,
+      outputTokens: result.usage?.outputTokens ?? 0,
+      question: data.question,
+    });
+
+    return { entitled: true as const, answer: result.text, summary };
   });
