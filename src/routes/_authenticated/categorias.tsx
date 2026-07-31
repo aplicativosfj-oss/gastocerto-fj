@@ -170,7 +170,7 @@ function CategoriesPage() {
         </Tabs>
 
         {isLoading ? (
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-3 auto-cards-sm">
             {Array.from({ length: 6 }).map((_, index) => (
               <Skeleton key={index} className="h-24 rounded-2xl" />
             ))}
@@ -180,7 +180,7 @@ function CategoriesPage() {
             <p className="text-sm text-muted-foreground">Nenhuma categoria por aqui ainda.</p>
           </div>
         ) : (
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-3 auto-cards-sm">
             {visible.map((category) => (
               <div
                 key={category.id}

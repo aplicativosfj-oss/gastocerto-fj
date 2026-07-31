@@ -267,7 +267,7 @@ function VehiclesPage() {
             </Button>
           </section>
         ) : (
-          <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <section className="grid gap-3 auto-cards-sm">
             {(vehicles ?? []).map((vehicle) => (
               <article
                 key={vehicle.id}
@@ -326,7 +326,7 @@ function VehiclesPage() {
           </section>
         )}
 
-        <section className="grid gap-3 rounded-2xl border border-border bg-card p-4 sm:grid-cols-2 lg:grid-cols-4">
+        <section className="grid gap-3 rounded-2xl border border-border bg-card p-4 auto-cards-sm">
           <Select value={vehicleFilter} onValueChange={setVehicleFilter}>
             <SelectTrigger aria-label="Filtrar por veículo">
               <SelectValue />
@@ -369,7 +369,7 @@ function VehiclesPage() {
           />
         </section>
 
-        <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <section className="grid gap-3 auto-cards-sm">
           <Metric
             label="Gasto no filtro"
             value={formatCurrency(summary.total)}
@@ -399,7 +399,7 @@ function VehiclesPage() {
         {perVehicle.length > 0 ? (
           <section className="space-y-3">
             <h2 className="text-sm font-semibold tracking-tight">Desempenho por veículo</h2>
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-3 auto-cards-sm">
               {perVehicle.map(({ vehicle, summary: stats, target, threshold, deviation, alert, budgetAlert }) => (
                 <article
                   key={vehicle.id}

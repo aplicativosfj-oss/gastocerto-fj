@@ -106,7 +106,7 @@ function FuelAuditPage() {
           </Button>
         </header>
 
-        <section className="grid gap-3 rounded-2xl border border-border bg-card p-4 sm:grid-cols-2 lg:grid-cols-4">
+        <section className="grid gap-3 rounded-2xl border border-border bg-card p-4 auto-cards-sm">
           <div>
             <Label>Veículo</Label>
             <Select value={vehicleFilter} onValueChange={setVehicleFilter}>
