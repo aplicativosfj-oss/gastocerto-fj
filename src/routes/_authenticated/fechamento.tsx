@@ -104,7 +104,9 @@ function FechamentoPage() {
   const detail = useMemo(() => {
     if (!selected) return null;
     const categoryName = new Map((categories ?? []).map((row) => [row.id, row.name]));
-    const paymentName = new Map(PAYMENT_METHODS.map((row) => [row.value, row.label]));
+    const paymentName = new Map<string, string>(
+      PAYMENT_METHODS.map((row) => [row.value as string, row.label]),
+    );
 
     const rows = (transactions ?? []).filter(
       (row) =>
