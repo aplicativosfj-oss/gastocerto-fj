@@ -229,7 +229,13 @@ function FechamentoPage() {
                 </thead>
                 <tbody>
                   {balance.map((row) => (
-                    <tr key={row.label} className="border-t border-border/70">
+                    <tr
+                      key={row.label}
+                      onClick={() => setSelectedLabel(row.label)}
+                      className={`cursor-pointer border-t border-border/70 transition-colors hover:bg-muted/40 ${
+                        selected?.label === row.label ? "bg-muted/50" : ""
+                      }`}
+                    >
                       <td className="py-2 pr-3">
                         <div className="flex flex-wrap items-center gap-1.5">
                           <span className="font-medium">{row.label}</span>
