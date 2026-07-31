@@ -93,7 +93,8 @@ export const navGroups: NavGroup[] = [
     icon: BarChart3,
     children: [
       { key: "analytics.reports", label: "Relatórios", to: "/relatorios" },
-      { key: "analytics.calendar", label: "Calendário", to: "/calendario" },
+      { key: "analytics.calendar", label: "Calendário e alertas", to: "/calendario" },
+      { key: "analytics.advisor", label: "Consultor de IA", to: "/consultor" },
     ],
   },
   { key: "profile", label: "Meu perfil", to: "/perfil", icon: User2 },
