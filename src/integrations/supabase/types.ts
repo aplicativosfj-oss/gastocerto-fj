@@ -472,6 +472,51 @@ export type Database = {
           },
         ]
       }
+      monthly_closings: {
+        Row: {
+          closed_at: string
+          closing_balance: number
+          created_at: string
+          id: string
+          month: number
+          notes: string | null
+          opening_balance: number
+          total_expense: number
+          total_income: number
+          updated_at: string
+          user_id: string
+          year: number
+        }
+        Insert: {
+          closed_at?: string
+          closing_balance?: number
+          created_at?: string
+          id?: string
+          month: number
+          notes?: string | null
+          opening_balance?: number
+          total_expense?: number
+          total_income?: number
+          updated_at?: string
+          user_id: string
+          year: number
+        }
+        Update: {
+          closed_at?: string
+          closing_balance?: number
+          created_at?: string
+          id?: string
+          month?: number
+          notes?: string | null
+          opening_balance?: number
+          total_expense?: number
+          total_income?: number
+          updated_at?: string
+          user_id?: string
+          year?: number
+        }
+        Relationships: []
+      }
       notification_preferences: {
         Row: {
           budget_alerts: boolean
@@ -859,6 +904,59 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      transaction_items: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          notes: string | null
+          quantity: number
+          total_amount: number
+          transaction_id: string
+          unit: string
+          unit_price: number | null
+          updated_at: string
+          user_id: string
+          weight: number | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          notes?: string | null
+          quantity?: number
+          total_amount?: number
+          transaction_id: string
+          unit?: string
+          unit_price?: number | null
+          updated_at?: string
+          user_id: string
+          weight?: number | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          notes?: string | null
+          quantity?: number
+          total_amount?: number
+          transaction_id?: string
+          unit?: string
+          unit_price?: number | null
+          updated_at?: string
+          user_id?: string
+          weight?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transaction_items_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
             referencedColumns: ["id"]
           },
         ]
