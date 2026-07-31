@@ -17,6 +17,7 @@ import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as RedefinirSenhaRouteImport } from './routes/redefinir-senha'
 import { Route as TermosRouteImport } from './routes/termos'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedCadastrosRouteImport } from './routes/_authenticated/cadastros'
 import { Route as AuthenticatedCalendarioRouteImport } from './routes/_authenticated/calendario'
 import { Route as AuthenticatedCategoriasRouteImport } from './routes/_authenticated/categorias'
 import { Route as AuthenticatedCompromissosRouteImport } from './routes/_authenticated/compromissos'
@@ -73,6 +74,11 @@ const TermosRoute = TermosRouteImport.update({
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedCadastrosRoute = AuthenticatedCadastrosRouteImport.update({
+  id: '/cadastros',
+  path: '/cadastros',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedCalendarioRoute = AuthenticatedCalendarioRouteImport.update({
@@ -181,6 +187,7 @@ export interface FileRoutesByFullPath {
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/termos': typeof TermosRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/cadastros': typeof AuthenticatedCadastrosRoute
   '/calendario': typeof AuthenticatedCalendarioRoute
   '/categorias': typeof AuthenticatedCategoriasRoute
   '/compromissos': typeof AuthenticatedCompromissosRoute
@@ -208,6 +215,7 @@ export interface FileRoutesByTo {
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/termos': typeof TermosRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/cadastros': typeof AuthenticatedCadastrosRoute
   '/calendario': typeof AuthenticatedCalendarioRoute
   '/categorias': typeof AuthenticatedCategoriasRoute
   '/compromissos': typeof AuthenticatedCompromissosRoute
@@ -237,6 +245,7 @@ export interface FileRoutesById {
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/termos': typeof TermosRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/cadastros': typeof AuthenticatedCadastrosRoute
   '/_authenticated/calendario': typeof AuthenticatedCalendarioRoute
   '/_authenticated/categorias': typeof AuthenticatedCategoriasRoute
   '/_authenticated/compromissos': typeof AuthenticatedCompromissosRoute
@@ -266,6 +275,7 @@ export interface FileRouteTypes {
     | '/redefinir-senha'
     | '/termos'
     | '/admin'
+    | '/cadastros'
     | '/calendario'
     | '/categorias'
     | '/compromissos'
@@ -293,6 +303,7 @@ export interface FileRouteTypes {
     | '/redefinir-senha'
     | '/termos'
     | '/admin'
+    | '/cadastros'
     | '/calendario'
     | '/categorias'
     | '/compromissos'
@@ -321,6 +332,7 @@ export interface FileRouteTypes {
     | '/redefinir-senha'
     | '/termos'
     | '/_authenticated/admin'
+    | '/_authenticated/cadastros'
     | '/_authenticated/calendario'
     | '/_authenticated/categorias'
     | '/_authenticated/compromissos'
@@ -407,6 +419,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/cadastros': {
+      id: '/_authenticated/cadastros'
+      path: '/cadastros'
+      fullPath: '/cadastros'
+      preLoaderRoute: typeof AuthenticatedCadastrosRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/calendario': {
@@ -540,6 +559,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedCadastrosRoute: typeof AuthenticatedCadastrosRoute
   AuthenticatedCalendarioRoute: typeof AuthenticatedCalendarioRoute
   AuthenticatedCategoriasRoute: typeof AuthenticatedCategoriasRoute
   AuthenticatedCompromissosRoute: typeof AuthenticatedCompromissosRoute
@@ -562,6 +582,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedCadastrosRoute: AuthenticatedCadastrosRoute,
   AuthenticatedCalendarioRoute: AuthenticatedCalendarioRoute,
   AuthenticatedCategoriasRoute: AuthenticatedCategoriasRoute,
   AuthenticatedCompromissosRoute: AuthenticatedCompromissosRoute,
