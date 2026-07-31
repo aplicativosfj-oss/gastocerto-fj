@@ -33,6 +33,39 @@ import {
 import { useAccounts } from "@/lib/transactions";
 import { sanitizeText } from "@/lib/validation";
 
+/** Modelos prontos para gastos anuais/mensais comuns (licenciamento, IPVA, apps). */
+const RECURRING_TEMPLATES: {
+  label: string;
+  description: string;
+  category: string;
+  frequency: string;
+  dayOfMonth?: number;
+}[] = [
+  { label: "IPVA", description: "IPVA do veículo", category: "IPVA", frequency: "annual", dayOfMonth: 10 },
+  {
+    label: "Licenciamento",
+    description: "Licenciamento anual",
+    category: "Licenciamento",
+    frequency: "annual",
+    dayOfMonth: 15,
+  },
+  {
+    label: "Seguro do veículo",
+    description: "Seguro do veículo",
+    category: "Seguro do veículo",
+    frequency: "monthly",
+    dayOfMonth: 5,
+  },
+  {
+    label: "Apps e licenças",
+    description: "Assinatura de aplicativo",
+    category: "Aplicativos e licenças",
+    frequency: "monthly",
+    dayOfMonth: 1,
+  },
+  { label: "Streaming", description: "Assinatura de streaming", category: "Streaming", frequency: "monthly", dayOfMonth: 1 },
+];
+
 export function RecurringDialog({
   open,
   onOpenChange,
@@ -144,6 +177,36 @@ export function RecurringDialog({
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="grid gap-4 sm:grid-cols-2" noValidate>
+          {!rule ? (
+            <div className="sm:col-span-2">
+              <Label className="text-xs text-muted-foreground">Modelos prontos</Label>
+              <div className="mt-1.5 flex flex-wrap gap-2">
+                {RECURRING_TEMPLATES.map((template) => (
+                  <Button
+                    key={template.label}
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="h-7 text-xs"
+                    onClick={() => {
+                      setType("expense");
+                      setDescription(template.description);
+                      setFrequency(template.frequency);
+                      if (template.dayOfMonth) setDayOfMonth(String(template.dayOfMonth));
+                      const match = (categories ?? []).find(
+                        (category) =>
+                          category.type === "expense" && category.name === template.category,
+                      );
+                      if (match) setCategoryId(match.id);
+                    }}
+                  >
+                    {template.label}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          ) : null}
+
           <div className="sm:col-span-2">
             <Label htmlFor="rec-description">Descrição</Label>
             <Input

@@ -28,6 +28,7 @@ import {
 
 import { AppShell } from "@/components/app-shell";
 import { QuickPurchaseDialog } from "@/components/finance/quick-purchase-dialog";
+import { ClosedPeriodAuditPanel } from "@/components/finance/closed-audit";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -856,6 +857,7 @@ function FechamentoPage() {
         onOpenChange={(open) => (open ? null : setQuickTarget(null))}
       />
 
+      <ClosedPeriodAuditPanel />
     </AppShell>
   );
 }
