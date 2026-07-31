@@ -39,12 +39,18 @@ export function PurchaseItemsEditor({
   items,
   onChange,
   onApplyTotal,
+  amount = 0,
+  showValidation = false,
 }: {
   items: ItemDraft[];
   onChange: (items: ItemDraft[]) => void;
   onApplyTotal?: (total: number) => void;
+  amount?: number;
+  showValidation?: boolean;
 }) {
   const total = itemsTotal(items);
+  const check = validatePurchaseItems(items, amount);
+  const issueByIndex = new Map(check.issues.map((issue) => [issue.index, issue.message]));
 
   function update(index: number, patch: Partial<ItemDraft>) {
     const next = items.map((item, position) => (position === index ? { ...item, ...patch } : item));
