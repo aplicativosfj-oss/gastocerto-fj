@@ -26,7 +26,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 import { Textarea } from "@/components/ui/textarea";
 
 import {
@@ -39,6 +39,9 @@ import {
   toCents,
 } from "@/lib/finance";
 import { formatDate } from "@/lib/format";
+import { amountToInput, maskAmountInput } from "@/lib/money-input";
+import { upperText } from "@/lib/text-case";
+
 import { useCategories } from "@/lib/queries";
 import {
   itemFromRow,
@@ -94,9 +97,8 @@ export function TransactionDialog({
   const [advanced, setAdvanced] = useState(false);
 
   const [description, setDescription] = useState(transaction?.description ?? "");
-  const [amount, setAmount] = useState(
-    transaction ? String(transaction.amount).replace(".", ",") : "",
-  );
+  const [amount, setAmount] = useState(amountToInput(transaction?.amount));
+
   const [categoryId, setCategoryId] = useState(transaction?.category_id ?? "");
   const [date, setDate] = useState(
     transaction?.transaction_date ?? defaultDate ?? isoDate(new Date()),
@@ -324,9 +326,13 @@ export function TransactionDialog({
             {editing ? "Editar lançamento" : kind === "income" ? "Nova receita" : "Novo gasto"}
           </DialogTitle>
           <DialogDescription>
-            Preencha os campos essenciais ou abra o cadastro avançado. Atalhos: Enter avança,
-            Ctrl/Cmd + Enter salva e Alt + C abre as categorias.
+            {kind === "income"
+              ? "Registre quanto entrou e de onde veio o dinheiro."
+              : "Registre quanto saiu e em que você gastou."}{" "}
+            Use “Mais opções” para conta, parcelas e anexos. Atalhos: Enter avança, Ctrl/Cmd +
+            Enter salva e Alt + C abre as categorias.
           </DialogDescription>
+
         </DialogHeader>
 
         <form
@@ -335,49 +341,77 @@ export function TransactionDialog({
           className="space-y-4"
           noValidate
         >
-          <Tabs
-            value={advanced ? "avancado" : "rapido"}
-            onValueChange={(value) => setAdvanced(value === "avancado")}
+          <div
+            className={`flex flex-wrap items-center justify-between gap-2 rounded-xl border p-2.5 ${
+              kind === "income"
+                ? "border-emerald-500/40 bg-emerald-500/10"
+                : "border-destructive/30 bg-destructive/5"
+            }`}
           >
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="rapido">Cadastro rápido</TabsTrigger>
-              <TabsTrigger value="avancado">Avançado</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="rapido" className="mt-4 space-y-4" />
-            <TabsContent value="avancado" className="mt-4 space-y-4" />
-          </Tabs>
+            <p className="text-xs font-semibold">
+              {kind === "income"
+                ? "Entrada de dinheiro (receita)"
+                : "Saída de dinheiro (despesa)"}
+              <span className="ml-1 font-normal text-muted-foreground">
+                {kind === "income"
+                  ? "— soma ao que você tem para gastar."
+                  : "— desconta do seu saldo do mês."}
+              </span>
+            </p>
+            <Button
+              type="button"
+              variant={advanced ? "secondary" : "outline"}
+              size="sm"
+              className="h-8 text-[11px]"
+              onClick={() => setAdvanced((current) => !current)}
+            >
+              {advanced ? "Ocultar campos extras" : "Mais opções"}
+            </Button>
+          </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="sm:col-span-2">
-              <Label htmlFor="description">Descrição</Label>
+              <Label htmlFor="description">
+                {kind === "income" ? "Descrição da receita" : "Descrição do gasto"}
+              </Label>
               <Input
                 id="description"
                 value={description}
-                onChange={(event) => setDescription(event.target.value)}
+                onChange={(event) => setDescription(upperText(event.target.value))}
                 maxLength={140}
                 className="mt-1.5"
-                placeholder="Ex.: Mercado do bairro"
+                placeholder={
+                  kind === "income" ? "EX.: SALÁRIO DE JULHO" : "EX.: MERCADO DO BAIRRO"
+                }
               />
               {errors.description ? (
                 <p className="mt-1 text-xs text-destructive">{errors.description}</p>
               ) : null}
             </div>
 
+
             <div>
-              <Label htmlFor="amount">Valor (R$)</Label>
+              <Label htmlFor="amount">
+                {kind === "income" ? "Valor recebido (R$)" : "Valor do gasto (R$)"}
+              </Label>
               <Input
                 id="amount"
                 value={amount}
-                inputMode="decimal"
-                onChange={(event) => setAmount(event.target.value)}
-                className="mt-1.5 tabular-nums"
+                inputMode="numeric"
+                onChange={(event) => setAmount(maskAmountInput(event.target.value))}
+                className="mt-1.5 text-right tabular-nums"
                 placeholder="0,00"
+                aria-describedby="amount-help"
               />
+              <p id="amount-help" className="mt-1 text-[11px] text-muted-foreground">
+                Digite só os números: o ponto de milhar e a vírgula dos centavos são colocados
+                automaticamente.
+              </p>
               {errors.amount ? (
                 <p className="mt-1 text-xs text-destructive">{errors.amount}</p>
               ) : null}
             </div>
+
 
             <div>
               <Label htmlFor="date">Data</Label>
@@ -455,13 +489,13 @@ export function TransactionDialog({
               <Input
                 id="merchant"
                 value={merchant}
-                onChange={(event) => setMerchant(event.target.value)}
+                onChange={(event) => setMerchant(upperText(event.target.value))}
                 maxLength={100}
                 className="mt-1.5"
                 placeholder={
                   kind === "income"
-                    ? "Ex.: Salário da prefeitura, venda de bolos, serviço de pintura"
-                    : "Ex.: Supermercado Central, Feira do produtor"
+                    ? "EX.: SALÁRIO DA PREFEITURA, VENDA DE BOLOS, SERVIÇO DE PINTURA"
+                    : "EX.: SUPERMERCADO CENTRAL, FEIRA DO PRODUTOR"
                 }
               />
               {kind === "income" ? (
@@ -470,13 +504,14 @@ export function TransactionDialog({
                     <button
                       key={source}
                       type="button"
-                      onClick={() => setMerchant(source)}
+                      onClick={() => setMerchant(upperText(source))}
                       className="rounded-full border border-border px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:border-primary hover:text-primary"
                     >
                       {source}
                     </button>
                   ))}
                 </div>
+
               ) : null}
             </div>
 
@@ -488,7 +523,7 @@ export function TransactionDialog({
                   onChange={setItems}
                   amount={toCents(parseAmount(amount))}
                   showValidation
-                  onApplyTotal={(total) => setAmount(String(total).replace(".", ","))}
+                  onApplyTotal={(total) => setAmount(amountToInput(total))}
                 />
                 {errors.items ? (
                   <p className="mt-1 text-xs text-destructive">{errors.items}</p>
@@ -590,9 +625,9 @@ export function TransactionDialog({
                   <Input
                     id="tags"
                     value={tags}
-                    onChange={(event) => setTags(event.target.value)}
+                    onChange={(event) => setTags(upperText(event.target.value))}
                     className="mt-1.5"
-                    placeholder="casa, urgente"
+                    placeholder="CASA, URGENTE"
                   />
                 </div>
 
@@ -601,7 +636,8 @@ export function TransactionDialog({
                   <Textarea
                     id="notes"
                     value={notes}
-                    onChange={(event) => setNotes(event.target.value)}
+                    onChange={(event) => setNotes(upperText(event.target.value))}
+
                     maxLength={500}
                     className="mt-1.5"
                     rows={3}

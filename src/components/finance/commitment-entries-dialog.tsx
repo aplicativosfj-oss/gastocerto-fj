@@ -24,8 +24,11 @@ import {
 } from "@/components/ui/select";
 import { PAYMENT_METHODS, isoDate, labelFor, parseAmount, toCents } from "@/lib/finance";
 import { formatCurrency, formatDate } from "@/lib/format";
+import { maskAmountInput } from "@/lib/money-input";
+import { upperText } from "@/lib/text-case";
 import {
   ENTRY_TYPES,
+
   useDeleteCommitmentEntry,
   useSaveCommitmentEntry,
   type CommitmentSummary,
@@ -151,7 +154,7 @@ export function CommitmentEntriesDialog({
               id="ce-amount"
               value={amount}
               inputMode="decimal"
-              onChange={(event) => setAmount(event.target.value)}
+              onChange={(event) => setAmount(maskAmountInput(event.target.value))}
               className="mt-1.5 tabular-nums"
             />
           </div>
@@ -197,7 +200,7 @@ export function CommitmentEntriesDialog({
               value={description}
               maxLength={160}
               placeholder="Ex.: 2 kg de carne, parcela de outubro"
-              onChange={(event) => setDescription(event.target.value)}
+              onChange={(event) => setDescription(upperText(event.target.value))}
               className="mt-1.5"
             />
           </div>

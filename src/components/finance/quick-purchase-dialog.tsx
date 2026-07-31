@@ -40,6 +40,8 @@ import {
 } from "@/lib/purchase-items";
 import { useProfile } from "@/lib/queries";
 import { useSaveTransaction, type Transaction } from "@/lib/transactions";
+import { maskAmountInput } from "@/lib/money-input";
+import { upperText } from "@/lib/text-case";
 
 /**
  * Edição rápida da compra direto do fechamento mensal: itens, quantidades,
@@ -173,7 +175,7 @@ export function QuickPurchaseDialog({
               id="quick-amount"
               value={amount}
               inputMode="decimal"
-              onChange={(event) => setAmount(event.target.value)}
+              onChange={(event) => setAmount(maskAmountInput(event.target.value))}
               className="mt-1.5 tabular-nums"
             />
           </div>
@@ -198,7 +200,7 @@ export function QuickPurchaseDialog({
               id="quick-merchant"
               value={merchant}
               maxLength={100}
-              onChange={(event) => setMerchant(event.target.value)}
+              onChange={(event) => setMerchant(upperText(event.target.value))}
               className="mt-1.5"
             />
           </div>
