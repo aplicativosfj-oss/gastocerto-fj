@@ -81,6 +81,9 @@ function FechamentoPage() {
 
   const [target, setTarget] = useState<MonthBalance | null>(null);
   const [notes, setNotes] = useState("");
+  const [selectedLabel, setSelectedLabel] = useState<string | null>(null);
+  const [quickTarget, setQuickTarget] = useState<Transaction | null>(null);
+  const { data: categories } = useCategories();
 
   const balance = useMemo(
     () => buildBalance(transactions ?? [], closings ?? []),
@@ -92,6 +95,46 @@ function FechamentoPage() {
     const expense = balance.reduce((sum, row) => sum + row.expense, 0);
     return { income, expense, result: income - expense, current: balance[0] ?? null };
   }, [balance]);
+
+  const selected = useMemo(
+    () => balance.find((row) => row.label === selectedLabel) ?? balance[0] ?? null,
+    [balance, selectedLabel],
+  );
+
+  const detail = useMemo(() => {
+    if (!selected) return null;
+    const categoryName = new Map((categories ?? []).map((row) => [row.id, row.name]));
+    const paymentName = new Map(PAYMENT_METHODS.map((row) => [row.value, row.label]));
+
+    const rows = (transactions ?? []).filter(
+      (row) =>
+        row.transaction_date >= selected.range.start &&
+        row.transaction_date <= selected.range.end &&
+        row.status !== "canceled" &&
+        row.transaction_type === "expense",
+    );
+
+    function group(keyOf: (row: Transaction) => string) {
+      const map = new Map<string, number>();
+      for (const row of rows) {
+        const key = keyOf(row);
+        map.set(key, toCents((map.get(key) ?? 0) + Number(row.amount)));
+      }
+      return [...map.entries()]
+        .map(([name, value]) => ({ name, value }))
+        .sort((a, b) => b.value - a.value);
+    }
+
+    return {
+      rows: rows.slice().sort((a, b) => b.transaction_date.localeCompare(a.transaction_date)),
+      byCategory: group((row) =>
+        row.category_id ? (categoryName.get(row.category_id) ?? "Sem categoria") : "Sem categoria",
+      ),
+      byPayment: group((row) =>
+        row.payment_method ? (paymentName.get(row.payment_method) ?? row.payment_method) : "Não informado",
+      ),
+    };
+  }, [selected, transactions, categories]);
 
   async function handleClose() {
     if (!target) return;
