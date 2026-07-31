@@ -142,6 +142,17 @@ export function TransactionDialog({
     }
   }, [open, editing, lastTransaction, kind, options]);
 
+  /** Carrega os itens detalhados quando abre um lançamento existente. */
+  useEffect(() => {
+    if (!open) return;
+    if (!transaction?.id) {
+      setItems([]);
+      return;
+    }
+    setItems((existingItems ?? []).map(itemFromRow));
+  }, [open, transaction?.id, existingItems]);
+
+
   const isPastMonth = date.slice(0, 7) < isoDate(new Date()).slice(0, 7);
 
   function shiftDate(kindOfShift: "today" | "yesterday" | "lastMonth") {
