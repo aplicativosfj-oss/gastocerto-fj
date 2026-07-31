@@ -500,6 +500,14 @@ function FechamentoPage() {
   );
 }
 
+function EmptyChart() {
+  return (
+    <div className="flex h-full items-center justify-center text-xs text-muted-foreground">
+      Sem dados para o período.
+    </div>
+  );
+}
+
 function Row({ label, value, strong }: { label: string; value: number; strong?: boolean }) {
   return (
     <div>
