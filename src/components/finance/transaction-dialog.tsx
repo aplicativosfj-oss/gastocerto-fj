@@ -120,7 +120,8 @@ export function TransactionDialog({
   );
   const [dueDate, setDueDate] = useState(transaction?.due_date ?? "");
   const [attachment, setAttachment] = useState<string | null>(transaction?.attachment_url ?? null);
-  const [suggestion, setSuggestion] = useState<{ id: string; name: string } | null>(null);
+  const [suggestion, setSuggestion] = useState<{ id: string; name: string; subCategoryId?: string | null } | null>(null);
+  const [subCategoryId, setSubCategoryId] = useState(transaction?.sub_category_id ?? "");
   const saveFeedback = useSaveCategoryFeedback();
 
   const { data: lastTransaction } = useLastTransaction(kind);
@@ -139,7 +140,13 @@ export function TransactionDialog({
     );
     
     if (match) {
-      setCategoryId(match.id);
+      if (match.parent_id) {
+        setCategoryId(match.parent_id);
+        setSubCategoryId(match.id);
+      } else {
+        setCategoryId(match.id);
+        setSubCategoryId("");
+      }
       setSuggestion({ id: match.id, name: match.name });
     } else {
       setSuggestion(null);
@@ -230,6 +237,7 @@ export function TransactionDialog({
     setDescription("");
     setAmount("");
     setCategoryId("");
+    setSubCategoryId("");
     setDate(defaultDate ?? isoDate(new Date()));
     setTime("");
     setMerchant("");
@@ -281,6 +289,7 @@ export function TransactionDialog({
           amount: value,
           transaction_type: kind,
           category_id: categoryId || null,
+          sub_category_id: subCategoryId || null,
           account_id: accountId || null,
           transaction_date: date,
           transaction_time: time || null,
@@ -482,8 +491,9 @@ export function TransactionDialog({
               <Label>Categoria</Label>
               <CategoryPicker
                 categories={options}
-                value={categoryId}
+                value={subCategoryId || categoryId}
                 onChange={(id) => {
+                  const selectedCat = options.find(c => c.id === id);
                   if (suggestion && suggestion.id !== id) {
                     saveFeedback.mutate({
                       description: description,
@@ -498,8 +508,15 @@ export function TransactionDialog({
                       accepted: true
                     });
                   }
+                  
+                  if (selectedCat?.parent_id) {
+                    setCategoryId(selectedCat.parent_id);
+                    setSubCategoryId(id);
+                  } else {
+                    setCategoryId(id);
+                    setSubCategoryId("");
+                  }
                   setSuggestion(null);
-                  setCategoryId(id);
                 }}
                 autoFilled={Boolean(suggestion)}
               />
@@ -531,6 +548,7 @@ export function TransactionDialog({
                       onClick={() => {
                         setSuggestion(null);
                         setCategoryId("");
+                        setSubCategoryId("");
                       }}
                     >
                       Não correspondeu
