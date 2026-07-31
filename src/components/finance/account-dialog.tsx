@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/select";
 import { ACCOUNT_TYPES, useSaveAccount, type Account } from "@/lib/accounts";
 import { parseAmount } from "@/lib/finance";
-import { maskMoney } from "@/lib/money-input";
+import { amountToInput, maskAmountInput } from "@/lib/money-input";
 import { sanitizeText } from "@/lib/validation";
 
 /** Cadastro de bancos, carteiras e cartões usados nos lançamentos. */
@@ -42,7 +42,7 @@ export function AccountDialog({
   const [type, setType] = useState(account?.account_type ?? "checking");
   const [institution, setInstitution] = useState(account?.institution ?? "");
   const [balance, setBalance] = useState(
-    account ? String(account.initial_balance).replace(".", ",") : "",
+    account ? amountToInput(account.initial_balance) : "",
   );
 
   async function handleSubmit(event: React.FormEvent) {
@@ -139,7 +139,7 @@ export function AccountDialog({
               inputMode="decimal"
               placeholder="0,00"
               value={balance}
-              onChange={(event) => setBalance(maskMoney(event.target.value))}
+              onChange={(event) => setBalance(maskAmountInput(event.target.value))}
             />
           </div>
 
