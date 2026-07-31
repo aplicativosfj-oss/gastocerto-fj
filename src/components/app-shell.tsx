@@ -38,7 +38,17 @@ type NavGroup = {
 };
 
 export const navGroups: NavGroup[] = [
-  { key: "overview", label: "Visão geral", to: "/painel", icon: LayoutDashboard },
+  {
+    key: "overview",
+    label: "Visão geral",
+    to: "/painel",
+    icon: LayoutDashboard,
+    children: [
+      { key: "overview.panel", label: "Painel", to: "/painel" },
+      { key: "overview.daily", label: "Gastos em detalhes", to: "/diario" },
+      { key: "overview.registrations", label: "Meus cadastros", to: "/cadastros" },
+    ],
+  },
   {
     key: "entries",
     label: "Lançamentos",
