@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import {
   AlertTriangle,
+  CalendarClock,
   HandCoins,
   Pencil,
   Plus,
@@ -9,12 +10,13 @@ import {
   Trash2,
   Wallet,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
 import { CommitmentDialog } from "@/components/finance/commitment-dialog";
 import { CommitmentEntriesDialog } from "@/components/finance/commitment-entries-dialog";
+import { CommitmentScheduleDialog } from "@/components/finance/commitment-schedule-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -38,8 +40,11 @@ import {
   useCommitments,
   useDeleteCommitment,
   type Commitment,
+  type CommitmentEntry,
   type CommitmentSummary,
 } from "@/lib/commitments";
+import { buildCommitmentReminders, buildSchedule } from "@/lib/commitment-schedule";
+import { useNotificationPreferences, useSyncNotifications } from "@/lib/notifications";
 
 const TITLE = "Compromissos e dívidas — GastoCerto";
 const DESCRIPTION =
@@ -70,6 +75,12 @@ function CompromissosPage() {
   const [editing, setEditing] = useState<Commitment | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [entryTarget, setEntryTarget] = useState<string | null>(null);
+  const [scheduleTarget, setScheduleTarget] = useState<string | null>(null);
+
+  const { data: preferences } = useNotificationPreferences();
+  const syncNotifications = useSyncNotifications();
+  const daysBefore = preferences?.days_before_due ?? 5;
+  const dueAlerts = preferences?.due_alerts ?? true;
 
   const summaries = useMemo(
     () => summarizeAll(commitments ?? [], entries ?? []),
@@ -105,6 +116,17 @@ function CompromissosPage() {
   }, [summaries]);
 
   const entryTargetSummary = summaries.find((item) => item.commitment.id === entryTarget) ?? null;
+  const scheduleTargetSummary =
+    summaries.find((item) => item.commitment.id === scheduleTarget) ?? null;
+
+  // Gera automaticamente os lembretes das parcelas (dias antes e atrasos).
+  useEffect(() => {
+    if (!commitments || !entries || !dueAlerts) return;
+    const drafts = buildCommitmentReminders(commitments, entries, { daysBefore });
+    if (drafts.length === 0) return;
+    syncNotifications.mutate(drafts);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [commitments, entries, daysBefore, dueAlerts]);
 
   return (
     <AppShell>
@@ -237,6 +259,9 @@ function CompromissosPage() {
               <CommitmentCard
                 key={item.commitment.id}
                 summary={item}
+                entries={entries ?? []}
+                daysBefore={daysBefore}
+                onSchedule={() => setScheduleTarget(item.commitment.id)}
                 onEdit={() => {
                   setEditing(item.commitment);
                   setDialogOpen(true);
@@ -257,6 +282,12 @@ function CompromissosPage() {
       </div>
 
       <CommitmentDialog commitment={editing} open={dialogOpen} onOpenChange={setDialogOpen} />
+      <CommitmentScheduleDialog
+        summary={scheduleTargetSummary}
+        daysBefore={daysBefore}
+        open={Boolean(scheduleTarget)}
+        onOpenChange={(open) => (open ? null : setScheduleTarget(null))}
+      />
       <CommitmentEntriesDialog
         summary={entryTargetSummary}
         open={Boolean(entryTarget)}
@@ -268,16 +299,23 @@ function CompromissosPage() {
 
 function CommitmentCard({
   summary,
+  entries,
+  daysBefore,
   onEdit,
   onEntries,
+  onSchedule,
   onDelete,
 }: {
   summary: CommitmentSummary;
+  entries: CommitmentEntry[];
+  daysBefore: number;
   onEdit: () => void;
   onEntries: () => void;
+  onSchedule: () => void;
   onDelete: () => void;
 }) {
   const { commitment } = summary;
+  const schedule = buildSchedule(commitment, entries, { daysBefore });
   return (
     <article className="flex flex-col rounded-xl border border-border bg-card p-3">
       <div className="flex items-start justify-between gap-2">
@@ -348,16 +386,28 @@ function CommitmentCard({
       <Progress value={summary.progress} className="mt-2 h-1.5" />
 
       <p className="mt-2 text-[11px] text-muted-foreground">
-        {summary.nextDue ? `Próximo vencimento: ${formatDate(summary.nextDue)}` : "Sem vencimento definido"}
+        {schedule?.nextOpen
+          ? `Parcela ${schedule.nextOpen.number} vence ${formatDate(`${schedule.nextOpen.dueDate}T12:00:00`)}`
+          : summary.nextDue
+            ? `Próximo vencimento: ${formatDate(summary.nextDue)}`
+            : "Sem vencimento definido"}
         {commitment.installment_amount
           ? ` · parcela ${formatCurrency(Number(commitment.installment_amount))}`
           : ""}
       </p>
 
-      <Button variant="outline" size="sm" className="mt-2 h-8" onClick={onEntries}>
-        <HandCoins className="mr-1.5 size-3.5" />
-        Pagamentos e compras
-      </Button>
+      <div className="mt-2 grid gap-1.5 sm:grid-cols-2">
+        <Button variant="outline" size="sm" className="h-8" onClick={onEntries}>
+          <HandCoins className="mr-1.5 size-3.5" />
+          Pagamentos
+        </Button>
+        {schedule ? (
+          <Button variant="secondary" size="sm" className="h-8" onClick={onSchedule}>
+            <CalendarClock className="mr-1.5 size-3.5" />
+            Carnê ({schedule.paidCount}/{schedule.installments.length})
+          </Button>
+        ) : null}
+      </div>
     </article>
   );
 }
