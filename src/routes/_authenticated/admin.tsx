@@ -93,7 +93,7 @@ function AdminPage() {
       <AppShell>
         <div className="rounded-xl border border-dashed border-border p-10 text-center">
           <ShieldCheck className="mx-auto size-8 text-muted-foreground" />
-          <h1 className="mt-3 font-display text-lg font-semibold">Acesso restrito</h1>
+          <h1 className="mt-3 font-display text-sm font-semibold">Acesso restrito</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Esta área é exclusiva da equipe administrativa.
           </p>
@@ -187,7 +187,7 @@ function AdminContent({ isAdmin }: { isAdmin: boolean }) {
 
   return (
     <AppShell>
-      <div className="space-y-6">
+      <div className="space-y-4">
         <header>
           <h1 className="font-display text-2xl font-semibold tracking-tight">Administração</h1>
           <p className="text-sm text-muted-foreground">

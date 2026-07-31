@@ -156,7 +156,7 @@ function ProfilePage() {
           </p>
         </header>
 
-        <section className="flex items-center gap-4 rounded-2xl border border-border bg-card p-6">
+        <section className="flex items-center gap-4 rounded-2xl border border-border bg-card p-4">
           <Avatar className="size-16">
             {avatarUrl ? <AvatarImage src={avatarUrl} alt="Foto de perfil" /> : null}
             <AvatarFallback>{initials}</AvatarFallback>
@@ -188,7 +188,7 @@ function ProfilePage() {
 
         <form
           onSubmit={handleSubmit}
-          className="space-y-4 rounded-2xl border border-border bg-card p-6"
+          className="space-y-4 rounded-2xl border border-border bg-card p-4"
           noValidate
         >
           <div>

@@ -203,10 +203,10 @@ function DashboardPage() {
 
   return (
     <AppShell>
-      <div className="space-y-8">
+      <div className="space-y-4">
         <header className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 sm:flex sm:flex-wrap sm:items-center sm:justify-between">
           <div className="min-w-0">
-            <h1 className="truncate text-2xl font-bold tracking-tight sm:text-3xl">
+            <h1 className="truncate text-xl font-bold tracking-tight sm:text-2xl">
               Olá, {firstName}!
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
@@ -223,14 +223,14 @@ function DashboardPage() {
         </header>
 
         {loadingTransactions ? (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {Array.from({ length: 8 }).map((_, index) => (
-              <Skeleton key={index} className="h-28 rounded-2xl" />
+              <Skeleton key={index} className="h-20 rounded-2xl" />
             ))}
           </div>
         ) : (
           <>
-            <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <StatCard tile="var(--acc-4)" label="Gasto hoje" value={formatCurrency(metrics.today)} icon={<TrendingDown className="size-4" />} />
               <StatCard tile="var(--acc-3)" label="Gasto nos 7 dias" value={formatCurrency(metrics.week)} />
               <StatCard tile="var(--acc-5)" label="Gasto no mês" value={formatCurrency(metrics.totalExpense)} />
@@ -261,9 +261,9 @@ function DashboardPage() {
               />
             </section>
 
-            <section className="rounded-2xl border border-border bg-card p-6">
+            <section className="rounded-2xl border border-border bg-card p-4">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <h2 className="text-lg font-semibold">Orçamento do mês</h2>
+                <h2 className="text-sm font-semibold">Orçamento do mês</h2>
                 <Button asChild variant="ghost" size="sm">
                   <Link to="/orcamentos">
                     Gerenciar
@@ -314,12 +314,12 @@ function DashboardPage() {
               </section>
             ) : null}
 
-            <section className="grid gap-4 lg:grid-cols-2">
+            <section className="grid gap-3 lg:grid-cols-2">
               <ChartCard
                 title="Gastos por dia"
                 summary={`Maior gasto diário: ${formatCurrency(Math.max(0, ...byDay.map((item) => item.gasto)))}.`}
               >
-                <ResponsiveContainer width="100%" height={240}>
+                <ResponsiveContainer width="100%" height={190}>
                   <BarChart data={byDay}>
                     <CartesianGrid {...gridProps} />
                     <XAxis dataKey="day" {...axisProps} />
@@ -338,9 +338,9 @@ function DashboardPage() {
                     : "Sem gastos categorizados neste período."
                 }
               >
-                <ResponsiveContainer width="100%" height={240}>
+                <ResponsiveContainer width="100%" height={190}>
                   <PieChart>
-                    <Pie data={byCategory} dataKey="value" nameKey="name" innerRadius={55} outerRadius={90}>
+                    <Pie data={byCategory} dataKey="value" nameKey="name" innerRadius={42} outerRadius={72}>
                       {byCategory.map((entry, index) => (
                         <Cell
                           key={entry.name}
@@ -359,7 +359,7 @@ function DashboardPage() {
                 title="Receitas x despesas"
                 summary={`Receitas ${formatCurrency(metrics.totalIncome)} contra despesas ${formatCurrency(metrics.totalExpense)}.`}
               >
-                <ResponsiveContainer width="100%" height={240}>
+                <ResponsiveContainer width="100%" height={190}>
                   <LineChart data={byDay}>
                     <CartesianGrid {...gridProps} />
                     <XAxis dataKey="day" {...axisProps} />
@@ -394,9 +394,9 @@ function DashboardPage() {
                     : 0
                 }% dos gastos.`}
               >
-                <ResponsiveContainer width="100%" height={240}>
+                <ResponsiveContainer width="100%" height={190}>
                   <PieChart>
-                    <Pie data={essentialSplit} dataKey="value" nameKey="name" outerRadius={90}>
+                    <Pie data={essentialSplit} dataKey="value" nameKey="name" outerRadius={72}>
                       {essentialSplit.map((entry) => (
                         <Cell key={entry.name} fill={entry.color} stroke="var(--card)" strokeWidth={2} />
                       ))}
@@ -408,13 +408,13 @@ function DashboardPage() {
               </ChartCard>
             </section>
 
-            <section className="grid gap-4 lg:grid-cols-2">
-              <div className="rounded-2xl border border-border bg-card p-6">
-                <h2 className="text-lg font-semibold">Últimos lançamentos</h2>
+            <section className="grid gap-3 lg:grid-cols-2">
+              <div className="rounded-2xl border border-border bg-card p-4">
+                <h2 className="text-sm font-semibold">Últimos lançamentos</h2>
                 {(transactions ?? []).length === 0 ? (
                   <EmptyState onAdd={() => setDialogOpen(true)} />
                 ) : (
-                  <ul className="mt-4 space-y-3">
+                  <ul className="mt-3 space-y-2">
                     {(transactions ?? []).slice(0, 6).map((row) => (
                       <li key={row.id} className="flex items-center justify-between gap-3 text-sm">
                         <span className="min-w-0 truncate">{row.description}</span>
@@ -440,14 +440,14 @@ function DashboardPage() {
                 </Button>
               </div>
 
-              <div className="rounded-2xl border border-border bg-card p-6">
-                <h2 className="text-lg font-semibold">Próximas contas</h2>
+              <div className="rounded-2xl border border-border bg-card p-4">
+                <h2 className="text-sm font-semibold">Próximas contas</h2>
                 {metrics.upcoming.length === 0 ? (
                   <p className="mt-3 text-sm text-muted-foreground">
                     Nenhuma conta pendente neste período.
                   </p>
                 ) : (
-                  <ul className="mt-4 space-y-3">
+                  <ul className="mt-3 space-y-2">
                     {metrics.upcoming.slice(0, 6).map((row) => (
                       <li key={row.id} className="flex items-center justify-between gap-3 text-sm">
                         <span className="flex min-w-0 items-center gap-2">
@@ -472,12 +472,12 @@ function DashboardPage() {
               </div>
             </section>
 
-            <section className="rounded-2xl border border-border bg-card p-6">
-              <h2 className="text-lg font-semibold">Maiores categorias</h2>
+            <section className="rounded-2xl border border-border bg-card p-4">
+              <h2 className="text-sm font-semibold">Maiores categorias</h2>
               {byCategory.length === 0 ? (
                 <p className="mt-3 text-sm text-muted-foreground">Nada registrado ainda.</p>
               ) : (
-                <ul className="mt-4 space-y-3">
+                <ul className="mt-3 space-y-2">
                   {byCategory.slice(0, 5).map((item) => (
                     <li key={item.name} className="space-y-1">
                       <div className="flex justify-between text-sm">
@@ -525,14 +525,14 @@ function StatCard({
 }) {
   return (
     <div
-      className="accent-tile rounded-2xl p-5"
+      className="accent-tile rounded-2xl p-3"
       style={{ "--tile": tile } as React.CSSProperties}
     >
       <div className="flex items-center gap-2" style={{ color: tile }}>
         {icon}
         <span className="text-xs font-medium uppercase tracking-wide">{label}</span>
       </div>
-      <p className="mt-3 text-xl font-bold tabular-nums">{value}</p>
+      <p className="mt-1.5 text-lg font-bold tabular-nums">{value}</p>
       {hint ? <p className="mt-1 text-xs text-muted-foreground">{hint}</p> : null}
     </div>
   );
@@ -548,10 +548,10 @@ function ChartCard({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-2xl border border-border bg-card p-6">
-      <h2 className="text-lg font-semibold">{title}</h2>
+    <div className="rounded-2xl border border-border bg-card p-4">
+      <h2 className="text-sm font-semibold">{title}</h2>
       <p className="mt-1 text-xs text-muted-foreground">{summary}</p>
-      <div className="mt-4">{children}</div>
+      <div className="mt-2">{children}</div>
     </div>
   );
 }
