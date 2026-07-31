@@ -22,6 +22,7 @@ import { Route as AuthenticatedCalendarioRouteImport } from './routes/_authentic
 import { Route as AuthenticatedCategoriasRouteImport } from './routes/_authenticated/categorias'
 import { Route as AuthenticatedCompromissosRouteImport } from './routes/_authenticated/compromissos'
 import { Route as AuthenticatedComprovantesRouteImport } from './routes/_authenticated/comprovantes'
+import { Route as AuthenticatedDiarioRouteImport } from './routes/_authenticated/diario'
 import { Route as AuthenticatedFechamentoRouteImport } from './routes/_authenticated/fechamento'
 import { Route as AuthenticatedLancamentosRouteImport } from './routes/_authenticated/lancamentos'
 import { Route as AuthenticatedMetasRouteImport } from './routes/_authenticated/metas'
@@ -103,6 +104,11 @@ const AuthenticatedComprovantesRoute =
     path: '/comprovantes',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedDiarioRoute = AuthenticatedDiarioRouteImport.update({
+  id: '/diario',
+  path: '/diario',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedFechamentoRoute = AuthenticatedFechamentoRouteImport.update({
   id: '/fechamento',
   path: '/fechamento',
@@ -192,6 +198,7 @@ export interface FileRoutesByFullPath {
   '/categorias': typeof AuthenticatedCategoriasRoute
   '/compromissos': typeof AuthenticatedCompromissosRoute
   '/comprovantes': typeof AuthenticatedComprovantesRoute
+  '/diario': typeof AuthenticatedDiarioRoute
   '/fechamento': typeof AuthenticatedFechamentoRoute
   '/lancamentos': typeof AuthenticatedLancamentosRoute
   '/metas': typeof AuthenticatedMetasRoute
@@ -220,6 +227,7 @@ export interface FileRoutesByTo {
   '/categorias': typeof AuthenticatedCategoriasRoute
   '/compromissos': typeof AuthenticatedCompromissosRoute
   '/comprovantes': typeof AuthenticatedComprovantesRoute
+  '/diario': typeof AuthenticatedDiarioRoute
   '/fechamento': typeof AuthenticatedFechamentoRoute
   '/lancamentos': typeof AuthenticatedLancamentosRoute
   '/metas': typeof AuthenticatedMetasRoute
@@ -250,6 +258,7 @@ export interface FileRoutesById {
   '/_authenticated/categorias': typeof AuthenticatedCategoriasRoute
   '/_authenticated/compromissos': typeof AuthenticatedCompromissosRoute
   '/_authenticated/comprovantes': typeof AuthenticatedComprovantesRoute
+  '/_authenticated/diario': typeof AuthenticatedDiarioRoute
   '/_authenticated/fechamento': typeof AuthenticatedFechamentoRoute
   '/_authenticated/lancamentos': typeof AuthenticatedLancamentosRoute
   '/_authenticated/metas': typeof AuthenticatedMetasRoute
@@ -280,6 +289,7 @@ export interface FileRouteTypes {
     | '/categorias'
     | '/compromissos'
     | '/comprovantes'
+    | '/diario'
     | '/fechamento'
     | '/lancamentos'
     | '/metas'
@@ -308,6 +318,7 @@ export interface FileRouteTypes {
     | '/categorias'
     | '/compromissos'
     | '/comprovantes'
+    | '/diario'
     | '/fechamento'
     | '/lancamentos'
     | '/metas'
@@ -337,6 +348,7 @@ export interface FileRouteTypes {
     | '/_authenticated/categorias'
     | '/_authenticated/compromissos'
     | '/_authenticated/comprovantes'
+    | '/_authenticated/diario'
     | '/_authenticated/fechamento'
     | '/_authenticated/lancamentos'
     | '/_authenticated/metas'
@@ -456,6 +468,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedComprovantesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/diario': {
+      id: '/_authenticated/diario'
+      path: '/diario'
+      fullPath: '/diario'
+      preLoaderRoute: typeof AuthenticatedDiarioRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/fechamento': {
       id: '/_authenticated/fechamento'
       path: '/fechamento'
@@ -564,6 +583,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedCategoriasRoute: typeof AuthenticatedCategoriasRoute
   AuthenticatedCompromissosRoute: typeof AuthenticatedCompromissosRoute
   AuthenticatedComprovantesRoute: typeof AuthenticatedComprovantesRoute
+  AuthenticatedDiarioRoute: typeof AuthenticatedDiarioRoute
   AuthenticatedFechamentoRoute: typeof AuthenticatedFechamentoRoute
   AuthenticatedLancamentosRoute: typeof AuthenticatedLancamentosRoute
   AuthenticatedMetasRoute: typeof AuthenticatedMetasRoute
@@ -587,6 +607,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCategoriasRoute: AuthenticatedCategoriasRoute,
   AuthenticatedCompromissosRoute: AuthenticatedCompromissosRoute,
   AuthenticatedComprovantesRoute: AuthenticatedComprovantesRoute,
+  AuthenticatedDiarioRoute: AuthenticatedDiarioRoute,
   AuthenticatedFechamentoRoute: AuthenticatedFechamentoRoute,
   AuthenticatedLancamentosRoute: AuthenticatedLancamentosRoute,
   AuthenticatedMetasRoute: AuthenticatedMetasRoute,

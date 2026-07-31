@@ -10,7 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatCurrency, formatDate } from "@/lib/format";
-import { useCategories, useTransactions } from "@/lib/transactions";
+import { useCategories } from "@/lib/queries";
+import { useTransactions } from "@/lib/transactions";
 
 export const Route = createFileRoute("/_authenticated/diario")({
   head: () => ({
@@ -288,7 +289,7 @@ function DailyPage() {
       </div>
 
       {dialogOpen ? (
-        <TransactionDialog open={dialogOpen} onOpenChange={setDialogOpen} defaultType="expense" />
+        <TransactionDialog open={dialogOpen} onOpenChange={setDialogOpen} kind="expense" />
       ) : null}
     </AppShell>
   );
