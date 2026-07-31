@@ -1,4 +1,4 @@
-import type { SVGProps } from "react";
+import type { ReactNode, SVGProps } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -12,7 +12,7 @@ function Frame({
   title,
   children,
   ...props
-}: EmblemProps & { children: React.ReactNode }) {
+}: EmblemProps & { children: ReactNode }) {
   return (
     <svg
       viewBox="0 0 40 40"
