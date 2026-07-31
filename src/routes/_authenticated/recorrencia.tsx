@@ -82,6 +82,11 @@ function RecurringPage() {
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<RecurringRule | null>(null);
+  const [preset, setPreset] = useState<{
+    type?: "expense" | "income";
+    frequency?: string;
+  } | null>(null);
+
   const [confirm, setConfirm] = useState<RecurringRule | null>(null);
   const [statusFilter, setStatusFilter] = useState("open");
   const [sortBy, setSortBy] = useState("due-asc");
