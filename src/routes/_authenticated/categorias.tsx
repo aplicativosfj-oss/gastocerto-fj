@@ -279,12 +279,13 @@ function CategoriesPage() {
 
           <div className="space-y-4">
             <div>
-              <Label htmlFor="category-name">Nome</Label>
+              <Label htmlFor="category-name">Nome da categoria ou estabelecimento</Label>
               <Input
                 id="category-name"
                 value={draft?.name ?? ""}
                 maxLength={40}
                 className="mt-1.5"
+                placeholder="Ex: Supermercado, Farmácia, Salário..."
                 onChange={(event) =>
                   setDraft((current) => (current ? { ...current, name: event.target.value } : current))
                 }
@@ -292,24 +293,39 @@ function CategoriesPage() {
               {error ? <p className="mt-1 text-xs text-destructive">{error}</p> : null}
             </div>
 
-            <div>
-              <Label htmlFor="category-type">Tipo</Label>
-              <Select
-                value={draft?.type ?? "expense"}
-                onValueChange={(value) =>
-                  setDraft((current) =>
-                    current ? { ...current, type: value as "expense" | "income" } : current,
-                  )
-                }
-              >
-                <SelectTrigger id="category-type" className="mt-1.5">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="expense">Despesa</SelectItem>
-                  <SelectItem value="income">Receita</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label htmlFor="category-type">Tipo</Label>
+                <Select
+                  value={draft?.type ?? "expense"}
+                  onValueChange={(value) =>
+                    setDraft((current) =>
+                      current ? { ...current, type: value as "expense" | "income" } : current,
+                    )
+                  }
+                >
+                  <SelectTrigger id="category-type" className="mt-1.5">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="expense">Despesa</SelectItem>
+                    <SelectItem value="income">Receita</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="category-order">Ordem (menor aparece primeiro)</Label>
+                <Input
+                  id="category-order"
+                  type="number"
+                  value={draft?.display_order ?? 0}
+                  className="mt-1.5"
+                  onChange={(event) =>
+                    setDraft((current) => (current ? { ...current, display_order: Number(event.target.value) } : current))
+                  }
+                />
+              </div>
             </div>
 
             <div>
