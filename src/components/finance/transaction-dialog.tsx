@@ -239,8 +239,9 @@ export function TransactionDialog({
     setDueDate("");
     setAttachment(null);
     setErrors({});
-    setAutoFilled(false);
+    setSuggestion(null);
     setItems([]);
+
 
   }
 
