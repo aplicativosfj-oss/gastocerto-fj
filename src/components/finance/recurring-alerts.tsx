@@ -89,7 +89,7 @@ export function RecurringAlerts({ days = 7 }: { days?: number }) {
       </ul>
 
       <Button asChild variant="ghost" size="sm" className="mt-2 h-8">
-        <Link to="/recorrentes">Gerenciar recorrências</Link>
+        <Link to="/recorrencia">Gerenciar recorrências</Link>
       </Button>
     </section>
   );

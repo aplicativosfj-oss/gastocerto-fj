@@ -29,6 +29,7 @@ import {
 
 import { AppShell } from "@/components/app-shell";
 import { TransactionDialog } from "@/components/finance/transaction-dialog";
+import { RecurringAlerts } from "@/components/finance/recurring-alerts";
 import { QuickCategoryMenu, type QuickPick } from "@/components/finance/quick-category-menu";
 import { PeriodPicker } from "@/components/finance/period-picker";
 
@@ -332,6 +333,8 @@ function DashboardPage() {
                 </p>
               )}
             </section>
+
+            <RecurringAlerts days={7} />
 
             {budgetAlerts.length > 0 ? (
               <section className="space-y-2">
