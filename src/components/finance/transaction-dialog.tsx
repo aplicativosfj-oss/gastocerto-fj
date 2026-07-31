@@ -326,9 +326,13 @@ export function TransactionDialog({
             {editing ? "Editar lançamento" : kind === "income" ? "Nova receita" : "Novo gasto"}
           </DialogTitle>
           <DialogDescription>
-            Preencha os campos essenciais ou abra o cadastro avançado. Atalhos: Enter avança,
-            Ctrl/Cmd + Enter salva e Alt + C abre as categorias.
+            {kind === "income"
+              ? "Registre quanto entrou e de onde veio o dinheiro."
+              : "Registre quanto saiu e em que você gastou."}{" "}
+            Use “Mais opções” para conta, parcelas e anexos. Atalhos: Enter avança, Ctrl/Cmd +
+            Enter salva e Alt + C abre as categorias.
           </DialogDescription>
+
         </DialogHeader>
 
         <form
