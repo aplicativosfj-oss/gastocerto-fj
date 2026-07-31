@@ -14,6 +14,8 @@ import {
 import { formatCurrency } from "@/lib/format";
 import { toCents } from "@/lib/finance";
 import {
+import { maskAmountInput, maskDecimalInput } from "@/lib/money-input";
+import { upperText } from "@/lib/text-case";
   ITEM_SUGGESTIONS,
   MEASURE_UNITS,
   emptyItem,
@@ -109,7 +111,7 @@ export function PurchaseItemsEditor({
                 <div className="flex items-start gap-2">
                   <Input
                     value={item.name}
-                    onChange={(event) => update(index, { name: event.target.value })}
+                    onChange={(event) => update(index, { name: upperText(event.target.value) })}
                     placeholder="Produto (ex.: banana, pão, feira)"
                     maxLength={120}
                     aria-label={`Item ${index + 1}`}
@@ -149,7 +151,7 @@ export function PurchaseItemsEditor({
                     <Input
                       value={item.quantity}
                       inputMode="decimal"
-                      onChange={(event) => update(index, { quantity: event.target.value })}
+                      onChange={(event) => update(index, { quantity: maskDecimalInput(event.target.value, 3) })}
                       className="mt-1 h-9 tabular-nums"
                       placeholder="1"
                     />
@@ -163,7 +165,7 @@ export function PurchaseItemsEditor({
                       <Input
                         value={item.weight}
                         inputMode="decimal"
-                        onChange={(event) => update(index, { weight: event.target.value })}
+                        onChange={(event) => update(index, { weight: maskDecimalInput(event.target.value, 3) })}
                         className="mt-1 h-9 tabular-nums"
                         placeholder="ex.: 1,250"
                       />
@@ -171,7 +173,7 @@ export function PurchaseItemsEditor({
                       <Input
                         value={item.unitPrice}
                         inputMode="decimal"
-                        onChange={(event) => update(index, { unitPrice: event.target.value })}
+                        onChange={(event) => update(index, { unitPrice: maskAmountInput(event.target.value) })}
                         className="mt-1 h-9 tabular-nums"
                         placeholder="0,00"
                       />
@@ -183,7 +185,7 @@ export function PurchaseItemsEditor({
                     <Input
                       value={item.total}
                       inputMode="decimal"
-                      onChange={(event) => update(index, { total: event.target.value })}
+                      onChange={(event) => update(index, { total: maskAmountInput(event.target.value) })}
                       className="mt-1 h-9 tabular-nums"
                       placeholder="0,00"
                     />
@@ -196,7 +198,7 @@ export function PurchaseItemsEditor({
                     <Input
                       value={item.unitPrice}
                       inputMode="decimal"
-                      onChange={(event) => update(index, { unitPrice: event.target.value })}
+                      onChange={(event) => update(index, { unitPrice: maskAmountInput(event.target.value) })}
                       className="mt-1 h-9 tabular-nums"
                       placeholder="0,00"
                     />

@@ -33,6 +33,8 @@ import {
   type Commitment,
 } from "@/lib/commitments";
 import { useCategories } from "@/lib/queries";
+import { maskAmountInput, maskDecimalInput } from "@/lib/money-input";
+import { upperText } from "@/lib/text-case";
 
 /** Cadastro/edição de um compromisso: financiamento, fiado, empréstimo, pensão etc. */
 export function CommitmentDialog({
@@ -201,7 +203,7 @@ export function CommitmentDialog({
               value={name}
               maxLength={120}
               placeholder="Ex.: Financiamento da moto / Fiado Mercadinho São José"
-              onChange={(event) => setName(event.target.value)}
+              onChange={(event) => setName(upperText(event.target.value))}
               className="mt-1.5"
             />
           </div>
@@ -229,7 +231,7 @@ export function CommitmentDialog({
               value={creditor}
               maxLength={120}
               placeholder="Ex.: Banco, açougue, loja, pessoa"
-              onChange={(event) => setCreditor(event.target.value)}
+              onChange={(event) => setCreditor(upperText(event.target.value))}
               className="mt-1.5"
             />
           </div>
@@ -242,7 +244,7 @@ export function CommitmentDialog({
               id="cm-total"
               value={total}
               inputMode="decimal"
-              onChange={(event) => setTotal(event.target.value)}
+              onChange={(event) => setTotal(maskAmountInput(event.target.value))}
               className="mt-1.5 tabular-nums"
             />
           </div>
@@ -284,7 +286,7 @@ export function CommitmentDialog({
                   id="cm-installment-amount"
                   value={installmentAmount}
                   inputMode="decimal"
-                  onChange={(event) => setInstallmentAmount(event.target.value)}
+                  onChange={(event) => setInstallmentAmount(maskAmountInput(event.target.value))}
                   className="mt-1.5 tabular-nums"
                 />
               </div>
@@ -318,7 +320,7 @@ export function CommitmentDialog({
               id="cm-interest"
               value={interest}
               inputMode="decimal"
-              onChange={(event) => setInterest(event.target.value)}
+              onChange={(event) => setInterest(maskDecimalInput(event.target.value))}
               className="mt-1.5 tabular-nums"
             />
           </div>
@@ -422,7 +424,7 @@ export function CommitmentDialog({
               id="cm-notes"
               value={notes}
               maxLength={500}
-              onChange={(event) => setNotes(event.target.value)}
+              onChange={(event) => setNotes(upperText(event.target.value))}
               className="mt-1.5"
               placeholder="Ex.: acordo de pensão homologado, contrato nº, combinado de pagamento."
             />
