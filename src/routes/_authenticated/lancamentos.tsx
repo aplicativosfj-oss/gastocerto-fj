@@ -133,7 +133,7 @@ function TransactionsPage() {
   // Qualquer mudança de filtro volta para a primeira página da lista.
   useEffect(() => {
     setPage(1);
-  }, [categoryFilter, statusFilter, typeFilter, vehicleFilter, sort, period.start, period.end]);
+  }, [categoryFilter, statusFilter, typeFilter, vehicleFilter, sort, period.year, period.month]);
 
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const currentPage = Math.min(page, pageCount);
