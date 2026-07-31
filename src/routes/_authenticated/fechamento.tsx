@@ -155,14 +155,39 @@ function FechamentoPage() {
   return (
     <AppShell>
       <div className="space-y-4">
-        <header className="space-y-1">
-          <h1 className="text-xl font-semibold tracking-tight">Fechamento mensal</h1>
-          <p className="text-sm text-muted-foreground">
-            O balancete começa em {monthLabel(BALANCE_START.year, BALANCE_START.month)} (mês de
-            implantação, aceita lançamentos retroativos). A partir do mês seguinte, cada competência
-            conta do dia 1º ao último dia do mês, e o saldo final vira o saldo inicial do próximo.
-          </p>
+        <header className="flex flex-wrap items-end justify-between gap-3">
+          <div className="space-y-1">
+            <h1 className="text-xl font-semibold tracking-tight">Fechamento mensal</h1>
+            <p className="text-sm text-muted-foreground">
+              O balancete começa em {monthLabel(BALANCE_START.year, BALANCE_START.month)} (mês de
+              implantação, aceita lançamentos retroativos). A partir do mês seguinte, cada
+              competência conta do dia 1º ao último dia do mês, e o saldo final vira o saldo inicial
+              do próximo.
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" className="h-9" onClick={() => exportBalanceCsv(balance)}>
+              <FileSpreadsheet className="mr-1.5 size-4" />
+              CSV
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-9"
+              onClick={async () => {
+                try {
+                  await exportBalancePdf(balance);
+                } catch {
+                  toast.error("Não foi possível gerar o PDF.");
+                }
+              }}
+            >
+              <FileDown className="mr-1.5 size-4" />
+              PDF
+            </Button>
+          </div>
         </header>
+
 
         <div className="auto-cards-sm grid gap-3">
           <SummaryCard label="Entradas acumuladas" value={totals.income} tone="income" />
