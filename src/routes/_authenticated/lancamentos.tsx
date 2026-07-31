@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Copy, Download, Paperclip, Pencil, Plus, Search, Trash2 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
@@ -129,6 +129,11 @@ function TransactionsPage() {
 
     return rows;
   }, [transactions, search, categoryFilter, statusFilter, typeFilter, vehicleFilter, sort]);
+
+  // Qualquer mudança de filtro volta para a primeira página da lista.
+  useEffect(() => {
+    setPage(1);
+  }, [categoryFilter, statusFilter, typeFilter, vehicleFilter, sort, period.year, period.month]);
 
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const currentPage = Math.min(page, pageCount);

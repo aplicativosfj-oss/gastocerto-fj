@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Loader2 } from "lucide-react";
+import { useMemo, useState } from "react";
+import { CalendarDays, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -21,9 +21,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { PAYMENT_METHODS, isoDate, parseAmount, toCents } from "@/lib/finance";
+import { PAYMENT_METHODS, isoDate, labelFor, parseAmount, toCents } from "@/lib/finance";
+import { formatCurrency, formatDate } from "@/lib/format";
 import { useCategories } from "@/lib/queries";
-import { FREQUENCIES, useSaveRecurringRule, type RecurringRule } from "@/lib/recurring";
+import {
+  FREQUENCIES,
+  occurrencesFor,
+  useSaveRecurringRule,
+  type RecurringRule,
+} from "@/lib/recurring";
 import { useAccounts } from "@/lib/transactions";
 import { sanitizeText } from "@/lib/validation";
 
@@ -62,6 +68,28 @@ export function RecurringDialog({
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const options = (categories ?? []).filter((category) => category.type === type);
+
+  /** Prévia dos próximos vencimentos com os dados atualmente no formulário. */
+  const preview = useMemo(() => {
+    if (!startDate) return [];
+    const day = dayOfMonth ? Number(dayOfMonth) : null;
+    if (day != null && (day < 1 || day > 31)) return [];
+    const horizon = new Date();
+    horizon.setFullYear(horizon.getFullYear() + 1);
+    const draft = {
+      start_date: startDate,
+      end_date: endDate || null,
+      frequency,
+      day_of_month: day,
+    } as RecurringRule;
+    try {
+      return occurrencesFor(draft, horizon).slice(0, 6);
+    } catch {
+      return [];
+    }
+  }, [startDate, endDate, frequency, dayOfMonth]);
+
+  const previewAmount = parseAmount(amount);
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -269,6 +297,50 @@ export function RecurringDialog({
             </Label>
             <Switch id="rec-essential" checked={essential} onCheckedChange={setEssential} />
           </div>
+
+          <section className="rounded-xl border border-border bg-muted/40 p-3 sm:col-span-2">
+            <div className="flex items-center gap-2">
+              <CalendarDays className="size-4 text-muted-foreground" />
+              <h3 className="text-sm font-semibold">Prévia dos próximos lançamentos</h3>
+            </div>
+            {preview.length === 0 ? (
+              <p className="mt-2 text-xs text-muted-foreground">
+                Informe o início (e o dia do mês, se houver) para ver os próximos vencimentos.
+              </p>
+            ) : (
+              <>
+                <ol className="mt-2 space-y-1.5">
+                  {preview.map((date, index) => (
+                    <li
+                      key={date}
+                      className="flex items-center justify-between gap-2 text-sm"
+                    >
+                      <span className="flex min-w-0 items-center gap-2">
+                        <span
+                          aria-hidden="true"
+                          className="grid size-5 shrink-0 place-items-center rounded-full bg-primary/10 text-[10px] font-semibold text-primary"
+                        >
+                          {index + 1}
+                        </span>
+                        <span className="truncate">{formatDate(date)}</span>
+                      </span>
+                      <span
+                        className={`font-semibold tabular-nums ${
+                          type === "income" ? "text-primary" : "text-foreground"
+                        }`}
+                      >
+                        {previewAmount > 0 ? formatCurrency(previewAmount) : "—"}
+                      </span>
+                    </li>
+                  ))}
+                </ol>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  {labelFor(FREQUENCIES, frequency)} · mostrando os {preview.length} próximos de até
+                  12 meses. Nada é gravado até você salvar.
+                </p>
+              </>
+            )}
+          </section>
 
           <DialogFooter className="sm:col-span-2">
             <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>

@@ -17,10 +17,12 @@ import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as RedefinirSenhaRouteImport } from './routes/redefinir-senha'
 import { Route as TermosRouteImport } from './routes/termos'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedCadastrosRouteImport } from './routes/_authenticated/cadastros'
 import { Route as AuthenticatedCalendarioRouteImport } from './routes/_authenticated/calendario'
 import { Route as AuthenticatedCategoriasRouteImport } from './routes/_authenticated/categorias'
 import { Route as AuthenticatedCompromissosRouteImport } from './routes/_authenticated/compromissos'
 import { Route as AuthenticatedComprovantesRouteImport } from './routes/_authenticated/comprovantes'
+import { Route as AuthenticatedDiarioRouteImport } from './routes/_authenticated/diario'
 import { Route as AuthenticatedFechamentoRouteImport } from './routes/_authenticated/fechamento'
 import { Route as AuthenticatedLancamentosRouteImport } from './routes/_authenticated/lancamentos'
 import { Route as AuthenticatedMetasRouteImport } from './routes/_authenticated/metas'
@@ -75,6 +77,11 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedCadastrosRoute = AuthenticatedCadastrosRouteImport.update({
+  id: '/cadastros',
+  path: '/cadastros',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedCalendarioRoute = AuthenticatedCalendarioRouteImport.update({
   id: '/calendario',
   path: '/calendario',
@@ -97,6 +104,11 @@ const AuthenticatedComprovantesRoute =
     path: '/comprovantes',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedDiarioRoute = AuthenticatedDiarioRouteImport.update({
+  id: '/diario',
+  path: '/diario',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedFechamentoRoute = AuthenticatedFechamentoRouteImport.update({
   id: '/fechamento',
   path: '/fechamento',
@@ -181,10 +193,12 @@ export interface FileRoutesByFullPath {
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/termos': typeof TermosRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/cadastros': typeof AuthenticatedCadastrosRoute
   '/calendario': typeof AuthenticatedCalendarioRoute
   '/categorias': typeof AuthenticatedCategoriasRoute
   '/compromissos': typeof AuthenticatedCompromissosRoute
   '/comprovantes': typeof AuthenticatedComprovantesRoute
+  '/diario': typeof AuthenticatedDiarioRoute
   '/fechamento': typeof AuthenticatedFechamentoRoute
   '/lancamentos': typeof AuthenticatedLancamentosRoute
   '/metas': typeof AuthenticatedMetasRoute
@@ -208,10 +222,12 @@ export interface FileRoutesByTo {
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/termos': typeof TermosRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/cadastros': typeof AuthenticatedCadastrosRoute
   '/calendario': typeof AuthenticatedCalendarioRoute
   '/categorias': typeof AuthenticatedCategoriasRoute
   '/compromissos': typeof AuthenticatedCompromissosRoute
   '/comprovantes': typeof AuthenticatedComprovantesRoute
+  '/diario': typeof AuthenticatedDiarioRoute
   '/fechamento': typeof AuthenticatedFechamentoRoute
   '/lancamentos': typeof AuthenticatedLancamentosRoute
   '/metas': typeof AuthenticatedMetasRoute
@@ -237,10 +253,12 @@ export interface FileRoutesById {
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/termos': typeof TermosRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/cadastros': typeof AuthenticatedCadastrosRoute
   '/_authenticated/calendario': typeof AuthenticatedCalendarioRoute
   '/_authenticated/categorias': typeof AuthenticatedCategoriasRoute
   '/_authenticated/compromissos': typeof AuthenticatedCompromissosRoute
   '/_authenticated/comprovantes': typeof AuthenticatedComprovantesRoute
+  '/_authenticated/diario': typeof AuthenticatedDiarioRoute
   '/_authenticated/fechamento': typeof AuthenticatedFechamentoRoute
   '/_authenticated/lancamentos': typeof AuthenticatedLancamentosRoute
   '/_authenticated/metas': typeof AuthenticatedMetasRoute
@@ -266,10 +284,12 @@ export interface FileRouteTypes {
     | '/redefinir-senha'
     | '/termos'
     | '/admin'
+    | '/cadastros'
     | '/calendario'
     | '/categorias'
     | '/compromissos'
     | '/comprovantes'
+    | '/diario'
     | '/fechamento'
     | '/lancamentos'
     | '/metas'
@@ -293,10 +313,12 @@ export interface FileRouteTypes {
     | '/redefinir-senha'
     | '/termos'
     | '/admin'
+    | '/cadastros'
     | '/calendario'
     | '/categorias'
     | '/compromissos'
     | '/comprovantes'
+    | '/diario'
     | '/fechamento'
     | '/lancamentos'
     | '/metas'
@@ -321,10 +343,12 @@ export interface FileRouteTypes {
     | '/redefinir-senha'
     | '/termos'
     | '/_authenticated/admin'
+    | '/_authenticated/cadastros'
     | '/_authenticated/calendario'
     | '/_authenticated/categorias'
     | '/_authenticated/compromissos'
     | '/_authenticated/comprovantes'
+    | '/_authenticated/diario'
     | '/_authenticated/fechamento'
     | '/_authenticated/lancamentos'
     | '/_authenticated/metas'
@@ -409,6 +433,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/cadastros': {
+      id: '/_authenticated/cadastros'
+      path: '/cadastros'
+      fullPath: '/cadastros'
+      preLoaderRoute: typeof AuthenticatedCadastrosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/calendario': {
       id: '/_authenticated/calendario'
       path: '/calendario'
@@ -435,6 +466,13 @@ declare module '@tanstack/react-router' {
       path: '/comprovantes'
       fullPath: '/comprovantes'
       preLoaderRoute: typeof AuthenticatedComprovantesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/diario': {
+      id: '/_authenticated/diario'
+      path: '/diario'
+      fullPath: '/diario'
+      preLoaderRoute: typeof AuthenticatedDiarioRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/fechamento': {
@@ -540,10 +578,12 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedCadastrosRoute: typeof AuthenticatedCadastrosRoute
   AuthenticatedCalendarioRoute: typeof AuthenticatedCalendarioRoute
   AuthenticatedCategoriasRoute: typeof AuthenticatedCategoriasRoute
   AuthenticatedCompromissosRoute: typeof AuthenticatedCompromissosRoute
   AuthenticatedComprovantesRoute: typeof AuthenticatedComprovantesRoute
+  AuthenticatedDiarioRoute: typeof AuthenticatedDiarioRoute
   AuthenticatedFechamentoRoute: typeof AuthenticatedFechamentoRoute
   AuthenticatedLancamentosRoute: typeof AuthenticatedLancamentosRoute
   AuthenticatedMetasRoute: typeof AuthenticatedMetasRoute
@@ -562,10 +602,12 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedCadastrosRoute: AuthenticatedCadastrosRoute,
   AuthenticatedCalendarioRoute: AuthenticatedCalendarioRoute,
   AuthenticatedCategoriasRoute: AuthenticatedCategoriasRoute,
   AuthenticatedCompromissosRoute: AuthenticatedCompromissosRoute,
   AuthenticatedComprovantesRoute: AuthenticatedComprovantesRoute,
+  AuthenticatedDiarioRoute: AuthenticatedDiarioRoute,
   AuthenticatedFechamentoRoute: AuthenticatedFechamentoRoute,
   AuthenticatedLancamentosRoute: AuthenticatedLancamentosRoute,
   AuthenticatedMetasRoute: AuthenticatedMetasRoute,
