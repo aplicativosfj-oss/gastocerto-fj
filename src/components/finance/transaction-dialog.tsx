@@ -213,6 +213,7 @@ export function TransactionDialog({
     setAttachment(null);
     setErrors({});
     setAutoFilled(false);
+    setItems([]);
 
   }
 
