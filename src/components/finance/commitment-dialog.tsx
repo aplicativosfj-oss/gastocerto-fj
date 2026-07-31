@@ -107,6 +107,36 @@ export function CommitmentDialog({
   const suggestsOpenAccount = isOpenAccountType(type);
   const isOpenAccount = openAccount || suggestsOpenAccount;
 
+  const suggestedInstallment = useMemo(() => {
+    const count = Number(installments || 0);
+    const totalValue = parseAmount(total || "0");
+    if (!count || !Number.isFinite(totalValue) || totalValue <= 0) return 0;
+    const rate = parseAmount(interest || "0");
+    return priceInstallment(totalValue, count, Number.isFinite(rate) ? rate : 0);
+  }, [installments, total, interest]);
+
+  function applySuggestedInstallment() {
+    if (suggestedInstallment <= 0) {
+      setError("Informe o valor total e o número de parcelas para calcular.");
+      return;
+    }
+    setInstallmentAmount(suggestedInstallment.toFixed(2).replace(".", ","));
+  }
+
+  /** Prévia do carnê montado automaticamente (1ª parcela, última e total). */
+  const schedulePreview = useMemo(() => {
+    const count = Number(installments || 0);
+    if (!count || isOpenAccount) return null;
+    const declared = parseAmount(installmentAmount || "0");
+    const amount = declared > 0 ? toCents(declared) : suggestedInstallment;
+    if (amount <= 0) return null;
+    const day = dueDay ? Math.min(Math.max(Number(dueDay), 1), 31) : null;
+    const first = nextDue || (day ? addMonths(startDate, 1, day) : addMonths(startDate, 1));
+    const last = addMonths(first, count - 1, day);
+    return { count, amount, first, last, total: toCents(amount * count) };
+  }, [installments, installmentAmount, suggestedInstallment, dueDay, nextDue, startDate, isOpenAccount]);
+
+
   async function handleSave() {
     if (!name.trim()) {
       setError("Informe um nome para o compromisso.");
