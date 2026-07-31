@@ -37,19 +37,19 @@ export function unitIsWeighted(value: string | null | undefined): boolean {
 
 /** Sugestões rápidas para agilizar o registro de itens no celular. */
 export const ITEM_SUGGESTIONS = [
-  { name: "Feira da semana", unit: "conjunto" as UnitValue },
-  { name: "Pão", unit: "un" as UnitValue },
+  { name: "Supermercado", unit: "conjunto" as UnitValue },
+  { name: "Feira", unit: "conjunto" as UnitValue },
+  { name: "Açougue", unit: "kg" as UnitValue },
+  { name: "Padaria", unit: "un" as UnitValue },
+  { name: "Frutaria", unit: "kg" as UnitValue },
+  { name: "Academia", unit: "un" as UnitValue },
+  { name: "Almoço", unit: "un" as UnitValue },
+  { name: "Espetinhos", unit: "un" as UnitValue },
   { name: "Açaí", unit: "l" as UnitValue },
-  { name: "Banana", unit: "kg" as UnitValue },
-  { name: "Frutas variadas", unit: "kg" as UnitValue },
-  { name: "Legumes", unit: "kg" as UnitValue },
-  { name: "Verduras", unit: "maco" as UnitValue },
-  { name: "Carne", unit: "kg" as UnitValue },
-  { name: "Frango", unit: "kg" as UnitValue },
-  { name: "Ovos", unit: "duzia" as UnitValue },
-  { name: "Arroz", unit: "pacote" as UnitValue },
-  { name: "Água mineral", unit: "fardo" as UnitValue },
+  { name: "Farmácia", unit: "un" as UnitValue },
+  { name: "Medicamentos", unit: "un" as UnitValue },
   { name: "Gás de cozinha", unit: "un" as UnitValue },
+  { name: "Água mineral", unit: "fardo" as UnitValue },
 ] as const;
 
 /** Formato usado no formulário antes de gravar. */
