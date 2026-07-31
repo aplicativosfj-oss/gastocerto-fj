@@ -101,25 +101,30 @@ export function AppShell({ children }: { children: ReactNode }) {
   const avatarUrl = useAvatarUrl(profile?.avatar_url);
   const unreadCount = (notifications ?? []).filter((item) => !item.read_at).length;
   const isStaff = (roles ?? []).some((role) => role === "admin" || role === "support");
-  const { labelFor } = useNavLabels();
+  const { labelFor, order } = useNavLabels();
   const baseItems: NavGroup[] = isStaff
     ? [
         ...navGroups,
         { key: "admin", label: "Administração", to: "/admin", icon: ShieldCheck },
       ]
     : [...navGroups];
-  const items: NavGroup[] = baseItems.map((group) => ({
+  const items: NavGroup[] = sortBySavedOrder(baseItems, order["root"]).map((group) => ({
     ...group,
     label: labelFor(group.key, group.label),
-    children: group.children?.map((child) => ({
+    children: sortBySavedOrder(group.children ?? [], order[group.key]).map((child) => ({
       ...child,
       label: labelFor(child.key, child.label),
     })),
+  })).map((group) => ({
+    ...group,
+    children: group.children && group.children.length > 0 ? group.children : undefined,
   }));
-  const labelFields = baseItems.flatMap((group) => [
-    { key: group.key, fallback: group.label },
-    ...(group.children ?? []).map((child) => ({ key: child.key, fallback: child.label })),
-  ]);
+  const labelGroups = baseItems.map((group) => ({
+    key: group.key,
+    fallback: group.label,
+    children: group.children?.map((child) => ({ key: child.key, fallback: child.label })),
+  }));
+
 
 
 
