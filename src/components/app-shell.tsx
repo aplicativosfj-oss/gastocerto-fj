@@ -98,14 +98,27 @@ export function AppShell({ children }: { children: ReactNode }) {
   const avatarUrl = useAvatarUrl(profile?.avatar_url);
   const unreadCount = (notifications ?? []).filter((item) => !item.read_at).length;
   const isStaff = (roles ?? []).some((role) => role === "admin" || role === "support");
-  const items: NavGroup[] = isStaff
-    ? [...navGroups, { label: "Administração", to: "/admin", icon: ShieldCheck }]
+  const { labelFor } = useNavLabels();
+  const baseItems: NavGroup[] = isStaff
+    ? [
+        ...navGroups,
+        { key: "admin", label: "Administração", to: "/admin", icon: ShieldCheck },
+      ]
     : [...navGroups];
+  const items: NavGroup[] = baseItems.map((group) => ({
+    ...group,
+    label: labelFor(group.key, group.label),
+    children: group.children?.map((child) => ({
+      ...child,
+      label: labelFor(child.key, child.label),
+    })),
+  }));
 
   const activeGroup = items.find(
     (group) => group.to === pathname || group.children?.some((child) => child.to === pathname),
   );
   const subTabs = activeGroup?.children ?? [];
+
 
 
   const initials = (profile?.full_name ?? "GC")
