@@ -166,7 +166,15 @@ export function TransactionDialog({
       const recent = readRecentCategories().find((id) =>
         options.some((option) => option.id === id),
       );
-      return recent ?? lastTransaction.category_id ?? "";
+      
+      const lastCat = lastTransaction.category_id;
+      const lastSub = (lastTransaction as any).sub_category_id;
+      
+      if (lastSub) {
+        setSubCategoryId(lastSub);
+      }
+      
+      return recent ?? lastCat ?? "";
     });
     setPaymentMethod((current) => current || lastTransaction.payment_method || "pix");
     setAccountId((current) => current || lastTransaction.account_id || "");
