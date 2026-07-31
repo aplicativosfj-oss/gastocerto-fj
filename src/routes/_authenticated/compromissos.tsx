@@ -30,7 +30,8 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatCurrency, formatDate } from "@/lib/format";
-import { labelFor } from "@/lib/finance";
+import { MONTH_NAMES, labelFor, monthRange } from "@/lib/finance";
+import { useTransactions } from "@/lib/transactions";
 import {
   COMMITMENT_STATUS,
   COMMITMENT_TYPES,
@@ -43,8 +44,13 @@ import {
   type CommitmentEntry,
   type CommitmentSummary,
 } from "@/lib/commitments";
-import { buildCommitmentReminders, buildSchedule } from "@/lib/commitment-schedule";
+import {
+  buildCommitmentReminders,
+  buildSchedule,
+  monthlyCommitmentImpact,
+} from "@/lib/commitment-schedule";
 import { useNotificationPreferences, useSyncNotifications } from "@/lib/notifications";
+
 
 const TITLE = "Compromissos e dívidas — GastoCerto";
 const DESCRIPTION =
