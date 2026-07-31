@@ -223,14 +223,14 @@ function DashboardPage() {
         </header>
 
         {loadingTransactions ? (
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-3 auto-cards-sm">
             {Array.from({ length: 8 }).map((_, index) => (
               <Skeleton key={index} className="h-20 rounded-2xl" />
             ))}
           </div>
         ) : (
           <>
-            <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <section className="grid gap-3 auto-cards-sm">
               <StatCard tile="var(--acc-4)" label="Gasto hoje" value={formatCurrency(metrics.today)} icon={<TrendingDown className="size-4" />} />
               <StatCard tile="var(--acc-3)" label="Gasto nos 7 dias" value={formatCurrency(metrics.week)} />
               <StatCard tile="var(--acc-5)" label="Gasto no mês" value={formatCurrency(metrics.totalExpense)} />
@@ -314,12 +314,12 @@ function DashboardPage() {
               </section>
             ) : null}
 
-            <section className="grid gap-3 lg:grid-cols-2">
+            <section className="auto-cards-lg">
               <ChartCard
                 title="Gastos por dia"
                 summary={`Maior gasto diário: ${formatCurrency(Math.max(0, ...byDay.map((item) => item.gasto)))}.`}
               >
-                <ResponsiveContainer width="100%" height={190}>
+                <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={byDay}>
                     <CartesianGrid {...gridProps} />
                     <XAxis dataKey="day" {...axisProps} />
@@ -338,7 +338,7 @@ function DashboardPage() {
                     : "Sem gastos categorizados neste período."
                 }
               >
-                <ResponsiveContainer width="100%" height={190}>
+                <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie data={byCategory} dataKey="value" nameKey="name" innerRadius={42} outerRadius={72}>
                       {byCategory.map((entry, index) => (
@@ -359,7 +359,7 @@ function DashboardPage() {
                 title="Receitas x despesas"
                 summary={`Receitas ${formatCurrency(metrics.totalIncome)} contra despesas ${formatCurrency(metrics.totalExpense)}.`}
               >
-                <ResponsiveContainer width="100%" height={190}>
+                <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={byDay}>
                     <CartesianGrid {...gridProps} />
                     <XAxis dataKey="day" {...axisProps} />
@@ -394,7 +394,7 @@ function DashboardPage() {
                     : 0
                 }% dos gastos.`}
               >
-                <ResponsiveContainer width="100%" height={190}>
+                <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie data={essentialSplit} dataKey="value" nameKey="name" outerRadius={72}>
                       {essentialSplit.map((entry) => (
@@ -408,7 +408,7 @@ function DashboardPage() {
               </ChartCard>
             </section>
 
-            <section className="grid gap-3 lg:grid-cols-2">
+            <section className="auto-cards-lg">
               <div className="rounded-2xl border border-border bg-card p-4">
                 <h2 className="text-sm font-semibold">Últimos lançamentos</h2>
                 {(transactions ?? []).length === 0 ? (
@@ -551,7 +551,7 @@ function ChartCard({
     <div className="rounded-2xl border border-border bg-card p-4">
       <h2 className="text-sm font-semibold">{title}</h2>
       <p className="mt-1 text-xs text-muted-foreground">{summary}</p>
-      <div className="mt-2">{children}</div>
+      <div className="chart-frame mt-2">{children}</div>
     </div>
   );
 }

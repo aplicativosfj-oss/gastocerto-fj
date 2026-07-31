@@ -268,7 +268,7 @@ function ReportsPage() {
           </div>
         </header>
 
-        <section className="grid gap-3 rounded-xl border border-border bg-card p-4 sm:grid-cols-2 lg:grid-cols-6">
+        <section className="grid gap-3 rounded-xl border border-border bg-card p-4 auto-cards-sm">
           <div>
             <Label htmlFor="report-start">De</Label>
             <Input
@@ -349,7 +349,7 @@ function ReportsPage() {
           </div>
         </section>
 
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-3 auto-cards-sm">
           <MetricCard label="Receitas" value={formatCurrency(totals.income)} />
           <MetricCard label="Despesas" value={formatCurrency(totals.expense)} />
           <MetricCard label="Saldo" value={formatCurrency(totals.balance)} />
@@ -359,7 +359,7 @@ function ReportsPage() {
         {isLoading ? (
           <Skeleton className="h-72" />
         ) : (
-          <div className="grid gap-3 lg:grid-cols-2">
+          <div className="auto-cards-lg">
             <div className="rounded-xl border border-border bg-card p-4">
               <h2 className="text-sm font-medium">Receitas x despesas por mês</h2>
               <div className="mt-4 h-64">

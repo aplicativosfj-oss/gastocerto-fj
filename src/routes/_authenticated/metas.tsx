@@ -105,7 +105,7 @@ function GoalsPage() {
           </Button>
         </header>
 
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-3 auto-cards-sm">
           <SummaryCard label="Metas ativas" value={String(summary.total)} />
           <SummaryCard label="Total acumulado" value={formatCurrency(summary.saved)} />
           <SummaryCard label="Objetivo total" value={formatCurrency(summary.target)} />
@@ -113,7 +113,7 @@ function GoalsPage() {
         </div>
 
         {isLoading ? (
-          <div className="grid gap-3 md:grid-cols-2">
+          <div className="auto-cards-md">
             <Skeleton className="h-40" />
             <Skeleton className="h-40" />
           </div>
@@ -125,7 +125,7 @@ function GoalsPage() {
             </p>
           </div>
         ) : (
-          <div className="grid gap-3 md:grid-cols-2">
+          <div className="auto-cards-md">
             {(goals ?? []).map((goal) => (
               <GoalCard
                 key={goal.id}
@@ -333,7 +333,7 @@ function GoalDialog({
             />
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="auto-cards-md">
             <div>
               <Label>Tipo</Label>
               <Select value={goalType} onValueChange={setGoalType}>
@@ -366,7 +366,7 @@ function GoalDialog({
             </div>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="auto-cards-md">
             <div>
               <Label htmlFor="goal-target">Valor objetivo</Label>
               <Input
@@ -390,7 +390,7 @@ function GoalDialog({
             </div>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="auto-cards-md">
             <div>
               <Label htmlFor="goal-start">Início</Label>
               <Input

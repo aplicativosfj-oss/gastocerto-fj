@@ -72,7 +72,7 @@ function VehicleSettingsPage() {
             </p>
           </section>
         ) : (
-          <div className="grid gap-4 lg:grid-cols-2">
+          <div className="auto-cards-lg">
             {(vehicles ?? []).map((vehicle) => (
               <VehicleSettingsCard key={vehicle.id} vehicle={vehicle} />
             ))}
@@ -164,7 +164,7 @@ function VehicleSettingsCard({ vehicle }: { vehicle: Vehicle }) {
         </div>
       </header>
 
-      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+      <div className="mt-4 auto-cards-md">
         <div>
           <Label htmlFor={`target-${vehicle.id}`}>Meta de consumo (km/l)</Label>
           <Input

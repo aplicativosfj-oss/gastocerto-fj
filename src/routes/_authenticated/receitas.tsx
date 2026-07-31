@@ -92,7 +92,7 @@ function IncomePage() {
           </div>
         </header>
 
-        <section className="grid gap-4 sm:grid-cols-3">
+        <section className="auto-cards-sm">
           <Card label="Total recebido" value={formatCurrency(totalIncome)} />
           <Card label="Total gasto" value={formatCurrency(totalExpense)} />
           <Card

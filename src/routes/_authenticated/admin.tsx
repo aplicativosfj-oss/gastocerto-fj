@@ -196,7 +196,7 @@ function AdminContent({ isAdmin }: { isAdmin: boolean }) {
         </header>
 
         {isAdmin ? (
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-3 auto-cards-sm">
             <StatCard label="Usuários" value={overview.data?.totalUsers} />
             <StatCard label="Contas ativas" value={overview.data?.activeUsers} />
             <StatCard label="Novos (30 dias)" value={overview.data?.newUsers30d} />
