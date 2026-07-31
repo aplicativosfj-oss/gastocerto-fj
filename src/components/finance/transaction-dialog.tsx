@@ -265,6 +265,11 @@ export function TransactionDialog({
         },
       });
 
+      const filledItems = items.filter((item) => item.name.trim().length > 0);
+      if (saved?.id && (filledItems.length > 0 || (existingItems ?? []).length > 0)) {
+        await saveItems.mutateAsync({ transactionId: saved.id, items: filledItems });
+      }
+
       if (categoryId) rememberCategory(categoryId);
       const savedDate = date;
       onOpenChange(false);
