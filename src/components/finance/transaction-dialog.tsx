@@ -365,19 +365,27 @@ export function TransactionDialog({
             </div>
 
             <div>
-              <Label htmlFor="amount">Valor (R$)</Label>
+              <Label htmlFor="amount">
+                {kind === "income" ? "Valor recebido (R$)" : "Valor do gasto (R$)"}
+              </Label>
               <Input
                 id="amount"
                 value={amount}
-                inputMode="decimal"
-                onChange={(event) => setAmount(event.target.value)}
-                className="mt-1.5 tabular-nums"
+                inputMode="numeric"
+                onChange={(event) => setAmount(maskAmountInput(event.target.value))}
+                className="mt-1.5 text-right tabular-nums"
                 placeholder="0,00"
+                aria-describedby="amount-help"
               />
+              <p id="amount-help" className="mt-1 text-[11px] text-muted-foreground">
+                Digite só os números: o ponto de milhar e a vírgula dos centavos são colocados
+                automaticamente.
+              </p>
               {errors.amount ? (
                 <p className="mt-1 text-xs text-destructive">{errors.amount}</p>
               ) : null}
             </div>
+
 
             <div>
               <Label htmlFor="date">Data</Label>
