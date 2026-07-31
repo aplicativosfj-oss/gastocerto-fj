@@ -590,9 +590,9 @@ export function TransactionDialog({
                   <Input
                     id="tags"
                     value={tags}
-                    onChange={(event) => setTags(event.target.value)}
+                    onChange={(event) => setTags(upperText(event.target.value))}
                     className="mt-1.5"
-                    placeholder="casa, urgente"
+                    placeholder="CASA, URGENTE"
                   />
                 </div>
 
@@ -601,7 +601,8 @@ export function TransactionDialog({
                   <Textarea
                     id="notes"
                     value={notes}
-                    onChange={(event) => setNotes(event.target.value)}
+                    onChange={(event) => setNotes(upperText(event.target.value))}
+
                     maxLength={500}
                     className="mt-1.5"
                     rows={3}
