@@ -3,8 +3,14 @@ import { generateText } from "ai";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { AskInput, MODEL, SYSTEM_PROMPT, buildFinancialSummary } from "@/lib/ai-advisor-core";
-import { AI_BLOCK_MESSAGE, AI_QUOTA_MESSAGE } from "@/lib/ai-entitlement";
-import { getMonthlyAiUsage, logAiUsage, resolveAiAccess } from "@/lib/ai-guard";
+import { AI_BLOCK_MESSAGE, AI_QUOTA_MESSAGE, AI_RATE_MESSAGE } from "@/lib/ai-entitlement";
+import {
+  checkAiRateLimit,
+  getMonthlyAiUsage,
+  listAiReceipts,
+  logAiUsage,
+  resolveAiAccess,
+} from "@/lib/ai-guard";
 
 /** Direito de uso + consumo do mês (para banner e painel de créditos). */
 export const getAdvisorAccess = createServerFn({ method: "POST" })
@@ -12,8 +18,11 @@ export const getAdvisorAccess = createServerFn({ method: "POST" })
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
     const access = await resolveAiAccess(supabase, userId);
-    const usage = await getMonthlyAiUsage(supabase, userId);
-    return { ...access, usage };
+    const [usage, receipts] = await Promise.all([
+      getMonthlyAiUsage(supabase, userId),
+      listAiReceipts(supabase, userId, 30),
+    ]);
+    return { ...access, usage, receipts };
   });
 
 /** Consultor de IA: exclusivo para clientes com licença/plano pago ativo. */
@@ -22,6 +31,17 @@ export const askAdvisor = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => AskInput.parse(input))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+
+    // 0) Rate limiting por usuário: barra tentativas repetidas antes de qualquer custo.
+    const rate = await checkAiRateLimit(supabase, userId);
+    if (!rate.allowed) {
+      return {
+        entitled: true as const,
+        rateLimited: true as const,
+        retryAfterSeconds: rate.retryAfterSeconds,
+        answer: AI_RATE_MESSAGE,
+      };
+    }
 
     // 1) Guard de plano: trial/teste/free nunca executam a análise, nem via requisição direta.
     const access = await resolveAiAccess(supabase, userId);

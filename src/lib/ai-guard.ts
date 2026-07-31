@@ -1,10 +1,16 @@
 import {
+  AI_LOW_CREDIT_RATIO,
   AI_MONTHLY_CREDIT_ALLOWANCE,
   AI_MONTHLY_QUERY_LIMIT,
   AI_QUOTA_MESSAGE,
+  AI_RATE_BURST_WINDOW_SECONDS,
+  AI_RATE_MESSAGE,
   estimateAiCredits,
   evaluateAiEntitlement,
+  evaluateAiRateLimit,
+  isAiBalanceLow,
   type AiEntitlement,
+  type AiRateVerdict,
 } from "./ai-entitlement";
 import { monthStartIso } from "./ai-advisor-core";
 
@@ -20,6 +26,21 @@ export type AiUsageSummary = {
   blocked: number;
   totalTokens: number;
   quotaExceeded: boolean;
+  lowBalance: boolean;
+  lowBalanceRatio: number;
+};
+
+export type AiReceipt = {
+  id: string;
+  createdAt: string;
+  action: "allowed" | "blocked" | "quota_exceeded" | "rate_limited" | string;
+  allowed: boolean;
+  reason: string;
+  planSlug: string | null;
+  model: string | null;
+  credits: number;
+  totalTokens: number;
+  question: string | null;
 };
 
 /** Avalia o direito de uso da IA lendo licenças, plano e papel do usuário. */
@@ -49,7 +70,7 @@ export async function logAiUsage(
   supabase: Db,
   entry: {
     userId: string;
-    action: "allowed" | "blocked" | "quota_exceeded";
+    action: "allowed" | "blocked" | "quota_exceeded" | "rate_limited";
     allowed: boolean;
     reason: string;
     planSlug?: string;
@@ -101,7 +122,60 @@ export async function getMonthlyAiUsage(supabase: Db, userId: string): Promise<A
     totalTokens,
     quotaExceeded:
       allowedRows.length >= AI_MONTHLY_QUERY_LIMIT || credits >= AI_MONTHLY_CREDIT_ALLOWANCE,
+    lowBalance: isAiBalanceLow({
+      queries: allowedRows.length,
+      queryLimit: AI_MONTHLY_QUERY_LIMIT,
+      credits,
+      creditAllowance: AI_MONTHLY_CREDIT_ALLOWANCE,
+    }),
+    lowBalanceRatio: AI_LOW_CREDIT_RATIO,
   };
 }
 
-export { AI_QUOTA_MESSAGE };
+/**
+ * Rate limiting por usuário: cada tentativa (inclusive as bloqueadas) fica
+ * registrada no log, então o próprio histórico serve de contador.
+ */
+export async function checkAiRateLimit(supabase: Db, userId: string): Promise<AiRateVerdict> {
+  const since = new Date(Date.now() - AI_RATE_BURST_WINDOW_SECONDS * 1000).toISOString();
+  const { data } = await supabase
+    .from("ai_usage_log")
+    .select("created_at")
+    .eq("user_id", userId)
+    .gte("created_at", since)
+    .order("created_at", { ascending: false })
+    .limit(200);
+
+  const rows = (data ?? []) as { created_at: string }[];
+  return evaluateAiRateLimit(rows.map((row) => row.created_at));
+}
+
+/** Recibos detalhados de cada execução/decisão do Consultor. */
+export async function listAiReceipts(
+  supabase: Db,
+  userId: string,
+  limit = 30,
+): Promise<AiReceipt[]> {
+  const { data } = await supabase
+    .from("ai_usage_log")
+    .select("id, created_at, action, allowed, reason, plan_slug, model, credits, total_tokens, question")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return ((data ?? []) as any[]).map((row) => ({
+    id: String(row.id),
+    createdAt: String(row.created_at),
+    action: String(row.action),
+    allowed: row.allowed === true,
+    reason: String(row.reason ?? ""),
+    planSlug: row.plan_slug ?? null,
+    model: row.model ?? null,
+    credits: Number(row.credits ?? 0),
+    totalTokens: Number(row.total_tokens ?? 0),
+    question: row.question ?? null,
+  }));
+}
+
+export { AI_QUOTA_MESSAGE, AI_RATE_MESSAGE };
