@@ -1,6 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Lock, Send, Sparkles } from "lucide-react";
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
@@ -10,7 +10,8 @@ import { AppShell } from "@/components/app-shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { askAdvisor } from "@/lib/advisor.functions";
+import { AiCreditsPanel } from "@/components/finance/ai-credits-panel";
+import { askAdvisor, getAdvisorAccess } from "@/lib/advisor.functions";
 
 const TITLE = "Consultor de IA — GastoCerto";
 const DESCRIPTION = "Análise inteligente dos seus gastos com dicas e decisões sugeridas.";
@@ -42,6 +43,15 @@ type Turn = { role: "user" | "assistant"; content: string };
 
 function AdvisorPage() {
   const ask = useServerFn(askAdvisor);
+  const loadAccess = useServerFn(getAdvisorAccess);
+  const queryClient = useQueryClient();
+  const accessQuery = useQuery({
+    queryKey: ["advisor-access"],
+    queryFn: () => loadAccess({ data: undefined }),
+    staleTime: 30_000,
+  });
+  const access = accessQuery.data;
+  const locked = access ? !access.entitled : false;
   const [question, setQuestion] = useState("");
   const [months, setMonths] = useState(3);
   const [turns, setTurns] = useState<Turn[]>([]);
@@ -51,6 +61,7 @@ function AdvisorPage() {
     mutationFn: (value: string) => ask({ data: { question: value, months } }),
     onSuccess: (result, value) => {
       if (!result.entitled) setBlocked(true);
+      void queryClient.invalidateQueries({ queryKey: ["advisor-access"] });
       setTurns((current) => [
         ...current,
         { role: "user", content: value },
@@ -107,16 +118,38 @@ function AdvisorPage() {
           </div>
         </header>
 
-        {blocked ? (
-          <section className="rounded-2xl border border-border bg-card p-4">
+        {locked || blocked ? (
+          <section
+            role="alert"
+            className="rounded-2xl border border-[oklch(0.75_0.15_75/0.4)] bg-[oklch(0.75_0.15_75/0.08)] p-4"
+          >
             <h2 className="flex items-center gap-2 text-sm font-semibold">
               <Lock className="size-4 text-[oklch(0.75_0.15_75)]" />
-              Recurso dos planos pagos
+              Recurso exclusivo dos planos pagos
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Ative sua licença para liberar a análise inteligente dos seus gastos.
+              {access?.reason === "trial_plan"
+                ? "Seu acesso atual é de teste (trial). Períodos de teste não usam a IA porque cada análise consome créditos."
+                : "O plano gratuito não inclui o consultor de IA, pois cada análise consome créditos."}{" "}
+              Ative sua assinatura para liberar a análise inteligente dos seus gastos.
             </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Button asChild size="sm">
+                <Link to="/perfil">Fazer upgrade do plano</Link>
+              </Button>
+              <Button asChild size="sm" variant="outline">
+                <Link to="/">Ver planos e preços</Link>
+              </Button>
+            </div>
           </section>
+        ) : null}
+
+        {access ? (
+          <AiCreditsPanel
+            usage={access.usage}
+            entitled={access.entitled}
+            planSlug={access.planSlug}
+          />
         ) : null}
 
         <section className="space-y-3 rounded-2xl border border-border bg-card p-4">
@@ -128,7 +161,7 @@ function AdvisorPage() {
                 variant="outline"
                 size="sm"
                 className="h-8 text-xs"
-                disabled={mutation.isPending}
+                disabled={mutation.isPending || locked}
                 onClick={() => send(item)}
               >
                 {item}
@@ -153,7 +186,7 @@ function AdvisorPage() {
               aria-label="Pergunta para o consultor"
               className="flex-1"
             />
-            <Button type="submit" disabled={mutation.isPending} className="h-10">
+            <Button type="submit" disabled={mutation.isPending || locked} className="h-10">
               <Send className="size-4" />
               {mutation.isPending ? "Analisando…" : "Perguntar"}
             </Button>
