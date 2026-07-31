@@ -43,6 +43,7 @@ import {
   itemFromRow,
   useSaveTransactionItems,
   useTransactionItems,
+  validatePurchaseItems,
   type ItemDraft,
 } from "@/lib/purchase-items";
 import {
