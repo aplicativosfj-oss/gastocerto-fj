@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { supabase } from "@/integrations/supabase/client";
-import { useCategories } from "@/lib/categories";
+import { useCategories } from "@/lib/queries";
 import { useTransactions } from "@/lib/transactions";
 
 /** Regras de classificação automática por palavras-chave na descrição. */
