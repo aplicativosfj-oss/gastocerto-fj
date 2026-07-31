@@ -22,7 +22,7 @@ const plans = [
       "Lançamentos de despesas e receitas",
       "Categorias personalizadas",
       "Painel e balancete do mês",
-      "Até 30 lançamentos por mês",
+      "Ideal para conhecer o sistema",
     ],
   },
   {
