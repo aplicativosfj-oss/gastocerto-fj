@@ -3,6 +3,7 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { CategoryPicker, readRecentCategories, rememberCategory } from "@/components/finance/category-picker";
+import { PurchaseItemsEditor } from "@/components/finance/purchase-items-editor";
 import { ReceiptField } from "@/components/finance/receipt-field";
 
 import { Button } from "@/components/ui/button";
@@ -39,6 +40,12 @@ import {
 import { formatDate } from "@/lib/format";
 import { useCategories } from "@/lib/queries";
 import {
+  itemFromRow,
+  useSaveTransactionItems,
+  useTransactionItems,
+  type ItemDraft,
+} from "@/lib/purchase-items";
+import {
   useAccounts,
   useDeleteTransaction,
   useLastTransaction,
@@ -72,6 +79,9 @@ export function TransactionDialog({
   const save = useSaveTransaction();
   const remove = useDeleteTransaction();
   const restore = useRestoreTransaction();
+  const saveItems = useSaveTransactionItems();
+  const { data: existingItems } = useTransactionItems(open ? transaction?.id : null);
+  const [items, setItems] = useState<ItemDraft[]>([]);
 
   const options = useMemo(
     () => (categories ?? []).filter((category) => category.type === kind),
@@ -129,6 +139,17 @@ export function TransactionDialog({
       setEssential((current) => current || Boolean(lastTransaction.is_essential));
     }
   }, [open, editing, lastTransaction, kind, options]);
+
+  /** Carrega os itens detalhados quando abre um lançamento existente. */
+  useEffect(() => {
+    if (!open) return;
+    if (!transaction?.id) {
+      setItems([]);
+      return;
+    }
+    setItems((existingItems ?? []).map(itemFromRow));
+  }, [open, transaction?.id, existingItems]);
+
 
   const isPastMonth = date.slice(0, 7) < isoDate(new Date()).slice(0, 7);
 
@@ -190,6 +211,7 @@ export function TransactionDialog({
     setAttachment(null);
     setErrors({});
     setAutoFilled(false);
+    setItems([]);
 
   }
 
@@ -240,6 +262,11 @@ export function TransactionDialog({
 
         },
       });
+
+      const filledItems = items.filter((item) => item.name.trim().length > 0);
+      if (saved?.id && (filledItems.length > 0 || (existingItems ?? []).length > 0)) {
+        await saveItems.mutateAsync({ transactionId: saved.id, items: filledItems });
+      }
 
       if (categoryId) rememberCategory(categoryId);
       const savedDate = date;
@@ -408,6 +435,28 @@ export function TransactionDialog({
               </Select>
             </div>
 
+            <div className="sm:col-span-2">
+              <Label htmlFor="merchant">Estabelecimento / loja</Label>
+              <Input
+                id="merchant"
+                value={merchant}
+                onChange={(event) => setMerchant(event.target.value)}
+                maxLength={100}
+                className="mt-1.5"
+                placeholder="Ex.: Supermercado Central, Feira do produtor"
+              />
+            </div>
+
+            {kind === "expense" ? (
+              <div className="sm:col-span-2">
+                <PurchaseItemsEditor
+                  items={items}
+                  onChange={setItems}
+                  onApplyTotal={(total) => setAmount(String(total).replace(".", ","))}
+                />
+              </div>
+            ) : null}
+
             {advanced ? (
               <>
                 <div>
@@ -471,16 +520,6 @@ export function TransactionDialog({
                   </Select>
                 </div>
 
-                <div>
-                  <Label htmlFor="merchant">Estabelecimento</Label>
-                  <Input
-                    id="merchant"
-                    value={merchant}
-                    onChange={(event) => setMerchant(event.target.value)}
-                    maxLength={100}
-                    className="mt-1.5"
-                  />
-                </div>
 
                 <div>
                   <Label htmlFor="dueDate">Vencimento</Label>
