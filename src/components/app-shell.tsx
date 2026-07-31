@@ -23,7 +23,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAvatarUrl, useProfile, useRoles } from "@/lib/queries";
-import { useNavLabels } from "@/lib/nav-labels";
+import { sortBySavedOrder, useNavLabels } from "@/lib/nav-labels";
 import { useNotifications } from "@/lib/notifications";
 import { cn } from "@/lib/utils";
 
@@ -162,7 +162,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           ))}
         </nav>
         <div className="space-y-1 border-t border-border p-3">
-          <NavLabelsDialog fields={labelFields} />
+          <NavLabelsDialog groups={labelGroups} />
           <Button
             variant="ghost"
             className="w-full justify-start gap-2 text-muted-foreground"
