@@ -500,16 +500,6 @@ export function TransactionDialog({
                   </Select>
                 </div>
 
-                <div>
-                  <Label htmlFor="merchant">Estabelecimento</Label>
-                  <Input
-                    id="merchant"
-                    value={merchant}
-                    onChange={(event) => setMerchant(event.target.value)}
-                    maxLength={100}
-                    className="mt-1.5"
-                  />
-                </div>
 
                 <div>
                   <Label htmlFor="dueDate">Vencimento</Label>
