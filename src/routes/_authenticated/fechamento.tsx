@@ -763,11 +763,68 @@ function FechamentoPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <Dialog
+        open={Boolean(reopenTarget)}
+        onOpenChange={(open) => (open ? null : setReopenTarget(null))}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Solicitar liberação de {reopenTarget?.label}</DialogTitle>
+            <DialogDescription>
+              Meses fechados ficam travados. O administrador analisa o pedido e libera a edição por
+              um período limitado.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div>
+            <Label htmlFor="reopen-reason">Motivo</Label>
+            <Textarea
+              id="reopen-reason"
+              value={reopenReason}
+              onChange={(event) => setReopenReason(event.target.value)}
+              maxLength={500}
+              className="mt-1.5"
+              placeholder="Ex.: esqueci de lançar a compra do supermercado do dia 28."
+            />
+            <p className="mt-1 text-[11px] text-muted-foreground">Mínimo de 10 caracteres.</p>
+          </div>
+
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setReopenTarget(null)}>
+              Cancelar
+            </Button>
+            <Button
+              disabled={requestReopen.isPending || reopenReason.trim().length < 10}
+              onClick={async () => {
+                if (!reopenTarget) return;
+                try {
+                  await requestReopen.mutateAsync({
+                    year: reopenTarget.year,
+                    month: reopenTarget.month,
+                    reason: reopenReason,
+                  });
+                  toast.success("Pedido enviado ao administrador.");
+                  setReopenTarget(null);
+                } catch (error) {
+                  toast.error(
+                    error instanceof Error ? error.message : "Não foi possível enviar o pedido.",
+                  );
+                }
+              }}
+            >
+              Enviar pedido
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <QuickPurchaseDialog
         transaction={quickTarget}
         open={Boolean(quickTarget)}
         onOpenChange={(open) => (open ? null : setQuickTarget(null))}
       />
+
     </AppShell>
   );
 }
