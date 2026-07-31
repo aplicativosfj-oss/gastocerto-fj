@@ -361,12 +361,45 @@ function FechamentoPage() {
                             </Badge>
                           ) : null}
                           {row.closed ? (
+                            <Badge
+                              variant={isClosingLocked(row.closed) ? "outline" : "secondary"}
+                              className="text-[10px]"
+                            >
+                              {isClosingLocked(row.closed) ? "fechado" : "liberado"}
+                            </Badge>
+                          ) : null}
+                        </div>
+                        <p className="mt-0.5 text-[11px] text-muted-foreground">
+                          {formatDate(row.range.start)} a {formatDate(row.range.end)}
+                        </p>
+                      </td>
+                      <td className="py-2 pr-3 tabular-nums">{formatCurrency(row.opening)}</td>
+                      <td className="py-2 pr-3 tabular-nums text-emerald-600 dark:text-emerald-400">
+                        {formatCurrency(row.income)}
+                      </td>
+                      <td className="py-2 pr-3 tabular-nums text-destructive">
+                        {formatCurrency(row.expense)}
+                      </td>
+                      <td
+                        className={`py-2 pr-3 tabular-nums ${
+                          row.result < 0 ? "text-destructive" : "text-emerald-600 dark:text-emerald-400"
+                        }`}
+                      >
+                        {formatCurrency(row.result)}
+                      </td>
+                      <td className="py-2 pr-3 font-semibold tabular-nums">
+                        {formatCurrency(row.closing)}
+                      </td>
+                      <td className="hidden py-2 pr-3 tabular-nums sm:table-cell">{row.count}</td>
+                      <td className="py-2">
+                        {row.closed ? (
                           isClosingLocked(row.closed) ? (
                             <Button
                               variant="ghost"
                               size="sm"
                               className="h-8"
-                              onClick={() => {
+                              onClick={(event) => {
+                                event.stopPropagation();
                                 setReopenTarget(row);
                                 setReopenReason("");
                               }}
@@ -382,7 +415,8 @@ function FechamentoPage() {
                             variant="outline"
                             size="sm"
                             className="h-8"
-                            onClick={() => {
+                            onClick={(event) => {
+                              event.stopPropagation();
                               setTarget(row);
                               setNotes("");
                             }}
@@ -392,6 +426,7 @@ function FechamentoPage() {
                           </Button>
                         )}
                       </td>
+
                     </tr>
                   ))}
                 </tbody>
