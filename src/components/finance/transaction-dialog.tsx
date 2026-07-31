@@ -38,6 +38,8 @@ import {
   parseAmount,
   toCents,
 } from "@/lib/finance";
+import { useClosings } from "@/lib/closing";
+import { MIN_TRANSACTION_DATE, lockedMonthKeys } from "@/lib/closing-lock";
 import { formatDate } from "@/lib/format";
 import { amountToInput, maskAmountInput } from "@/lib/money-input";
 import { upperText } from "@/lib/text-case";
