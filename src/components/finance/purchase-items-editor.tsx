@@ -75,10 +75,30 @@ export function PurchaseItemsEditor({
             Registre a feira inteira ou item por item, com unidade, quantidade e peso.
           </p>
         </div>
-        <Badge variant="secondary" className="tabular-nums">
+        <Badge
+          variant={check.totalMismatch ? "destructive" : "secondary"}
+          className="tabular-nums"
+        >
           Itens: {formatCurrency(total)}
         </Badge>
       </div>
+
+      {check.totalMismatch ? (
+        <div className="mt-2 flex items-start gap-2 rounded-lg border border-destructive/40 bg-destructive/10 p-2.5 text-xs text-destructive">
+          <AlertTriangle className="mt-0.5 size-4 shrink-0" />
+          <div>
+            <p className="font-medium">
+              A soma dos itens ({formatCurrency(total)}) não bate com o valor do gasto (
+              {formatCurrency(amount)}).
+            </p>
+            <p>
+              Diferença de {formatCurrency(Math.abs(check.diff))}
+              {check.diff > 0 ? " a mais nos itens." : " faltando nos itens."} Ajuste os itens ou use
+              o botão abaixo para aplicar o total dos itens.
+            </p>
+          </div>
+        </div>
+      ) : null}
 
       {items.length > 0 ? (
         <div className="mt-3 space-y-3">
