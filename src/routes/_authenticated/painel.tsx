@@ -217,31 +217,30 @@ function DashboardPage() {
           </div>
           <div className="col-span-2 flex flex-wrap items-center gap-2">
             <PeriodPicker year={period.year} month={period.month} onChange={setPeriod} />
-            <Button
-              variant="outline"
-              onClick={() => {
+            <QuickCategoryMenu
+              kind="income"
+              label="Nova receita"
+              onPick={(pick) => {
                 setDialogKind("income");
+                setPreset(pick);
                 setDialogOpen(true);
               }}
-            >
-              <Plus className="mr-2 size-4" />
-              Nova receita
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => {
+            />
+            <QuickCategoryMenu
+              kind="expense"
+              label="Novo gasto"
+              onPick={(pick) => {
                 setDialogKind("expense");
+                setPreset(pick);
                 setDialogOpen(true);
               }}
-            >
-              <Plus className="mr-2 size-4" />
-              Novo gasto
-            </Button>
+            />
             <Button onClick={() => navigate({ to: "/veiculos" })}>
               <Car className="mr-2 size-4" />
               Novo gasto do veículo
             </Button>
           </div>
+
         </header>
 
         {loadingTransactions ? (
