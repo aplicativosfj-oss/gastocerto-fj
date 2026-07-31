@@ -236,10 +236,9 @@ export function FuelDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{entry ? "Editar abastecimento" : "Novo abastecimento"}</DialogTitle>
+          <DialogTitle>{entry ? "Editar gasto do veículo" : "Novo gasto do veículo"}</DialogTitle>
           <DialogDescription>
-            O consumo (km/l) e o custo por km são calculados automaticamente a partir do
-            abastecimento anterior.
+            Informe os dados do abastecimento. O consumo (km/l) e o custo por km são calculados automaticamente.
           </DialogDescription>
         </DialogHeader>
 
