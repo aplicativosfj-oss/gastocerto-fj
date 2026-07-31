@@ -71,12 +71,15 @@ function DashboardPage() {
   const [period, setPeriod] = useState({ year: today.getFullYear(), month: today.getMonth() + 1 });
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogKind, setDialogKind] = useState<"expense" | "income">("expense");
+  const [preset, setPreset] = useState<QuickPick>({ categoryId: null, subCategoryId: null });
 
   const { data: profile, isLoading } = useProfile();
   const { data: categories } = useCategories();
+  const { data: vehicles } = useVehicles();
   const range = monthRange(period.year, period.month);
   const { data: transactions, isLoading: loadingTransactions } = useTransactions(range);
   const { data: budgets } = useBudgets(period.year, period.month);
+
 
   const previous = new Date(period.year, period.month - 2, 1);
   const previousRange = monthRange(previous.getFullYear(), previous.getMonth() + 1);
