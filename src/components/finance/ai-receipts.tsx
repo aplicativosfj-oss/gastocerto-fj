@@ -1,9 +1,15 @@
+import { Download, FileText } from "lucide-react";
+
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { EmblemReceipt } from "@/components/ui/panel-emblems";
 import type { AiReceipt } from "@/lib/ai-guard";
+import { exportAiReceiptsCsv, exportAiReceiptsPdf } from "@/lib/ai-receipts-export";
 
 const REASON_LABEL: Record<string, string> = {
   admin: "Administrador",
+  trial_active: "Período de teste vigente",
+  trial_expired: "Período de teste expirado",
   paid_license: "Licença paga ativa",
   paid_plan: "Plano pago",
   trial_plan: "Plano de teste (trial)",
@@ -32,13 +38,39 @@ function formatDate(iso: string) {
 export function AiReceipts({ receipts }: { receipts: AiReceipt[] }) {
   return (
     <section className="rounded-2xl border border-border bg-card p-4">
-      <header className="flex items-center gap-3">
-        <EmblemReceipt title="Recibos de uso da IA" />
-        <div>
-          <h2 className="text-sm font-semibold">Recibos por execução</h2>
-          <p className="text-xs text-muted-foreground">
-            Cada análise ou bloqueio fica registrado com data, plano, motivo e créditos estimados.
-          </p>
+      <header className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <EmblemReceipt title="Recibos de uso da IA" />
+          <div>
+            <h2 className="text-sm font-semibold">Recibos por execução</h2>
+            <p className="text-xs text-muted-foreground">
+              Cada análise ou bloqueio fica registrado com data, plano, motivo e créditos estimados.
+            </p>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            className="h-8"
+            disabled={receipts.length === 0}
+            onClick={() => exportAiReceiptsCsv(receipts)}
+          >
+            <Download className="size-3.5" />
+            CSV
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            className="h-8"
+            disabled={receipts.length === 0}
+            onClick={() => void exportAiReceiptsPdf(receipts)}
+          >
+            <FileText className="size-3.5" />
+            PDF
+          </Button>
         </div>
       </header>
 
