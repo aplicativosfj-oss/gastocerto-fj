@@ -93,8 +93,7 @@ function IncomePage() {
           <div className="min-w-0">
             <h1 className="text-2xl font-bold tracking-tight">Receitas</h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              Cadastre salários, vendas e serviços — o sistema calcula quanto você gastou e quanto
-              ainda sobra.
+              Cadastre e categorize salários, vendas e serviços para relatórios detalhados.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">

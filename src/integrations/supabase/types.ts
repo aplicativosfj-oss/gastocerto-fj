@@ -138,6 +138,7 @@ export type Database = {
           active: boolean
           color: string | null
           created_at: string
+          display_order: number | null
           icon: string | null
           id: string
           is_default: boolean
@@ -151,6 +152,7 @@ export type Database = {
           active?: boolean
           color?: string | null
           created_at?: string
+          display_order?: number | null
           icon?: string | null
           id?: string
           is_default?: boolean
@@ -164,6 +166,7 @@ export type Database = {
           active?: boolean
           color?: string | null
           created_at?: string
+          display_order?: number | null
           icon?: string | null
           id?: string
           is_default?: boolean
@@ -177,6 +180,44 @@ export type Database = {
           {
             foreignKeyName: "categories_parent_id_fkey"
             columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      category_suggestions: {
+        Row: {
+          category_id: string
+          description_pattern: string
+          id: string
+          last_used_at: string | null
+          type: Database["public"]["Enums"]["transaction_type"]
+          usage_count: number | null
+          user_id: string
+        }
+        Insert: {
+          category_id: string
+          description_pattern: string
+          id?: string
+          last_used_at?: string | null
+          type: Database["public"]["Enums"]["transaction_type"]
+          usage_count?: number | null
+          user_id: string
+        }
+        Update: {
+          category_id?: string
+          description_pattern?: string
+          id?: string
+          last_used_at?: string | null
+          type?: Database["public"]["Enums"]["transaction_type"]
+          usage_count?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "category_suggestions_category_id_fkey"
+            columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "categories"
             referencedColumns: ["id"]

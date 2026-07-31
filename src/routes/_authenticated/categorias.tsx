@@ -66,6 +66,7 @@ type Draft = {
   type: "expense" | "income";
   color: string;
   icon: string;
+  display_order?: number;
 };
 
 function CategoriesPage() {
@@ -90,7 +91,9 @@ function CategoriesPage() {
     return map;
   }, [transactions]);
 
-  const visible = (categories ?? []).filter((category) => category.type === tab);
+  const visible = (categories ?? [])
+    .filter((category) => category.type === tab)
+    .sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
 
   async function handleSave() {
     if (!draft) return;
@@ -115,7 +118,13 @@ function CategoriesPage() {
     try {
       await save.mutateAsync({
         id: draft.id,
-        values: { name, type: draft.type, color: draft.color, icon: draft.icon },
+        values: { 
+          name, 
+          type: draft.type, 
+          color: draft.color, 
+          icon: draft.icon,
+          display_order: draft.display_order ?? 0
+        },
       });
       setDraft(null);
       toast.success(draft.id ? "Categoria atualizada." : "Categoria criada.");
@@ -141,6 +150,19 @@ function CategoriesPage() {
     toast.success(active ? "Categoria reativada." : "Categoria desativada.");
   }
 
+  async function updateOrder(id: string, order: number) {
+    const { error: updateError } = await supabase
+      .from("categories")
+      .update({ display_order: order })
+      .eq("id", id);
+    if (updateError) {
+      console.error("[categorias] falha ao ordenar", updateError.message);
+      toast.error("Não foi possível salvar a ordem.");
+      return;
+    }
+    await refresh();
+  }
+
   return (
     <AppShell>
       <div className="space-y-4">
@@ -154,7 +176,13 @@ function CategoriesPage() {
           <Button
             onClick={() => {
               setError(null);
-              setDraft({ name: "", type: tab, color: COLORS[0], icon: "circle-ellipsis" });
+              setDraft({ 
+                name: "", 
+                type: tab, 
+                color: COLORS[0], 
+                icon: "circle-ellipsis",
+                display_order: visible.length 
+              });
             }}
           >
             <Plus className="mr-2 size-4" />
@@ -219,6 +247,7 @@ function CategoriesPage() {
                         type: category.type as "expense" | "income",
                         color: category.color ?? COLORS[0],
                         icon: category.icon ?? "circle-ellipsis",
+                        display_order: category.display_order ?? 0,
                       });
                     }}
                   >
@@ -250,12 +279,13 @@ function CategoriesPage() {
 
           <div className="space-y-4">
             <div>
-              <Label htmlFor="category-name">Nome</Label>
+              <Label htmlFor="category-name">Nome da categoria ou estabelecimento</Label>
               <Input
                 id="category-name"
                 value={draft?.name ?? ""}
                 maxLength={40}
                 className="mt-1.5"
+                placeholder="Ex: Supermercado, Farmácia, Salário..."
                 onChange={(event) =>
                   setDraft((current) => (current ? { ...current, name: event.target.value } : current))
                 }
@@ -263,24 +293,39 @@ function CategoriesPage() {
               {error ? <p className="mt-1 text-xs text-destructive">{error}</p> : null}
             </div>
 
-            <div>
-              <Label htmlFor="category-type">Tipo</Label>
-              <Select
-                value={draft?.type ?? "expense"}
-                onValueChange={(value) =>
-                  setDraft((current) =>
-                    current ? { ...current, type: value as "expense" | "income" } : current,
-                  )
-                }
-              >
-                <SelectTrigger id="category-type" className="mt-1.5">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="expense">Despesa</SelectItem>
-                  <SelectItem value="income">Receita</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label htmlFor="category-type">Tipo</Label>
+                <Select
+                  value={draft?.type ?? "expense"}
+                  onValueChange={(value) =>
+                    setDraft((current) =>
+                      current ? { ...current, type: value as "expense" | "income" } : current,
+                    )
+                  }
+                >
+                  <SelectTrigger id="category-type" className="mt-1.5">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="expense">Despesa</SelectItem>
+                    <SelectItem value="income">Receita</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="category-order">Ordem (menor aparece primeiro)</Label>
+                <Input
+                  id="category-order"
+                  type="number"
+                  value={draft?.display_order ?? 0}
+                  className="mt-1.5"
+                  onChange={(event) =>
+                    setDraft((current) => (current ? { ...current, display_order: Number(event.target.value) } : current))
+                  }
+                />
+              </div>
             </div>
 
             <div>
