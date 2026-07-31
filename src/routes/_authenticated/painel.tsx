@@ -3,6 +3,7 @@ import {
   AlertTriangle,
   ArrowRight,
   CalendarClock,
+  Car,
   Loader2,
   Plus,
   TrendingDown,
@@ -67,6 +68,7 @@ function DashboardPage() {
   const today = new Date();
   const [period, setPeriod] = useState({ year: today.getFullYear(), month: today.getMonth() + 1 });
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogKind, setDialogKind] = useState<"expense" | "income">("expense");
 
   const { data: profile, isLoading } = useProfile();
   const { data: categories } = useCategories();
@@ -215,9 +217,29 @@ function DashboardPage() {
           </div>
           <div className="col-span-2 flex flex-wrap items-center gap-2">
             <PeriodPicker year={period.year} month={period.month} onChange={setPeriod} />
-            <Button onClick={() => setDialogOpen(true)}>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setDialogKind("income");
+                setDialogOpen(true);
+              }}
+            >
               <Plus className="mr-2 size-4" />
-              Adicionar gasto
+              Nova receita
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setDialogKind("expense");
+                setDialogOpen(true);
+              }}
+            >
+              <Plus className="mr-2 size-4" />
+              Novo gasto
+            </Button>
+            <Button onClick={() => navigate({ to: "/veiculos" })}>
+              <Car className="mr-2 size-4" />
+              Novo gasto do veículo
             </Button>
           </div>
         </header>
@@ -499,7 +521,7 @@ function DashboardPage() {
       <TransactionDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
-        kind="expense"
+        kind={dialogKind}
         defaultDate={periodDefaultDate(period.year, period.month)}
         onSaved={(savedDate) => {
           const [y, m] = savedDate.split("-").map(Number);

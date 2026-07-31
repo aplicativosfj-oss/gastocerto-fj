@@ -242,7 +242,7 @@ function VehiclesPage() {
               }}
             >
               <Plus className="mr-2 size-4" />
-              Abastecer
+              Novo gasto do veículo
             </Button>
           </div>
         </header>

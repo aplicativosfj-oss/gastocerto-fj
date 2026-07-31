@@ -1272,6 +1272,7 @@ export type Database = {
           payment_method: string | null
           recurring_rule_id: string | null
           status: Database["public"]["Enums"]["transaction_status"]
+          sub_category_id: string | null
           tags: string[]
           total_installments: number | null
           transaction_date: string
@@ -1302,6 +1303,7 @@ export type Database = {
           payment_method?: string | null
           recurring_rule_id?: string | null
           status?: Database["public"]["Enums"]["transaction_status"]
+          sub_category_id?: string | null
           tags?: string[]
           total_installments?: number | null
           transaction_date?: string
@@ -1332,6 +1334,7 @@ export type Database = {
           payment_method?: string | null
           recurring_rule_id?: string | null
           status?: Database["public"]["Enums"]["transaction_status"]
+          sub_category_id?: string | null
           tags?: string[]
           total_installments?: number | null
           transaction_date?: string
@@ -1352,6 +1355,13 @@ export type Database = {
           {
             foreignKeyName: "transactions_category_id_fkey"
             columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_sub_category_id_fkey"
+            columns: ["sub_category_id"]
             isOneToOne: false
             referencedRelation: "categories"
             referencedColumns: ["id"]
