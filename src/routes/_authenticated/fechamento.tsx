@@ -232,6 +232,15 @@ function FechamentoPage() {
 
   const exceeded = budgetAlerts.filter((item) => item.level !== "ok");
 
+  const budgetProgress = useMemo(() => {
+    if (!detail) return [];
+    return budgetAlerts.map(b => ({
+      ...b,
+      remaining: Math.max(0, b.limit - b.spent)
+    }));
+  }, [budgetAlerts, detail]);
+
+
   async function handleClose() {
     if (!target) return;
     try {
