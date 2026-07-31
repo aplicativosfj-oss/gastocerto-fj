@@ -6,6 +6,7 @@ import { AskInput, MODEL, SYSTEM_PROMPT, buildFinancialSummary } from "@/lib/ai-
 import { AI_BLOCK_MESSAGE, AI_QUOTA_MESSAGE, AI_RATE_MESSAGE } from "@/lib/ai-entitlement";
 import {
   checkAiRateLimit,
+  loadAiLimits,
   getMonthlyAiUsage,
   listAiReceipts,
   logAiUsage,
@@ -17,12 +18,13 @@ export const getAdvisorAccess = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
+    const limits = await loadAiLimits(supabase);
     const access = await resolveAiAccess(supabase, userId);
     const [usage, receipts] = await Promise.all([
-      getMonthlyAiUsage(supabase, userId),
+      getMonthlyAiUsage(supabase, userId, limits),
       listAiReceipts(supabase, userId, 30),
     ]);
-    return { ...access, usage, receipts };
+    return { ...access, usage, receipts, limits };
   });
 
 /** Consultor de IA: exclusivo para clientes com licença/plano pago ativo. */
@@ -33,7 +35,8 @@ export const askAdvisor = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
 
     // 0) Rate limiting por usuário: barra tentativas repetidas antes de qualquer custo.
-    const rate = await checkAiRateLimit(supabase, userId);
+    const limits = await loadAiLimits(supabase);
+    const rate = await checkAiRateLimit(supabase, userId, limits);
     if (!rate.allowed) {
       return {
         entitled: true as const,
@@ -58,7 +61,7 @@ export const askAdvisor = createServerFn({ method: "POST" })
     }
 
     // 2) Limite mensal de consumo de créditos.
-    const usage = await getMonthlyAiUsage(supabase, userId);
+    const usage = await getMonthlyAiUsage(supabase, userId, limits);
     if (usage.quotaExceeded) {
       await logAiUsage(supabase, {
         userId,
