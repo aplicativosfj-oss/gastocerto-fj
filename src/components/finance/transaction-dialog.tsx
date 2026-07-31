@@ -488,7 +488,7 @@ export function TransactionDialog({
                   onChange={setItems}
                   amount={toCents(parseAmount(amount))}
                   showValidation
-                  onApplyTotal={(total) => setAmount(String(total).replace(".", ","))}
+                  onApplyTotal={(total) => setAmount(amountToInput(total))}
                 />
                 {errors.items ? (
                   <p className="mt-1 text-xs text-destructive">{errors.items}</p>
