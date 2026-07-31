@@ -585,7 +585,10 @@ function DashboardPage() {
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         kind={dialogKind}
+        presetCategoryId={preset.categoryId}
+        presetSubCategoryId={preset.subCategoryId}
         defaultDate={periodDefaultDate(period.year, period.month)}
+
         onSaved={(savedDate) => {
           const [y, m] = savedDate.split("-").map(Number);
           if (y && m && (y !== period.year || m !== period.month)) setPeriod({ year: y, month: m });
