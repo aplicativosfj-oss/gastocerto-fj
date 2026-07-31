@@ -464,8 +464,13 @@ export function TransactionDialog({
                 <PurchaseItemsEditor
                   items={items}
                   onChange={setItems}
+                  amount={toCents(parseAmount(amount))}
+                  showValidation
                   onApplyTotal={(total) => setAmount(String(total).replace(".", ","))}
                 />
+                {errors.items ? (
+                  <p className="mt-1 text-xs text-destructive">{errors.items}</p>
+                ) : null}
               </div>
             ) : null}
 
