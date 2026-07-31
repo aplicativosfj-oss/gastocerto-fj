@@ -186,6 +186,51 @@ export type Database = {
           },
         ]
       }
+      category_suggestion_feedback: {
+        Row: {
+          accepted: boolean
+          corrected_category_id: string | null
+          created_at: string
+          description: string
+          id: string
+          suggested_category_id: string | null
+          user_id: string
+        }
+        Insert: {
+          accepted: boolean
+          corrected_category_id?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          suggested_category_id?: string | null
+          user_id: string
+        }
+        Update: {
+          accepted?: boolean
+          corrected_category_id?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          suggested_category_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "category_suggestion_feedback_corrected_category_id_fkey"
+            columns: ["corrected_category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "category_suggestion_feedback_suggested_category_id_fkey"
+            columns: ["suggested_category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       category_suggestions: {
         Row: {
           category_id: string

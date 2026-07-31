@@ -232,6 +232,15 @@ function FechamentoPage() {
 
   const exceeded = budgetAlerts.filter((item) => item.level !== "ok");
 
+  const budgetProgress = useMemo(() => {
+    if (!detail) return [];
+    return budgetAlerts.map(b => ({
+      ...b,
+      remaining: Math.max(0, b.limit - b.spent)
+    }));
+  }, [budgetAlerts, detail]);
+
+
   async function handleClose() {
     if (!target) return;
     try {
@@ -521,7 +530,7 @@ function FechamentoPage() {
             </div>
 
             <ul className="mt-2 grid gap-2 sm:grid-cols-2">
-              {budgetAlerts.map((item) => (
+              {budgetProgress.map((item) => (
                 <li key={item.id} className="rounded-lg border border-border/70 p-2">
                   <div className="flex items-center justify-between gap-2 text-xs">
                     <span className="truncate font-medium">{item.name}</span>
@@ -529,24 +538,36 @@ function FechamentoPage() {
                       {formatCurrency(item.spent)} / {formatCurrency(item.limit)}
                     </span>
                   </div>
-                  <Progress value={Math.min(item.percent, 100)} className="mt-1.5 h-1.5" />
-                  <p
-                    className={`mt-1 text-[11px] ${
+                  <Progress 
+                    value={Math.min(item.percent, 100)} 
+                    className="mt-1.5 h-1.5" 
+                    indicatorClassName={
+                      item.level === "over" ? "bg-destructive" : item.level === "warn" ? "bg-amber-500" : "bg-emerald-500"
+                    }
+                  />
+                  <div className="mt-1 flex items-center justify-between text-[11px]">
+                    <span className={
                       item.level === "over"
-                        ? "text-destructive"
+                        ? "text-destructive font-medium"
                         : item.level === "warn"
-                          ? "text-amber-600"
+                          ? "text-amber-600 font-medium"
                           : "text-muted-foreground"
-                    }`}
-                  >
-                    {item.level === "over"
-                      ? `Limite ultrapassado em ${formatCurrency(item.spent - item.limit)} (${item.percent.toFixed(0)}%)`
-                      : item.level === "warn"
-                        ? `Atenção: ${item.percent.toFixed(0)}% do limite usado (alerta em ${item.threshold}%)`
-                        : `${item.percent.toFixed(0)}% do limite usado`}
-                  </p>
+                    }>
+                      {item.level === "over"
+                        ? `Excedeu ${formatCurrency(item.spent - item.limit)}`
+                        : item.level === "warn"
+                          ? `Atenção: ${item.percent.toFixed(0)}%`
+                          : `${item.percent.toFixed(0)}% usado`}
+                    </span>
+                    {item.remaining > 0 && item.level !== "over" && (
+                      <span className="text-muted-foreground">
+                        Restam {formatCurrency(item.remaining)}
+                      </span>
+                    )}
+                  </div>
                 </li>
               ))}
+
             </ul>
           </section>
         ) : null}

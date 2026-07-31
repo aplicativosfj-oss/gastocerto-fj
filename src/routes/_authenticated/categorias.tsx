@@ -67,7 +67,9 @@ type Draft = {
   color: string;
   icon: string;
   display_order?: number;
+  parent_id?: string | null;
 };
+
 
 function CategoriesPage() {
   const today = new Date();
@@ -123,8 +125,10 @@ function CategoriesPage() {
           type: draft.type, 
           color: draft.color, 
           icon: draft.icon,
-          display_order: draft.display_order ?? 0
+          display_order: draft.display_order ?? 0,
+          parent_id: draft.parent_id || null,
         },
+
       });
       setDraft(null);
       toast.success(draft.id ? "Categoria atualizada." : "Categoria criada.");
@@ -181,8 +185,10 @@ function CategoriesPage() {
                 type: tab, 
                 color: COLORS[0], 
                 icon: "circle-ellipsis",
-                display_order: visible.length 
+                display_order: visible.length,
+                parent_id: null
               });
+
             }}
           >
             <Plus className="mr-2 size-4" />
@@ -248,7 +254,9 @@ function CategoriesPage() {
                         color: category.color ?? COLORS[0],
                         icon: category.icon ?? "circle-ellipsis",
                         display_order: category.display_order ?? 0,
+                        parent_id: category.parent_id
                       });
+
                     }}
                   >
                     <Pencil className="size-4" />
@@ -327,6 +335,33 @@ function CategoriesPage() {
                 />
               </div>
             </div>
+            
+            <div>
+              <Label htmlFor="category-parent">Categoria Pai (opcional para subcategoria)</Label>
+              <Select
+                value={draft?.parent_id ?? "none"}
+                onValueChange={(value) =>
+                  setDraft((current) =>
+                    current ? { ...current, parent_id: value === "none" ? null : value } : current,
+                  )
+                }
+              >
+                <SelectTrigger id="category-parent" className="mt-1.5">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Nenhuma (Categoria Principal)</SelectItem>
+                  {(categories ?? [])
+                    .filter((c) => c.type === draft?.type && !c.parent_id && c.id !== draft?.id)
+                    .map((cat) => (
+                      <SelectItem key={cat.id} value={cat.id}>
+                        {cat.name}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+            </div>
+
 
             <div>
               <Label>Cor</Label>

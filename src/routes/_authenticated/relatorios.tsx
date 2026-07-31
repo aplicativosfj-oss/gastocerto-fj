@@ -178,7 +178,9 @@ function ReportsPage() {
       .map((line) => line.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(";"))
       .join("\n");
 
-    downloadBlob(`\uFEFF${csv}`, "text/csv;charset=utf-8;", `relatorio-${start}-a-${end}.csv`);
+    const filename = `relatorio-${categoryFilter !== 'all' ? categoryName.get(categoryFilter) + '-' : ''}${start}-a-${end}.csv`;
+    downloadBlob(`\uFEFF${csv}`, "text/csv;charset=utf-8;", filename);
+
     toast.success("CSV exportado");
   }
 
@@ -239,7 +241,9 @@ function ReportsPage() {
         headStyles: { fillColor: [30, 41, 59] },
       });
 
-      doc.save(`relatorio-${start}-a-${end}.pdf`);
+      const filename = `relatorio-${categoryFilter !== 'all' ? categoryName.get(categoryFilter) + '-' : ''}${start}-a-${end}.pdf`;
+      doc.save(filename);
+
       toast.success("PDF gerado");
     } catch (error) {
       console.error("[relatorios] falha ao gerar PDF", error);
