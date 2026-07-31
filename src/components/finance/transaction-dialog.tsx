@@ -212,6 +212,11 @@ export function TransactionDialog({
 
 
   const isPastMonth = date.slice(0, 7) < isoDate(new Date()).slice(0, 7);
+  const { data: closings } = useClosings();
+  const lockedKeys = lockedMonthKeys(closings ?? []);
+  const monthKey = date.slice(0, 7);
+  const isBeforeStart = Boolean(date) && date < MIN_TRANSACTION_DATE;
+  const isLockedMonth = lockedKeys.has(monthKey);
 
   function shiftDate(kindOfShift: "today" | "yesterday" | "lastMonth") {
     const base = new Date();
@@ -288,6 +293,11 @@ export function TransactionDialog({
     if (!Number.isFinite(value) || value <= 0) nextErrors.amount = "Informe um valor maior que zero.";
     if (value > 100_000_000) nextErrors.amount = "Valor muito alto.";
     if (!date) nextErrors.date = "Informe a data.";
+    else if (isBeforeStart)
+      nextErrors.date = "O sistema começa em julho de 2026. Escolha uma data a partir de 01/07/2026.";
+    else if (isLockedMonth)
+      nextErrors.date =
+        "Este mês já foi fechado. Solicite a liberação ao administrador em Fechamento mensal.";
 
     const itemsCheck = validatePurchaseItems(items, value);
     if (itemsCheck.issues.length > 0) {
@@ -478,8 +488,10 @@ export function TransactionDialog({
                 id="date"
                 type="date"
                 value={date}
+                min={MIN_TRANSACTION_DATE}
                 onChange={(event) => setDate(event.target.value)}
                 className="mt-1.5"
+                aria-invalid={Boolean(errors.date)}
               />
               <div className="mt-2 flex flex-wrap gap-2">
                 <Button type="button" variant="outline" size="sm" onClick={() => shiftDate("today")}>
@@ -503,9 +515,11 @@ export function TransactionDialog({
                 </Button>
               </div>
               <p className="mt-1.5 text-xs text-muted-foreground">
-                {isPastMonth
-                  ? `Lançamento retroativo: será contabilizado em ${formatDate(date)}.`
-                  : "Você pode registrar gastos de dias ou meses anteriores."}
+                {isLockedMonth
+                  ? "Mês fechado: peça a liberação ao administrador para editar esta competência."
+                  : isPastMonth
+                    ? `Lançamento retroativo: será contabilizado em ${formatDate(date)}.`
+                    : "Você pode registrar gastos de dias ou meses anteriores, a partir de 01/07/2026."}
               </p>
               {errors.date ? <p className="mt-1 text-xs text-destructive">{errors.date}</p> : null}
             </div>
