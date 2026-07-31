@@ -435,7 +435,38 @@ function FechamentoPage() {
           )}
         </section>
 
+        {reopenRequests && reopenRequests.length > 0 ? (
+          <section className="rounded-xl border border-border bg-card p-3">
+            <h2 className="text-sm font-semibold">Pedidos de liberação</h2>
+            <ul className="mt-2 space-y-2">
+              {reopenRequests.slice(0, 6).map((request) => (
+                <li
+                  key={request.id}
+                  className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border/70 px-2.5 py-2 text-xs"
+                >
+                  <span className="font-medium">
+                    {monthLabel(request.year, request.month)}
+                    <span className="ml-2 font-normal text-muted-foreground">{request.reason}</span>
+                  </span>
+                  <Badge
+                    variant={
+                      request.status === "approved"
+                        ? "secondary"
+                        : request.status === "rejected"
+                          ? "destructive"
+                          : "outline"
+                    }
+                  >
+                    {REOPEN_STATUS_LABEL[request.status] ?? request.status}
+                  </Badge>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
+
         {selected && detail ? (
+
           <section className="rounded-xl border border-border bg-card p-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <p className="flex items-center gap-2 text-sm font-semibold">
