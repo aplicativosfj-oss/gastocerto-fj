@@ -47,7 +47,7 @@ export const navGroups: NavGroup[] = [
     ],
   },
   {
-    label: "Veículos",
+    label: "Gastos com Veículo",
     to: "/veiculos",
     icon: Car,
     children: [
