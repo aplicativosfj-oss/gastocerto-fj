@@ -23,6 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { CategoryAutofixCard } from "@/components/finance/category-autofix-card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { CATEGORY_ICON_KEYS, categoryIcon } from "@/lib/category-icons";
