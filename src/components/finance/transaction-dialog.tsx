@@ -31,6 +31,7 @@ import { Textarea } from "@/components/ui/textarea";
 
 import {
   EXPENSE_TYPES,
+  INCOME_SOURCES,
   PAYMENT_METHODS,
   TRANSACTION_STATUS,
   isoDate,
