@@ -177,6 +177,13 @@ function CompromissosPage() {
           />
         </div>
 
+        <MonthlyImpact
+          commitments={commitments ?? []}
+          entries={entries ?? []}
+          daysBefore={daysBefore}
+        />
+
+
         {totals.overdue.length > 0 || totals.soon.length > 0 ? (
           <section className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-3">
             <p className="flex items-center gap-2 text-sm font-semibold">
