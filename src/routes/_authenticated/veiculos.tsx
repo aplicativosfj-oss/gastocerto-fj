@@ -195,7 +195,7 @@ function VehiclesPage() {
 
   return (
     <AppShell>
-      <div className="space-y-6">
+      <div className="space-y-4">
         <header className="flex flex-wrap items-center justify-between gap-3">
           <div className="min-w-0">
             <h1 className="text-2xl font-bold tracking-tight">Veículos e combustível</h1>
@@ -398,7 +398,7 @@ function VehiclesPage() {
 
         {perVehicle.length > 0 ? (
           <section className="space-y-3">
-            <h2 className="text-lg font-semibold tracking-tight">Desempenho por veículo</h2>
+            <h2 className="text-sm font-semibold tracking-tight">Desempenho por veículo</h2>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {perVehicle.map(({ vehicle, summary: stats, target, threshold, deviation, alert, budgetAlert }) => (
                 <article
@@ -548,7 +548,7 @@ function VehiclesPage() {
         </section>
 
         <section className="rounded-2xl border border-border bg-card p-4">
-          <h2 className="flex items-center gap-2 text-lg font-semibold tracking-tight">
+          <h2 className="flex items-center gap-2 text-sm font-semibold tracking-tight">
             <History className="size-4" />
             Histórico de auditoria
           </h2>
