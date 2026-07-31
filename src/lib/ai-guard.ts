@@ -8,11 +8,9 @@ import {
 } from "./ai-entitlement";
 import { monthStartIso } from "./ai-advisor-core";
 
-/** Cliente Supabase mínimo (o autenticado do middleware) usado pelo guard. */
-type Db = {
-  from: (table: string) => any;
-  rpc: (fn: string, args: Record<string, unknown>) => any;
-};
+/** Cliente Supabase autenticado do middleware (tipagem relaxada de propósito). */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Db = any;
 
 export type AiUsageSummary = {
   queries: number;
