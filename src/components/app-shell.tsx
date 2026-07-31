@@ -150,7 +150,8 @@ export function AppShell({ children }: { children: ReactNode }) {
             <NavLink key={item.to} item={item} active={activeGroup?.to === item.to} />
           ))}
         </nav>
-        <div className="border-t border-border p-3">
+        <div className="space-y-1 border-t border-border p-3">
+          <NavLabelsDialog fields={labelFields} />
           <Button
             variant="ghost"
             className="w-full justify-start gap-2 text-muted-foreground"
@@ -160,6 +161,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             Sair
           </Button>
         </div>
+
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
