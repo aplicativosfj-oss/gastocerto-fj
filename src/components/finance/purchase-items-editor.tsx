@@ -18,6 +18,7 @@ import {
   MEASURE_UNITS,
   emptyItem,
   itemsTotal,
+  validatePurchaseItems,
   unitIsWeighted,
   type ItemDraft,
 } from "@/lib/purchase-items";
