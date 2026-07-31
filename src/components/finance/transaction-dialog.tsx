@@ -191,6 +191,15 @@ export function TransactionDialog({
     }
   }, [open, editing, lastTransaction, kind, options]);
 
+  /** Categoria/subcategoria escolhidas no menu rápido têm prioridade. */
+  useEffect(() => {
+    if (!open || editing) return;
+    if (presetCategoryId) setCategoryId(presetCategoryId);
+    if (presetSubCategoryId !== undefined) setSubCategoryId(presetSubCategoryId ?? "");
+  }, [open, editing, presetCategoryId, presetSubCategoryId]);
+
+
+
   /** Carrega os itens detalhados quando abre um lançamento existente. */
   useEffect(() => {
     if (!open) return;
