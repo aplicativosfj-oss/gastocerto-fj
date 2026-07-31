@@ -177,8 +177,42 @@ function RecurringPage() {
               Gerar próximos
             </Button>
             <Button
+              variant="outline"
               onClick={() => {
                 setEditing(null);
+                setPreset({ type: "income", frequency: "monthly" });
+                setDialogOpen(true);
+              }}
+            >
+              <Plus className="mr-2 size-4" />
+              Receita mensal
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setEditing(null);
+                setPreset({ type: "expense", frequency: "monthly" });
+                setDialogOpen(true);
+              }}
+            >
+              <Plus className="mr-2 size-4" />
+              Despesa mensal
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setEditing(null);
+                setPreset({ type: "expense", frequency: "weekly" });
+                setDialogOpen(true);
+              }}
+            >
+              <Plus className="mr-2 size-4" />
+              Despesa semanal
+            </Button>
+            <Button
+              onClick={() => {
+                setEditing(null);
+                setPreset(null);
                 setDialogOpen(true);
               }}
             >
@@ -186,6 +220,7 @@ function RecurringPage() {
               Nova recorrência
             </Button>
           </div>
+
         </header>
 
         <section className="overflow-x-auto rounded-2xl border border-border bg-card">
