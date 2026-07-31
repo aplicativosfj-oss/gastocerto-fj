@@ -1,7 +1,6 @@
 /**
- * Padronização do texto digitado: todas as informações cadastradas ficam em
- * MAIÚSCULAS automaticamente, mantendo os acentos do português.
+ * Mantém o texto conforme digitado pelo usuário.
  */
 export function upperText(value: string): string {
-  return value.toLocaleUpperCase("pt-BR");
+  return value;
 }
