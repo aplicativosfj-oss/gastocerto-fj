@@ -25,8 +25,9 @@ import { useAvatarUrl, useProfile, useRoles } from "@/lib/queries";
 import { useNotifications } from "@/lib/notifications";
 import { cn } from "@/lib/utils";
 
-type NavChild = { label: string; to: string };
+type NavChild = { key: string; label: string; to: string };
 type NavGroup = {
+  key: string;
   label: string;
   to: string;
   icon: typeof LayoutDashboard;
@@ -34,51 +35,57 @@ type NavGroup = {
 };
 
 export const navGroups: NavGroup[] = [
-  { label: "Visão geral", to: "/painel", icon: LayoutDashboard },
+  { key: "overview", label: "Visão geral", to: "/painel", icon: LayoutDashboard },
   {
+    key: "entries",
     label: "Lançamentos",
     to: "/lancamentos",
     icon: ArrowLeftRight,
     children: [
-      { label: "Despesas", to: "/lancamentos" },
-      { label: "Receitas", to: "/receitas" },
-      { label: "Recorrentes", to: "/recorrencia" },
-      { label: "Comprovantes", to: "/comprovantes" },
+      { key: "entries.expenses", label: "Despesas", to: "/lancamentos" },
+      { key: "entries.incomes", label: "Receitas", to: "/receitas" },
+      { key: "entries.recurring", label: "Recorrentes", to: "/recorrencia" },
+      { key: "entries.receipts", label: "Comprovantes", to: "/comprovantes" },
     ],
   },
   {
+    key: "vehicles",
     label: "Gastos com Veículo",
     to: "/veiculos",
     icon: Car,
     children: [
-      { label: "Abastecimentos", to: "/veiculos" },
-      { label: "Configurações", to: "/veiculos-configuracoes" },
-      { label: "Auditoria", to: "/veiculos-auditoria" },
+      { key: "vehicles.fuel", label: "Abastecimentos", to: "/veiculos" },
+      { key: "vehicles.report", label: "Relatório de gastos", to: "/veiculos-relatorio" },
+      { key: "vehicles.settings", label: "Configurações", to: "/veiculos-configuracoes" },
+      { key: "vehicles.audit", label: "Auditoria", to: "/veiculos-auditoria" },
     ],
   },
   {
+    key: "planning",
     label: "Planejamento",
     to: "/orcamentos",
     icon: PiggyBank,
     children: [
-      { label: "Orçamentos", to: "/orcamentos" },
-      { label: "Compromissos", to: "/compromissos" },
-      { label: "Metas", to: "/metas" },
-      { label: "Categorias", to: "/categorias" },
-      { label: "Fechamento mensal", to: "/fechamento" },
+      { key: "planning.budgets", label: "Orçamentos", to: "/orcamentos" },
+      { key: "planning.commitments", label: "Compromissos", to: "/compromissos" },
+      { key: "planning.goals", label: "Metas", to: "/metas" },
+      { key: "planning.categories", label: "Categorias", to: "/categorias" },
+      { key: "planning.closing", label: "Fechamento mensal", to: "/fechamento" },
     ],
   },
   {
+    key: "analytics",
     label: "Análises",
     to: "/relatorios",
     icon: BarChart3,
     children: [
-      { label: "Relatórios", to: "/relatorios" },
-      { label: "Calendário", to: "/calendario" },
+      { key: "analytics.reports", label: "Relatórios", to: "/relatorios" },
+      { key: "analytics.calendar", label: "Calendário", to: "/calendario" },
     ],
   },
-  { label: "Meu perfil", to: "/perfil", icon: User2 },
+  { key: "profile", label: "Meu perfil", to: "/perfil", icon: User2 },
 ];
+
 
 export function AppShell({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
