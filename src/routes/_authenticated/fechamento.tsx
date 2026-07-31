@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import {
+  AlertTriangle,
   CalendarCheck,
   FileDown,
   FileSpreadsheet,
@@ -8,6 +9,8 @@ import {
   PieChart as PieIcon,
   RotateCcw,
   ScrollText,
+  Search,
+  SlidersHorizontal,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -35,7 +38,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Progress } from "@/components/ui/progress";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { axisProps, seriesColor, tooltipProps } from "@/lib/chart-theme";
@@ -53,6 +65,7 @@ import { exportBalanceCsv, exportBalancePdf } from "@/lib/closing-export";
 import { PAYMENT_METHODS, toCents } from "@/lib/finance";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { useCategories } from "@/lib/queries";
+import { useBudgets } from "@/lib/transactions";
 import type { Transaction } from "@/lib/transactions";
 
 const TITLE = "Fechamento mensal — GastoCerto";
@@ -85,6 +98,13 @@ function FechamentoPage() {
   const [quickTarget, setQuickTarget] = useState<Transaction | null>(null);
   const { data: categories } = useCategories();
 
+  // Filtros da busca avançada das compras do mês selecionado.
+  const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [paymentFilter, setPaymentFilter] = useState("all");
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
+
   const balance = useMemo(
     () => buildBalance(transactions ?? [], closings ?? []),
     [transactions, closings],
@@ -101,6 +121,18 @@ function FechamentoPage() {
     [balance, selectedLabel],
   );
 
+  const { data: budgets } = useBudgets(
+    selected?.year ?? BALANCE_START.year,
+    selected?.month ?? BALANCE_START.month,
+  );
+
+  const filtersActive =
+    Boolean(search.trim()) ||
+    categoryFilter !== "all" ||
+    paymentFilter !== "all" ||
+    Boolean(fromDate) ||
+    Boolean(toDate);
+
   const detail = useMemo(() => {
     if (!selected) return null;
     const categoryName = new Map((categories ?? []).map((row) => [row.id, row.name]));
@@ -108,7 +140,7 @@ function FechamentoPage() {
       PAYMENT_METHODS.map((row) => [row.value as string, row.label]),
     );
 
-    const rows = (transactions ?? []).filter(
+    const monthRows = (transactions ?? []).filter(
       (row) =>
         row.transaction_date >= selected.range.start &&
         row.transaction_date <= selected.range.end &&
@@ -116,9 +148,30 @@ function FechamentoPage() {
         row.transaction_type === "expense",
     );
 
-    function group(keyOf: (row: Transaction) => string) {
+    const term = search.trim().toLowerCase();
+    const rows = monthRows.filter((row) => {
+      if (categoryFilter !== "all") {
+        if (categoryFilter === "none" ? row.category_id !== null : row.category_id !== categoryFilter)
+          return false;
+      }
+      if (paymentFilter !== "all") {
+        const method = row.payment_method ?? "none";
+        if (paymentFilter === "none" ? row.payment_method !== null : method !== paymentFilter)
+          return false;
+      }
+      if (fromDate && row.transaction_date < fromDate) return false;
+      if (toDate && row.transaction_date > toDate) return false;
+      if (!term) return true;
+      return (
+        row.description.toLowerCase().includes(term) ||
+        (row.merchant_name ?? "").toLowerCase().includes(term) ||
+        (row.notes ?? "").toLowerCase().includes(term)
+      );
+    });
+
+    function group(source: Transaction[], keyOf: (row: Transaction) => string) {
       const map = new Map<string, number>();
-      for (const row of rows) {
+      for (const row of source) {
         const key = keyOf(row);
         map.set(key, toCents((map.get(key) ?? 0) + Number(row.amount)));
       }
@@ -127,16 +180,57 @@ function FechamentoPage() {
         .sort((a, b) => b.value - a.value);
     }
 
+    // Gasto por categoria (id) sempre do mês inteiro, para comparar com o orçamento.
+    const spentByCategoryId = new Map<string, number>();
+    for (const row of monthRows) {
+      const key = row.category_id ?? "none";
+      spentByCategoryId.set(key, toCents((spentByCategoryId.get(key) ?? 0) + Number(row.amount)));
+    }
+
     return {
       rows: rows.slice().sort((a, b) => b.transaction_date.localeCompare(a.transaction_date)),
-      byCategory: group((row) =>
+      filteredTotal: toCents(rows.reduce((sum, row) => sum + Number(row.amount), 0)),
+      monthCount: monthRows.length,
+      spentByCategoryId,
+      byCategory: group(rows, (row) =>
         row.category_id ? (categoryName.get(row.category_id) ?? "Sem categoria") : "Sem categoria",
       ),
-      byPayment: group((row) =>
+      byPayment: group(rows, (row) =>
         row.payment_method ? (paymentName.get(row.payment_method) ?? row.payment_method) : "Não informado",
       ),
     };
-  }, [selected, transactions, categories]);
+  }, [selected, transactions, categories, search, categoryFilter, paymentFilter, fromDate, toDate]);
+
+  /** Orçamentos da competência selecionada com o gasto real e o nível de alerta. */
+  const budgetAlerts = useMemo(() => {
+    if (!detail) return [];
+    const categoryName = new Map((categories ?? []).map((row) => [row.id, row.name]));
+    return (budgets ?? [])
+      .map((budget) => {
+        const limit = toCents(Number(budget.limit_amount ?? 0));
+        const spent = budget.category_id
+          ? (detail.spentByCategoryId.get(budget.category_id) ?? 0)
+          : toCents(
+              [...detail.spentByCategoryId.values()].reduce((sum, value) => sum + value, 0),
+            );
+        const percent = limit > 0 ? (spent / limit) * 100 : 0;
+        const threshold = budget.alert_percentage ?? 80;
+        return {
+          id: budget.id,
+          name: budget.category_id
+            ? (categoryName.get(budget.category_id) ?? "Categoria")
+            : "Orçamento geral do mês",
+          limit,
+          spent,
+          percent,
+          threshold,
+          level: percent >= 100 ? "over" : percent >= threshold ? "warn" : "ok",
+        };
+      })
+      .sort((a, b) => b.percent - a.percent);
+  }, [budgets, detail, categories]);
+
+  const exceeded = budgetAlerts.filter((item) => item.level !== "ok");
 
   async function handleClose() {
     if (!target) return;
@@ -315,6 +409,147 @@ function FechamentoPage() {
             </div>
           )}
         </section>
+
+        {selected && detail ? (
+          <section className="rounded-xl border border-border bg-card p-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p className="flex items-center gap-2 text-sm font-semibold">
+                <SlidersHorizontal className="size-4 text-muted-foreground" />
+                Busca avançada em {selected.label}
+              </p>
+              <div className="flex items-center gap-2">
+                <Badge variant="secondary" className="tabular-nums">
+                  {detail.rows.length} de {detail.monthCount} compras ·{" "}
+                  {formatCurrency(detail.filteredTotal)}
+                </Badge>
+                {filtersActive ? (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8"
+                    onClick={() => {
+                      setSearch("");
+                      setCategoryFilter("all");
+                      setPaymentFilter("all");
+                      setFromDate("");
+                      setToDate("");
+                    }}
+                  >
+                    Limpar filtros
+                  </Button>
+                ) : null}
+              </div>
+            </div>
+
+            <div className="mt-2 grid gap-2 lg:grid-cols-5">
+              <div className="relative lg:col-span-2">
+                <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  value={search}
+                  onChange={(event) => setSearch(event.target.value)}
+                  placeholder="Estabelecimento, descrição ou observação"
+                  className="pl-8"
+                  aria-label="Buscar compras por estabelecimento ou descrição"
+                />
+              </div>
+              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                <SelectTrigger aria-label="Filtrar por categoria">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todas as categorias</SelectItem>
+                  <SelectItem value="none">Sem categoria</SelectItem>
+                  {(categories ?? [])
+                    .filter((category) => category.type === "expense")
+                    .map((category) => (
+                      <SelectItem key={category.id} value={category.id}>
+                        {category.name}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+              <Select value={paymentFilter} onValueChange={setPaymentFilter}>
+                <SelectTrigger aria-label="Filtrar por forma de pagamento">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todas as formas</SelectItem>
+                  <SelectItem value="none">Não informado</SelectItem>
+                  {PAYMENT_METHODS.map((method) => (
+                    <SelectItem key={method.value} value={method.value}>
+                      {method.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <div className="grid grid-cols-2 gap-2">
+                <Input
+                  type="date"
+                  value={fromDate}
+                  min={selected.range.start}
+                  max={selected.range.end}
+                  onChange={(event) => setFromDate(event.target.value)}
+                  aria-label="Data inicial"
+                />
+                <Input
+                  type="date"
+                  value={toDate}
+                  min={selected.range.start}
+                  max={selected.range.end}
+                  onChange={(event) => setToDate(event.target.value)}
+                  aria-label="Data final"
+                />
+              </div>
+            </div>
+          </section>
+        ) : null}
+
+        {selected && budgetAlerts.length > 0 ? (
+          <section className="rounded-xl border border-border bg-card p-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p className="flex items-center gap-2 text-sm font-semibold">
+                <AlertTriangle
+                  className={`size-4 ${exceeded.length > 0 ? "text-amber-600" : "text-muted-foreground"}`}
+                />
+                Orçamento por categoria — {selected.label}
+              </p>
+              <Badge variant={exceeded.length > 0 ? "destructive" : "secondary"} className="text-[10px]">
+                {exceeded.length > 0
+                  ? `${exceeded.length} categoria(s) em alerta`
+                  : "tudo dentro do limite"}
+              </Badge>
+            </div>
+
+            <ul className="mt-2 grid gap-2 sm:grid-cols-2">
+              {budgetAlerts.map((item) => (
+                <li key={item.id} className="rounded-lg border border-border/70 p-2">
+                  <div className="flex items-center justify-between gap-2 text-xs">
+                    <span className="truncate font-medium">{item.name}</span>
+                    <span className="tabular-nums">
+                      {formatCurrency(item.spent)} / {formatCurrency(item.limit)}
+                    </span>
+                  </div>
+                  <Progress value={Math.min(item.percent, 100)} className="mt-1.5 h-1.5" />
+                  <p
+                    className={`mt-1 text-[11px] ${
+                      item.level === "over"
+                        ? "text-destructive"
+                        : item.level === "warn"
+                          ? "text-amber-600"
+                          : "text-muted-foreground"
+                    }`}
+                  >
+                    {item.level === "over"
+                      ? `Limite ultrapassado em ${formatCurrency(item.spent - item.limit)} (${item.percent.toFixed(0)}%)`
+                      : item.level === "warn"
+                        ? `Atenção: ${item.percent.toFixed(0)}% do limite usado (alerta em ${item.threshold}%)`
+                        : `${item.percent.toFixed(0)}% do limite usado`}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
 
         {selected && detail ? (
           <section className="rounded-xl border border-border bg-card p-4">

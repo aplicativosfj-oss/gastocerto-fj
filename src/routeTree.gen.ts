@@ -19,6 +19,7 @@ import { Route as TermosRouteImport } from './routes/termos'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedCalendarioRouteImport } from './routes/_authenticated/calendario'
 import { Route as AuthenticatedCategoriasRouteImport } from './routes/_authenticated/categorias'
+import { Route as AuthenticatedCompromissosRouteImport } from './routes/_authenticated/compromissos'
 import { Route as AuthenticatedComprovantesRouteImport } from './routes/_authenticated/comprovantes'
 import { Route as AuthenticatedFechamentoRouteImport } from './routes/_authenticated/fechamento'
 import { Route as AuthenticatedLancamentosRouteImport } from './routes/_authenticated/lancamentos'
@@ -83,6 +84,12 @@ const AuthenticatedCategoriasRoute = AuthenticatedCategoriasRouteImport.update({
   path: '/categorias',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedCompromissosRoute =
+  AuthenticatedCompromissosRouteImport.update({
+    id: '/compromissos',
+    path: '/compromissos',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedComprovantesRoute =
   AuthenticatedComprovantesRouteImport.update({
     id: '/comprovantes',
@@ -169,6 +176,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRoute
   '/calendario': typeof AuthenticatedCalendarioRoute
   '/categorias': typeof AuthenticatedCategoriasRoute
+  '/compromissos': typeof AuthenticatedCompromissosRoute
   '/comprovantes': typeof AuthenticatedComprovantesRoute
   '/fechamento': typeof AuthenticatedFechamentoRoute
   '/lancamentos': typeof AuthenticatedLancamentosRoute
@@ -194,6 +202,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminRoute
   '/calendario': typeof AuthenticatedCalendarioRoute
   '/categorias': typeof AuthenticatedCategoriasRoute
+  '/compromissos': typeof AuthenticatedCompromissosRoute
   '/comprovantes': typeof AuthenticatedComprovantesRoute
   '/fechamento': typeof AuthenticatedFechamentoRoute
   '/lancamentos': typeof AuthenticatedLancamentosRoute
@@ -221,6 +230,7 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/calendario': typeof AuthenticatedCalendarioRoute
   '/_authenticated/categorias': typeof AuthenticatedCategoriasRoute
+  '/_authenticated/compromissos': typeof AuthenticatedCompromissosRoute
   '/_authenticated/comprovantes': typeof AuthenticatedComprovantesRoute
   '/_authenticated/fechamento': typeof AuthenticatedFechamentoRoute
   '/_authenticated/lancamentos': typeof AuthenticatedLancamentosRoute
@@ -248,6 +258,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/calendario'
     | '/categorias'
+    | '/compromissos'
     | '/comprovantes'
     | '/fechamento'
     | '/lancamentos'
@@ -273,6 +284,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/calendario'
     | '/categorias'
+    | '/compromissos'
     | '/comprovantes'
     | '/fechamento'
     | '/lancamentos'
@@ -299,6 +311,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/_authenticated/calendario'
     | '/_authenticated/categorias'
+    | '/_authenticated/compromissos'
     | '/_authenticated/comprovantes'
     | '/_authenticated/fechamento'
     | '/_authenticated/lancamentos'
@@ -395,6 +408,13 @@ declare module '@tanstack/react-router' {
       path: '/categorias'
       fullPath: '/categorias'
       preLoaderRoute: typeof AuthenticatedCategoriasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/compromissos': {
+      id: '/_authenticated/compromissos'
+      path: '/compromissos'
+      fullPath: '/compromissos'
+      preLoaderRoute: typeof AuthenticatedCompromissosRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/comprovantes': {
@@ -502,6 +522,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedCalendarioRoute: typeof AuthenticatedCalendarioRoute
   AuthenticatedCategoriasRoute: typeof AuthenticatedCategoriasRoute
+  AuthenticatedCompromissosRoute: typeof AuthenticatedCompromissosRoute
   AuthenticatedComprovantesRoute: typeof AuthenticatedComprovantesRoute
   AuthenticatedFechamentoRoute: typeof AuthenticatedFechamentoRoute
   AuthenticatedLancamentosRoute: typeof AuthenticatedLancamentosRoute
@@ -522,6 +543,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedCalendarioRoute: AuthenticatedCalendarioRoute,
   AuthenticatedCategoriasRoute: AuthenticatedCategoriasRoute,
+  AuthenticatedCompromissosRoute: AuthenticatedCompromissosRoute,
   AuthenticatedComprovantesRoute: AuthenticatedComprovantesRoute,
   AuthenticatedFechamentoRoute: AuthenticatedFechamentoRoute,
   AuthenticatedLancamentosRoute: AuthenticatedLancamentosRoute,

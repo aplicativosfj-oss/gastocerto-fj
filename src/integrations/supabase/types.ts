@@ -183,6 +183,165 @@ export type Database = {
           },
         ]
       }
+      commitment_entries: {
+        Row: {
+          amount: number
+          commitment_id: string
+          created_at: string
+          description: string | null
+          due_date: string | null
+          entry_date: string
+          entry_type: string
+          id: string
+          installment_number: number | null
+          notes: string | null
+          payment_method: string | null
+          transaction_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          commitment_id: string
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          entry_date?: string
+          entry_type?: string
+          id?: string
+          installment_number?: number | null
+          notes?: string | null
+          payment_method?: string | null
+          transaction_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          commitment_id?: string
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          entry_date?: string
+          entry_type?: string
+          id?: string
+          installment_number?: number | null
+          notes?: string | null
+          payment_method?: string | null
+          transaction_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commitment_entries_commitment_id_fkey"
+            columns: ["commitment_id"]
+            isOneToOne: false
+            referencedRelation: "commitments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commitment_entries_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      commitments: {
+        Row: {
+          account_id: string | null
+          category_id: string | null
+          color: string | null
+          commitment_type: string
+          contact: string | null
+          created_at: string
+          creditor: string | null
+          due_day: number | null
+          end_date: string | null
+          id: string
+          installment_amount: number | null
+          installments_total: number | null
+          interest_rate: number | null
+          is_open_account: boolean
+          name: string
+          next_due_date: string | null
+          notes: string | null
+          payment_method: string | null
+          start_date: string
+          status: string
+          total_amount: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_id?: string | null
+          category_id?: string | null
+          color?: string | null
+          commitment_type?: string
+          contact?: string | null
+          created_at?: string
+          creditor?: string | null
+          due_day?: number | null
+          end_date?: string | null
+          id?: string
+          installment_amount?: number | null
+          installments_total?: number | null
+          interest_rate?: number | null
+          is_open_account?: boolean
+          name: string
+          next_due_date?: string | null
+          notes?: string | null
+          payment_method?: string | null
+          start_date?: string
+          status?: string
+          total_amount?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_id?: string | null
+          category_id?: string | null
+          color?: string | null
+          commitment_type?: string
+          contact?: string | null
+          created_at?: string
+          creditor?: string | null
+          due_day?: number | null
+          end_date?: string | null
+          id?: string
+          installment_amount?: number | null
+          installments_total?: number | null
+          interest_rate?: number | null
+          is_open_account?: boolean
+          name?: string
+          next_due_date?: string | null
+          notes?: string | null
+          payment_method?: string | null
+          start_date?: string
+          status?: string
+          total_amount?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commitments_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commitments_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       fuel_audit_log: {
         Row: {
           action: string
@@ -826,6 +985,50 @@ export type Database = {
             columns: ["plan_id"]
             isOneToOne: false
             referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      purchase_audit_log: {
+        Row: {
+          action: string
+          actor_name: string | null
+          changes: Json
+          created_at: string
+          id: string
+          notes: string | null
+          source: string
+          transaction_id: string | null
+          user_id: string
+        }
+        Insert: {
+          action: string
+          actor_name?: string | null
+          changes?: Json
+          created_at?: string
+          id?: string
+          notes?: string | null
+          source?: string
+          transaction_id?: string | null
+          user_id: string
+        }
+        Update: {
+          action?: string
+          actor_name?: string | null
+          changes?: Json
+          created_at?: string
+          id?: string
+          notes?: string | null
+          source?: string
+          transaction_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "purchase_audit_log_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
             referencedColumns: ["id"]
           },
         ]
