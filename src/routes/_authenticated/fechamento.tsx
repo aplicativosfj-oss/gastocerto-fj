@@ -491,6 +491,11 @@ function FechamentoPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <QuickPurchaseDialog
+        transaction={quickTarget}
+        open={Boolean(quickTarget)}
+        onOpenChange={(open) => (open ? null : setQuickTarget(null))}
+      />
     </AppShell>
   );
 }
