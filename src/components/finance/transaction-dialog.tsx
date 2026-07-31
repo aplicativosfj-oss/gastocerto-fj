@@ -227,6 +227,17 @@ export function TransactionDialog({
     if (value > 100_000_000) nextErrors.amount = "Valor muito alto.";
     if (!date) nextErrors.date = "Informe a data.";
 
+    const itemsCheck = validatePurchaseItems(items, value);
+    if (itemsCheck.issues.length > 0) {
+      nextErrors.items = "Corrija os itens destacados da compra.";
+    } else if (itemsCheck.totalMismatch) {
+      nextErrors.items = `A soma dos itens (${itemsCheck.total
+        .toFixed(2)
+        .replace(".", ",")}) não bate com o valor do gasto. Diferença de ${Math.abs(itemsCheck.diff)
+        .toFixed(2)
+        .replace(".", ",")}.`;
+    }
+
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) return;
 
