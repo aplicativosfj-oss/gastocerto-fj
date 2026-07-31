@@ -437,6 +437,28 @@ export function TransactionDialog({
               </Select>
             </div>
 
+            <div className="sm:col-span-2">
+              <Label htmlFor="merchant">Estabelecimento / loja</Label>
+              <Input
+                id="merchant"
+                value={merchant}
+                onChange={(event) => setMerchant(event.target.value)}
+                maxLength={100}
+                className="mt-1.5"
+                placeholder="Ex.: Supermercado Central, Feira do produtor"
+              />
+            </div>
+
+            {kind === "expense" ? (
+              <div className="sm:col-span-2">
+                <PurchaseItemsEditor
+                  items={items}
+                  onChange={setItems}
+                  onApplyTotal={(total) => setAmount(String(total).replace(".", ","))}
+                />
+              </div>
+            ) : null}
+
             {advanced ? (
               <>
                 <div>
