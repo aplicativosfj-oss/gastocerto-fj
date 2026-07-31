@@ -62,6 +62,7 @@ export const navGroups: NavGroup[] = [
     icon: PiggyBank,
     children: [
       { label: "Orçamentos", to: "/orcamentos" },
+      { label: "Compromissos", to: "/compromissos" },
       { label: "Metas", to: "/metas" },
       { label: "Categorias", to: "/categorias" },
       { label: "Fechamento mensal", to: "/fechamento" },
