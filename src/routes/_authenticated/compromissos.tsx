@@ -304,7 +304,157 @@ function CompromissosPage() {
   );
 }
 
+/**
+ * Impacto dos compromissos no saldo do mês atual: quanto vence, quanto já foi
+ * pago, quanto ainda vai sair do caixa e o peso sobre as receitas do mês.
+ */
+function MonthlyImpact({
+  commitments,
+  entries,
+  daysBefore,
+}: {
+  commitments: Commitment[];
+  entries: CommitmentEntry[];
+  daysBefore: number;
+}) {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = today.getMonth() + 1;
+  const range = useMemo(() => {
+    const { start, end } = monthRange(year, month);
+    return { start, end };
+  }, [year, month]);
+  const { data: transactions } = useTransactions(range);
+
+  const impact = useMemo(
+    () => monthlyCommitmentImpact(commitments, entries, { year, month, daysBefore }),
+    [commitments, entries, year, month, daysBefore],
+  );
+
+  const income = (transactions ?? [])
+    .filter((item) => item.transaction_type === "income")
+    .reduce((sum, item) => sum + Number(item.amount), 0);
+  const expense = (transactions ?? [])
+    .filter((item) => item.transaction_type === "expense")
+    .reduce((sum, item) => sum + Number(item.amount), 0);
+  const balance = income - expense;
+  const share = income > 0 ? Math.min((impact.dueTotal / income) * 100, 100) : 0;
+
+  return (
+    <section className="rounded-xl border border-border bg-card p-3">
+      <div className="flex flex-wrap items-end justify-between gap-2">
+        <div>
+          <h2 className="text-sm font-semibold">
+            Impacto no saldo de {MONTH_NAMES[month - 1]} de {year}
+          </h2>
+          <p className="text-[11px] text-muted-foreground">
+            Parcelas com vencimento no mês, o que já foi pago e o que ainda vai sair do caixa.
+          </p>
+        </div>
+        <Badge variant="outline" className="text-[10px] tabular-nums">
+          {impact.paidCount}/{impact.dueCount} parcelas pagas no mês
+        </Badge>
+      </div>
+
+      <dl className="mt-2 grid grid-cols-2 gap-2 text-xs sm:grid-cols-5">
+        <ImpactItem label="Vence no mês" value={formatCurrency(impact.dueTotal)} />
+        <ImpactItem
+          label="Já pago no mês"
+          value={formatCurrency(impact.paidTotal)}
+          tone="good"
+        />
+        <ImpactItem
+          label="Ainda a pagar"
+          value={formatCurrency(impact.pendingTotal)}
+          tone="alert"
+        />
+        <ImpactItem
+          label="Atrasado em aberto"
+          value={formatCurrency(impact.overdueTotal)}
+          tone={impact.overdueTotal > 0 ? "alert" : undefined}
+        />
+        <ImpactItem
+          label="Saldo do mês após compromissos"
+          value={formatCurrency(balance - impact.pendingTotal)}
+          tone={balance - impact.pendingTotal < 0 ? "alert" : "good"}
+        />
+      </dl>
+
+      {income > 0 ? (
+        <>
+          <Progress value={share} className="mt-2 h-1.5" />
+          <p className="mt-1 text-[11px] text-muted-foreground">
+            Os compromissos consomem {share.toFixed(0)}% das receitas do mês (
+            {formatCurrency(income)}).
+          </p>
+        </>
+      ) : null}
+
+      {impact.items.length > 0 ? (
+        <ul className="mt-2 space-y-1 text-xs">
+          {impact.items.slice(0, 6).map(({ commitment, installment, totalInstallments }) => (
+            <li
+              key={`${commitment.id}-${installment.number}`}
+              className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border/70 px-2 py-1"
+            >
+              <span className="min-w-0 truncate">
+                {commitment.name} · parcela {installment.number}/{totalInstallments}
+              </span>
+              <span className="flex items-center gap-2 tabular-nums">
+                {formatDate(`${installment.dueDate}T12:00:00`)}
+                <strong
+                  className={
+                    installment.status === "paid"
+                      ? "text-emerald-600 dark:text-emerald-400"
+                      : installment.status === "overdue"
+                        ? "text-destructive"
+                        : ""
+                  }
+                >
+                  {formatCurrency(installment.amount)}
+                </strong>
+              </span>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="mt-2 text-[11px] text-muted-foreground">
+          Nenhuma parcela com vencimento neste mês.
+        </p>
+      )}
+    </section>
+  );
+}
+
+function ImpactItem({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: string;
+  tone?: "alert" | "good";
+}) {
+  return (
+    <div className="rounded-lg border border-border bg-background/50 p-2">
+      <dt className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</dt>
+      <dd
+        className={`text-sm font-semibold tabular-nums ${
+          tone === "alert"
+            ? "text-destructive"
+            : tone === "good"
+              ? "text-emerald-600 dark:text-emerald-400"
+              : ""
+        }`}
+      >
+        {value}
+      </dd>
+    </div>
+  );
+}
+
 function CommitmentCard({
+
   summary,
   entries,
   daysBefore,
