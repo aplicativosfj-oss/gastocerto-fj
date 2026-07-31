@@ -57,10 +57,15 @@ import {
   useBalanceTransactions,
   useCloseMonth,
   useClosings,
-  useReopenMonth,
   monthLabel,
   type MonthBalance,
 } from "@/lib/closing";
+import {
+  REOPEN_STATUS_LABEL,
+  isClosingLocked,
+  useCreateReopenRequest,
+  useMyReopenRequests,
+} from "@/lib/closing-lock";
 import { exportBalanceCsv, exportBalancePdf } from "@/lib/closing-export";
 import { PAYMENT_METHODS, toCents } from "@/lib/finance";
 import { formatCurrency, formatDate } from "@/lib/format";
@@ -90,7 +95,10 @@ function FechamentoPage() {
   const { data: transactions, isLoading } = useBalanceTransactions();
   const { data: closings } = useClosings();
   const closeMonth = useCloseMonth();
-  const reopenMonth = useReopenMonth();
+  const requestReopen = useCreateReopenRequest();
+  const { data: reopenRequests } = useMyReopenRequests();
+  const [reopenTarget, setReopenTarget] = useState<MonthBalance | null>(null);
+  const [reopenReason, setReopenReason] = useState("");
 
   const [target, setTarget] = useState<MonthBalance | null>(null);
   const [notes, setNotes] = useState("");
@@ -353,10 +361,15 @@ function FechamentoPage() {
                             </Badge>
                           ) : null}
                           {row.closed ? (
-                            <Badge className="text-[10px]">fechado</Badge>
+                            <Badge
+                              variant={isClosingLocked(row.closed) ? "outline" : "secondary"}
+                              className="text-[10px]"
+                            >
+                              {isClosingLocked(row.closed) ? "fechado" : "liberado"}
+                            </Badge>
                           ) : null}
                         </div>
-                        <p className="text-[11px] text-muted-foreground">
+                        <p className="mt-0.5 text-[11px] text-muted-foreground">
                           {formatDate(row.range.start)} a {formatDate(row.range.end)}
                         </p>
                       </td>
@@ -380,28 +393,30 @@ function FechamentoPage() {
                       <td className="hidden py-2 pr-3 tabular-nums sm:table-cell">{row.count}</td>
                       <td className="py-2">
                         {row.closed ? (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-8"
-                            onClick={async () => {
-                              try {
-                                await reopenMonth.mutateAsync(row.closed!.id);
-                                toast.success(`Competência ${row.label} reaberta.`);
-                              } catch {
-                                toast.error("Não foi possível reabrir o mês.");
-                              }
-                            }}
-                          >
-                            <RotateCcw className="mr-1.5 size-3.5" />
-                            Reabrir
-                          </Button>
+                          isClosingLocked(row.closed) ? (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8"
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                setReopenTarget(row);
+                                setReopenReason("");
+                              }}
+                            >
+                              <RotateCcw className="mr-1.5 size-3.5" />
+                              Solicitar liberação
+                            </Button>
+                          ) : (
+                            <Badge variant="secondary">Liberado para edição</Badge>
+                          )
                         ) : (
                           <Button
                             variant="outline"
                             size="sm"
                             className="h-8"
-                            onClick={() => {
+                            onClick={(event) => {
+                              event.stopPropagation();
                               setTarget(row);
                               setNotes("");
                             }}
@@ -411,6 +426,7 @@ function FechamentoPage() {
                           </Button>
                         )}
                       </td>
+
                     </tr>
                   ))}
                 </tbody>
@@ -419,7 +435,38 @@ function FechamentoPage() {
           )}
         </section>
 
+        {reopenRequests && reopenRequests.length > 0 ? (
+          <section className="rounded-xl border border-border bg-card p-3">
+            <h2 className="text-sm font-semibold">Pedidos de liberação</h2>
+            <ul className="mt-2 space-y-2">
+              {reopenRequests.slice(0, 6).map((request) => (
+                <li
+                  key={request.id}
+                  className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border/70 px-2.5 py-2 text-xs"
+                >
+                  <span className="font-medium">
+                    {monthLabel(request.year, request.month)}
+                    <span className="ml-2 font-normal text-muted-foreground">{request.reason}</span>
+                  </span>
+                  <Badge
+                    variant={
+                      request.status === "approved"
+                        ? "secondary"
+                        : request.status === "rejected"
+                          ? "destructive"
+                          : "outline"
+                    }
+                  >
+                    {REOPEN_STATUS_LABEL[request.status] ?? request.status}
+                  </Badge>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
+
         {selected && detail ? (
+
           <section className="rounded-xl border border-border bg-card p-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <p className="flex items-center gap-2 text-sm font-semibold">
@@ -747,11 +794,68 @@ function FechamentoPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <Dialog
+        open={Boolean(reopenTarget)}
+        onOpenChange={(open) => (open ? null : setReopenTarget(null))}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Solicitar liberação de {reopenTarget?.label}</DialogTitle>
+            <DialogDescription>
+              Meses fechados ficam travados. O administrador analisa o pedido e libera a edição por
+              um período limitado.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div>
+            <Label htmlFor="reopen-reason">Motivo</Label>
+            <Textarea
+              id="reopen-reason"
+              value={reopenReason}
+              onChange={(event) => setReopenReason(event.target.value)}
+              maxLength={500}
+              className="mt-1.5"
+              placeholder="Ex.: esqueci de lançar a compra do supermercado do dia 28."
+            />
+            <p className="mt-1 text-[11px] text-muted-foreground">Mínimo de 10 caracteres.</p>
+          </div>
+
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setReopenTarget(null)}>
+              Cancelar
+            </Button>
+            <Button
+              disabled={requestReopen.isPending || reopenReason.trim().length < 10}
+              onClick={async () => {
+                if (!reopenTarget) return;
+                try {
+                  await requestReopen.mutateAsync({
+                    year: reopenTarget.year,
+                    month: reopenTarget.month,
+                    reason: reopenReason,
+                  });
+                  toast.success("Pedido enviado ao administrador.");
+                  setReopenTarget(null);
+                } catch (error) {
+                  toast.error(
+                    error instanceof Error ? error.message : "Não foi possível enviar o pedido.",
+                  );
+                }
+              }}
+            >
+              Enviar pedido
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <QuickPurchaseDialog
         transaction={quickTarget}
         open={Boolean(quickTarget)}
         onOpenChange={(open) => (open ? null : setQuickTarget(null))}
       />
+
     </AppShell>
   );
 }

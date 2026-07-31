@@ -1,11 +1,19 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ArrowDownRight, ArrowUpRight, CalendarDays, Clock, Plus } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, CalendarDays, Clock, Plus, Search } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 import { AppShell } from "@/components/app-shell";
 import { TransactionDialog } from "@/components/finance/transaction-dialog";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -68,7 +76,10 @@ function DailyPage() {
   const [mode, setMode] = useState<Mode>("dia");
   const [dialogOpen, setDialogOpen] = useState(false);
   const range = useMemo(() => rangeFor(mode), [mode]);
-  const { data: transactions, isLoading } = useTransactions(range);
+  const { data: allTransactions, isLoading } = useTransactions(range);
+  const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [groupBy, setGroupBy] = useState<"date" | "category">("date");
   const { data: categories } = useCategories();
 
   const categoryName = useMemo(() => {
@@ -76,6 +87,25 @@ function DailyPage() {
     (categories ?? []).forEach((category) => map.set(category.id, category.name));
     return map;
   }, [categories]);
+
+  const term = search.trim().toLowerCase();
+  const transactions = useMemo(
+    () =>
+      (allTransactions ?? []).filter((item) => {
+        if (categoryFilter !== "all") {
+          const matches =
+            item.category_id === categoryFilter || item.sub_category_id === categoryFilter;
+          if (!matches) return false;
+        }
+        if (!term) return true;
+        return (
+          item.description.toLowerCase().includes(term) ||
+          (item.merchant_name ?? "").toLowerCase().includes(term) ||
+          (item.notes ?? "").toLowerCase().includes(term)
+        );
+      }),
+    [allTransactions, categoryFilter, term],
+  );
 
   const expenses = (transactions ?? []).filter((item) => item.transaction_type === "expense");
   const incomes = (transactions ?? []).filter((item) => item.transaction_type === "income");
@@ -106,6 +136,20 @@ function DailyPage() {
       map.set(item.transaction_date, list);
     });
     return [...map.entries()].sort((a, b) => b[0].localeCompare(a[0]));
+  }, [transactions]);
+
+  /** Totais por categoria, para o modo de agrupamento por categoria. */
+  const categoryGroups = useMemo(() => {
+    const map = new Map<string, { total: number; count: number; items: typeof expenses }>();
+    (transactions ?? []).forEach((item) => {
+      const key = item.category_id ?? "none";
+      const entry = map.get(key) ?? { total: 0, count: 0, items: [] };
+      entry.total += (item.transaction_type === "income" ? 1 : -1) * Number(item.amount);
+      entry.count += 1;
+      entry.items.push(item);
+      map.set(key, entry);
+    });
+    return [...map.entries()].sort((a, b) => a[1].total - b[1].total);
   }, [transactions]);
 
   return (
@@ -193,7 +237,40 @@ function DailyPage() {
         </section>
 
         <section className="rounded-2xl border border-border bg-card">
-          <h2 className="border-b border-border p-4 text-sm font-semibold">Extrato detalhado</h2>
+          <div className="flex flex-wrap items-center gap-2 border-b border-border p-4">
+            <h2 className="text-sm font-semibold">Extrato detalhado</h2>
+            <div className="ms-auto flex flex-wrap items-center gap-2">
+              <div className="relative">
+                <Search className="pointer-events-none absolute left-2.5 top-2.5 size-3.5 text-muted-foreground" />
+                <Input
+                  value={search}
+                  onChange={(event) => setSearch(event.target.value)}
+                  placeholder="Buscar lançamento"
+                  aria-label="Buscar lançamento no extrato"
+                  className="h-9 w-44 ps-8 text-xs"
+                />
+              </div>
+              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                <SelectTrigger className="h-9 w-44 text-xs" aria-label="Filtrar por categoria">
+                  <SelectValue placeholder="Categoria" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todas as categorias</SelectItem>
+                  {(categories ?? []).map((category) => (
+                    <SelectItem key={category.id} value={category.id}>
+                      {category.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Tabs value={groupBy} onValueChange={(value) => setGroupBy(value as typeof groupBy)}>
+                <TabsList>
+                  <TabsTrigger value="date">Por data</TabsTrigger>
+                  <TabsTrigger value="category">Por categoria</TabsTrigger>
+                </TabsList>
+              </Tabs>
+            </div>
+          </div>
           {isLoading ? (
             <div className="space-y-2 p-4">
               <Skeleton className="h-10 w-full" />
@@ -206,11 +283,20 @@ function DailyPage() {
             </p>
           ) : (
             <ul className="divide-y divide-border">
-              {groups.map(([date, items]) => (
+              {(groupBy === "category"
+                ? categoryGroups.map(
+                    ([key, entry]) =>
+                      [
+                        key === "none" ? "Sem categoria" : (categoryName.get(key) ?? "Sem categoria"),
+                        entry.items,
+                      ] as const,
+                  )
+                : groups
+              ).map(([date, items]) => (
                 <li key={date}>
                   <div className="flex items-center justify-between gap-2 bg-muted/40 px-4 py-2">
                     <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                      {formatDate(date)}
+                      {groupBy === "category" ? date : formatDate(date)}
                     </span>
                     <span className="text-xs font-semibold tabular-nums text-muted-foreground">
                       {formatCurrency(
@@ -257,6 +343,9 @@ function DailyPage() {
                                 {item.category_id ? (
                                   <span className="truncate">
                                     · {categoryName.get(item.category_id) ?? "Sem categoria"}
+                                    {item.sub_category_id
+                                      ? ` › ${categoryName.get(item.sub_category_id) ?? ""}`
+                                      : ""}
                                   </span>
                                 ) : null}
                               </p>

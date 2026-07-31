@@ -269,6 +269,51 @@ export type Database = {
           },
         ]
       }
+      closing_reopen_requests: {
+        Row: {
+          admin_note: string | null
+          created_at: string
+          decided_at: string | null
+          decided_by: string | null
+          id: string
+          month: number
+          reason: string
+          reopen_until: string | null
+          status: string
+          updated_at: string
+          user_id: string
+          year: number
+        }
+        Insert: {
+          admin_note?: string | null
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          id?: string
+          month: number
+          reason: string
+          reopen_until?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+          year: number
+        }
+        Update: {
+          admin_note?: string | null
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          id?: string
+          month?: number
+          reason?: string
+          reopen_until?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+          year?: number
+        }
+        Relationships: []
+      }
       commitment_entries: {
         Row: {
           amount: number
@@ -723,9 +768,13 @@ export type Database = {
           closing_balance: number
           created_at: string
           id: string
+          locked: boolean
           month: number
           notes: string | null
           opening_balance: number
+          reopen_note: string | null
+          reopened_by: string | null
+          reopened_until: string | null
           total_expense: number
           total_income: number
           updated_at: string
@@ -737,9 +786,13 @@ export type Database = {
           closing_balance?: number
           created_at?: string
           id?: string
+          locked?: boolean
           month: number
           notes?: string | null
           opening_balance?: number
+          reopen_note?: string | null
+          reopened_by?: string | null
+          reopened_until?: string | null
           total_expense?: number
           total_income?: number
           updated_at?: string
@@ -751,9 +804,13 @@ export type Database = {
           closing_balance?: number
           created_at?: string
           id?: string
+          locked?: boolean
           month?: number
           notes?: string | null
           opening_balance?: number
+          reopen_note?: string | null
+          reopened_by?: string | null
+          reopened_until?: string | null
           total_expense?: number
           total_income?: number
           updated_at?: string
