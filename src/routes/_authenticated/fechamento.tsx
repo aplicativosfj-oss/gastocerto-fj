@@ -315,6 +315,136 @@ function FechamentoPage() {
             </div>
           )}
         </section>
+
+        {selected && detail ? (
+          <section className="rounded-xl border border-border bg-card p-4">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <PieIcon className="size-4 text-muted-foreground" />
+                <h2 className="text-sm font-semibold">Resumo visual de {selected.label}</h2>
+              </div>
+              <Badge variant="secondary" className="tabular-nums">
+                Saídas: {formatCurrency(selected.expense)}
+              </Badge>
+            </div>
+
+            <div className="mt-3 grid gap-4 lg:grid-cols-2">
+              <div>
+                <p className="text-xs font-medium text-muted-foreground">Gastos por categoria</p>
+                <div className="chart-frame mt-1">
+                  {detail.byCategory.length === 0 ? (
+                    <EmptyChart />
+                  ) : (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={detail.byCategory}
+                          dataKey="value"
+                          nameKey="name"
+                          innerRadius="45%"
+                          outerRadius="75%"
+                          paddingAngle={2}
+                        >
+                          {detail.byCategory.map((entry, index) => (
+                            <Cell key={entry.name} fill={seriesColor(index)} />
+                          ))}
+                        </Pie>
+                        <Tooltip
+                          {...tooltipProps}
+                          formatter={(value: number) => formatCurrency(Number(value))}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  )}
+                </div>
+                <ul className="mt-2 space-y-1 text-xs">
+                  {detail.byCategory.slice(0, 6).map((entry, index) => (
+                    <li key={entry.name} className="flex items-center justify-between gap-2">
+                      <span className="flex items-center gap-1.5">
+                        <span
+                          className="size-2 rounded-full"
+                          style={{ backgroundColor: seriesColor(index) }}
+                        />
+                        {entry.name}
+                      </span>
+                      <span className="tabular-nums">{formatCurrency(entry.value)}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div>
+                <p className="text-xs font-medium text-muted-foreground">
+                  Gastos por forma de pagamento
+                </p>
+                <div className="chart-frame mt-1">
+                  {detail.byPayment.length === 0 ? (
+                    <EmptyChart />
+                  ) : (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={detail.byPayment} layout="vertical">
+                        <XAxis type="number" {...axisProps} hide />
+                        <YAxis type="category" dataKey="name" width={92} {...axisProps} />
+                        <Tooltip
+                          {...tooltipProps}
+                          formatter={(value: number) => formatCurrency(Number(value))}
+                        />
+                        <Bar dataKey="value" radius={[0, 6, 6, 0]}>
+                          {detail.byPayment.map((entry, index) => (
+                            <Cell key={entry.name} fill={seriesColor(index + 2)} />
+                          ))}
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-4">
+              <p className="text-xs font-medium text-muted-foreground">
+                Compras do mês — edição rápida de itens, quantidades, peso e pagamento
+              </p>
+              {detail.rows.length === 0 ? (
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Nenhum gasto lançado nesta competência.
+                </p>
+              ) : (
+                <ul className="mt-2 divide-y divide-border/70">
+                  {detail.rows.map((row) => (
+                    <li
+                      key={row.id}
+                      className="flex flex-wrap items-center justify-between gap-2 py-2"
+                    >
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-medium">{row.description}</p>
+                        <p className="text-[11px] text-muted-foreground">
+                          {formatDate(row.transaction_date)}
+                          {row.merchant_name ? ` · ${row.merchant_name}` : ""}
+                          {row.payment_method ? ` · ${row.payment_method}` : ""}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-semibold tabular-nums text-destructive">
+                          {formatCurrency(Number(row.amount))}
+                        </span>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-8"
+                          onClick={() => setQuickTarget(row)}
+                        >
+                          <PencilLine className="mr-1.5 size-3.5" />
+                          Editar
+                        </Button>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </section>
+        ) : null}
       </div>
 
       <Dialog open={Boolean(target)} onOpenChange={(open) => (open ? null : setTarget(null))}>
