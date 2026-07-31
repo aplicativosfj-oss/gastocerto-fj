@@ -283,9 +283,9 @@ function TransactionsPage() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Tudo</SelectItem>
-                <SelectItem value="expense">Despesas</SelectItem>
-                <SelectItem value="income">Receitas</SelectItem>
+                <SelectItem value="all">Entradas e saídas</SelectItem>
+                <SelectItem value="expense">Saídas (gastos)</SelectItem>
+                <SelectItem value="income">Entradas (recebimentos)</SelectItem>
               </SelectContent>
             </Select>
             <Select value={sort} onValueChange={setSort}>

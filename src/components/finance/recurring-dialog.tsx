@@ -41,12 +41,12 @@ const RECURRING_TEMPLATES: {
   frequency: string;
   dayOfMonth?: number;
 }[] = [
-  { label: "IPVA", description: "IPVA do veículo", category: "IPVA", frequency: "yearly", dayOfMonth: 10 },
+  { label: "IPVA", description: "IPVA do veículo", category: "IPVA", frequency: "annual", dayOfMonth: 10 },
   {
     label: "Licenciamento",
     description: "Licenciamento anual",
     category: "Licenciamento",
-    frequency: "yearly",
+    frequency: "annual",
     dayOfMonth: 15,
   },
   {

@@ -302,8 +302,8 @@ function ReportsPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todos</SelectItem>
-                <SelectItem value="expense">Despesas</SelectItem>
-                <SelectItem value="income">Receitas</SelectItem>
+                <SelectItem value="expense">Saídas (gastos)</SelectItem>
+                <SelectItem value="income">Entradas (recebimentos)</SelectItem>
               </SelectContent>
             </Select>
           </div>
