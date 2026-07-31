@@ -182,6 +182,13 @@ export function PurchaseItemsEditor({
                     />
                   </div>
                 ) : null}
+
+                {showValidation && issueByIndex.has(index) ? (
+                  <p className="mt-2 flex items-start gap-1.5 text-xs text-destructive">
+                    <AlertTriangle className="mt-0.5 size-3.5 shrink-0" />
+                    {issueByIndex.get(index)}
+                  </p>
+                ) : null}
               </div>
             );
           })}
