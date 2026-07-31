@@ -64,6 +64,7 @@ export const navGroups: NavGroup[] = [
       { label: "Orçamentos", to: "/orcamentos" },
       { label: "Metas", to: "/metas" },
       { label: "Categorias", to: "/categorias" },
+      { label: "Fechamento mensal", to: "/fechamento" },
     ],
   },
   {
