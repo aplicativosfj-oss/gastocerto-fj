@@ -36,6 +36,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ReopenRequestsPanel } from "@/components/admin/reopen-requests-panel";
+import { AiSettingsPanel } from "@/components/admin/ai-settings-panel";
+import { TrialGrantPanel } from "@/components/admin/trial-grant-panel";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/use-auth";
@@ -214,6 +216,7 @@ function AdminContent({ isAdmin }: { isAdmin: boolean }) {
             <TabsTrigger value="users">Usuários</TabsTrigger>
             {isAdmin ? <TabsTrigger value="licenses">Licenças</TabsTrigger> : null}
             {isAdmin ? <TabsTrigger value="payments">Pagamentos</TabsTrigger> : null}
+            {isAdmin ? <TabsTrigger value="ai">IA &amp; testes</TabsTrigger> : null}
             <TabsTrigger value="reopen">Liberações</TabsTrigger>
             <TabsTrigger value="logs">Logs</TabsTrigger>
           </TabsList>
@@ -322,6 +325,13 @@ function AdminContent({ isAdmin }: { isAdmin: boolean }) {
               </Table>
             </div>
           </TabsContent>
+
+          {isAdmin ? (
+            <TabsContent value="ai" className="mt-4 space-y-4">
+              <AiSettingsPanel />
+              <TrialGrantPanel />
+            </TabsContent>
+          ) : null}
 
           <TabsContent value="reopen" className="mt-4">
             <ReopenRequestsPanel />

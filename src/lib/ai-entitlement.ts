@@ -2,10 +2,15 @@
  * Regras de acesso à IA (Consultor). Função pura para poder ser testada
  * e reutilizada por qualquer server function/endpoint do Consultor.
  *
- * Regra de negócio: apenas planos PAGOS usam a IA. Trial, teste, demo,
- * cortesia e plano gratuito nunca executam análise, pois cada consulta
- * consome créditos.
+ * Regra de negócio: a IA é liberada para planos PAGOS e para períodos de
+ * TESTE vigentes (7, 15 ou 30 dias, com tudo liberado). O plano gratuito e os
+ * testes expirados nunca executam análise, pois cada consulta consome créditos.
+ *
+ * Os limites (rate limiting, cota mensal e threshold do alerta) são
+ * configuráveis pelo administrador — veja `ai-limits.ts`.
  */
+
+import { DEFAULT_AI_LIMITS, type AiLimits } from "./ai-limits";
 
 export const AI_TRIAL_SOURCES = ["trial", "teste", "test", "demo", "cortesia", "gratis"];
 export const AI_TRIAL_SLUGS = ["free", "gratuito", "gratis", "trial", "teste", "test", "demo"];
@@ -17,7 +22,7 @@ export const AI_MONTHLY_CREDIT_ALLOWANCE = 50;
 export const AI_CREDITS_PER_1K_TOKENS = 0.05;
 
 export const AI_BLOCK_MESSAGE =
-  "O consultor de IA está disponível apenas nos planos pagos. Períodos de teste (trial) e o plano gratuito não incluem a IA, pois cada análise consome créditos. Ative sua assinatura para liberar as análises personalizadas.";
+  "O consultor de IA está disponível nos planos pagos e durante o período de teste. Seu acesso atual (plano gratuito ou teste expirado) não inclui a IA, pois cada análise consome créditos. Ative um teste ou assine para liberar as análises personalizadas.";
 
 /** Rate limiting por usuário (protege trial/teste de tentativas repetidas). */
 export const AI_RATE_WINDOW_SECONDS = 60;
@@ -50,6 +55,8 @@ export type AiEntitlementReason =
   | "admin"
   | "paid_license"
   | "paid_plan"
+  | "trial_active"
+  | "trial_expired"
   | "trial_plan"
   | "free_plan"
   | "no_plan";
@@ -70,6 +77,8 @@ export function evaluateAiEntitlement(input: {
   licenses?: AiLicenseInput[] | null;
   plan?: AiPlanInput;
   isAdmin?: boolean | null;
+  /** Fim do período de teste do usuário (tudo liberado enquanto vigente). */
+  trialEndsAt?: string | Date | null;
   now?: Date;
 }): AiEntitlement {
   const now = input.now ?? new Date();
@@ -92,6 +101,15 @@ export function evaluateAiEntitlement(input: {
   );
   const paidPlan = price > 0 && !AI_TRIAL_SLUGS.includes(planSlug);
   if (paidPlan) return { entitled: true, reason: "paid_plan", planSlug };
+
+  // Período de teste vigente: tudo liberado, inclusive a IA.
+  const trialEnd = input.trialEndsAt ? new Date(input.trialEndsAt) : null;
+  if (trialEnd && Number.isFinite(trialEnd.getTime())) {
+    if (trialEnd.getTime() > now.getTime()) {
+      return { entitled: true, reason: "trial_active", planSlug };
+    }
+    return { entitled: false, reason: "trial_expired", planSlug, message: AI_BLOCK_MESSAGE };
+  }
 
   const reason: AiEntitlementReason = !input.plan
     ? "no_plan"
@@ -116,6 +134,7 @@ export type AiRateVerdict = {
 export function evaluateAiRateLimit(
   attemptsIso: (string | Date)[],
   now: Date = new Date(),
+  limits: AiLimits = DEFAULT_AI_LIMITS,
 ): AiRateVerdict {
   const times = attemptsIso
     .map((value) => new Date(value).getTime())
@@ -123,13 +142,13 @@ export function evaluateAiRateLimit(
     .sort((a, b) => b - a);
 
   const nowMs = now.getTime();
-  const windowMs = AI_RATE_WINDOW_SECONDS * 1000;
-  const burstMs = AI_RATE_BURST_WINDOW_SECONDS * 1000;
+  const windowMs = limits.rateWindowSeconds * 1000;
+  const burstMs = limits.burstWindowSeconds * 1000;
 
   const inWindow = times.filter((value) => nowMs - value < windowMs);
   const inBurst = times.filter((value) => nowMs - value < burstMs);
 
-  if (inWindow.length >= AI_RATE_MAX_IN_WINDOW) {
+  if (inWindow.length >= limits.rateMaxInWindow) {
     const oldest = inWindow[inWindow.length - 1] ?? nowMs;
     return {
       allowed: false,
@@ -139,7 +158,7 @@ export function evaluateAiRateLimit(
     };
   }
 
-  if (inBurst.length >= AI_RATE_MAX_IN_BURST_WINDOW) {
+  if (inBurst.length >= limits.rateMaxInBurstWindow) {
     const oldest = inBurst[inBurst.length - 1] ?? nowMs;
     return {
       allowed: false,
@@ -157,12 +176,13 @@ export function evaluateAiRateLimit(
   };
 }
 
-/** Verdadeiro quando restam menos de 20% dos créditos ou das consultas do mês. */
+/** Verdadeiro quando restam menos que o threshold configurado (padrão 20%). */
 export function isAiBalanceLow(input: {
   queries: number;
   queryLimit: number;
   credits: number;
   creditAllowance: number;
+  lowCreditRatio?: number;
 }): boolean {
   const queryRatio =
     input.queryLimit > 0 ? (input.queryLimit - input.queries) / input.queryLimit : 1;
@@ -170,5 +190,6 @@ export function isAiBalanceLow(input: {
     input.creditAllowance > 0
       ? (input.creditAllowance - input.credits) / input.creditAllowance
       : 1;
-  return Math.min(queryRatio, creditRatio) <= AI_LOW_CREDIT_RATIO;
+  const ratio = input.lowCreditRatio ?? AI_LOW_CREDIT_RATIO;
+  return Math.min(queryRatio, creditRatio) <= ratio;
 }

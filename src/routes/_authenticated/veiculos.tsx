@@ -15,6 +15,7 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
+import { FeatureGate } from "@/components/finance/feature-gate";
 import { FuelDialog } from "@/components/finance/fuel-dialog";
 import { ReceiptViewer } from "@/components/finance/receipt-viewer";
 import { VehicleDialog } from "@/components/finance/vehicle-dialog";
@@ -195,6 +196,7 @@ function VehiclesPage() {
 
   return (
     <AppShell>
+      <FeatureGate feature="vehicles">
       <div className="space-y-4">
         <header className="flex flex-wrap items-center justify-between gap-3">
           <div className="min-w-0">
@@ -674,6 +676,7 @@ function VehiclesPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+    </FeatureGate>
     </AppShell>
   );
 }

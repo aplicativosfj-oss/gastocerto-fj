@@ -137,6 +137,27 @@ export type Database = {
         }
         Relationships: []
       }
+      app_settings: {
+        Row: {
+          key: string
+          updated_at: string
+          updated_by: string | null
+          value: Json
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Relationships: []
+      }
       budgets: {
         Row: {
           alert_percentage: number
@@ -1120,7 +1141,9 @@ export type Database = {
           monthly_price: number
           name: string
           slug: string
+          tier: string
           transaction_limit: number | null
+          trial_days: number | null
           updated_at: string
           vehicle_limit: number | null
         }
@@ -1134,7 +1157,9 @@ export type Database = {
           monthly_price?: number
           name: string
           slug: string
+          tier?: string
           transaction_limit?: number | null
+          trial_days?: number | null
           updated_at?: string
           vehicle_limit?: number | null
         }
@@ -1148,7 +1173,9 @@ export type Database = {
           monthly_price?: number
           name?: string
           slug?: string
+          tier?: string
           transaction_limit?: number | null
+          trial_days?: number | null
           updated_at?: string
           vehicle_limit?: number | null
         }
@@ -1171,6 +1198,9 @@ export type Database = {
           status: string
           support_notes: string | null
           terms_accepted_at: string | null
+          trial_ends_at: string | null
+          trial_plan_slug: string | null
+          trial_started_at: string | null
           updated_at: string
           user_id: string
         }
@@ -1190,6 +1220,9 @@ export type Database = {
           status?: string
           support_notes?: string | null
           terms_accepted_at?: string | null
+          trial_ends_at?: string | null
+          trial_plan_slug?: string | null
+          trial_started_at?: string | null
           updated_at?: string
           user_id: string
         }
@@ -1209,6 +1242,9 @@ export type Database = {
           status?: string
           support_notes?: string | null
           terms_accepted_at?: string | null
+          trial_ends_at?: string | null
+          trial_plan_slug?: string | null
+          trial_started_at?: string | null
           updated_at?: string
           user_id?: string
         }

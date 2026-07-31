@@ -17,6 +17,7 @@ import {
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
+import { FeatureGate } from "@/components/finance/feature-gate";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -253,6 +254,7 @@ function ReportsPage() {
 
   return (
     <AppShell>
+      <FeatureGate feature="reports_advanced">
       <div className="space-y-4">
         <header className="flex flex-wrap items-end justify-between gap-3">
           <div>
@@ -442,6 +444,7 @@ function ReportsPage() {
           </Table>
         </section>
       </div>
+    </FeatureGate>
     </AppShell>
   );
 }

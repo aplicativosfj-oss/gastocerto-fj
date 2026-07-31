@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
+import { FeatureGate } from "@/components/finance/feature-gate";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -86,6 +87,7 @@ function GoalsPage() {
 
   return (
     <AppShell>
+      <FeatureGate feature="goals">
       <div className="space-y-4">
         <header className="flex flex-wrap items-end justify-between gap-3">
           <div>
@@ -154,6 +156,7 @@ function GoalsPage() {
 
       <GoalDialog open={open} onOpenChange={setOpen} goal={editing} />
       <ContributionDialog goal={contributingTo} onClose={() => setContributingTo(null)} />
+    </FeatureGate>
     </AppShell>
   );
 }

@@ -19,10 +19,25 @@ const plans = [
     highlighted: false,
     cta: "Criar conta grátis",
     features: [
-      "Registro de despesas e receitas",
-      "Painel mensal completo",
-      "Categorias e 1 veículo",
-      "Relatórios simplificados",
+      "Lançamentos de despesas e receitas",
+      "Categorias personalizadas",
+      "Painel e balancete do mês",
+      "Ideal para conhecer o sistema",
+    ],
+  },
+  {
+    slug: "trial",
+    name: "Teste grátis",
+    monthly: 0,
+    yearly: 0,
+    description: "7, 15 ou 30 dias com absolutamente tudo liberado.",
+    highlighted: false,
+    cta: "Começar meu teste",
+    features: [
+      "Todos os recursos liberados",
+      "Consultor de IA incluído",
+      "Combustível, metas e compromissos",
+      "Sem cartão de crédito",
     ],
   },
   {
@@ -42,7 +57,7 @@ const plans = [
   },
 ];
 
-const premium = plans[1];
+const premium = plans[plans.length - 1];
 const savingsPercent = Math.round((1 - premium.yearly / premium.monthly) * 100);
 const savingsPerYear = premium.monthly * 12 - premium.yearly * 12;
 
@@ -116,7 +131,7 @@ export function Pricing() {
 
         </div>
 
-        <div className="mx-auto mt-4 grid max-w-3xl gap-3 md:grid-cols-2">
+        <div className="mx-auto mt-4 grid max-w-5xl gap-3 md:grid-cols-3">
           {plans.map((plan) => {
             const price = isYearly ? plan.yearly : plan.monthly;
             return (

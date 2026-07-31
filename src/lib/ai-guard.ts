@@ -1,9 +1,5 @@
 import {
-  AI_LOW_CREDIT_RATIO,
-  AI_MONTHLY_CREDIT_ALLOWANCE,
-  AI_MONTHLY_QUERY_LIMIT,
   AI_QUOTA_MESSAGE,
-  AI_RATE_BURST_WINDOW_SECONDS,
   AI_RATE_MESSAGE,
   estimateAiCredits,
   evaluateAiEntitlement,
@@ -13,6 +9,12 @@ import {
   type AiRateVerdict,
 } from "./ai-entitlement";
 import { monthStartIso } from "./ai-advisor-core";
+import {
+  AI_LIMITS_SETTING_KEY,
+  DEFAULT_AI_LIMITS,
+  normalizeAiLimits,
+  type AiLimits,
+} from "./ai-limits";
 
 /** Cliente Supabase autenticado do middleware (tipagem relaxada de propósito). */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -43,6 +45,20 @@ export type AiReceipt = {
   question: string | null;
 };
 
+/** Lê os limites configurados pelo administrador (com fallback nos padrões). */
+export async function loadAiLimits(supabase: Db): Promise<AiLimits> {
+  try {
+    const { data } = await supabase
+      .from("app_settings")
+      .select("value")
+      .eq("key", AI_LIMITS_SETTING_KEY)
+      .maybeSingle();
+    return normalizeAiLimits(data?.value);
+  } catch {
+    return DEFAULT_AI_LIMITS;
+  }
+}
+
 /** Avalia o direito de uso da IA lendo licenças, plano e papel do usuário. */
 export async function resolveAiAccess(
   supabase: Db,
@@ -52,7 +68,7 @@ export async function resolveAiAccess(
     supabase.from("licenses").select("status, expires_at, source, amount").eq("user_id", userId),
     supabase
       .from("profiles")
-      .select("plan_id, plans(slug, monthly_price, annual_price)")
+      .select("plan_id, trial_ends_at, plans(slug, monthly_price, annual_price)")
       .eq("user_id", userId)
       .maybeSingle(),
     supabase.rpc("has_role", { _user_id: userId, _role: "admin" }),
@@ -61,6 +77,7 @@ export async function resolveAiAccess(
   return evaluateAiEntitlement({
     licenses: licenses?.data ?? [],
     plan: (profile?.data as { plans?: unknown } | null)?.plans as never,
+    trialEndsAt: (profile?.data as { trial_ends_at?: string | null } | null)?.trial_ends_at ?? null,
     isAdmin: admin?.data === true,
   });
 }
@@ -101,7 +118,12 @@ export async function logAiUsage(
 }
 
 /** Consumo do mês corrente para o painel de créditos. */
-export async function getMonthlyAiUsage(supabase: Db, userId: string): Promise<AiUsageSummary> {
+export async function getMonthlyAiUsage(
+  supabase: Db,
+  userId: string,
+  limits?: AiLimits,
+): Promise<AiUsageSummary> {
+  const active = limits ?? (await loadAiLimits(supabase));
   const { data } = await supabase
     .from("ai_usage_log")
     .select("allowed, credits, total_tokens")
@@ -115,20 +137,22 @@ export async function getMonthlyAiUsage(supabase: Db, userId: string): Promise<A
 
   return {
     queries: allowedRows.length,
-    queryLimit: AI_MONTHLY_QUERY_LIMIT,
+    queryLimit: active.monthlyQueryLimit,
     credits: Number(credits.toFixed(4)),
-    creditAllowance: AI_MONTHLY_CREDIT_ALLOWANCE,
+    creditAllowance: active.monthlyCreditAllowance,
     blocked: rows.length - allowedRows.length,
     totalTokens,
     quotaExceeded:
-      allowedRows.length >= AI_MONTHLY_QUERY_LIMIT || credits >= AI_MONTHLY_CREDIT_ALLOWANCE,
+      allowedRows.length >= active.monthlyQueryLimit ||
+      credits >= active.monthlyCreditAllowance,
     lowBalance: isAiBalanceLow({
       queries: allowedRows.length,
-      queryLimit: AI_MONTHLY_QUERY_LIMIT,
+      queryLimit: active.monthlyQueryLimit,
       credits,
-      creditAllowance: AI_MONTHLY_CREDIT_ALLOWANCE,
+      creditAllowance: active.monthlyCreditAllowance,
+      lowCreditRatio: active.lowCreditRatio,
     }),
-    lowBalanceRatio: AI_LOW_CREDIT_RATIO,
+    lowBalanceRatio: active.lowCreditRatio,
   };
 }
 
@@ -136,8 +160,13 @@ export async function getMonthlyAiUsage(supabase: Db, userId: string): Promise<A
  * Rate limiting por usuário: cada tentativa (inclusive as bloqueadas) fica
  * registrada no log, então o próprio histórico serve de contador.
  */
-export async function checkAiRateLimit(supabase: Db, userId: string): Promise<AiRateVerdict> {
-  const since = new Date(Date.now() - AI_RATE_BURST_WINDOW_SECONDS * 1000).toISOString();
+export async function checkAiRateLimit(
+  supabase: Db,
+  userId: string,
+  limits?: AiLimits,
+): Promise<AiRateVerdict> {
+  const active = limits ?? (await loadAiLimits(supabase));
+  const since = new Date(Date.now() - active.burstWindowSeconds * 1000).toISOString();
   const { data } = await supabase
     .from("ai_usage_log")
     .select("created_at")
@@ -147,7 +176,7 @@ export async function checkAiRateLimit(supabase: Db, userId: string): Promise<Ai
     .limit(200);
 
   const rows = (data ?? []) as { created_at: string }[];
-  return evaluateAiRateLimit(rows.map((row) => row.created_at));
+  return evaluateAiRateLimit(rows.map((row) => row.created_at), new Date(), active);
 }
 
 /** Recibos detalhados de cada execução/decisão do Consultor. */
