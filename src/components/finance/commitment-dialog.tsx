@@ -255,8 +255,29 @@ export function CommitmentDialog({
                   className="mt-1.5 tabular-nums"
                 />
               </div>
+
+              <div className="rounded-lg border border-border bg-muted/40 p-2.5 sm:col-span-2">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <p className="text-xs font-medium">Parcelamento automático</p>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="h-7 text-[11px]"
+                    onClick={applySuggestedInstallment}
+                  >
+                    Calcular parcela
+                  </Button>
+                </div>
+                <p className="mt-1 text-[11px] text-muted-foreground">
+                  {schedulePreview
+                    ? `${schedulePreview.count}x de ${formatCurrency(schedulePreview.amount)} · 1ª em ${formatDate(`${schedulePreview.first}T12:00:00`)} · última em ${formatDate(`${schedulePreview.last}T12:00:00`)} · total ${formatCurrency(schedulePreview.total)}`
+                    : "Informe o valor total e o número de parcelas para o sistema montar os vencimentos mês a mês."}
+                </p>
+              </div>
             </>
           ) : null}
+
 
           <div>
             <Label htmlFor="cm-interest">Juros / encargos (% a.m.)</Label>
