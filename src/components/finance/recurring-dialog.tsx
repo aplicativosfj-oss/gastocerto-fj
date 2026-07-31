@@ -33,6 +33,39 @@ import {
 import { useAccounts } from "@/lib/transactions";
 import { sanitizeText } from "@/lib/validation";
 
+/** Modelos prontos para gastos anuais/mensais comuns (licenciamento, IPVA, apps). */
+const RECURRING_TEMPLATES: {
+  label: string;
+  description: string;
+  category: string;
+  frequency: string;
+  dayOfMonth?: number;
+}[] = [
+  { label: "IPVA", description: "IPVA do veículo", category: "IPVA", frequency: "yearly", dayOfMonth: 10 },
+  {
+    label: "Licenciamento",
+    description: "Licenciamento anual",
+    category: "Licenciamento",
+    frequency: "yearly",
+    dayOfMonth: 15,
+  },
+  {
+    label: "Seguro do veículo",
+    description: "Seguro do veículo",
+    category: "Seguro do veículo",
+    frequency: "monthly",
+    dayOfMonth: 5,
+  },
+  {
+    label: "Apps e licenças",
+    description: "Assinatura de aplicativo",
+    category: "Aplicativos e licenças",
+    frequency: "monthly",
+    dayOfMonth: 1,
+  },
+  { label: "Streaming", description: "Assinatura de streaming", category: "Streaming", frequency: "monthly", dayOfMonth: 1 },
+];
+
 export function RecurringDialog({
   open,
   onOpenChange,
