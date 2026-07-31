@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Car, Download } from "lucide-react";
+import { Car, Download, FileText } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { AppShell } from "@/components/app-shell";
@@ -20,6 +20,8 @@ import { formatCurrency } from "@/lib/format";
 import { useCategories } from "@/lib/queries";
 import { useTransactions } from "@/lib/transactions";
 import { downloadCsv, useVehicles, VEHICLE_TYPES } from "@/lib/vehicles";
+import { exportVehicleSpendPdf } from "@/lib/vehicle-spend-export";
+import { MONTH_NAMES } from "@/lib/finance";
 import {
   spendByVehicleType,
   vehicleSpendBreakdown,
@@ -123,6 +125,25 @@ function VehicleSpendReportPage() {
             >
               <Download className="mr-2 size-4" />
               Exportar CSV
+            </Button>
+            <Button
+              variant="outline"
+              disabled={rows.length === 0}
+              onClick={() =>
+                exportVehicleSpendPdf(rows, {
+                  from: range.start,
+                  to: range.end,
+                  period: `${MONTH_NAMES[period.month - 1]} de ${period.year}`,
+                  vehicleLabel:
+                    vehicleFilter === "all"
+                      ? "Todos os veículos"
+                      : ((vehicles ?? []).find((vehicle) => vehicle.id === vehicleFilter)?.name ??
+                        "Veículo"),
+                })
+              }
+            >
+              <FileText className="mr-2 size-4" />
+              Exportar PDF
             </Button>
           </div>
         </header>
