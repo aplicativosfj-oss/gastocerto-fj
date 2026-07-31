@@ -34,10 +34,14 @@ function write(map: NavLabelMap) {
 /** Lê e grava os rótulos personalizados, reagindo a mudanças em outras telas. */
 export function useNavLabels() {
   const [labels, setLabels] = useState<NavLabelMap>({});
+  const [order, setOrder] = useState<NavOrderMap>({});
 
   useEffect(() => {
-    setLabels(read());
-    const sync = () => setLabels(read());
+    const sync = () => {
+      setLabels(read());
+      setOrder(readOrder());
+    };
+    sync();
     window.addEventListener(EVENT, sync);
     window.addEventListener("storage", sync);
     return () => {
@@ -50,6 +54,12 @@ export function useNavLabels() {
     write(next);
     setLabels(read());
   }, []);
+
+  const saveOrder = useCallback((next: NavOrderMap) => {
+    writeOrder(next);
+    setOrder(readOrder());
+  }, []);
+
 
   const reset = useCallback(() => {
     write({});
