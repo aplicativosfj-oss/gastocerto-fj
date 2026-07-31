@@ -203,6 +203,9 @@ function CategoriesPage() {
           </TabsList>
         </Tabs>
 
+        <CategoryAutofixCard />
+
+
         {isLoading ? (
           <div className="grid gap-3 auto-cards-sm">
             {Array.from({ length: 6 }).map((_, index) => (
