@@ -369,12 +369,14 @@ function RecurringPage() {
 
       {dialogOpen ? (
         <RecurringDialog
-          key={editing?.id ?? "new-rule"}
+          key={editing?.id ?? `new-${preset?.type ?? "expense"}-${preset?.frequency ?? "monthly"}`}
           open={dialogOpen}
           onOpenChange={setDialogOpen}
           rule={editing}
+          preset={preset}
         />
       ) : null}
+
 
       <AlertDialog open={confirm !== null} onOpenChange={() => setConfirm(null)}>
         <AlertDialogContent>
