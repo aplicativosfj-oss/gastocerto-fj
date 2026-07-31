@@ -68,7 +68,7 @@ export function CategoryPicker({
   placeholder = "Buscar categoria (digite para filtrar)",
   autoFilled = false,
 }: {
-  categories: PickerCategory[];
+  categories: (PickerCategory & { parent_id?: string | null })[];
   value: string;
   onChange: (id: string) => void;
   placeholder?: string;
@@ -91,6 +91,20 @@ export function CategoryPicker({
   }, [sync, open]);
 
   const byId = useMemo(() => new Map(categories.map((item) => [item.id, item])), [categories]);
+  
+  const rootCategories = useMemo(() => categories.filter(c => !c.parent_id), [categories]);
+  const subCategories = useMemo(() => {
+    const map = new Map<string, (PickerCategory & { parent_id?: string | null })[]>();
+    categories.forEach(c => {
+      if (c.parent_id) {
+        const list = map.get(c.parent_id) || [];
+        list.push(c);
+        map.set(c.parent_id, list);
+      }
+    });
+    return map;
+  }, [categories]);
+
   const selected = value ? (byId.get(value) ?? null) : null;
 
   const favoriteList = useMemo(
@@ -108,9 +122,10 @@ export function CategoryPicker({
   );
 
   const others = useMemo(
-    () => categories.filter((item) => !favorites.includes(item.id) && !recent.includes(item.id)),
-    [categories, favorites, recent],
+    () => rootCategories.filter((item) => !favorites.includes(item.id) && !recent.includes(item.id)),
+    [rootCategories, favorites, recent],
   );
+
 
   const quick = useMemo(
     () => [...favoriteList, ...recentList, ...others].slice(0, 8),
@@ -149,41 +164,64 @@ export function CategoryPicker({
     node?.focus();
   }
 
-  function renderItems(list: PickerCategory[]) {
+  function renderItems(list: (PickerCategory & { parent_id?: string | null })[]) {
     return list.map((category) => {
       const Icon = categoryIcon(category.icon);
       const isFavorite = favorites.includes(category.id);
+      const children = subCategories.get(category.id) || [];
+
       return (
-        <CommandItem
-          key={category.id}
-          value={category.name}
-          onSelect={() => pick(category.id)}
-          className="gap-2 py-2.5"
-        >
-          <Icon className="size-4 shrink-0" style={{ color: category.color ?? undefined }} />
-          <span className="truncate">{category.name}</span>
-          <span className="ml-auto flex items-center gap-1">
-            {value === category.id ? <GlyphCheck className="size-4 text-primary" /> : null}
-            <span
-              role="button"
-              tabIndex={-1}
-              aria-label={isFavorite ? "Remover dos favoritos" : "Marcar como favorita"}
-              onClick={(event) => {
-                event.stopPropagation();
-                toggleFavorite(category.id);
-              }}
-              className={cn(
-                "rounded p-0.5 transition-colors",
-                isFavorite ? "text-amber-500" : "text-muted-foreground/50 hover:text-amber-500",
-              )}
-            >
-              <GlyphStar filled={isFavorite} className="size-3.5" />
+        <div key={category.id}>
+          <CommandItem
+            value={category.name}
+            onSelect={() => pick(category.id)}
+            className="gap-2 py-2.5"
+          >
+            <Icon className="size-4 shrink-0" style={{ color: category.color ?? undefined }} />
+            <span className="truncate">{category.name}</span>
+            <span className="ml-auto flex items-center gap-1">
+              {value === category.id ? <GlyphCheck className="size-4 text-primary" /> : null}
+              <span
+                role="button"
+                tabIndex={-1}
+                aria-label={isFavorite ? "Remover dos favoritos" : "Marcar como favorita"}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  toggleFavorite(category.id);
+                }}
+                className={cn(
+                  "rounded p-0.5 transition-colors",
+                  isFavorite ? "text-amber-500" : "text-muted-foreground/50 hover:text-amber-500",
+                )}
+              >
+                <GlyphStar filled={isFavorite} className="size-3.5" />
+              </span>
             </span>
-          </span>
-        </CommandItem>
+          </CommandItem>
+          {children.length > 0 && (
+            <div className="ml-4 border-l pl-2">
+              {children.map(sub => {
+                const SubIcon = categoryIcon(sub.icon);
+                return (
+                  <CommandItem
+                    key={sub.id}
+                    value={`${category.name} ${sub.name}`}
+                    onSelect={() => pick(sub.id)}
+                    className="gap-2 py-1.5 text-xs"
+                  >
+                    <SubIcon className="size-3.5 shrink-0 opacity-70" style={{ color: sub.color ?? undefined }} />
+                    <span className="truncate">{sub.name}</span>
+                    {value === sub.id ? <GlyphCheck className="size-3.5 text-primary ml-auto" /> : null}
+                  </CommandItem>
+                );
+              })}
+            </div>
+          )}
+        </div>
       );
     });
   }
+
 
   const TriggerIcon = selected ? categoryIcon(selected.icon) : GlyphSearch;
 
