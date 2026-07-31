@@ -26,8 +26,8 @@ export function monthLabel(year: number, month: number) {
 /** Lista de competências de julho/2026 até o mês corrente (mais recente primeiro). */
 export function listCompetences(reference = new Date()) {
   const months: Array<{ year: number; month: number }> = [];
-  let year = BALANCE_START.year;
-  let month = BALANCE_START.month;
+  let year: number = BALANCE_START.year;
+  let month: number = BALANCE_START.month;
   const endYear = reference.getFullYear();
   const endMonth = reference.getMonth() + 1;
 
