@@ -144,6 +144,36 @@ export function RecurringDialog({
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="grid gap-4 sm:grid-cols-2" noValidate>
+          {!rule ? (
+            <div className="sm:col-span-2">
+              <Label className="text-xs text-muted-foreground">Modelos prontos</Label>
+              <div className="mt-1.5 flex flex-wrap gap-2">
+                {RECURRING_TEMPLATES.map((template) => (
+                  <Button
+                    key={template.label}
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="h-7 text-xs"
+                    onClick={() => {
+                      setType("expense");
+                      setDescription(template.description);
+                      setFrequency(template.frequency);
+                      if (template.dayOfMonth) setDayOfMonth(String(template.dayOfMonth));
+                      const match = (categories ?? []).find(
+                        (category) =>
+                          category.type === "expense" && category.name === template.category,
+                      );
+                      if (match) setCategoryId(match.id);
+                    }}
+                  >
+                    {template.label}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          ) : null}
+
           <div className="sm:col-span-2">
             <Label htmlFor="rec-description">Descrição</Label>
             <Input
