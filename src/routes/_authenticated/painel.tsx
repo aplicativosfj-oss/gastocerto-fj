@@ -29,7 +29,9 @@ import {
 
 import { AppShell } from "@/components/app-shell";
 import { TransactionDialog } from "@/components/finance/transaction-dialog";
+import { QuickCategoryMenu, type QuickPick } from "@/components/finance/quick-category-menu";
 import { PeriodPicker } from "@/components/finance/period-picker";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
