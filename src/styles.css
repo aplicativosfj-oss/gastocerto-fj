@@ -373,6 +373,32 @@
   }
 }
 
+/* Grades fluidas: os cartões se reorganizam sozinhos conforme a largura. */
+@utility auto-cards-sm {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
+}
+
+@utility auto-cards-md {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+}
+
+@utility auto-cards-lg {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+}
+
+/* Altura de gráfico que acompanha o tamanho da tela. */
+@utility chart-frame {
+  width: 100%;
+  height: clamp(150px, 34vw, 230px);
+}
+
+
 /* Revelação suave ao entrar na viewport. */
 @utility reveal {
   opacity: 0;
