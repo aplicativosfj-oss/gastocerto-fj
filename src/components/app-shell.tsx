@@ -114,8 +114,8 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen bg-secondary/20 lg:flex">
-      <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r border-border bg-background lg:flex">
-        <div className="flex h-16 items-center border-b border-border px-5">
+      <aside className="sticky top-0 hidden h-screen w-56 shrink-0 flex-col border-r border-border bg-background lg:flex">
+        <div className="flex h-14 items-center border-b border-border px-4">
           <Link to="/painel" aria-label="Ir para o painel">
             <Logo />
           </Link>
@@ -139,7 +139,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur">
-          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-3">
+          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-2">
             <div className="flex min-w-0 items-center gap-2">
               <Button
                 variant="ghost"
@@ -203,7 +203,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <div className="border-t border-border bg-background/80">
               <nav
                 aria-label="Seções da área"
-                className="mx-auto flex w-full max-w-6xl gap-1 overflow-x-auto px-4 py-2"
+                className="mx-auto flex w-full max-w-6xl gap-1 overflow-x-auto px-4 py-1.5"
               >
                 {subTabs.map((tab) => (
                   <Link
@@ -225,8 +225,8 @@ export function AppShell({ children }: { children: ReactNode }) {
           ) : null}
         </header>
 
-        <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-5 sm:py-6">{children}</main>
-        <footer className="border-t border-border px-4 py-4 text-center text-xs text-muted-foreground">
+        <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-3 sm:py-4">{children}</main>
+        <footer className="border-t border-border px-4 py-2.5 text-center text-xs text-muted-foreground">
           Dev. Franc D&apos;nis · Feijó-AC
         </footer>
       </div>
@@ -250,7 +250,7 @@ function NavLink({
       onClick={onNavigate}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+        "flex items-center gap-3 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors",
         active
           ? "bg-secondary text-foreground"
           : "text-muted-foreground hover:bg-secondary/60 hover:text-foreground",

@@ -340,7 +340,7 @@ function DashboardPage() {
               >
                 <ResponsiveContainer width="100%" height={190}>
                   <PieChart>
-                    <Pie data={byCategory} dataKey="value" nameKey="name" innerRadius={55} outerRadius={90}>
+                    <Pie data={byCategory} dataKey="value" nameKey="name" innerRadius={42} outerRadius={72}>
                       {byCategory.map((entry, index) => (
                         <Cell
                           key={entry.name}
@@ -396,7 +396,7 @@ function DashboardPage() {
               >
                 <ResponsiveContainer width="100%" height={190}>
                   <PieChart>
-                    <Pie data={essentialSplit} dataKey="value" nameKey="name" outerRadius={90}>
+                    <Pie data={essentialSplit} dataKey="value" nameKey="name" outerRadius={72}>
                       {essentialSplit.map((entry) => (
                         <Cell key={entry.name} fill={entry.color} stroke="var(--card)" strokeWidth={2} />
                       ))}
@@ -414,7 +414,7 @@ function DashboardPage() {
                 {(transactions ?? []).length === 0 ? (
                   <EmptyState onAdd={() => setDialogOpen(true)} />
                 ) : (
-                  <ul className="mt-4 space-y-3">
+                  <ul className="mt-3 space-y-2">
                     {(transactions ?? []).slice(0, 6).map((row) => (
                       <li key={row.id} className="flex items-center justify-between gap-3 text-sm">
                         <span className="min-w-0 truncate">{row.description}</span>
@@ -447,7 +447,7 @@ function DashboardPage() {
                     Nenhuma conta pendente neste período.
                   </p>
                 ) : (
-                  <ul className="mt-4 space-y-3">
+                  <ul className="mt-3 space-y-2">
                     {metrics.upcoming.slice(0, 6).map((row) => (
                       <li key={row.id} className="flex items-center justify-between gap-3 text-sm">
                         <span className="flex min-w-0 items-center gap-2">
@@ -477,7 +477,7 @@ function DashboardPage() {
               {byCategory.length === 0 ? (
                 <p className="mt-3 text-sm text-muted-foreground">Nada registrado ainda.</p>
               ) : (
-                <ul className="mt-4 space-y-3">
+                <ul className="mt-3 space-y-2">
                   {byCategory.slice(0, 5).map((item) => (
                     <li key={item.name} className="space-y-1">
                       <div className="flex justify-between text-sm">
@@ -532,7 +532,7 @@ function StatCard({
         {icon}
         <span className="text-xs font-medium uppercase tracking-wide">{label}</span>
       </div>
-      <p className="mt-3 text-xl font-bold tabular-nums">{value}</p>
+      <p className="mt-1.5 text-lg font-bold tabular-nums">{value}</p>
       {hint ? <p className="mt-1 text-xs text-muted-foreground">{hint}</p> : null}
     </div>
   );
@@ -551,7 +551,7 @@ function ChartCard({
     <div className="rounded-2xl border border-border bg-card p-4">
       <h2 className="text-sm font-semibold">{title}</h2>
       <p className="mt-1 text-xs text-muted-foreground">{summary}</p>
-      <div className="mt-4">{children}</div>
+      <div className="mt-2">{children}</div>
     </div>
   );
 }
