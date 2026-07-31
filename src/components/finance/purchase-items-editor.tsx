@@ -1,4 +1,4 @@
-import { Plus, Trash2 } from "lucide-react";
+import { AlertTriangle, Plus, Trash2 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,7 @@ import {
   MEASURE_UNITS,
   emptyItem,
   itemsTotal,
+  validatePurchaseItems,
   unitIsWeighted,
   type ItemDraft,
 } from "@/lib/purchase-items";
@@ -39,12 +40,18 @@ export function PurchaseItemsEditor({
   items,
   onChange,
   onApplyTotal,
+  amount = 0,
+  showValidation = false,
 }: {
   items: ItemDraft[];
   onChange: (items: ItemDraft[]) => void;
   onApplyTotal?: (total: number) => void;
+  amount?: number;
+  showValidation?: boolean;
 }) {
   const total = itemsTotal(items);
+  const check = validatePurchaseItems(items, amount);
+  const issueByIndex = new Map(check.issues.map((issue) => [issue.index, issue.message]));
 
   function update(index: number, patch: Partial<ItemDraft>) {
     const next = items.map((item, position) => (position === index ? { ...item, ...patch } : item));
@@ -68,10 +75,30 @@ export function PurchaseItemsEditor({
             Registre a feira inteira ou item por item, com unidade, quantidade e peso.
           </p>
         </div>
-        <Badge variant="secondary" className="tabular-nums">
+        <Badge
+          variant={check.totalMismatch ? "destructive" : "secondary"}
+          className="tabular-nums"
+        >
           Itens: {formatCurrency(total)}
         </Badge>
       </div>
+
+      {check.totalMismatch ? (
+        <div className="mt-2 flex items-start gap-2 rounded-lg border border-destructive/40 bg-destructive/10 p-2.5 text-xs text-destructive">
+          <AlertTriangle className="mt-0.5 size-4 shrink-0" />
+          <div>
+            <p className="font-medium">
+              A soma dos itens ({formatCurrency(total)}) não bate com o valor do gasto (
+              {formatCurrency(amount)}).
+            </p>
+            <p>
+              Diferença de {formatCurrency(Math.abs(check.diff))}
+              {check.diff > 0 ? " a mais nos itens." : " faltando nos itens."} Ajuste os itens ou use
+              o botão abaixo para aplicar o total dos itens.
+            </p>
+          </div>
+        </div>
+      ) : null}
 
       {items.length > 0 ? (
         <div className="mt-3 space-y-3">
@@ -174,6 +201,13 @@ export function PurchaseItemsEditor({
                       placeholder="0,00"
                     />
                   </div>
+                ) : null}
+
+                {showValidation && issueByIndex.has(index) ? (
+                  <p className="mt-2 flex items-start gap-1.5 text-xs text-destructive">
+                    <AlertTriangle className="mt-0.5 size-3.5 shrink-0" />
+                    {issueByIndex.get(index)}
+                  </p>
                 ) : null}
               </div>
             );

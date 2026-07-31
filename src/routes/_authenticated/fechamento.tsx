@@ -1,9 +1,30 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { CalendarCheck, Lock, RotateCcw, ScrollText } from "lucide-react";
+import {
+  CalendarCheck,
+  FileDown,
+  FileSpreadsheet,
+  Lock,
+  PencilLine,
+  PieChart as PieIcon,
+  RotateCcw,
+  ScrollText,
+} from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
+import {
+  Bar,
+  BarChart,
+  Cell,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 
 import { AppShell } from "@/components/app-shell";
+import { QuickPurchaseDialog } from "@/components/finance/quick-purchase-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,6 +38,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
+import { axisProps, seriesColor, tooltipProps } from "@/lib/chart-theme";
 import {
   BALANCE_START,
   buildBalance,
@@ -27,7 +49,11 @@ import {
   monthLabel,
   type MonthBalance,
 } from "@/lib/closing";
+import { exportBalanceCsv, exportBalancePdf } from "@/lib/closing-export";
+import { PAYMENT_METHODS, toCents } from "@/lib/finance";
 import { formatCurrency, formatDate } from "@/lib/format";
+import { useCategories } from "@/lib/queries";
+import type { Transaction } from "@/lib/transactions";
 
 const TITLE = "Fechamento mensal — GastoCerto";
 const DESCRIPTION =
@@ -55,6 +81,9 @@ function FechamentoPage() {
 
   const [target, setTarget] = useState<MonthBalance | null>(null);
   const [notes, setNotes] = useState("");
+  const [selectedLabel, setSelectedLabel] = useState<string | null>(null);
+  const [quickTarget, setQuickTarget] = useState<Transaction | null>(null);
+  const { data: categories } = useCategories();
 
   const balance = useMemo(
     () => buildBalance(transactions ?? [], closings ?? []),
@@ -66,6 +95,48 @@ function FechamentoPage() {
     const expense = balance.reduce((sum, row) => sum + row.expense, 0);
     return { income, expense, result: income - expense, current: balance[0] ?? null };
   }, [balance]);
+
+  const selected = useMemo(
+    () => balance.find((row) => row.label === selectedLabel) ?? balance[0] ?? null,
+    [balance, selectedLabel],
+  );
+
+  const detail = useMemo(() => {
+    if (!selected) return null;
+    const categoryName = new Map((categories ?? []).map((row) => [row.id, row.name]));
+    const paymentName = new Map<string, string>(
+      PAYMENT_METHODS.map((row) => [row.value as string, row.label]),
+    );
+
+    const rows = (transactions ?? []).filter(
+      (row) =>
+        row.transaction_date >= selected.range.start &&
+        row.transaction_date <= selected.range.end &&
+        row.status !== "canceled" &&
+        row.transaction_type === "expense",
+    );
+
+    function group(keyOf: (row: Transaction) => string) {
+      const map = new Map<string, number>();
+      for (const row of rows) {
+        const key = keyOf(row);
+        map.set(key, toCents((map.get(key) ?? 0) + Number(row.amount)));
+      }
+      return [...map.entries()]
+        .map(([name, value]) => ({ name, value }))
+        .sort((a, b) => b.value - a.value);
+    }
+
+    return {
+      rows: rows.slice().sort((a, b) => b.transaction_date.localeCompare(a.transaction_date)),
+      byCategory: group((row) =>
+        row.category_id ? (categoryName.get(row.category_id) ?? "Sem categoria") : "Sem categoria",
+      ),
+      byPayment: group((row) =>
+        row.payment_method ? (paymentName.get(row.payment_method) ?? row.payment_method) : "Não informado",
+      ),
+    };
+  }, [selected, transactions, categories]);
 
   async function handleClose() {
     if (!target) return;
@@ -84,14 +155,39 @@ function FechamentoPage() {
   return (
     <AppShell>
       <div className="space-y-4">
-        <header className="space-y-1">
-          <h1 className="text-xl font-semibold tracking-tight">Fechamento mensal</h1>
-          <p className="text-sm text-muted-foreground">
-            O balancete começa em {monthLabel(BALANCE_START.year, BALANCE_START.month)} (mês de
-            implantação, aceita lançamentos retroativos). A partir do mês seguinte, cada competência
-            conta do dia 1º ao último dia do mês, e o saldo final vira o saldo inicial do próximo.
-          </p>
+        <header className="flex flex-wrap items-end justify-between gap-3">
+          <div className="space-y-1">
+            <h1 className="text-xl font-semibold tracking-tight">Fechamento mensal</h1>
+            <p className="text-sm text-muted-foreground">
+              O balancete começa em {monthLabel(BALANCE_START.year, BALANCE_START.month)} (mês de
+              implantação, aceita lançamentos retroativos). A partir do mês seguinte, cada
+              competência conta do dia 1º ao último dia do mês, e o saldo final vira o saldo inicial
+              do próximo.
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" className="h-9" onClick={() => exportBalanceCsv(balance)}>
+              <FileSpreadsheet className="mr-1.5 size-4" />
+              CSV
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-9"
+              onClick={async () => {
+                try {
+                  await exportBalancePdf(balance);
+                } catch {
+                  toast.error("Não foi possível gerar o PDF.");
+                }
+              }}
+            >
+              <FileDown className="mr-1.5 size-4" />
+              PDF
+            </Button>
+          </div>
         </header>
+
 
         <div className="auto-cards-sm grid gap-3">
           <SummaryCard label="Entradas acumuladas" value={totals.income} tone="income" />
@@ -133,7 +229,13 @@ function FechamentoPage() {
                 </thead>
                 <tbody>
                   {balance.map((row) => (
-                    <tr key={row.label} className="border-t border-border/70">
+                    <tr
+                      key={row.label}
+                      onClick={() => setSelectedLabel(row.label)}
+                      className={`cursor-pointer border-t border-border/70 transition-colors hover:bg-muted/40 ${
+                        selected?.label === row.label ? "bg-muted/50" : ""
+                      }`}
+                    >
                       <td className="py-2 pr-3">
                         <div className="flex flex-wrap items-center gap-1.5">
                           <span className="font-medium">{row.label}</span>
@@ -213,6 +315,136 @@ function FechamentoPage() {
             </div>
           )}
         </section>
+
+        {selected && detail ? (
+          <section className="rounded-xl border border-border bg-card p-4">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <PieIcon className="size-4 text-muted-foreground" />
+                <h2 className="text-sm font-semibold">Resumo visual de {selected.label}</h2>
+              </div>
+              <Badge variant="secondary" className="tabular-nums">
+                Saídas: {formatCurrency(selected.expense)}
+              </Badge>
+            </div>
+
+            <div className="mt-3 grid gap-4 lg:grid-cols-2">
+              <div>
+                <p className="text-xs font-medium text-muted-foreground">Gastos por categoria</p>
+                <div className="chart-frame mt-1">
+                  {detail.byCategory.length === 0 ? (
+                    <EmptyChart />
+                  ) : (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={detail.byCategory}
+                          dataKey="value"
+                          nameKey="name"
+                          innerRadius="45%"
+                          outerRadius="75%"
+                          paddingAngle={2}
+                        >
+                          {detail.byCategory.map((entry, index) => (
+                            <Cell key={entry.name} fill={seriesColor(index)} />
+                          ))}
+                        </Pie>
+                        <Tooltip
+                          {...tooltipProps}
+                          formatter={(value: number) => formatCurrency(Number(value))}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  )}
+                </div>
+                <ul className="mt-2 space-y-1 text-xs">
+                  {detail.byCategory.slice(0, 6).map((entry, index) => (
+                    <li key={entry.name} className="flex items-center justify-between gap-2">
+                      <span className="flex items-center gap-1.5">
+                        <span
+                          className="size-2 rounded-full"
+                          style={{ backgroundColor: seriesColor(index) }}
+                        />
+                        {entry.name}
+                      </span>
+                      <span className="tabular-nums">{formatCurrency(entry.value)}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div>
+                <p className="text-xs font-medium text-muted-foreground">
+                  Gastos por forma de pagamento
+                </p>
+                <div className="chart-frame mt-1">
+                  {detail.byPayment.length === 0 ? (
+                    <EmptyChart />
+                  ) : (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={detail.byPayment} layout="vertical">
+                        <XAxis type="number" {...axisProps} hide />
+                        <YAxis type="category" dataKey="name" width={92} {...axisProps} />
+                        <Tooltip
+                          {...tooltipProps}
+                          formatter={(value: number) => formatCurrency(Number(value))}
+                        />
+                        <Bar dataKey="value" radius={[0, 6, 6, 0]}>
+                          {detail.byPayment.map((entry, index) => (
+                            <Cell key={entry.name} fill={seriesColor(index + 2)} />
+                          ))}
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-4">
+              <p className="text-xs font-medium text-muted-foreground">
+                Compras do mês — edição rápida de itens, quantidades, peso e pagamento
+              </p>
+              {detail.rows.length === 0 ? (
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Nenhum gasto lançado nesta competência.
+                </p>
+              ) : (
+                <ul className="mt-2 divide-y divide-border/70">
+                  {detail.rows.map((row) => (
+                    <li
+                      key={row.id}
+                      className="flex flex-wrap items-center justify-between gap-2 py-2"
+                    >
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-medium">{row.description}</p>
+                        <p className="text-[11px] text-muted-foreground">
+                          {formatDate(row.transaction_date)}
+                          {row.merchant_name ? ` · ${row.merchant_name}` : ""}
+                          {row.payment_method ? ` · ${row.payment_method}` : ""}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-semibold tabular-nums text-destructive">
+                          {formatCurrency(Number(row.amount))}
+                        </span>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-8"
+                          onClick={() => setQuickTarget(row)}
+                        >
+                          <PencilLine className="mr-1.5 size-3.5" />
+                          Editar
+                        </Button>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </section>
+        ) : null}
       </div>
 
       <Dialog open={Boolean(target)} onOpenChange={(open) => (open ? null : setTarget(null))}>
@@ -259,7 +491,20 @@ function FechamentoPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <QuickPurchaseDialog
+        transaction={quickTarget}
+        open={Boolean(quickTarget)}
+        onOpenChange={(open) => (open ? null : setQuickTarget(null))}
+      />
     </AppShell>
+  );
+}
+
+function EmptyChart() {
+  return (
+    <div className="flex h-full items-center justify-center text-xs text-muted-foreground">
+      Sem dados para o período.
+    </div>
   );
 }
 

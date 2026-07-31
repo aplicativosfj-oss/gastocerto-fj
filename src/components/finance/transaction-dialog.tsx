@@ -43,6 +43,7 @@ import {
   itemFromRow,
   useSaveTransactionItems,
   useTransactionItems,
+  validatePurchaseItems,
   type ItemDraft,
 } from "@/lib/purchase-items";
 import {
@@ -226,6 +227,17 @@ export function TransactionDialog({
     if (!Number.isFinite(value) || value <= 0) nextErrors.amount = "Informe um valor maior que zero.";
     if (value > 100_000_000) nextErrors.amount = "Valor muito alto.";
     if (!date) nextErrors.date = "Informe a data.";
+
+    const itemsCheck = validatePurchaseItems(items, value);
+    if (itemsCheck.issues.length > 0) {
+      nextErrors.items = "Corrija os itens destacados da compra.";
+    } else if (itemsCheck.totalMismatch) {
+      nextErrors.items = `A soma dos itens (${itemsCheck.total
+        .toFixed(2)
+        .replace(".", ",")}) não bate com o valor do gasto. Diferença de ${Math.abs(itemsCheck.diff)
+        .toFixed(2)
+        .replace(".", ",")}.`;
+    }
 
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) return;
@@ -452,8 +464,13 @@ export function TransactionDialog({
                 <PurchaseItemsEditor
                   items={items}
                   onChange={setItems}
+                  amount={toCents(parseAmount(amount))}
+                  showValidation
                   onApplyTotal={(total) => setAmount(String(total).replace(".", ","))}
                 />
+                {errors.items ? (
+                  <p className="mt-1 text-xs text-destructive">{errors.items}</p>
+                ) : null}
               </div>
             ) : null}
 

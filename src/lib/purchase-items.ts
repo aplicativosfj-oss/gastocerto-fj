@@ -152,3 +152,58 @@ export function useSaveTransactionItems() {
     },
   });
 }
+
+function num(raw: string): number {
+  const value = Number(String(raw).replace(",", "."));
+  return Number.isFinite(value) ? value : 0;
+}
+
+export type ItemIssue = { index: number; message: string };
+
+/**
+ * Valida a lista de itens: cada linha deve fechar quantidade x valor unitário
+ * e a soma dos itens deve bater com o valor total do gasto.
+ */
+export function validatePurchaseItems(items: ItemDraft[], amount: number) {
+  const filled = items.filter((item) => item.name.trim().length > 0);
+  const issues: ItemIssue[] = [];
+
+  items.forEach((item, index) => {
+    if (!item.name.trim()) {
+      if (item.total.trim() || item.unitPrice.trim()) {
+        issues.push({ index, message: "Informe o nome do produto." });
+      }
+      return;
+    }
+    const quantity = num(item.quantity);
+    const unitPrice = num(item.unitPrice);
+    const total = num(item.total);
+
+    if (quantity <= 0) {
+      issues.push({ index, message: "Quantidade deve ser maior que zero." });
+      return;
+    }
+    if (total <= 0) {
+      issues.push({ index, message: "Informe o valor total do item." });
+      return;
+    }
+    if (unitPrice > 0) {
+      const expected = toCents(quantity * unitPrice);
+      if (Math.abs(expected - total) > 0.02) {
+        issues.push({
+          index,
+          message: `Quantidade x valor unitário resulta em ${expected
+            .toFixed(2)
+            .replace(".", ",")}, diferente do total informado.`,
+        });
+      }
+    }
+  });
+
+  const total = itemsTotal(items);
+  const diff = toCents(total - toCents(amount));
+  const hasItems = filled.length > 0;
+  const totalMismatch = hasItems && Math.abs(diff) > 0.02;
+
+  return { issues, total, diff, hasItems, totalMismatch, valid: issues.length === 0 && !totalMismatch };
+}
