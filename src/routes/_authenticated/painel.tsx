@@ -551,7 +551,22 @@ function DashboardPage() {
                       <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
                         <span className="flex min-w-0 items-center gap-2">
                           <Car className="size-4 shrink-0 text-muted-foreground" />
-                          <span className="truncate font-medium">{row.vehicleName}</span>
+                          {row.vehicle ? (
+                            <Link
+                              to="/lancamentos"
+                              search={{
+                                veiculo: row.vehicle.id,
+                                ano: period.year,
+                                mes: period.month,
+                              }}
+                              className="truncate font-medium underline-offset-4 hover:underline focus-visible:underline"
+                              aria-label={`Ver lançamentos de ${row.vehicleName} em ${MONTH_NAMES[period.month - 1]} de ${period.year}`}
+                            >
+                              {row.vehicleName}
+                            </Link>
+                          ) : (
+                            <span className="truncate font-medium">{row.vehicleName}</span>
+                          )}
                           <Badge variant="secondary">
                             {labelFor(VEHICLE_TYPES, row.vehicleType)}
                           </Badge>

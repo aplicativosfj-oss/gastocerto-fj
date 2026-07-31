@@ -1,5 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { CalendarClock, Check, Pencil, Plus, RefreshCw, Trash2, Undo2 } from "lucide-react";
+import {
+  CalendarClock,
+  Check,
+  Copy,
+  Pencil,
+  Plus,
+  RefreshCw,
+  Trash2,
+  Undo2,
+} from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -43,6 +52,7 @@ import {
   useGenerateRecurring,
   useRecurringRules,
   useRecurringTransactions,
+  useSaveRecurringRule,
   useSettleTransaction,
   useSyncRecurringStatus,
   useToggleRecurringRule,
@@ -78,6 +88,7 @@ function RecurringPage() {
   const toggle = useToggleRecurringRule();
   const remove = useDeleteRecurringRule();
   const settle = useSettleTransaction();
+  const save = useSaveRecurringRule();
   const syncStatus = useSyncRecurringStatus();
 
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -89,6 +100,8 @@ function RecurringPage() {
 
   const [confirm, setConfirm] = useState<RecurringRule | null>(null);
   const [statusFilter, setStatusFilter] = useState("open");
+  const [freqFilter, setFreqFilter] = useState("all");
+  const [activeFilter, setActiveFilter] = useState("all");
   const [sortBy, setSortBy] = useState("due-asc");
 
   const categoryNames = useMemo(
@@ -97,6 +110,43 @@ function RecurringPage() {
   );
 
   const today = isoDate(new Date());
+
+  const visibleRules = useMemo(
+    () =>
+      (rules ?? []).filter((rule) => {
+        if (freqFilter !== "all" && rule.frequency !== freqFilter) return false;
+        if (activeFilter === "active" && !rule.active) return false;
+        if (activeFilter === "paused" && rule.active) return false;
+        return true;
+      }),
+    [rules, freqFilter, activeFilter],
+  );
+
+  async function duplicateRule(rule: RecurringRule) {
+    try {
+      await save.mutateAsync({
+        values: {
+          description: `${rule.description} (cópia)`,
+          amount: rule.amount,
+          transaction_type: rule.transaction_type,
+          category_id: rule.category_id,
+          account_id: rule.account_id,
+          payment_method: rule.payment_method,
+          frequency: rule.frequency,
+          day_of_month: rule.day_of_month,
+          start_date: rule.start_date,
+          end_date: rule.end_date,
+          is_essential: rule.is_essential,
+          notes: rule.notes,
+          active: false,
+        },
+      });
+      toast.success("Modelo duplicado — ative quando quiser usar.");
+    } catch (error) {
+      console.error("[recorrentes] falha ao duplicar", error);
+      toast.error("Não foi possível duplicar o modelo.");
+    }
+  }
 
   // Sincroniza uma vez por visita: pendentes vencidos viram atrasados.
   const synced = useRef(false);
@@ -223,7 +273,38 @@ function RecurringPage() {
 
         </header>
 
-        <section className="overflow-x-auto rounded-2xl border border-border bg-card">
+        <section className="rounded-2xl border border-border bg-card">
+          {(rules ?? []).length > 0 ? (
+            <div className="flex flex-wrap items-center gap-2 border-b border-border p-3">
+              <Select value={freqFilter} onValueChange={setFreqFilter}>
+                <SelectTrigger className="w-[170px]" aria-label="Filtrar por frequência">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todas as frequências</SelectItem>
+                  {FREQUENCIES.map((item) => (
+                    <SelectItem key={item.value} value={item.value}>
+                      {item.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select value={activeFilter} onValueChange={setActiveFilter}>
+                <SelectTrigger className="w-[150px]" aria-label="Filtrar por situação">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Ativas e pausadas</SelectItem>
+                  <SelectItem value="active">Somente ativas</SelectItem>
+                  <SelectItem value="paused">Somente pausadas</SelectItem>
+                </SelectContent>
+              </Select>
+              <span className="text-xs text-muted-foreground">
+                {visibleRules.length} modelo(s) neste filtro
+              </span>
+            </div>
+          ) : null}
+          <div className="overflow-x-auto">
           {isLoading ? (
             <div className="space-y-2 p-4">
               {Array.from({ length: 4 }).map((_, index) => (
@@ -258,11 +339,11 @@ function RecurringPage() {
                   <TableHead className="hidden lg:table-cell">Dia</TableHead>
                   <TableHead className="text-right">Valor</TableHead>
                   <TableHead className="w-24 text-center">Ativa</TableHead>
-                  <TableHead className="w-24 text-right">Ações</TableHead>
+                  <TableHead className="w-32 text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {(rules ?? []).map((rule) => (
+                {visibleRules.map((rule) => (
                   <TableRow key={rule.id}>
                     <TableCell className="font-medium">{rule.description}</TableCell>
                     <TableCell className="hidden md:table-cell">
@@ -279,7 +360,7 @@ function RecurringPage() {
                     </TableCell>
                     <TableCell className="text-center">
                       <Switch
-                        aria-label={`Ativar ${rule.description}`}
+                        aria-label={`${rule.active ? "Pausar" : "Ativar"} ${rule.description}`}
                         checked={rule.active}
                         onCheckedChange={(checked) =>
                           toggle.mutate({ id: rule.id, active: checked })
@@ -302,6 +383,15 @@ function RecurringPage() {
                         <Button
                           variant="ghost"
                           size="icon"
+                          aria-label={`Duplicar ${rule.description}`}
+                          disabled={save.isPending}
+                          onClick={() => duplicateRule(rule)}
+                        >
+                          <Copy className="size-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
                           aria-label="Excluir recorrência"
                           onClick={() => setConfirm(rule)}
                         >
@@ -314,6 +404,7 @@ function RecurringPage() {
               </TableBody>
             </Table>
           )}
+          </div>
         </section>
 
         <section className="rounded-2xl border border-border bg-card">

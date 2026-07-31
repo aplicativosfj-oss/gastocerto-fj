@@ -34,10 +34,14 @@ function write(map: NavLabelMap) {
 /** Lê e grava os rótulos personalizados, reagindo a mudanças em outras telas. */
 export function useNavLabels() {
   const [labels, setLabels] = useState<NavLabelMap>({});
+  const [order, setOrder] = useState<NavOrderMap>({});
 
   useEffect(() => {
-    setLabels(read());
-    const sync = () => setLabels(read());
+    const sync = () => {
+      setLabels(read());
+      setOrder(readOrder());
+    };
+    sync();
     window.addEventListener(EVENT, sync);
     window.addEventListener("storage", sync);
     return () => {
@@ -51,9 +55,17 @@ export function useNavLabels() {
     setLabels(read());
   }, []);
 
+  const saveOrder = useCallback((next: NavOrderMap) => {
+    writeOrder(next);
+    setOrder(readOrder());
+  }, []);
+
+
   const reset = useCallback(() => {
     write({});
+    writeOrder({});
     setLabels({});
+    setOrder({});
   }, []);
 
   const labelFor = useCallback(
@@ -61,5 +73,64 @@ export function useNavLabels() {
     [labels],
   );
 
-  return { labels, save, reset, labelFor };
+  return { labels, order, save, saveOrder, reset, labelFor };
 }
+
+/* -------------------------------------------------------------------------- */
+/* Ordenação                                                                   */
+/* -------------------------------------------------------------------------- */
+
+const ORDER_KEY = "gc:nav-order";
+
+/** Ordem personalizada: "root" para os grupos e a chave do grupo para os filhos. */
+export type NavOrderMap = Record<string, string[]>;
+
+function readOrder(): NavOrderMap {
+  if (typeof window === "undefined") return {};
+  try {
+    const raw = window.localStorage.getItem(ORDER_KEY);
+    const parsed = raw ? (JSON.parse(raw) as unknown) : null;
+    if (!parsed || typeof parsed !== "object") return {};
+    return Object.fromEntries(
+      Object.entries(parsed as Record<string, unknown>)
+        .filter(([, value]) => Array.isArray(value))
+        .map(([key, value]) => [
+          key,
+          (value as unknown[]).filter((item): item is string => typeof item === "string"),
+        ]),
+    );
+  } catch {
+    return {};
+  }
+}
+
+function writeOrder(map: NavOrderMap) {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(ORDER_KEY, JSON.stringify(map));
+  window.dispatchEvent(new Event(EVENT));
+}
+
+/** Reordena uma lista de itens conforme a ordem salva, mantendo os novos no fim. */
+export function sortBySavedOrder<T extends { key: string }>(
+  items: T[],
+  savedOrder: string[] | undefined,
+): T[] {
+  if (!savedOrder || savedOrder.length === 0) return items;
+  const position = new Map(savedOrder.map((key, index) => [key, index]));
+  return [...items].sort(
+    (a, b) =>
+      (position.get(a.key) ?? Number.MAX_SAFE_INTEGER) -
+      (position.get(b.key) ?? Number.MAX_SAFE_INTEGER),
+  );
+}
+
+/** Move um item da lista uma posição para cima ou para baixo. */
+export function moveInList<T>(items: T[], index: number, direction: -1 | 1): T[] {
+  const target = index + direction;
+  if (target < 0 || target >= items.length) return items;
+  const next = [...items];
+  const [moved] = next.splice(index, 1);
+  next.splice(target, 0, moved as T);
+  return next;
+}
+

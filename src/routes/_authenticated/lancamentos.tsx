@@ -41,6 +41,7 @@ import {
 import { formatCurrency, formatDate } from "@/lib/format";
 import { PAYMENT_METHODS, TRANSACTION_STATUS, labelFor, monthRange, periodDefaultDate } from "@/lib/finance";
 import { useCategories } from "@/lib/queries";
+import { useVehicles } from "@/lib/vehicles";
 import {
   useDeleteTransaction,
   useSaveTransaction,
@@ -63,6 +64,11 @@ export const Route = createFileRoute("/_authenticated/lancamentos")({
       { name: "robots", content: "noindex" },
     ],
   }),
+  validateSearch: (search: Record<string, unknown>) => ({
+    veiculo: typeof search["veiculo"] === "string" ? (search["veiculo"] as string) : undefined,
+    ano: Number(search["ano"]) || undefined,
+    mes: Number(search["mes"]) || undefined,
+  }),
   component: TransactionsPage,
 });
 
@@ -70,7 +76,13 @@ const PAGE_SIZE = 15;
 
 function TransactionsPage() {
   const today = new Date();
-  const [period, setPeriod] = useState({ year: today.getFullYear(), month: today.getMonth() + 1 });
+  const search_ = Route.useSearch();
+  const [period, setPeriod] = useState({
+    year: search_.ano ?? today.getFullYear(),
+    month: search_.mes ?? today.getMonth() + 1,
+  });
+  const [vehicleFilter, setVehicleFilter] = useState(search_.veiculo ?? "all");
+  const { data: vehicles } = useVehicles(true);
   const range = monthRange(period.year, period.month);
   const { data: transactions, isLoading } = useTransactions(range);
   const { data: categories } = useCategories();
@@ -104,6 +116,7 @@ function TransactionsPage() {
       if (categoryFilter !== "all" && row.category_id !== categoryFilter) return false;
       if (statusFilter !== "all" && row.status !== statusFilter) return false;
       if (typeFilter !== "all" && row.transaction_type !== typeFilter) return false;
+      if (vehicleFilter !== "all" && row.vehicle_id !== vehicleFilter) return false;
       return true;
     });
 
@@ -115,7 +128,7 @@ function TransactionsPage() {
     });
 
     return rows;
-  }, [transactions, search, categoryFilter, statusFilter, typeFilter, sort]);
+  }, [transactions, search, categoryFilter, statusFilter, typeFilter, vehicleFilter, sort]);
 
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const currentPage = Math.min(page, pageCount);
@@ -282,7 +295,22 @@ function TransactionsPage() {
               </SelectContent>
             </Select>
           </div>
+
+          <Select value={vehicleFilter} onValueChange={setVehicleFilter}>
+            <SelectTrigger aria-label="Filtrar por veículo">
+              <SelectValue placeholder="Veículo" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os veículos</SelectItem>
+              {(vehicles ?? []).map((vehicle) => (
+                <SelectItem key={vehicle.id} value={vehicle.id}>
+                  {vehicle.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </section>
+
 
         {selected.length > 0 ? (
           <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-border bg-card p-3 text-sm">
