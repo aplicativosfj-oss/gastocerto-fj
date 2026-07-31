@@ -57,10 +57,15 @@ import {
   useBalanceTransactions,
   useCloseMonth,
   useClosings,
-  useReopenMonth,
   monthLabel,
   type MonthBalance,
 } from "@/lib/closing";
+import {
+  REOPEN_STATUS_LABEL,
+  isClosingLocked,
+  useCreateReopenRequest,
+  useMyReopenRequests,
+} from "@/lib/closing-lock";
 import { exportBalanceCsv, exportBalancePdf } from "@/lib/closing-export";
 import { PAYMENT_METHODS, toCents } from "@/lib/finance";
 import { formatCurrency, formatDate } from "@/lib/format";
@@ -90,7 +95,10 @@ function FechamentoPage() {
   const { data: transactions, isLoading } = useBalanceTransactions();
   const { data: closings } = useClosings();
   const closeMonth = useCloseMonth();
-  const reopenMonth = useReopenMonth();
+  const requestReopen = useCreateReopenRequest();
+  const { data: reopenRequests } = useMyReopenRequests();
+  const [reopenTarget, setReopenTarget] = useState<MonthBalance | null>(null);
+  const [reopenReason, setReopenReason] = useState("");
 
   const [target, setTarget] = useState<MonthBalance | null>(null);
   const [notes, setNotes] = useState("");
@@ -353,49 +361,22 @@ function FechamentoPage() {
                             </Badge>
                           ) : null}
                           {row.closed ? (
-                            <Badge className="text-[10px]">fechado</Badge>
-                          ) : null}
-                        </div>
-                        <p className="text-[11px] text-muted-foreground">
-                          {formatDate(row.range.start)} a {formatDate(row.range.end)}
-                        </p>
-                      </td>
-                      <td className="py-2 pr-3 tabular-nums">{formatCurrency(row.opening)}</td>
-                      <td className="py-2 pr-3 tabular-nums text-emerald-600 dark:text-emerald-400">
-                        {formatCurrency(row.income)}
-                      </td>
-                      <td className="py-2 pr-3 tabular-nums text-destructive">
-                        {formatCurrency(row.expense)}
-                      </td>
-                      <td
-                        className={`py-2 pr-3 tabular-nums ${
-                          row.result < 0 ? "text-destructive" : "text-emerald-600 dark:text-emerald-400"
-                        }`}
-                      >
-                        {formatCurrency(row.result)}
-                      </td>
-                      <td className="py-2 pr-3 font-semibold tabular-nums">
-                        {formatCurrency(row.closing)}
-                      </td>
-                      <td className="hidden py-2 pr-3 tabular-nums sm:table-cell">{row.count}</td>
-                      <td className="py-2">
-                        {row.closed ? (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-8"
-                            onClick={async () => {
-                              try {
-                                await reopenMonth.mutateAsync(row.closed!.id);
-                                toast.success(`Competência ${row.label} reaberta.`);
-                              } catch {
-                                toast.error("Não foi possível reabrir o mês.");
-                              }
-                            }}
-                          >
-                            <RotateCcw className="mr-1.5 size-3.5" />
-                            Reabrir
-                          </Button>
+                          isClosingLocked(row.closed) ? (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8"
+                              onClick={() => {
+                                setReopenTarget(row);
+                                setReopenReason("");
+                              }}
+                            >
+                              <RotateCcw className="mr-1.5 size-3.5" />
+                              Solicitar liberação
+                            </Button>
+                          ) : (
+                            <Badge variant="secondary">Liberado para edição</Badge>
+                          )
                         ) : (
                           <Button
                             variant="outline"
