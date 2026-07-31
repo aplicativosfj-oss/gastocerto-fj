@@ -116,6 +116,12 @@ export function AppShell({ children }: { children: ReactNode }) {
       label: labelFor(child.key, child.label),
     })),
   }));
+  const labelFields = baseItems.flatMap((group) => [
+    { key: group.key, fallback: group.label },
+    ...(group.children ?? []).map((child) => ({ key: child.key, fallback: child.label })),
+  ]);
+
+
 
   const activeGroup = items.find(
     (group) => group.to === pathname || group.children?.some((child) => child.to === pathname),
