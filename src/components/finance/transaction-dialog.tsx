@@ -81,6 +81,9 @@ export function TransactionDialog({
   const save = useSaveTransaction();
   const remove = useDeleteTransaction();
   const restore = useRestoreTransaction();
+  const saveItems = useSaveTransactionItems();
+  const { data: existingItems } = useTransactionItems(open ? transaction?.id : null);
+  const [items, setItems] = useState<ItemDraft[]>([]);
 
   const options = useMemo(
     () => (categories ?? []).filter((category) => category.type === kind),
