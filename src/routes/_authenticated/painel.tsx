@@ -49,6 +49,10 @@ import { formatCurrency } from "@/lib/format";
 import { MONTH_NAMES, isoDate, monthRange, periodDefaultDate } from "@/lib/finance";
 import { useCategories, useProfile } from "@/lib/queries";
 import { useBudgets, useTransactions } from "@/lib/transactions";
+import { useVehicles, VEHICLE_TYPES } from "@/lib/vehicles";
+import { vehicleSpendBreakdown } from "@/lib/vehicle-spend";
+import { labelFor } from "@/lib/finance";
+
 
 export const Route = createFileRoute("/_authenticated/painel")({
   head: () => ({
