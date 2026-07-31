@@ -1,0 +1,195 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
+import { useMutation } from "@tanstack/react-query";
+import { Lock, Send, Sparkles } from "lucide-react";
+import { useState } from "react";
+import ReactMarkdown from "react-markdown";
+import { toast } from "sonner";
+
+import { AppShell } from "@/components/app-shell";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { askAdvisor } from "@/lib/advisor.functions";
+
+const TITLE = "Consultor de IA — GastoCerto";
+const DESCRIPTION = "Análise inteligente dos seus gastos com dicas e decisões sugeridas.";
+
+const SUGGESTIONS = [
+  "Onde estou gastando mais e o que posso cortar neste mês?",
+  "Meus gastos com veículo e combustível estão saudáveis?",
+  "Como organizar meus compromissos e parcelas para sobrar dinheiro?",
+  "Analise meu comportamento de consumo dos últimos 3 meses.",
+  "Quanto eu deveria guardar por mês com base no meu histórico?",
+];
+
+export const Route = createFileRoute("/_authenticated/consultor")({
+  head: () => ({
+    meta: [
+      { title: TITLE },
+      { name: "description", content: DESCRIPTION },
+      { property: "og:title", content: TITLE },
+      { property: "og:description", content: DESCRIPTION },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "robots", content: "noindex" },
+    ],
+  }),
+  component: AdvisorPage,
+});
+
+type Turn = { role: "user" | "assistant"; content: string };
+
+function AdvisorPage() {
+  const ask = useServerFn(askAdvisor);
+  const [question, setQuestion] = useState("");
+  const [months, setMonths] = useState(3);
+  const [turns, setTurns] = useState<Turn[]>([]);
+  const [blocked, setBlocked] = useState(false);
+
+  const mutation = useMutation({
+    mutationFn: (value: string) => ask({ data: { question: value, months } }),
+    onSuccess: (result, value) => {
+      if (!result.entitled) setBlocked(true);
+      setTurns((current) => [
+        ...current,
+        { role: "user", content: value },
+        { role: "assistant", content: result.answer },
+      ]);
+    },
+    onError: (error: Error) => {
+      const message = error.message.includes("429")
+        ? "Muitas consultas em sequência. Tente novamente em instantes."
+        : error.message.includes("402")
+          ? "Os créditos de IA acabaram. Fale com o administrador para liberar mais consultas."
+          : (error.message || "Não foi possível consultar agora.");
+      toast.error(message);
+    },
+  });
+
+  function send(value: string) {
+    const clean = value.trim();
+    if (clean.length < 3) {
+      toast.error("Escreva sua pergunta com mais detalhes.");
+      return;
+    }
+    setQuestion("");
+    mutation.mutate(clean);
+  }
+
+  return (
+    <AppShell>
+      <div className="space-y-4">
+        <header className="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h1 className="flex items-center gap-2 text-lg font-semibold">
+              <Sparkles className="size-5 text-[oklch(0.72_0.16_160)]" />
+              Consultor de IA
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              Ele lê seus lançamentos, mapeia seus gastos e sugere decisões. Exclusivo para
+              assinantes.
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            {[1, 3, 6, 12].map((value) => (
+              <Button
+                key={value}
+                type="button"
+                size="sm"
+                variant={months === value ? "secondary" : "ghost"}
+                className="h-8"
+                onClick={() => setMonths(value)}
+              >
+                {value}m
+              </Button>
+            ))}
+          </div>
+        </header>
+
+        {blocked ? (
+          <section className="rounded-2xl border border-border bg-card p-4">
+            <h2 className="flex items-center gap-2 text-sm font-semibold">
+              <Lock className="size-4 text-[oklch(0.75_0.15_75)]" />
+              Recurso dos planos pagos
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Ative sua licença para liberar a análise inteligente dos seus gastos.
+            </p>
+          </section>
+        ) : null}
+
+        <section className="space-y-3 rounded-2xl border border-border bg-card p-4">
+          <div className="flex flex-wrap gap-2">
+            {SUGGESTIONS.map((item) => (
+              <Button
+                key={item}
+                type="button"
+                variant="outline"
+                size="sm"
+                className="h-8 text-xs"
+                disabled={mutation.isPending}
+                onClick={() => send(item)}
+              >
+                {item}
+              </Button>
+            ))}
+          </div>
+
+          <form
+            className="flex flex-col gap-2 sm:flex-row sm:items-end"
+            onSubmit={(event) => {
+              event.preventDefault();
+              send(question);
+            }}
+            noValidate
+          >
+            <Textarea
+              value={question}
+              onChange={(event) => setQuestion(event.target.value)}
+              maxLength={400}
+              rows={2}
+              placeholder="Pergunte algo sobre suas finanças…"
+              aria-label="Pergunta para o consultor"
+              className="flex-1"
+            />
+            <Button type="submit" disabled={mutation.isPending} className="h-10">
+              <Send className="size-4" />
+              {mutation.isPending ? "Analisando…" : "Perguntar"}
+            </Button>
+          </form>
+        </section>
+
+        {turns.length === 0 ? (
+          <p className="rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+            Faça uma pergunta ou escolha uma sugestão para começar a análise.
+          </p>
+        ) : (
+          <ul className="space-y-3">
+            {turns.map((turn, index) => (
+              <li
+                key={`${turn.role}-${index}`}
+                className={
+                  turn.role === "user"
+                    ? "rounded-2xl border border-border bg-muted/40 p-3 text-sm"
+                    : "rounded-2xl border border-border bg-card p-4 text-sm"
+                }
+              >
+                <Badge variant="secondary" className="mb-2">
+                  {turn.role === "user" ? "Você" : "Consultor"}
+                </Badge>
+                {turn.role === "assistant" ? (
+                  <div className="prose prose-sm max-w-none dark:prose-invert [&_li]:my-0.5">
+                    <ReactMarkdown>{turn.content}</ReactMarkdown>
+                  </div>
+                ) : (
+                  <p>{turn.content}</p>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </AppShell>
+  );
+}
