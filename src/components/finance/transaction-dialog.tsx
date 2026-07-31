@@ -455,13 +455,13 @@ export function TransactionDialog({
               <Input
                 id="merchant"
                 value={merchant}
-                onChange={(event) => setMerchant(event.target.value)}
+                onChange={(event) => setMerchant(upperText(event.target.value))}
                 maxLength={100}
                 className="mt-1.5"
                 placeholder={
                   kind === "income"
-                    ? "Ex.: Salário da prefeitura, venda de bolos, serviço de pintura"
-                    : "Ex.: Supermercado Central, Feira do produtor"
+                    ? "EX.: SALÁRIO DA PREFEITURA, VENDA DE BOLOS, SERVIÇO DE PINTURA"
+                    : "EX.: SUPERMERCADO CENTRAL, FEIRA DO PRODUTOR"
                 }
               />
               {kind === "income" ? (
@@ -470,13 +470,14 @@ export function TransactionDialog({
                     <button
                       key={source}
                       type="button"
-                      onClick={() => setMerchant(source)}
+                      onClick={() => setMerchant(upperText(source))}
                       className="rounded-full border border-border px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:border-primary hover:text-primary"
                     >
                       {source}
                     </button>
                   ))}
                 </div>
+
               ) : null}
             </div>
 
