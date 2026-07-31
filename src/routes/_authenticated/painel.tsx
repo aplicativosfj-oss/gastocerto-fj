@@ -529,6 +529,54 @@ function DashboardPage() {
                 </ul>
               )}
             </section>
+
+            <section className="rounded-2xl border border-border bg-card p-4">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h2 className="text-sm font-semibold">Gastos por veículo no período</h2>
+                <Button asChild variant="ghost" size="sm">
+                  <Link to="/veiculos-relatorio">
+                    Relatório completo
+                    <ArrowRight className="ml-1 size-4" />
+                  </Link>
+                </Button>
+              </div>
+              {vehicleSummary.length === 0 ? (
+                <p className="mt-3 text-sm text-muted-foreground">
+                  Nenhum gasto vinculado a veículos neste período.
+                </p>
+              ) : (
+                <ul className="mt-3 space-y-3">
+                  {vehicleSummary.map((row) => (
+                    <li key={row.vehicle?.id ?? row.vehicleName} className="space-y-1.5">
+                      <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
+                        <span className="flex min-w-0 items-center gap-2">
+                          <Car className="size-4 shrink-0 text-muted-foreground" />
+                          <span className="truncate font-medium">{row.vehicleName}</span>
+                          <Badge variant="secondary">
+                            {labelFor(VEHICLE_TYPES, row.vehicleType)}
+                          </Badge>
+                        </span>
+                        <span className="font-semibold tabular-nums">
+                          {formatCurrency(row.total)}
+                        </span>
+                      </div>
+                      <Progress value={vehicleTotal > 0 ? (row.total / vehicleTotal) * 100 : 0} />
+                      <div className="flex flex-wrap gap-1.5">
+                        {row.categories.slice(0, 4).map((category) => (
+                          <span
+                            key={category.id}
+                            className="rounded-full bg-secondary px-2 py-0.5 text-xs text-muted-foreground"
+                          >
+                            {category.name} · {formatCurrency(category.total)}
+                          </span>
+                        ))}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+
           </>
         )}
       </div>
