@@ -200,3 +200,77 @@ export function buildCommitmentReminders(
 
   return drafts;
 }
+
+export type MonthlyCommitmentImpact = {
+  /** Total das parcelas com vencimento no mês (pagas ou não). */
+  dueTotal: number;
+  /** Quanto dessas parcelas já foi pago. */
+  paidTotal: number;
+  /** Quanto ainda falta pagar dentro do mês. */
+  pendingTotal: number;
+  /** Parcelas vencidas e ainda em aberto (do mês e de meses anteriores). */
+  overdueTotal: number;
+  dueCount: number;
+  paidCount: number;
+  overdueCount: number;
+  /** Parcelas do mês, ordenadas por vencimento. */
+  items: Array<{
+    commitment: Commitment;
+    installment: ScheduleInstallment;
+    totalInstallments: number;
+  }>;
+};
+
+/**
+ * Impacto dos compromissos no saldo do mês: soma as parcelas que vencem no
+ * período, o quanto já foi pago e o que ainda vai pesar no caixa.
+ */
+export function monthlyCommitmentImpact(
+  commitments: Commitment[],
+  entries: CommitmentEntry[],
+  options: { year: number; month: number; daysBefore?: number; reference?: Date },
+): MonthlyCommitmentImpact {
+  const prefix = `${options.year}-${String(options.month).padStart(2, "0")}`;
+  const impact: MonthlyCommitmentImpact = {
+    dueTotal: 0,
+    paidTotal: 0,
+    pendingTotal: 0,
+    overdueTotal: 0,
+    dueCount: 0,
+    paidCount: 0,
+    overdueCount: 0,
+    items: [],
+  };
+
+  for (const commitment of commitments) {
+    if (commitment.status !== "open") continue;
+    const schedule = buildSchedule(commitment, entries, {
+      daysBefore: options.daysBefore,
+      reference: options.reference,
+    });
+    if (!schedule) continue;
+
+    for (const installment of schedule.installments) {
+      const open = Math.max(installment.amount - installment.paidAmount, 0);
+      if (installment.status === "overdue") {
+        impact.overdueTotal = toCents(impact.overdueTotal + open);
+        impact.overdueCount += 1;
+      }
+      if (!installment.dueDate.startsWith(prefix)) continue;
+
+      impact.dueTotal = toCents(impact.dueTotal + installment.amount);
+      impact.paidTotal = toCents(impact.paidTotal + Math.min(installment.paidAmount, installment.amount));
+      impact.pendingTotal = toCents(impact.pendingTotal + open);
+      impact.dueCount += 1;
+      if (installment.status === "paid") impact.paidCount += 1;
+      impact.items.push({
+        commitment,
+        installment,
+        totalInstallments: schedule.installments.length,
+      });
+    }
+  }
+
+  impact.items.sort((a, b) => a.installment.dueDate.localeCompare(b.installment.dueDate));
+  return impact;
+}
