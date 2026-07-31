@@ -120,6 +120,42 @@ export function CommitmentScheduleDialog({
               className="h-1.5"
             />
 
+            <div className="flex flex-wrap gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="h-8 text-[11px]"
+                onClick={() => {
+                  if (!commitment) return;
+                  void exportSchedulePdf(commitment, schedule).catch(() =>
+                    toast.error("Não foi possível gerar o PDF."),
+                  );
+                }}
+              >
+                <FileText className="mr-1.5 size-3.5" />
+                Exportar PDF
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="h-8 text-[11px]"
+                onClick={() => {
+                  if (!commitment) return;
+                  exportScheduleCsv(commitment, schedule);
+                }}
+              >
+                <FileSpreadsheet className="mr-1.5 size-3.5" />
+                Exportar CSV
+              </Button>
+              <p className="self-center text-[11px] text-muted-foreground">
+                Inclui vencimento, valor da parcela, valor pago, situação e saldo devedor.
+              </p>
+            </div>
+
+
+
             <ul className="divide-y divide-border overflow-hidden rounded-lg border border-border">
               {schedule.installments.map((item) => (
                 <li key={item.number} className="flex flex-wrap items-center gap-2 p-2 text-xs">
