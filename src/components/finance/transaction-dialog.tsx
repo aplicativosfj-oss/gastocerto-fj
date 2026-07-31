@@ -40,9 +40,7 @@ import {
 import { formatDate } from "@/lib/format";
 import { useCategories } from "@/lib/queries";
 import {
-  emptyItem,
   itemFromRow,
-  itemsTotal,
   useSaveTransactionItems,
   useTransactionItems,
   type ItemDraft,
