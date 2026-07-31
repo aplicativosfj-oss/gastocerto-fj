@@ -118,9 +118,11 @@ export function TransactionDialog({
   );
   const [dueDate, setDueDate] = useState(transaction?.due_date ?? "");
   const [attachment, setAttachment] = useState<string | null>(transaction?.attachment_url ?? null);
-  const [autoFilled, setAutoFilled] = useState(false);
+  const [suggestion, setSuggestion] = useState<{ id: string; name: string } | null>(null);
+  const saveFeedback = useSaveCategoryFeedback();
 
   const { data: lastTransaction } = useLastTransaction(kind);
+
 
   /** Sugestão automática baseada na descrição */
   useEffect(() => {
@@ -136,8 +138,11 @@ export function TransactionDialog({
     
     if (match) {
       setCategoryId(match.id);
-      setAutoFilled(true);
+      setSuggestion({ id: match.id, name: match.name });
+    } else {
+      setSuggestion(null);
     }
+
   }, [description, options, editing, categoryId]);
 
   /**
@@ -146,7 +151,7 @@ export function TransactionDialog({
    */
   useEffect(() => {
     if (!open || editing || !lastTransaction) return;
-    setAutoFilled(true);
+    setSuggestion(null);
     setCategoryId((current) => {
       if (current) return current;
       const recent = readRecentCategories().find((id) =>
@@ -476,11 +481,61 @@ export function TransactionDialog({
                 categories={options}
                 value={categoryId}
                 onChange={(id) => {
-                  setAutoFilled(false);
+                  if (suggestion && suggestion.id !== id) {
+                    saveFeedback.mutate({
+                      description: description,
+                      suggested_category_id: suggestion.id,
+                      accepted: false,
+                      corrected_category_id: id
+                    });
+                  } else if (suggestion && suggestion.id === id) {
+                    saveFeedback.mutate({
+                      description: description,
+                      suggested_category_id: suggestion.id,
+                      accepted: true
+                    });
+                  }
+                  setSuggestion(null);
                   setCategoryId(id);
                 }}
-                autoFilled={autoFilled}
+                autoFilled={Boolean(suggestion)}
               />
+              {suggestion && (
+                <div className="mt-2 flex items-center justify-between rounded-lg bg-secondary/50 p-2 text-[11px]">
+                  <span>Sugestão: <strong>{suggestion.name}</strong></span>
+                  <div className="flex gap-2">
+                    <Button 
+                      type="button" 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-6 px-2 text-[10px]"
+                      onClick={() => {
+                        saveFeedback.mutate({
+                          description: description,
+                          suggested_category_id: suggestion.id,
+                          accepted: true
+                        });
+                        setSuggestion(null);
+                      }}
+                    >
+                      Correspondeu
+                    </Button>
+                    <Button 
+                      type="button" 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-6 px-2 text-[10px]"
+                      onClick={() => {
+                        setSuggestion(null);
+                        setCategoryId("");
+                      }}
+                    >
+                      Não correspondeu
+                    </Button>
+                  </div>
+                </div>
+              )}
+
             </div>
 
 
