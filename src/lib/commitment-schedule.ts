@@ -186,8 +186,8 @@ export function buildCommitmentReminders(
         title: overdue ? "Parcela atrasada" : "Parcela a vencer",
         message: `${commitment.name} — parcela ${item.number}/${schedule.installments.length} de ${formatCurrency(item.amount)} ${
           overdue
-            ? `venceu em ${formatDate(item.dueDate)} (${Math.abs(item.daysToDue)} dia(s))`
-            : `vence em ${formatDate(item.dueDate)} (${item.daysToDue} dia(s))`
+            ? `venceu em ${formatDate(`${item.dueDate}T12:00:00`)} (${Math.abs(item.daysToDue)} dia(s))`
+            : `vence em ${formatDate(`${item.dueDate}T12:00:00`)} (${item.daysToDue} dia(s))`
         }`,
         severity: overdue ? "critical" : "warning",
         link: "/compromissos",
