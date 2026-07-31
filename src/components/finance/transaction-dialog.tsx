@@ -121,7 +121,7 @@ export function TransactionDialog({
   const [dueDate, setDueDate] = useState(transaction?.due_date ?? "");
   const [attachment, setAttachment] = useState<string | null>(transaction?.attachment_url ?? null);
   const [suggestion, setSuggestion] = useState<{ id: string; name: string; subCategoryId?: string | null } | null>(null);
-  const [subCategoryId, setSubCategoryId] = useState(transaction?.sub_category_id ?? "");
+  const [subCategoryId, setSubCategoryId] = useState((transaction as any)?.sub_category_id ?? "");
   const saveFeedback = useSaveCategoryFeedback();
 
   const { data: lastTransaction } = useLastTransaction(kind);
