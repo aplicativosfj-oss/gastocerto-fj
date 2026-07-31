@@ -66,6 +66,7 @@ type Draft = {
   type: "expense" | "income";
   color: string;
   icon: string;
+  display_order?: number;
 };
 
 function CategoriesPage() {
@@ -117,7 +118,13 @@ function CategoriesPage() {
     try {
       await save.mutateAsync({
         id: draft.id,
-        values: { name, type: draft.type, color: draft.color, icon: draft.icon },
+        values: { 
+          name, 
+          type: draft.type, 
+          color: draft.color, 
+          icon: draft.icon,
+          display_order: draft.display_order ?? 0
+        },
       });
       setDraft(null);
       toast.success(draft.id ? "Categoria atualizada." : "Categoria criada.");
@@ -143,6 +150,19 @@ function CategoriesPage() {
     toast.success(active ? "Categoria reativada." : "Categoria desativada.");
   }
 
+  async function updateOrder(id: string, order: number) {
+    const { error: updateError } = await supabase
+      .from("categories")
+      .update({ display_order: order })
+      .eq("id", id);
+    if (updateError) {
+      console.error("[categorias] falha ao ordenar", updateError.message);
+      toast.error("Não foi possível salvar a ordem.");
+      return;
+    }
+    await refresh();
+  }
+
   return (
     <AppShell>
       <div className="space-y-4">
@@ -156,7 +176,13 @@ function CategoriesPage() {
           <Button
             onClick={() => {
               setError(null);
-              setDraft({ name: "", type: tab, color: COLORS[0], icon: "circle-ellipsis" });
+              setDraft({ 
+                name: "", 
+                type: tab, 
+                color: COLORS[0], 
+                icon: "circle-ellipsis",
+                display_order: visible.length 
+              });
             }}
           >
             <Plus className="mr-2 size-4" />
@@ -221,6 +247,7 @@ function CategoriesPage() {
                         type: category.type as "expense" | "income",
                         color: category.color ?? COLORS[0],
                         icon: category.icon ?? "circle-ellipsis",
+                        display_order: category.display_order ?? 0,
                       });
                     }}
                   >
