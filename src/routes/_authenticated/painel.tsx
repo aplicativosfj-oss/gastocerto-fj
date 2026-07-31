@@ -215,9 +215,13 @@ function DashboardPage() {
           </div>
           <div className="col-span-2 flex flex-wrap items-center gap-2">
             <PeriodPicker year={period.year} month={period.month} onChange={setPeriod} />
-            <Button onClick={() => setDialogOpen(true)}>
+            <Button variant="outline" onClick={() => setDialogOpen(true)}>
               <Plus className="mr-2 size-4" />
-              Adicionar gasto
+              Novo lançamento
+            </Button>
+            <Button onClick={() => navigate({ to: "/veiculos" })}>
+              <Car className="mr-2 size-4" />
+              Novo gasto do veículo
             </Button>
           </div>
         </header>
