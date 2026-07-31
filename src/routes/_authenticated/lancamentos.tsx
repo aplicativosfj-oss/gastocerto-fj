@@ -295,7 +295,22 @@ function TransactionsPage() {
               </SelectContent>
             </Select>
           </div>
+
+          <Select value={vehicleFilter} onValueChange={setVehicleFilter}>
+            <SelectTrigger aria-label="Filtrar por veículo">
+              <SelectValue placeholder="Veículo" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os veículos</SelectItem>
+              {(vehicles ?? []).map((vehicle) => (
+                <SelectItem key={vehicle.id} value={vehicle.id}>
+                  {vehicle.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </section>
+
 
         {selected.length > 0 ? (
           <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-border bg-card p-3 text-sm">
