@@ -14,6 +14,7 @@ import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
+import { FeatureGate } from "@/components/finance/feature-gate";
 import { CommitmentDialog } from "@/components/finance/commitment-dialog";
 import { CommitmentEntriesDialog } from "@/components/finance/commitment-entries-dialog";
 import { CommitmentScheduleDialog } from "@/components/finance/commitment-schedule-dialog";
@@ -136,6 +137,7 @@ function CompromissosPage() {
 
   return (
     <AppShell>
+      <FeatureGate feature="commitments">
       <div className="space-y-4">
         <header className="flex flex-wrap items-end justify-between gap-3">
           <div className="space-y-1">
@@ -306,6 +308,7 @@ function CompromissosPage() {
         open={Boolean(entryTarget)}
         onOpenChange={(open) => (open ? null : setEntryTarget(null))}
       />
+    </FeatureGate>
     </AppShell>
   );
 }
