@@ -31,10 +31,13 @@ export function RecurringDialog({
   open,
   onOpenChange,
   rule,
+  preset,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   rule?: RecurringRule | null;
+  /** Atalho escolhido pelo usuário (tipo e frequência já preenchidos). */
+  preset?: { type?: "expense" | "income"; frequency?: string } | null;
 }) {
   const save = useSaveRecurringRule();
   const { data: categories } = useCategories();
@@ -43,12 +46,13 @@ export function RecurringDialog({
   const [description, setDescription] = useState(rule?.description ?? "");
   const [amount, setAmount] = useState(rule ? String(rule.amount).replace(".", ",") : "");
   const [type, setType] = useState<"expense" | "income">(
-    (rule?.transaction_type as "expense" | "income") ?? "expense",
+    (rule?.transaction_type as "expense" | "income") ?? preset?.type ?? "expense",
   );
   const [categoryId, setCategoryId] = useState(rule?.category_id ?? "");
   const [accountId, setAccountId] = useState(rule?.account_id ?? "");
   const [paymentMethod, setPaymentMethod] = useState(rule?.payment_method ?? "boleto");
-  const [frequency, setFrequency] = useState(rule?.frequency ?? "monthly");
+  const [frequency, setFrequency] = useState(rule?.frequency ?? preset?.frequency ?? "monthly");
+
   const [dayOfMonth, setDayOfMonth] = useState(
     rule?.day_of_month ? String(rule.day_of_month) : "",
   );
