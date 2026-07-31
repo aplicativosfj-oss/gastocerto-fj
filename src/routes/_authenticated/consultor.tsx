@@ -1,7 +1,7 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Lock, Send, Sparkles } from "lucide-react";
+import { Lock, Send } from "lucide-react";
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
@@ -11,6 +11,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { AiCreditsPanel } from "@/components/finance/ai-credits-panel";
+import { AiReceipts } from "@/components/finance/ai-receipts";
+import { EmblemAdvisor } from "@/components/ui/panel-emblems";
 import { askAdvisor, getAdvisorAccess } from "@/lib/advisor.functions";
 
 const TITLE = "Consultor de IA — GastoCerto";
@@ -61,6 +63,11 @@ function AdvisorPage() {
     mutationFn: (value: string) => ask({ data: { question: value, months } }),
     onSuccess: (result, value) => {
       if (!result.entitled) setBlocked(true);
+      if ("rateLimited" in result && result.rateLimited) {
+        toast.warning(
+          `Aguarde ${result.retryAfterSeconds}s antes da próxima análise (proteção contra tentativas repetidas).`,
+        );
+      }
       void queryClient.invalidateQueries({ queryKey: ["advisor-access"] });
       setTurns((current) => [
         ...current,
@@ -92,15 +99,15 @@ function AdvisorPage() {
     <AppShell>
       <div className="space-y-4">
         <header className="flex flex-wrap items-center justify-between gap-2">
-          <div>
-            <h1 className="flex items-center gap-2 text-lg font-semibold">
-              <Sparkles className="size-5 text-[oklch(0.72_0.16_160)]" />
-              Consultor de IA
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              Ele lê seus lançamentos, mapeia seus gastos e sugere decisões. Exclusivo para
-              assinantes.
-            </p>
+          <div className="flex items-center gap-3">
+            <EmblemAdvisor title="Consultor de IA" className="size-11" />
+            <div>
+              <h1 className="font-display text-lg font-semibold tracking-tight">Consultor de IA</h1>
+              <p className="text-sm text-muted-foreground">
+                Ele lê seus lançamentos, mapeia seus gastos e sugere decisões. Exclusivo para
+                assinantes.
+              </p>
+            </div>
           </div>
           <div className="flex items-center gap-2">
             {[1, 3, 6, 12].map((value) => (
@@ -222,6 +229,7 @@ function AdvisorPage() {
             ))}
           </ul>
         )}
+        {access ? <AiReceipts receipts={access.receipts} /> : null}
       </div>
     </AppShell>
   );
