@@ -8,6 +8,8 @@ export type Transaction = Tables<"transactions">;
 export type Category = Tables<"categories">;
 export type Account = Tables<"accounts">;
 export type Budget = Tables<"budgets">;
+export type CategoryFeedback = Tables<"category_suggestion_feedback">;
+
 
 export type TransactionRange = { start: string; end: string };
 
@@ -212,3 +214,17 @@ export function useSaveBudget() {
     onSuccess: refresh,
   });
 }
+
+export function useSaveCategoryFeedback() {
+  const { user } = useAuth();
+  return useMutation({
+    mutationFn: async (values: Omit<TablesInsert<"category_suggestion_feedback">, "user_id">) => {
+      if (!user) throw new Error("Sessão expirada");
+      const { error } = await supabase
+        .from("category_suggestion_feedback")
+        .insert({ ...values, user_id: user.id });
+      if (error) throw error;
+    },
+  });
+}
+
