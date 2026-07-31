@@ -3,6 +3,7 @@ import {
   AlertTriangle,
   ArrowRight,
   CalendarClock,
+  Car,
   Loader2,
   Plus,
   TrendingDown,

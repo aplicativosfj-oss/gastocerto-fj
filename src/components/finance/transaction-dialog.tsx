@@ -398,16 +398,16 @@ export function TransactionDialog({
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="sm:col-span-2">
               <Label htmlFor="description">
-                {kind === "income" ? "Descrição da receita" : "Descrição do gasto"}
+                {kind === "income" ? "Descrição / Fonte da Renda" : "Descrição / Nome do estabelecimento"}
               </Label>
               <Input
                 id="description"
                 value={description}
-                onChange={(event) => setDescription(upperText(event.target.value))}
+                onChange={(event) => setDescription(event.target.value)}
                 maxLength={140}
                 className="mt-1.5"
                 placeholder={
-                  kind === "income" ? "EX.: SALÁRIO DE JULHO" : "EX.: MERCADO DO BAIRRO"
+                  kind === "income" ? "Ex: Salário Mensal, Venda OLX..." : "Ex: Supermercado Silva, Posto Ipiranga..."
                 }
               />
               {errors.description ? (
