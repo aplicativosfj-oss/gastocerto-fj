@@ -1,9 +1,30 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { CalendarCheck, Lock, RotateCcw, ScrollText } from "lucide-react";
+import {
+  CalendarCheck,
+  FileDown,
+  FileSpreadsheet,
+  Lock,
+  PencilLine,
+  PieChart as PieIcon,
+  RotateCcw,
+  ScrollText,
+} from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
+import {
+  Bar,
+  BarChart,
+  Cell,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 
 import { AppShell } from "@/components/app-shell";
+import { QuickPurchaseDialog } from "@/components/finance/quick-purchase-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,6 +38,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
+import { axisProps, seriesColor, tooltipProps } from "@/lib/chart-theme";
 import {
   BALANCE_START,
   buildBalance,
@@ -27,7 +49,11 @@ import {
   monthLabel,
   type MonthBalance,
 } from "@/lib/closing";
+import { exportBalanceCsv, exportBalancePdf } from "@/lib/closing-export";
+import { PAYMENT_METHODS, toCents } from "@/lib/finance";
 import { formatCurrency, formatDate } from "@/lib/format";
+import { useCategories } from "@/lib/queries";
+import type { Transaction } from "@/lib/transactions";
 
 const TITLE = "Fechamento mensal — GastoCerto";
 const DESCRIPTION =
