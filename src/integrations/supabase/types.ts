@@ -269,6 +269,45 @@ export type Database = {
           },
         ]
       }
+      closed_period_audit: {
+        Row: {
+          action: string
+          actor_id: string | null
+          changes: Json
+          created_at: string
+          entity: string
+          id: string
+          month: number
+          record_id: string | null
+          user_id: string
+          year: number
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          changes?: Json
+          created_at?: string
+          entity: string
+          id?: string
+          month: number
+          record_id?: string | null
+          user_id: string
+          year: number
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          changes?: Json
+          created_at?: string
+          entity?: string
+          id?: string
+          month?: number
+          record_id?: string | null
+          user_id?: string
+          year?: number
+        }
+        Relationships: []
+      }
       closing_reopen_requests: {
         Row: {
           admin_note: string | null
