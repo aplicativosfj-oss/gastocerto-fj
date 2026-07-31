@@ -94,9 +94,8 @@ export function TransactionDialog({
   const [advanced, setAdvanced] = useState(false);
 
   const [description, setDescription] = useState(transaction?.description ?? "");
-  const [amount, setAmount] = useState(
-    transaction ? String(transaction.amount).replace(".", ",") : "",
-  );
+  const [amount, setAmount] = useState(amountToInput(transaction?.amount));
+
   const [categoryId, setCategoryId] = useState(transaction?.category_id ?? "");
   const [date, setDate] = useState(
     transaction?.transaction_date ?? defaultDate ?? isoDate(new Date()),
