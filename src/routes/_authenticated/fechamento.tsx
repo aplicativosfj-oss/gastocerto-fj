@@ -856,6 +856,7 @@ function FechamentoPage() {
         onOpenChange={(open) => (open ? null : setQuickTarget(null))}
       />
 
+      <ClosedPeriodAuditPanel />
     </AppShell>
   );
 }
