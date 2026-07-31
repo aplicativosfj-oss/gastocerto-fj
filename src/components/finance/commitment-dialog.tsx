@@ -22,6 +22,9 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { PAYMENT_METHODS, isoDate, parseAmount, toCents } from "@/lib/finance";
+import { formatCurrency, formatDate } from "@/lib/format";
+import { addMonths, priceInstallment } from "@/lib/commitment-schedule";
+
 import {
   COMMITMENT_STATUS,
   COMMITMENT_TYPES,
