@@ -16,17 +16,21 @@ import {
 import { useState, type ReactNode } from "react";
 
 import { Logo } from "@/components/logo";
+import { NavLabelsDialog } from "@/components/nav-labels-dialog";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { ContrastToggle } from "@/components/contrast-toggle";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAvatarUrl, useProfile, useRoles } from "@/lib/queries";
+import { useNavLabels } from "@/lib/nav-labels";
 import { useNotifications } from "@/lib/notifications";
 import { cn } from "@/lib/utils";
 
-type NavChild = { label: string; to: string };
+
+type NavChild = { key: string; label: string; to: string };
 type NavGroup = {
+  key: string;
   label: string;
   to: string;
   icon: typeof LayoutDashboard;
@@ -34,51 +38,57 @@ type NavGroup = {
 };
 
 export const navGroups: NavGroup[] = [
-  { label: "Visão geral", to: "/painel", icon: LayoutDashboard },
+  { key: "overview", label: "Visão geral", to: "/painel", icon: LayoutDashboard },
   {
+    key: "entries",
     label: "Lançamentos",
     to: "/lancamentos",
     icon: ArrowLeftRight,
     children: [
-      { label: "Despesas", to: "/lancamentos" },
-      { label: "Receitas", to: "/receitas" },
-      { label: "Recorrentes", to: "/recorrencia" },
-      { label: "Comprovantes", to: "/comprovantes" },
+      { key: "entries.expenses", label: "Despesas", to: "/lancamentos" },
+      { key: "entries.incomes", label: "Receitas", to: "/receitas" },
+      { key: "entries.recurring", label: "Recorrentes", to: "/recorrencia" },
+      { key: "entries.receipts", label: "Comprovantes", to: "/comprovantes" },
     ],
   },
   {
+    key: "vehicles",
     label: "Gastos com Veículo",
     to: "/veiculos",
     icon: Car,
     children: [
-      { label: "Abastecimentos", to: "/veiculos" },
-      { label: "Configurações", to: "/veiculos-configuracoes" },
-      { label: "Auditoria", to: "/veiculos-auditoria" },
+      { key: "vehicles.fuel", label: "Abastecimentos", to: "/veiculos" },
+      { key: "vehicles.report", label: "Relatório de gastos", to: "/veiculos-relatorio" },
+      { key: "vehicles.settings", label: "Configurações", to: "/veiculos-configuracoes" },
+      { key: "vehicles.audit", label: "Auditoria", to: "/veiculos-auditoria" },
     ],
   },
   {
+    key: "planning",
     label: "Planejamento",
     to: "/orcamentos",
     icon: PiggyBank,
     children: [
-      { label: "Orçamentos", to: "/orcamentos" },
-      { label: "Compromissos", to: "/compromissos" },
-      { label: "Metas", to: "/metas" },
-      { label: "Categorias", to: "/categorias" },
-      { label: "Fechamento mensal", to: "/fechamento" },
+      { key: "planning.budgets", label: "Orçamentos", to: "/orcamentos" },
+      { key: "planning.commitments", label: "Compromissos", to: "/compromissos" },
+      { key: "planning.goals", label: "Metas", to: "/metas" },
+      { key: "planning.categories", label: "Categorias", to: "/categorias" },
+      { key: "planning.closing", label: "Fechamento mensal", to: "/fechamento" },
     ],
   },
   {
+    key: "analytics",
     label: "Análises",
     to: "/relatorios",
     icon: BarChart3,
     children: [
-      { label: "Relatórios", to: "/relatorios" },
-      { label: "Calendário", to: "/calendario" },
+      { key: "analytics.reports", label: "Relatórios", to: "/relatorios" },
+      { key: "analytics.calendar", label: "Calendário", to: "/calendario" },
     ],
   },
-  { label: "Meu perfil", to: "/perfil", icon: User2 },
+  { key: "profile", label: "Meu perfil", to: "/perfil", icon: User2 },
 ];
+
 
 export function AppShell({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
@@ -91,14 +101,33 @@ export function AppShell({ children }: { children: ReactNode }) {
   const avatarUrl = useAvatarUrl(profile?.avatar_url);
   const unreadCount = (notifications ?? []).filter((item) => !item.read_at).length;
   const isStaff = (roles ?? []).some((role) => role === "admin" || role === "support");
-  const items: NavGroup[] = isStaff
-    ? [...navGroups, { label: "Administração", to: "/admin", icon: ShieldCheck }]
+  const { labelFor } = useNavLabels();
+  const baseItems: NavGroup[] = isStaff
+    ? [
+        ...navGroups,
+        { key: "admin", label: "Administração", to: "/admin", icon: ShieldCheck },
+      ]
     : [...navGroups];
+  const items: NavGroup[] = baseItems.map((group) => ({
+    ...group,
+    label: labelFor(group.key, group.label),
+    children: group.children?.map((child) => ({
+      ...child,
+      label: labelFor(child.key, child.label),
+    })),
+  }));
+  const labelFields = baseItems.flatMap((group) => [
+    { key: group.key, fallback: group.label },
+    ...(group.children ?? []).map((child) => ({ key: child.key, fallback: child.label })),
+  ]);
+
+
 
   const activeGroup = items.find(
     (group) => group.to === pathname || group.children?.some((child) => child.to === pathname),
   );
   const subTabs = activeGroup?.children ?? [];
+
 
 
   const initials = (profile?.full_name ?? "GC")
@@ -127,7 +156,8 @@ export function AppShell({ children }: { children: ReactNode }) {
             <NavLink key={item.to} item={item} active={activeGroup?.to === item.to} />
           ))}
         </nav>
-        <div className="border-t border-border p-3">
+        <div className="space-y-1 border-t border-border p-3">
+          <NavLabelsDialog fields={labelFields} />
           <Button
             variant="ghost"
             className="w-full justify-start gap-2 text-muted-foreground"
@@ -137,6 +167,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             Sair
           </Button>
         </div>
+
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">

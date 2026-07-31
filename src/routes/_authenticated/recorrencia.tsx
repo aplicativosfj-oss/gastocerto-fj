@@ -82,6 +82,11 @@ function RecurringPage() {
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<RecurringRule | null>(null);
+  const [preset, setPreset] = useState<{
+    type?: "expense" | "income";
+    frequency?: string;
+  } | null>(null);
+
   const [confirm, setConfirm] = useState<RecurringRule | null>(null);
   const [statusFilter, setStatusFilter] = useState("open");
   const [sortBy, setSortBy] = useState("due-asc");
@@ -172,8 +177,42 @@ function RecurringPage() {
               Gerar próximos
             </Button>
             <Button
+              variant="outline"
               onClick={() => {
                 setEditing(null);
+                setPreset({ type: "income", frequency: "monthly" });
+                setDialogOpen(true);
+              }}
+            >
+              <Plus className="mr-2 size-4" />
+              Receita mensal
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setEditing(null);
+                setPreset({ type: "expense", frequency: "monthly" });
+                setDialogOpen(true);
+              }}
+            >
+              <Plus className="mr-2 size-4" />
+              Despesa mensal
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setEditing(null);
+                setPreset({ type: "expense", frequency: "weekly" });
+                setDialogOpen(true);
+              }}
+            >
+              <Plus className="mr-2 size-4" />
+              Despesa semanal
+            </Button>
+            <Button
+              onClick={() => {
+                setEditing(null);
+                setPreset(null);
                 setDialogOpen(true);
               }}
             >
@@ -181,6 +220,7 @@ function RecurringPage() {
               Nova recorrência
             </Button>
           </div>
+
         </header>
 
         <section className="overflow-x-auto rounded-2xl border border-border bg-card">
@@ -369,12 +409,14 @@ function RecurringPage() {
 
       {dialogOpen ? (
         <RecurringDialog
-          key={editing?.id ?? "new-rule"}
+          key={editing?.id ?? `new-${preset?.type ?? "expense"}-${preset?.frequency ?? "monthly"}`}
           open={dialogOpen}
           onOpenChange={setDialogOpen}
           rule={editing}
+          preset={preset}
         />
       ) : null}
+
 
       <AlertDialog open={confirm !== null} onOpenChange={() => setConfirm(null)}>
         <AlertDialogContent>

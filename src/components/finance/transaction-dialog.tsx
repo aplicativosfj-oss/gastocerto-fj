@@ -71,6 +71,8 @@ export function TransactionDialog({
   transaction,
   defaultDate,
   onSaved,
+  presetCategoryId,
+  presetSubCategoryId,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -79,7 +81,12 @@ export function TransactionDialog({
   /** Data inicial sugerida (permite lançar em meses anteriores). */
   defaultDate?: string;
   onSaved?: (date: string) => void;
+  /** Categoria já escolhida no menu rápido. */
+  presetCategoryId?: string | null;
+  /** Subcategoria já escolhida no menu rápido. */
+  presetSubCategoryId?: string | null;
 }) {
+
   const editing = Boolean(transaction);
   const { data: categories } = useCategories();
   const { data: accounts } = useAccounts();
@@ -183,6 +190,15 @@ export function TransactionDialog({
       setEssential((current) => current || Boolean(lastTransaction.is_essential));
     }
   }, [open, editing, lastTransaction, kind, options]);
+
+  /** Categoria/subcategoria escolhidas no menu rápido têm prioridade. */
+  useEffect(() => {
+    if (!open || editing) return;
+    if (presetCategoryId) setCategoryId(presetCategoryId);
+    if (presetSubCategoryId !== undefined) setSubCategoryId(presetSubCategoryId ?? "");
+  }, [open, editing, presetCategoryId, presetSubCategoryId]);
+
+
 
   /** Carrega os itens detalhados quando abre um lançamento existente. */
   useEffect(() => {

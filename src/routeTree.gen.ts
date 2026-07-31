@@ -34,6 +34,7 @@ import { Route as AuthenticatedRelatoriosRouteImport } from './routes/_authentic
 import { Route as AuthenticatedVeiculosRouteImport } from './routes/_authenticated/veiculos'
 import { Route as AuthenticatedVeiculosAuditoriaRouteImport } from './routes/_authenticated/veiculos-auditoria'
 import { Route as AuthenticatedVeiculosConfiguracoesRouteImport } from './routes/_authenticated/veiculos-configuracoes'
+import { Route as AuthenticatedVeiculosRelatorioRouteImport } from './routes/_authenticated/veiculos-relatorio'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -165,6 +166,12 @@ const AuthenticatedVeiculosConfiguracoesRoute =
     path: '/veiculos-configuracoes',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedVeiculosRelatorioRoute =
+  AuthenticatedVeiculosRelatorioRouteImport.update({
+    id: '/veiculos-relatorio',
+    path: '/veiculos-relatorio',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -191,6 +198,7 @@ export interface FileRoutesByFullPath {
   '/veiculos': typeof AuthenticatedVeiculosRoute
   '/veiculos-auditoria': typeof AuthenticatedVeiculosAuditoriaRoute
   '/veiculos-configuracoes': typeof AuthenticatedVeiculosConfiguracoesRoute
+  '/veiculos-relatorio': typeof AuthenticatedVeiculosRelatorioRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -217,6 +225,7 @@ export interface FileRoutesByTo {
   '/veiculos': typeof AuthenticatedVeiculosRoute
   '/veiculos-auditoria': typeof AuthenticatedVeiculosAuditoriaRoute
   '/veiculos-configuracoes': typeof AuthenticatedVeiculosConfiguracoesRoute
+  '/veiculos-relatorio': typeof AuthenticatedVeiculosRelatorioRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -245,6 +254,7 @@ export interface FileRoutesById {
   '/_authenticated/veiculos': typeof AuthenticatedVeiculosRoute
   '/_authenticated/veiculos-auditoria': typeof AuthenticatedVeiculosAuditoriaRoute
   '/_authenticated/veiculos-configuracoes': typeof AuthenticatedVeiculosConfiguracoesRoute
+  '/_authenticated/veiculos-relatorio': typeof AuthenticatedVeiculosRelatorioRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -273,6 +283,7 @@ export interface FileRouteTypes {
     | '/veiculos'
     | '/veiculos-auditoria'
     | '/veiculos-configuracoes'
+    | '/veiculos-relatorio'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -299,6 +310,7 @@ export interface FileRouteTypes {
     | '/veiculos'
     | '/veiculos-auditoria'
     | '/veiculos-configuracoes'
+    | '/veiculos-relatorio'
   id:
     | '__root__'
     | '/'
@@ -326,6 +338,7 @@ export interface FileRouteTypes {
     | '/_authenticated/veiculos'
     | '/_authenticated/veiculos-auditoria'
     | '/_authenticated/veiculos-configuracoes'
+    | '/_authenticated/veiculos-relatorio'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -515,6 +528,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedVeiculosConfiguracoesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/veiculos-relatorio': {
+      id: '/_authenticated/veiculos-relatorio'
+      path: '/veiculos-relatorio'
+      fullPath: '/veiculos-relatorio'
+      preLoaderRoute: typeof AuthenticatedVeiculosRelatorioRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
@@ -537,6 +557,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedVeiculosRoute: typeof AuthenticatedVeiculosRoute
   AuthenticatedVeiculosAuditoriaRoute: typeof AuthenticatedVeiculosAuditoriaRoute
   AuthenticatedVeiculosConfiguracoesRoute: typeof AuthenticatedVeiculosConfiguracoesRoute
+  AuthenticatedVeiculosRelatorioRoute: typeof AuthenticatedVeiculosRelatorioRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -559,6 +580,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedVeiculosAuditoriaRoute: AuthenticatedVeiculosAuditoriaRoute,
   AuthenticatedVeiculosConfiguracoesRoute:
     AuthenticatedVeiculosConfiguracoesRoute,
+  AuthenticatedVeiculosRelatorioRoute: AuthenticatedVeiculosRelatorioRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

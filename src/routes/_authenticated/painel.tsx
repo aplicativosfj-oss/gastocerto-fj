@@ -29,7 +29,9 @@ import {
 
 import { AppShell } from "@/components/app-shell";
 import { TransactionDialog } from "@/components/finance/transaction-dialog";
+import { QuickCategoryMenu, type QuickPick } from "@/components/finance/quick-category-menu";
 import { PeriodPicker } from "@/components/finance/period-picker";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -47,6 +49,10 @@ import { formatCurrency } from "@/lib/format";
 import { MONTH_NAMES, isoDate, monthRange, periodDefaultDate } from "@/lib/finance";
 import { useCategories, useProfile } from "@/lib/queries";
 import { useBudgets, useTransactions } from "@/lib/transactions";
+import { useVehicles, VEHICLE_TYPES } from "@/lib/vehicles";
+import { vehicleSpendBreakdown } from "@/lib/vehicle-spend";
+import { labelFor } from "@/lib/finance";
+
 
 export const Route = createFileRoute("/_authenticated/painel")({
   head: () => ({
@@ -69,12 +75,15 @@ function DashboardPage() {
   const [period, setPeriod] = useState({ year: today.getFullYear(), month: today.getMonth() + 1 });
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogKind, setDialogKind] = useState<"expense" | "income">("expense");
+  const [preset, setPreset] = useState<QuickPick>({ categoryId: null, subCategoryId: null });
 
   const { data: profile, isLoading } = useProfile();
   const { data: categories } = useCategories();
+  const { data: vehicles } = useVehicles();
   const range = monthRange(period.year, period.month);
   const { data: transactions, isLoading: loadingTransactions } = useTransactions(range);
   const { data: budgets } = useBudgets(period.year, period.month);
+
 
   const previous = new Date(period.year, period.month - 2, 1);
   const previousRange = monthRange(previous.getFullYear(), previous.getMonth() + 1);
@@ -191,6 +200,13 @@ function DashboardPage() {
       .sort((a, b) => b.percent - a.percent);
   }, [budgets, metrics.expenses, categories]);
 
+  const vehicleSummary = useMemo(
+    () => vehicleSpendBreakdown(transactions ?? [], vehicles ?? [], categories ?? []),
+    [transactions, vehicles, categories],
+  );
+  const vehicleTotal = vehicleSummary.reduce((sum, row) => sum + row.total, 0);
+
+
   if (isLoading) {
     return (
       <AppShell>
@@ -217,31 +233,30 @@ function DashboardPage() {
           </div>
           <div className="col-span-2 flex flex-wrap items-center gap-2">
             <PeriodPicker year={period.year} month={period.month} onChange={setPeriod} />
-            <Button
-              variant="outline"
-              onClick={() => {
+            <QuickCategoryMenu
+              kind="income"
+              label="Nova receita"
+              onPick={(pick) => {
                 setDialogKind("income");
+                setPreset(pick);
                 setDialogOpen(true);
               }}
-            >
-              <Plus className="mr-2 size-4" />
-              Nova receita
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => {
+            />
+            <QuickCategoryMenu
+              kind="expense"
+              label="Novo gasto"
+              onPick={(pick) => {
                 setDialogKind("expense");
+                setPreset(pick);
                 setDialogOpen(true);
               }}
-            >
-              <Plus className="mr-2 size-4" />
-              Novo gasto
-            </Button>
+            />
             <Button onClick={() => navigate({ to: "/veiculos" })}>
               <Car className="mr-2 size-4" />
               Novo gasto do veículo
             </Button>
           </div>
+
         </header>
 
         {loadingTransactions ? (
@@ -514,6 +529,54 @@ function DashboardPage() {
                 </ul>
               )}
             </section>
+
+            <section className="rounded-2xl border border-border bg-card p-4">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h2 className="text-sm font-semibold">Gastos por veículo no período</h2>
+                <Button asChild variant="ghost" size="sm">
+                  <Link to="/veiculos-relatorio">
+                    Relatório completo
+                    <ArrowRight className="ml-1 size-4" />
+                  </Link>
+                </Button>
+              </div>
+              {vehicleSummary.length === 0 ? (
+                <p className="mt-3 text-sm text-muted-foreground">
+                  Nenhum gasto vinculado a veículos neste período.
+                </p>
+              ) : (
+                <ul className="mt-3 space-y-3">
+                  {vehicleSummary.map((row) => (
+                    <li key={row.vehicle?.id ?? row.vehicleName} className="space-y-1.5">
+                      <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
+                        <span className="flex min-w-0 items-center gap-2">
+                          <Car className="size-4 shrink-0 text-muted-foreground" />
+                          <span className="truncate font-medium">{row.vehicleName}</span>
+                          <Badge variant="secondary">
+                            {labelFor(VEHICLE_TYPES, row.vehicleType)}
+                          </Badge>
+                        </span>
+                        <span className="font-semibold tabular-nums">
+                          {formatCurrency(row.total)}
+                        </span>
+                      </div>
+                      <Progress value={vehicleTotal > 0 ? (row.total / vehicleTotal) * 100 : 0} />
+                      <div className="flex flex-wrap gap-1.5">
+                        {row.categories.slice(0, 4).map((category) => (
+                          <span
+                            key={category.id}
+                            className="rounded-full bg-secondary px-2 py-0.5 text-xs text-muted-foreground"
+                          >
+                            {category.name} · {formatCurrency(category.total)}
+                          </span>
+                        ))}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+
           </>
         )}
       </div>
@@ -522,7 +585,10 @@ function DashboardPage() {
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         kind={dialogKind}
+        presetCategoryId={preset.categoryId}
+        presetSubCategoryId={preset.subCategoryId}
         defaultDate={periodDefaultDate(period.year, period.month)}
+
         onSaved={(savedDate) => {
           const [y, m] = savedDate.split("-").map(Number);
           if (y && m && (y !== period.year || m !== period.month)) setPeriod({ year: y, month: m });
