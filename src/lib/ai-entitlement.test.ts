@@ -4,6 +4,9 @@ import {
   AI_BLOCK_MESSAGE,
   estimateAiCredits,
   evaluateAiEntitlement,
+  AI_RATE_MAX_IN_WINDOW,
+  evaluateAiRateLimit,
+  isAiBalanceLow,
 } from "./ai-entitlement";
 
 const future = new Date(Date.now() + 30 * 86_400_000).toISOString();
@@ -85,5 +88,44 @@ describe("estimateAiCredits", () => {
     expect(estimateAiCredits(1000)).toBeCloseTo(0.05, 4);
     expect(estimateAiCredits(0)).toBe(0);
     expect(estimateAiCredits(-10)).toBe(0);
+  });
+});
+
+describe("rate limiting da IA", () => {
+  const now = new Date("2026-07-31T12:00:00Z");
+
+  it("permite quando há poucas tentativas recentes", () => {
+    const verdict = evaluateAiRateLimit([new Date("2026-07-31T11:59:30Z")], now);
+    expect(verdict.allowed).toBe(true);
+  });
+
+  it("bloqueia rajada de tentativas na mesma janela", () => {
+    const attempts = Array.from({ length: AI_RATE_MAX_IN_WINDOW }, (_, i) =>
+      new Date(now.getTime() - i * 2000),
+    );
+    const verdict = evaluateAiRateLimit(attempts, now);
+    expect(verdict.allowed).toBe(false);
+    expect(verdict.retryAfterSeconds).toBeGreaterThan(0);
+  });
+
+  it("libera novamente quando as tentativas saem da janela", () => {
+    const attempts = Array.from({ length: AI_RATE_MAX_IN_WINDOW }, () =>
+      new Date(now.getTime() - 5 * 60 * 1000),
+    );
+    expect(evaluateAiRateLimit(attempts, now).allowed).toBe(true);
+  });
+});
+
+describe("alerta de créditos baixos", () => {
+  it("alerta abaixo de 20% restantes", () => {
+    expect(
+      isAiBalanceLow({ queries: 10, queryLimit: 120, credits: 41, creditAllowance: 50 }),
+    ).toBe(true);
+  });
+
+  it("não alerta com saldo confortável", () => {
+    expect(
+      isAiBalanceLow({ queries: 10, queryLimit: 120, credits: 5, creditAllowance: 50 }),
+    ).toBe(false);
   });
 });

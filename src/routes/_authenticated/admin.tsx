@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
+import { EmblemShield } from "@/components/ui/panel-emblems";
 import { LicensesPanel, PaymentsPanel } from "@/components/admin/licenses-panel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -189,11 +190,14 @@ function AdminContent({ isAdmin }: { isAdmin: boolean }) {
   return (
     <AppShell>
       <div className="space-y-4">
-        <header>
+        <header className="flex items-start gap-3">
+          <EmblemShield title="Painel administrativo" className="size-11" />
+          <div>
           <h1 className="font-display text-2xl font-semibold tracking-tight">Administração</h1>
           <p className="text-sm text-muted-foreground">
             Gestão de usuários, papéis, suporte e trilha de auditoria.
           </p>
+          </div>
         </header>
 
         {isAdmin ? (
