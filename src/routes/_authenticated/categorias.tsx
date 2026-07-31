@@ -90,7 +90,9 @@ function CategoriesPage() {
     return map;
   }, [transactions]);
 
-  const visible = (categories ?? []).filter((category) => category.type === tab);
+  const visible = (categories ?? [])
+    .filter((category) => category.type === tab)
+    .sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
 
   async function handleSave() {
     if (!draft) return;

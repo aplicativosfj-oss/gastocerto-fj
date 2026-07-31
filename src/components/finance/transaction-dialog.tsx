@@ -122,9 +122,27 @@ export function TransactionDialog({
 
   const { data: lastTransaction } = useLastTransaction(kind);
 
+  /** Sugestão automática baseada na descrição */
+  useEffect(() => {
+    if (!description || editing || categoryId) return;
+    const clean = description.trim().toLowerCase();
+    if (clean.length < 3) return;
+
+    // Busca simples nas categorias existentes por nome
+    const match = options.find(cat => 
+      cat.name.toLowerCase().includes(clean) || 
+      clean.includes(cat.name.toLowerCase())
+    );
+    
+    if (match) {
+      setCategoryId(match.id);
+      setAutoFilled(true);
+    }
+  }, [description, options, editing, categoryId]);
+
   /**
    * Ao abrir um novo lançamento, herda categoria/forma de pagamento/conta do
-   * último registro do mesmo tipo (nunca sobrescreve o que o usuário digitou).
+   * último registro do mesmo tipo.
    */
   useEffect(() => {
     if (!open || editing || !lastTransaction) return;

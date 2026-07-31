@@ -125,7 +125,8 @@ function ReportsPage() {
   const byCategory = useMemo(() => {
     const map = new Map<string, number>();
     for (const row of rows) {
-      if (row.transaction_type !== "expense") continue;
+      if (typeFilter !== "all" && row.transaction_type !== typeFilter) continue;
+      if (typeFilter === "all" && row.transaction_type !== "expense") continue; // Default pie to expenses if all
       const key = row.category_id ? (categoryName.get(row.category_id) ?? "Sem categoria") : "Sem categoria";
       map.set(key, (map.get(key) ?? 0) + Number(row.amount || 0));
     }
@@ -251,9 +252,9 @@ function ReportsPage() {
       <div className="space-y-4">
         <header className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h1 className="font-display text-2xl font-semibold tracking-tight">Relatórios</h1>
+            <h1 className="font-display text-2xl font-semibold tracking-tight">Relatórios e Filtros</h1>
             <p className="text-sm text-muted-foreground">
-              Filtre por período, categoria e forma de pagamento e exporte os resultados.
+              Analise quanto você gastou ou recebeu em cada categoria e exporte os resultados.
             </p>
           </div>
           <div className="flex gap-2">
@@ -378,7 +379,7 @@ function ReportsPage() {
             </div>
 
             <div className="rounded-xl border border-border bg-card p-4">
-              <h2 className="text-sm font-medium">Despesas por categoria</h2>
+              <h2 className="text-sm font-medium">Distribuição por categoria ({typeFilter === 'income' ? 'Receitas' : 'Despesas'})</h2>
               <div className="mt-4 h-64">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
