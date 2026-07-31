@@ -335,34 +335,54 @@ export function TransactionDialog({
           className="space-y-4"
           noValidate
         >
-          <Tabs
-            value={advanced ? "avancado" : "rapido"}
-            onValueChange={(value) => setAdvanced(value === "avancado")}
+          <div
+            className={`flex flex-wrap items-center justify-between gap-2 rounded-xl border p-2.5 ${
+              kind === "income"
+                ? "border-emerald-500/40 bg-emerald-500/10"
+                : "border-destructive/30 bg-destructive/5"
+            }`}
           >
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="rapido">Cadastro rápido</TabsTrigger>
-              <TabsTrigger value="avancado">Avançado</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="rapido" className="mt-4 space-y-4" />
-            <TabsContent value="avancado" className="mt-4 space-y-4" />
-          </Tabs>
+            <p className="text-xs font-semibold">
+              {kind === "income"
+                ? "Entrada de dinheiro (receita)"
+                : "Saída de dinheiro (despesa)"}
+              <span className="ml-1 font-normal text-muted-foreground">
+                {kind === "income"
+                  ? "— soma ao que você tem para gastar."
+                  : "— desconta do seu saldo do mês."}
+              </span>
+            </p>
+            <Button
+              type="button"
+              variant={advanced ? "secondary" : "outline"}
+              size="sm"
+              className="h-8 text-[11px]"
+              onClick={() => setAdvanced((current) => !current)}
+            >
+              {advanced ? "Ocultar campos extras" : "Mais opções"}
+            </Button>
+          </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="sm:col-span-2">
-              <Label htmlFor="description">Descrição</Label>
+              <Label htmlFor="description">
+                {kind === "income" ? "Descrição da receita" : "Descrição do gasto"}
+              </Label>
               <Input
                 id="description"
                 value={description}
-                onChange={(event) => setDescription(event.target.value)}
+                onChange={(event) => setDescription(upperText(event.target.value))}
                 maxLength={140}
                 className="mt-1.5"
-                placeholder="Ex.: Mercado do bairro"
+                placeholder={
+                  kind === "income" ? "EX.: SALÁRIO DE JULHO" : "EX.: MERCADO DO BAIRRO"
+                }
               />
               {errors.description ? (
                 <p className="mt-1 text-xs text-destructive">{errors.description}</p>
               ) : null}
             </div>
+
 
             <div>
               <Label htmlFor="amount">
