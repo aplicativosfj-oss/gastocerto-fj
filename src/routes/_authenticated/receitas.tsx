@@ -56,7 +56,25 @@ function IncomePage() {
   const expenses = (transactions ?? []).filter((row) => row.transaction_type === "expense");
   const totalIncome = incomes.reduce((sum, row) => sum + Number(row.amount), 0);
   const totalExpense = expenses.reduce((sum, row) => sum + Number(row.amount), 0);
+  const remaining = totalIncome - totalExpense;
   const savingRate = totalIncome > 0 ? ((totalIncome - totalExpense) / totalIncome) * 100 : 0;
+  const usedRate = totalIncome > 0 ? Math.min((totalExpense / totalIncome) * 100, 100) : 0;
+
+  /** Agrupa as entradas por fonte (fonte informada, senão categoria, senão descrição). */
+  const sources = useMemo(() => {
+    const map = new Map<string, { label: string; total: number; count: number }>();
+    for (const row of incomes) {
+      const label =
+        row.merchant_name?.trim() ||
+        (row.category_id ? categoryNames.get(row.category_id) : null) ||
+        row.description;
+      const current = map.get(label) ?? { label, total: 0, count: 0 };
+      current.total += Number(row.amount);
+      current.count += 1;
+      map.set(label, current);
+    }
+    return [...map.values()].sort((a, b) => b.total - a.total);
+  }, [incomes, categoryNames]);
 
   async function handleDelete(id: string) {
     try {
@@ -75,7 +93,8 @@ function IncomePage() {
           <div className="min-w-0">
             <h1 className="text-2xl font-bold tracking-tight">Receitas</h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              Entradas do mês e quanto sobra depois das despesas.
+              Cadastre salários, vendas e serviços — o sistema calcula quanto você gastou e quanto
+              ainda sobra.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -94,13 +113,68 @@ function IncomePage() {
 
         <section className="auto-cards-sm">
           <Card label="Total recebido" value={formatCurrency(totalIncome)} />
-          <Card label="Total gasto" value={formatCurrency(totalExpense)} />
           <Card
-            label="Sobra do mês"
-            value={formatCurrency(totalIncome - totalExpense)}
+            label="Total gasto"
+            value={formatCurrency(totalExpense)}
+            hint={`${usedRate.toFixed(1)}% da renda do mês`}
+          />
+          <Card
+            label="Ainda sobra"
+            value={formatCurrency(remaining)}
             hint={`Taxa de economia: ${savingRate.toFixed(1)}%`}
           />
         </section>
+
+        <section className="rounded-2xl border border-border bg-card p-5">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 className="text-sm font-semibold">Uso da renda no mês</h2>
+            <span className="text-xs text-muted-foreground tabular-nums">
+              {formatCurrency(totalExpense)} de {formatCurrency(totalIncome)}
+            </span>
+          </div>
+          <div className="mt-3 h-2.5 w-full overflow-hidden rounded-full bg-muted">
+            <div
+              className={`h-full rounded-full ${remaining < 0 ? "bg-destructive" : "bg-primary"}`}
+              style={{ width: `${usedRate}%` }}
+            />
+          </div>
+          <p className="mt-2 text-xs text-muted-foreground">
+            {remaining < 0
+              ? `Você gastou ${formatCurrency(Math.abs(remaining))} acima do que recebeu.`
+              : `Saldo livre estimado: ${formatCurrency(remaining)}.`}
+          </p>
+        </section>
+
+        <section className="rounded-2xl border border-border bg-card p-5">
+          <h2 className="text-sm font-semibold">Fontes de renda</h2>
+          {sources.length === 0 ? (
+            <p className="mt-2 text-sm text-muted-foreground">
+              Nenhuma fonte registrada. Ao lançar uma receita, informe a fonte (salário, venda,
+              serviço) para ver este resumo.
+            </p>
+          ) : (
+            <ul className="mt-3 space-y-2.5">
+              {sources.map((source) => {
+                const share = totalIncome > 0 ? (source.total / totalIncome) * 100 : 0;
+                return (
+                  <li key={source.label}>
+                    <div className="flex items-center justify-between gap-3 text-sm">
+                      <span className="min-w-0 truncate font-medium">{source.label}</span>
+                      <span className="whitespace-nowrap tabular-nums text-muted-foreground">
+                        {formatCurrency(source.total)} · {share.toFixed(0)}%
+                        {source.count > 1 ? ` · ${source.count} entradas` : ""}
+                      </span>
+                    </div>
+                    <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                      <div className="h-full rounded-full bg-primary" style={{ width: `${share}%` }} />
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </section>
+
 
         <section className="overflow-x-auto rounded-2xl border border-border bg-card">
           {isLoading ? (

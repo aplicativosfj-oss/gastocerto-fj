@@ -31,6 +31,7 @@ import { Textarea } from "@/components/ui/textarea";
 
 import {
   EXPENSE_TYPES,
+  INCOME_SOURCES,
   PAYMENT_METHODS,
   TRANSACTION_STATUS,
   isoDate,
@@ -448,16 +449,37 @@ export function TransactionDialog({
             </div>
 
             <div className="sm:col-span-2">
-              <Label htmlFor="merchant">Estabelecimento / loja</Label>
+              <Label htmlFor="merchant">
+                {kind === "income" ? "Fonte da renda" : "Estabelecimento / loja"}
+              </Label>
               <Input
                 id="merchant"
                 value={merchant}
                 onChange={(event) => setMerchant(event.target.value)}
                 maxLength={100}
                 className="mt-1.5"
-                placeholder="Ex.: Supermercado Central, Feira do produtor"
+                placeholder={
+                  kind === "income"
+                    ? "Ex.: Salário da prefeitura, venda de bolos, serviço de pintura"
+                    : "Ex.: Supermercado Central, Feira do produtor"
+                }
               />
+              {kind === "income" ? (
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {INCOME_SOURCES.map((source) => (
+                    <button
+                      key={source}
+                      type="button"
+                      onClick={() => setMerchant(source)}
+                      className="rounded-full border border-border px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+                    >
+                      {source}
+                    </button>
+                  ))}
+                </div>
+              ) : null}
             </div>
+
 
             {kind === "expense" ? (
               <div className="sm:col-span-2">
