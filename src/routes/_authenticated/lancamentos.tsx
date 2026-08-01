@@ -500,20 +500,43 @@ function TransactionsPage() {
                       {formatDate(row.transaction_date)}
                     </TableCell>
                     <TableCell className="max-w-[220px] font-medium">
-                      <button
-                        type="button"
-                        className="flex w-full items-center gap-1.5 truncate text-left hover:underline"
-                        onClick={() => setDetails(row)}
-                      >
-                        <span className="truncate">{row.description}</span>
-                        {row.attachment_url ? (
-                          <Paperclip
-                            className="size-3.5 shrink-0 text-muted-foreground"
-                            aria-label="Possui comprovante"
-                          />
-                        ) : null}
-                      </button>
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          aria-label={
+                            expanded.includes(row.id) ? "Recolher anotações" : "Expandir anotações"
+                          }
+                          className="shrink-0 rounded p-0.5 text-muted-foreground hover:text-foreground"
+                          onClick={() =>
+                            setExpanded((current) =>
+                              current.includes(row.id)
+                                ? current.filter((id) => id !== row.id)
+                                : [...current, row.id],
+                            )
+                          }
+                        >
+                          {expanded.includes(row.id) ? (
+                            <ChevronDown className="size-4" />
+                          ) : (
+                            <ChevronRight className="size-4" />
+                          )}
+                        </button>
+                        <button
+                          type="button"
+                          className="flex w-full items-center gap-1.5 truncate text-left hover:underline"
+                          onClick={() => setDetails(row)}
+                        >
+                          <span className="truncate">{row.description}</span>
+                          {row.attachment_url ? (
+                            <Paperclip
+                              className="size-3.5 shrink-0 text-muted-foreground"
+                              aria-label="Possui comprovante"
+                            />
+                          ) : null}
+                        </button>
+                      </div>
                     </TableCell>
+
 
                     <TableCell className="hidden md:table-cell">
                       {row.category_id ? (categoryNames.get(row.category_id) ?? "—") : "—"}
