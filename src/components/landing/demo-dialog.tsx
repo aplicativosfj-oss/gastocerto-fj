@@ -73,24 +73,12 @@ export function DemoDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <Tabs defaultValue={defaultTab}>
-          <TabsList className="w-full">
-            <TabsTrigger value="imediato" className="flex-1 gap-1.5">
-              <PlayCircle className="size-4" aria-hidden="true" />
-              Acesso imediato
-            </TabsTrigger>
-            <TabsTrigger value="agendar" className="flex-1 gap-1.5">
-              <CalendarCheck className="size-4" aria-hidden="true" />
-              Agendar
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="imediato" className="mt-4 space-y-4">
-            <div className="overflow-hidden rounded-xl border border-border bg-card p-2 shadow-soft">
-              <div className="h-[420px] origin-top scale-[0.78] sm:h-[500px] sm:scale-90">
-                <DashboardPreview />
-              </div>
+        <div className="mt-2 space-y-4">
+          <div className="overflow-hidden rounded-xl border border-border bg-card p-2 shadow-soft">
+            <div className="h-[420px] origin-top scale-[0.78] sm:h-[500px] sm:scale-90">
+              <DashboardPreview />
             </div>
+          </div>
             <ul className="grid gap-2 sm:grid-cols-2">
               {highlights.map((item) => (
                 <li key={item} className="flex items-start gap-2 text-sm text-muted-foreground">
@@ -109,60 +97,7 @@ export function DemoDialog({
                 <Link to="/demonstracao">Abrir demonstração completa</Link>
               </Button>
             </div>
-          </TabsContent>
-
-          <TabsContent value="agendar" className="mt-4">
-            <form className="grid gap-4 sm:grid-cols-2" onSubmit={submitSchedule}>
-              <div className="grid gap-1.5">
-                <Label htmlFor="demo-nome">Nome</Label>
-                <Input
-                  id="demo-nome"
-                  value={name}
-                  onChange={(event) => setName(event.target.value)}
-                  placeholder="Seu nome"
-                  maxLength={80}
-                />
-              </div>
-              <div className="grid gap-1.5">
-                <Label htmlFor="demo-email">E-mail</Label>
-                <Input
-                  id="demo-email"
-                  type="email"
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                  placeholder="voce@email.com"
-                  maxLength={120}
-                />
-              </div>
-              <div className="grid gap-1.5">
-                <Label htmlFor="demo-data">Data</Label>
-                <Input
-                  id="demo-data"
-                  type="date"
-                  min={todayIso()}
-                  value={date}
-                  onChange={(event) => setDate(event.target.value)}
-                />
-              </div>
-              <div className="grid gap-1.5">
-                <Label htmlFor="demo-hora">Horário</Label>
-                <Input
-                  id="demo-hora"
-                  type="time"
-                  value={time}
-                  onChange={(event) => setTime(event.target.value)}
-                />
-              </div>
-              <Button type="submit" className="sm:col-span-2" disabled={sending}>
-                {sending && <Loader2 className="size-4 animate-spin" aria-hidden="true" />}
-                Agendar demonstração
-              </Button>
-              <p className="text-xs text-muted-foreground sm:col-span-2">
-                Usamos seus dados apenas para confirmar a apresentação.
-              </p>
-            </form>
-          </TabsContent>
-        </Tabs>
+        </div>
       </DialogContent>
     </Dialog>
   );

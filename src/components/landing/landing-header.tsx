@@ -16,7 +16,7 @@ const navItems = [
   { label: "FAQ", href: "#faq" },
 ];
 
-export function LandingHeader() {
+export function LandingHeader({ hideActions }: { hideActions?: boolean }) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState("#inicio");
@@ -94,36 +94,38 @@ export function LandingHeader() {
           })}
         </nav>
 
-        <div className="flex items-center gap-2">
-          <ThemeToggle className={cn("hidden sm:inline-flex", !scrolled && "text-white hover:bg-white/10 hover:text-white")} />
-          <Button
-            variant="ghost"
-            className={cn("hidden sm:inline-flex", !scrolled && "text-white hover:bg-white/10 hover:text-white")}
-            asChild
-          >
-            <Link to="/demonstracao">Ver demonstração</Link>
-          </Button>
-          <Button
-            variant="ghost"
-            className={cn("hidden sm:inline-flex", !scrolled && "text-white hover:bg-white/10 hover:text-white")}
-            asChild
-          >
-            <Link to="/auth" search={{ mode: "login" }}>Entrar</Link>
-          </Button>
-          <Button className="hidden shadow-soft sm:inline-flex" asChild>
-            <Link to="/auth" search={{ mode: "signup" }}>Criar conta gratuita</Link>
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            className={cn("lg:hidden", !scrolled && "border-white/25 bg-white/5 text-white hover:bg-white/15 hover:text-white")}
-            aria-expanded={open}
-            aria-label={open ? "Fechar menu" : "Abrir menu"}
-            onClick={() => setOpen((v) => !v)}
-          >
-            {open ? <X className="size-4" /> : <Menu className="size-4" />}
-          </Button>
-        </div>
+        {!hideActions && (
+          <div className="flex items-center gap-2">
+            <ThemeToggle className={cn("hidden sm:inline-flex", !scrolled && "text-white hover:bg-white/10 hover:text-white")} />
+            <Button
+              variant="ghost"
+              className={cn("hidden sm:inline-flex", !scrolled && "text-white hover:bg-white/10 hover:text-white")}
+              asChild
+            >
+              <Link to="/demonstracao">Ver demonstração</Link>
+            </Button>
+            <Button
+              variant="ghost"
+              className={cn("hidden sm:inline-flex", !scrolled && "text-white hover:bg-white/10 hover:text-white")}
+              asChild
+            >
+              <Link to="/auth" search={{ mode: "login" }}>Entrar</Link>
+            </Button>
+            <Button className="hidden shadow-soft sm:inline-flex" asChild>
+              <Link to="/auth" search={{ mode: "signup" }}>Criar conta gratuita</Link>
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              className={cn("lg:hidden", !scrolled && "border-white/25 bg-white/5 text-white hover:bg-white/15 hover:text-white")}
+              aria-expanded={open}
+              aria-label={open ? "Fechar menu" : "Abrir menu"}
+              onClick={() => setOpen((v) => !v)}
+            >
+              {open ? <X className="size-4" /> : <Menu className="size-4" />}
+            </Button>
+          </div>
+        )}
       </div>
 
       {open && (

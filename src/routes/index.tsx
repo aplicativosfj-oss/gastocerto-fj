@@ -55,7 +55,7 @@ function LandingPage() {
       >
         Pular para o conteúdo
       </a>
-      <LandingHeader />
+      <LandingHeader hideActions />
       <main id="conteudo" tabIndex={-1} className="flex-1 outline-none">
         <Hero />
         <Benefits />

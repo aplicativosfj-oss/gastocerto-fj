@@ -1,4 +1,4 @@
-@import "tailwindcss" source(none);
+@import "tailwindcss";
 @source "../src";
 @import "tw-animate-css";
 
@@ -408,19 +408,23 @@
   html {
     scroll-behavior: smooth;
     scroll-padding-top: 5rem;
-    overflow-x: clip;
+    overflow-x: hidden;
     -webkit-text-size-adjust: 100%;
-    /* Reserva o espaço da barra de rolagem: a janela nunca muda de largura
-       ao alternar menus, abas ou painéis. */
     scrollbar-gutter: stable;
-    /* Sempre com rolagem vertical disponível para não "pular" de largura. */
     overflow-y: scroll;
+    /* Prevenção de distorções em mobile */
+    min-height: 100%;
+    height: -webkit-fill-available;
   }
 
-  /* Nada de rolagem lateral nem tela "pulando" de largura. */
   body {
-    overflow-x: clip;
+    overflow-x: hidden;
     min-width: 0;
+    min-height: 100%;
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+    text-rendering: optimizeLegibility;
+    -webkit-tap-highlight-color: transparent;
   }
 
 

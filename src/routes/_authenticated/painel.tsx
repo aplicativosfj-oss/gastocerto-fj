@@ -452,6 +452,23 @@ function DashboardPage() {
           </div>
         ) : (
           <>
+            <section className="grid grid-cols-3 gap-2 sm:grid-cols-3">
+              <div className="flex flex-col rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-3 text-center">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-600">Receitas</p>
+                <p className="mt-0.5 text-sm font-bold text-emerald-700">{formatCurrency(metrics.totalIncome)}</p>
+              </div>
+              <div className="flex flex-col rounded-2xl border border-rose-500/20 bg-rose-500/5 p-3 text-center">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-rose-600">Despesas</p>
+                <p className="mt-0.5 text-sm font-bold text-rose-700">{formatCurrency(metrics.totalExpense)}</p>
+              </div>
+              <div className="flex flex-col rounded-2xl border border-brand/20 bg-brand/5 p-3 text-center">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-brand">Saldo</p>
+                <p className={cn("mt-0.5 text-sm font-bold", metrics.balance >= 0 ? "text-emerald-700" : "text-rose-700")}>
+                  {formatCurrency(metrics.balance)}
+                </p>
+              </div>
+            </section>
+
             <section className={cn("grid gap-3 auto-cards-sm transition-all duration-300", loadingTransactions && "opacity-50 blur-[1px]")}>
               <StatCard
                 tile="var(--acc-4)"
