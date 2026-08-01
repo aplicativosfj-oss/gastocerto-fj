@@ -68,7 +68,7 @@ export async function resolveAiAccess(
     supabase.from("licenses").select("status, expires_at, source, amount").eq("user_id", userId),
     supabase
       .from("profiles")
-      .select("plan_id, trial_ends_at, plans(slug, monthly_price, annual_price)")
+      .select("plan_id, trial_ends_at, trial_plan_slug, plans(slug, monthly_price, annual_price)")
       .eq("user_id", userId)
       .maybeSingle(),
     supabase.rpc("has_role", { _user_id: userId, _role: "admin" }),
@@ -78,6 +78,8 @@ export async function resolveAiAccess(
     licenses: licenses?.data ?? [],
     plan: (profile?.data as { plans?: unknown } | null)?.plans as never,
     trialEndsAt: (profile?.data as { trial_ends_at?: string | null } | null)?.trial_ends_at ?? null,
+    trialPlanSlug:
+      (profile?.data as { trial_plan_slug?: string | null } | null)?.trial_plan_slug ?? null,
     isAdmin: admin?.data === true,
   });
 }

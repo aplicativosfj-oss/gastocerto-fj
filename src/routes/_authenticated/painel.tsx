@@ -623,7 +623,7 @@ function DashboardPage() {
                   </ul>
                 )}
                 <Button asChild variant="ghost" size="sm" className="mt-4">
-                  <Link to="/lancamentos" search={{}}>
+                  <Link to="/lancamentos" search={() => ({})}>
                     Ver todas
                     <ArrowRight className="ml-1 size-4" />
                   </Link>

@@ -51,6 +51,7 @@ export const getPlanAccess = createServerFn({ method: "POST" })
       planTier: plan?.tier ?? null,
       planPrice: Math.max(Number(plan?.monthly_price ?? 0), Number(plan?.annual_price ?? 0)),
       trialEndsAt: row?.trial_ends_at ?? null,
+      trialPlanSlug: row?.trial_plan_slug ?? null,
       hasPaidLicense,
       isAdmin: admin?.data === true,
       now,

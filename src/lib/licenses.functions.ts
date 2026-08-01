@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { isCourtesyTrialLicense, TRIAL_GIFT_PLAN_SLUG, TRIAL_GIFT_SOURCE } from "@/lib/license-status";
 
 /** Garante que o chamador tem papel de administrador antes de qualquer ação privilegiada. */
 async function assertAdmin(context: { supabase: any; userId: string }) {
@@ -41,6 +42,24 @@ export const adminCreateLicense = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: chosenPlan } = await supabaseAdmin
+      .from("plans")
+      .select("slug, trial_days, monthly_price, annual_price")
+      .eq("id", data.planId)
+      .maybeSingle();
+
+    // Backend: teste de cortesia nunca é ativado pelo admin nem libera IA.
+    const courtesy = isCourtesyTrialLicense({
+      source: data.amount <= 0 ? TRIAL_GIFT_SOURCE : "manual",
+      amount: data.amount,
+      planSlug: chosenPlan?.slug ?? null,
+    });
+    if (courtesy && data.activateNow) {
+      throw new Error(
+        "Licenças de teste só entram em vigor quando o cliente ativa a chave no site ou aplicativo.",
+      );
+    }
 
     const email = data.email.trim().toLowerCase();
     const { data: profile } = await supabaseAdmin
@@ -111,7 +130,7 @@ export const adminCreateTrialLicenses = createServerFn({ method: "POST" })
     const { data: plan } = await supabaseAdmin
       .from("plans")
       .select("id, name, trial_days")
-      .eq("slug", "trial_7_basic")
+      .eq("slug", TRIAL_GIFT_PLAN_SLUG)
       .maybeSingle();
     if (!plan) throw new Error("Plano de teste de 7 dias não encontrado");
 
@@ -119,7 +138,7 @@ export const adminCreateTrialLicenses = createServerFn({ method: "POST" })
       plan_id: plan.id,
       billing_cycle: "monthly" as const,
       amount: 0,
-      source: "trial_gift",
+      source: TRIAL_GIFT_SOURCE,
       status: "pending" as const,
       created_by: context.userId,
       notes: data.notes || "Licença de teste 7 dias — recursos limitados, sem IA",
@@ -156,10 +175,26 @@ export const adminSetLicenseStatus = createServerFn({ method: "POST" })
 
     const { data: license } = await supabaseAdmin
       .from("licenses")
-      .select("*")
+      .select("*, plans(slug, name, tier, monthly_price, annual_price, trial_days)")
       .eq("id", data.licenseId)
       .maybeSingle();
     if (!license) throw new Error("Licença não encontrada");
+
+    // Licença de teste de cortesia só entra em vigor quando o próprio cliente
+    // ativa a chave no site/app — o admin não pode ligá-la manualmente.
+    if (
+      data.status === "active" &&
+      isCourtesyTrialLicense({
+        source: license.source,
+        amount: license.amount,
+        planSlug: license.plans?.slug ?? null,
+      }) &&
+      !license.user_id
+    ) {
+      throw new Error(
+        "Licenças de teste de 7 dias só entram em vigor quando o cliente ativa a chave no site ou aplicativo.",
+      );
+    }
 
     const now = new Date();
     const patch: {
@@ -203,7 +238,9 @@ export const adminListLicenses = createServerFn({ method: "GET" })
     const [licenses, payments] = await Promise.all([
       supabaseAdmin
         .from("licenses")
-        .select("*, plans(name, slug)")
+        .select(
+          "*, plans(name, slug, tier, monthly_price, annual_price, trial_days)",
+        )
         .order("created_at", { ascending: false })
         .limit(500),
       supabaseAdmin
@@ -237,8 +274,16 @@ export const activateLicense = createServerFn({ method: "POST" })
 
     if (!license) throw new Error("Chave de licença inválida");
     if (license.status === "revoked") throw new Error("Licença revogada");
+    if (license.status === "expired") throw new Error("Esta licença já expirou");
     if (license.user_id && license.user_id !== context.userId) {
       throw new Error("Esta licença já está vinculada a outra conta");
+    }
+    if (
+      license.expires_at &&
+      new Date(license.expires_at).getTime() <= Date.now() &&
+      license.status === "active"
+    ) {
+      throw new Error("Esta licença já expirou");
     }
 
     const { data: plan } = license.plan_id
@@ -250,7 +295,15 @@ export const activateLicense = createServerFn({ method: "POST" })
       : { data: null };
 
     const now = new Date();
-    const trialDays = Number(license.amount) === 0 ? (plan?.trial_days ?? null) : null;
+    const courtesy = isCourtesyTrialLicense({
+      source: license.source,
+      amount: license.amount,
+      planSlug: plan?.slug ?? null,
+    });
+    const trialDays = courtesy || Number(license.amount) === 0 ? (plan?.trial_days ?? 7) : null;
+
+    // Teste de cortesia: a validade SEMPRE começa a contar no momento em que o
+    // cliente ativa a chave (nunca antes) e nunca libera a IA.
     const expiresAt = trialDays
       ? new Date(now.getTime() + trialDays * 24 * 60 * 60 * 1000)
       : addMonths(now, monthsFromCycle(license.billing_cycle));
@@ -261,7 +314,9 @@ export const activateLicense = createServerFn({ method: "POST" })
         user_id: context.userId,
         status: "active",
         activated_at: license.activated_at ?? now.toISOString(),
-        expires_at: license.expires_at ?? expiresAt.toISOString(),
+        expires_at: trialDays
+          ? expiresAt.toISOString()
+          : (license.expires_at ?? expiresAt.toISOString()),
       })
       .eq("id", license.id);
     if (error) throw new Error("Não foi possível ativar a licença");
@@ -274,7 +329,7 @@ export const activateLicense = createServerFn({ method: "POST" })
           status: "active",
           ...(trialDays
             ? {
-                trial_plan_slug: plan?.slug ?? null,
+                trial_plan_slug: plan?.slug ?? TRIAL_GIFT_PLAN_SLUG,
                 trial_started_at: now.toISOString(),
                 trial_ends_at: expiresAt.toISOString(),
               }
@@ -283,5 +338,24 @@ export const activateLicense = createServerFn({ method: "POST" })
         .eq("user_id", context.userId);
     }
 
-    return { ok: true, licenseKey: key, trialDays, expiresAt: expiresAt.toISOString() };
+    await supabaseAdmin.from("admin_logs").insert({
+      actor_id: context.userId,
+      target_user_id: context.userId,
+      action: "license_activated",
+      details: {
+        license_key: key,
+        courtesy_trial: courtesy,
+        ai_enabled: !courtesy && !trialDays,
+        trial_days: trialDays,
+        expires_at: expiresAt.toISOString(),
+      },
+    });
+
+    return {
+      ok: true,
+      licenseKey: key,
+      trialDays,
+      aiEnabled: !courtesy && !trialDays,
+      expiresAt: expiresAt.toISOString(),
+    };
   });

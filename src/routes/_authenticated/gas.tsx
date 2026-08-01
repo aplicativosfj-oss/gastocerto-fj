@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import {
   CalendarClock,
+  ChevronRight,
   FileSpreadsheet,
   FileText,
   FileUp,
@@ -9,13 +10,16 @@ import {
   TrendingDown,
 } from "lucide-react";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import {
+  Area,
+  AreaChart,
   Bar,
   BarChart,
   CartesianGrid,
-  Line,
-  LineChart,
+  Cell,
+  LabelList,
+  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -29,6 +33,13 @@ import { GasReminderCard } from "@/components/finance/gas-reminder-card";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { EmblemGauge } from "@/components/ui/panel-emblems";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -39,9 +50,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { axisProps, gridProps, seriesColor, tooltipProps, barRadius } from "@/lib/chart-theme";
+import { axisProps, gridProps, tooltipProps } from "@/lib/chart-theme";
 import { formatCurrency, formatDate } from "@/lib/format";
-import { durationLabel, summarizeGas } from "@/lib/gas-analytics";
+import { durationLabel, summarizeGas, type GasSummary } from "@/lib/gas-analytics";
 import { exportGasCsv, exportGasPdf } from "@/lib/gas-export";
 
 import { useGasRefills, type GasRefill } from "@/lib/gas";
@@ -67,22 +78,188 @@ export const Route = createFileRoute("/_authenticated/gas")({
   component: GasPage,
 });
 
+const DURATION_COLOR = "var(--chart-2)";
+const PRICE_COLOR = "var(--chart-4)";
+
+type MetricDetail = {
+  label: string;
+  value: string;
+  hint?: string | undefined;
+  description: string;
+  rows: [string, string][];
+  extra?: ReactNode;
+};
+
+/** Card de indicador clicável — abre o detalhamento completo do número. */
 function MetricCard({
   label,
   value,
   hint,
+  onSelect,
 }: {
   label: string;
   value: string;
-  hint?: string;
+  hint?: string | undefined;
+  onSelect: () => void;
 }) {
   return (
-    <div className="rounded-2xl border border-border bg-card p-4">
-      <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</p>
+    <button
+      type="button"
+      onClick={onSelect}
+      className="group rounded-2xl border border-border bg-card p-4 text-left transition hover:border-primary/50 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+    >
+      <div className="flex items-start justify-between gap-2">
+        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</p>
+        <ChevronRight
+          className="size-4 shrink-0 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-primary"
+          aria-hidden
+        />
+      </div>
       <p className="mt-1 font-display text-2xl font-semibold tabular-nums">{value}</p>
       {hint ? <p className="mt-1 text-xs text-muted-foreground">{hint}</p> : null}
-    </div>
+      <p className="mt-2 text-[11px] text-muted-foreground/80">Toque para ver os detalhes</p>
+    </button>
   );
+}
+
+function MetricDetailDialog({
+  detail,
+  onClose,
+}: {
+  detail: MetricDetail | null;
+  onClose: () => void;
+}) {
+  return (
+    <Dialog open={Boolean(detail)} onOpenChange={(open) => (!open ? onClose() : undefined)}>
+      <DialogContent className="max-w-lg">
+        {detail ? (
+          <>
+            <DialogHeader>
+              <DialogTitle>{detail.label}</DialogTitle>
+              <DialogDescription>{detail.description}</DialogDescription>
+            </DialogHeader>
+            <p className="font-display text-3xl font-semibold tabular-nums">{detail.value}</p>
+            {detail.hint ? (
+              <p className="-mt-2 text-sm text-muted-foreground">{detail.hint}</p>
+            ) : null}
+            <dl className="mt-1 divide-y divide-border rounded-xl border border-border">
+              {detail.rows.map(([rowLabel, rowValue]) => (
+                <div key={rowLabel} className="flex items-center justify-between gap-3 px-3 py-2">
+                  <dt className="text-sm text-muted-foreground">{rowLabel}</dt>
+                  <dd className="text-sm font-medium tabular-nums">{rowValue}</dd>
+                </div>
+              ))}
+            </dl>
+            {detail.extra}
+          </>
+        ) : null}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function buildDetails(summary: GasSummary): Record<string, MetricDetail> {
+  const nf = (value: number | null | undefined, suffix = "") =>
+    value != null ? `${value.toLocaleString("pt-BR")}${suffix}` : "—";
+
+  const lastCycles = [...summary.closed].slice(-5).reverse();
+
+  return {
+    duration: {
+      label: "Duração média do botijão",
+      value: nf(summary.averageDays, " dias"),
+      hint:
+        summary.averageDays != null
+          ? `~${nf(summary.averageWeeks)} semanas · ~${nf(summary.averageMonths)} mês(es)`
+          : "Registre a próxima troca para calcular",
+      description: "Média dos intervalos entre uma compra e a troca seguinte.",
+      rows: [
+        ["Ciclos usados no cálculo", String(summary.closed.length)],
+        ["Menor duração", nf(summary.shortestDays, " dias")],
+        ["Maior duração", nf(summary.longestDays, " dias")],
+        ["Em semanas", nf(summary.averageWeeks, " semanas")],
+        ["Em meses", nf(summary.averageMonths, " mês(es)")],
+      ],
+      extra: lastCycles.length ? (
+        <div className="mt-1 space-y-1.5">
+          <p className="text-xs uppercase text-muted-foreground">Últimos ciclos encerrados</p>
+          {lastCycles.map((cycle) => (
+            <div key={cycle.id} className="flex justify-between text-sm">
+              <span className="text-muted-foreground">
+                {formatDate(cycle.startDate)} → {cycle.endDate ? formatDate(cycle.endDate) : "—"}
+              </span>
+              <span className="font-medium tabular-nums">{cycle.days} dias</span>
+            </div>
+          ))}
+        </div>
+      ) : undefined,
+    },
+    amount: {
+      label: "Valor médio por botijão",
+      value: formatCurrency(summary.averageAmount),
+      hint: `${summary.refillCount} troca(s) registrada(s)`,
+      description: "Quanto você paga, em média, em cada troca de gás.",
+      rows: [
+        ["Total gasto", formatCurrency(summary.totalSpent)],
+        ["Trocas registradas", String(summary.refillCount)],
+        [
+          "Menor valor pago",
+          summary.cycles.length
+            ? formatCurrency(Math.min(...summary.cycles.map((cycle) => cycle.amount)))
+            : "—",
+        ],
+        [
+          "Maior valor pago",
+          summary.cycles.length
+            ? formatCurrency(Math.max(...summary.cycles.map((cycle) => cycle.amount)))
+            : "—",
+        ],
+      ],
+    },
+    cost: {
+      label: "Custo por dia",
+      value: summary.averageCostPerDay != null ? formatCurrency(summary.averageCostPerDay) : "—",
+      hint:
+        summary.averageMonthlyCost != null
+          ? `~${formatCurrency(summary.averageMonthlyCost)} por mês`
+          : undefined,
+      description: "Valor médio do botijão dividido pela duração média em dias.",
+      rows: [
+        ["Valor médio", formatCurrency(summary.averageAmount)],
+        ["Duração média", nf(summary.averageDays, " dias")],
+        [
+          "Custo por mês",
+          summary.averageMonthlyCost != null ? formatCurrency(summary.averageMonthlyCost) : "—",
+        ],
+        [
+          "Custo por ano",
+          summary.averageMonthlyCost != null
+            ? formatCurrency(summary.averageMonthlyCost * 12)
+            : "—",
+        ],
+      ],
+    },
+    next: {
+      label: "Próxima troca prevista",
+      value: summary.nextRefillDate ? formatDate(summary.nextRefillDate) : "—",
+      hint:
+        summary.daysUntilNext != null
+          ? summary.daysUntilNext >= 0
+            ? `Faltam ~${summary.daysUntilNext} dias`
+            : `Passou ~${Math.abs(summary.daysUntilNext)} dias da média`
+          : undefined,
+      description: "Previsão calculada somando a duração média à data da última compra.",
+      rows: [
+        [
+          "Botijão atual comprado em",
+          summary.lastRefillDate ? formatDate(summary.lastRefillDate) : "—",
+        ],
+        ["Em uso há", nf(summary.daysSinceLast, " dias")],
+        ["Duração média", nf(summary.averageDays, " dias")],
+        ["Dias até a previsão", nf(summary.daysUntilNext, " dias")],
+      ],
+    },
+  };
 }
 
 function GasPage() {
@@ -90,15 +267,17 @@ function GasPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<GasRefill | null>(null);
   const [importOpen, setImportOpen] = useState(false);
-
+  const [detailKey, setDetailKey] = useState<string | null>(null);
 
   const summary = useMemo(() => summarizeGas(refills ?? []), [refills]);
+  const details = useMemo(() => buildDetails(summary), [summary]);
 
   const durationSeries = useMemo(
     () =>
       summary.closed.map((cycle) => ({
-        label: formatDate(cycle.startDate),
+        label: formatDate(cycle.startDate).slice(0, 5),
         dias: cycle.days ?? 0,
+        periodo: `${formatDate(cycle.startDate)} → ${cycle.endDate ? formatDate(cycle.endDate) : "—"}`,
       })),
     [summary.closed],
   );
@@ -106,7 +285,7 @@ function GasPage() {
   const priceSeries = useMemo(
     () =>
       summary.cycles.map((cycle) => ({
-        label: formatDate(cycle.startDate),
+        label: formatDate(cycle.startDate).slice(0, 5),
         valor: cycle.amount,
       })),
     [summary.cycles],
@@ -156,7 +335,6 @@ function GasPage() {
             Registrar troca
           </Button>
         </div>
-
       </header>
 
       {isLoading ? (
@@ -184,45 +362,23 @@ function GasPage() {
             <GasReminderCard summary={summary} />
           </div>
           <section className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-
-            <MetricCard
-              label="Duração média"
-              value={
-                summary.averageDays != null
-                  ? `${summary.averageDays.toLocaleString("pt-BR")} dias`
-                  : "—"
-              }
-              hint={
-                summary.averageDays != null
-                  ? `~${summary.averageWeeks?.toLocaleString("pt-BR")} semanas · ~${summary.averageMonths?.toLocaleString("pt-BR")} mês(es)`
-                  : "Registre a próxima troca para calcular"
-              }
-            />
-            <MetricCard
-              label="Valor médio por botijão"
-              value={formatCurrency(summary.averageAmount)}
-              hint={`${summary.refillCount} troca(s) · total ${formatCurrency(summary.totalSpent)}`}
-            />
-            <MetricCard
-              label="Custo por dia"
-              value={summary.averageCostPerDay != null ? formatCurrency(summary.averageCostPerDay) : "—"}
-              hint={
-                summary.averageMonthlyCost != null
-                  ? `~${formatCurrency(summary.averageMonthlyCost)} por mês`
-                  : undefined
-              }
-            />
-            <MetricCard
-              label="Próxima troca prevista"
-              value={summary.nextRefillDate ? formatDate(summary.nextRefillDate) : "—"}
-              hint={
-                summary.daysUntilNext != null
-                  ? summary.daysUntilNext >= 0
-                    ? `Faltam ~${summary.daysUntilNext} dias`
-                    : `Passou ~${Math.abs(summary.daysUntilNext)} dias da média`
-                  : undefined
-              }
-            />
+            {(["duration", "amount", "cost", "next"] as const).map((key) => (
+              <MetricCard
+                key={key}
+                label={
+                  key === "duration"
+                    ? "Duração média"
+                    : key === "amount"
+                      ? "Valor médio por botijão"
+                      : key === "cost"
+                        ? "Custo por dia"
+                        : "Próxima troca prevista"
+                }
+                value={details[key]!.value}
+                hint={details[key]!.hint}
+                onSelect={() => setDetailKey(key)}
+              />
+            ))}
           </section>
 
           <section className="mt-4 flex flex-wrap items-center gap-2 rounded-2xl border border-border bg-card p-4">
@@ -243,25 +399,77 @@ function GasPage() {
 
           <div className="mt-4 grid gap-4 lg:grid-cols-2">
             <section className="rounded-2xl border border-border bg-card p-4">
-              <h2 className="font-display text-base font-semibold">
-                Quantos dias cada botijão durou
-              </h2>
-              <div className="mt-3 h-64">
+              <div className="flex flex-wrap items-baseline justify-between gap-2">
+                <h2 className="font-display text-base font-semibold">
+                  Quantos dias cada botijão durou
+                </h2>
+                {summary.averageDays != null ? (
+                  <span className="text-xs text-muted-foreground">
+                    média {summary.averageDays.toLocaleString("pt-BR")} dias
+                  </span>
+                ) : null}
+              </div>
+              <div className="mt-4 h-64">
                 {durationSeries.length ? (
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={durationSeries}>
+                    <BarChart data={durationSeries} margin={{ top: 18, right: 8, left: -18 }}>
+                      <defs>
+                        <linearGradient id="gasDuration" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor={DURATION_COLOR} stopOpacity={0.95} />
+                          <stop offset="100%" stopColor={DURATION_COLOR} stopOpacity={0.45} />
+                        </linearGradient>
+                      </defs>
                       <CartesianGrid {...gridProps} />
-                      <XAxis dataKey="label" {...axisProps} />
-                      <YAxis {...axisProps} />
+                      <XAxis dataKey="label" {...axisProps} interval="preserveStartEnd" />
+                      <YAxis {...axisProps} width={44} unit="d" />
                       <Tooltip
                         {...tooltipProps}
-                        formatter={(value: number) => `${value} dias`}
+                        formatter={(value: number) => [`${value} dias`, "Duração"]}
+                        labelFormatter={(_label, payload) =>
+                          (payload?.[0]?.payload as { periodo?: string } | undefined)?.periodo ?? ""
+                        }
                       />
-                      <Bar dataKey="dias" fill={seriesColor(0)} radius={barRadius} />
+                      {summary.averageDays != null ? (
+                        <ReferenceLine
+                          y={summary.averageDays}
+                          stroke="var(--muted-foreground)"
+                          strokeDasharray="4 4"
+                          label={{
+                            value: "média",
+                            position: "right",
+                            fill: "var(--muted-foreground)",
+                            fontSize: 10,
+                          }}
+                        />
+                      ) : null}
+                      <Bar
+                        dataKey="dias"
+                        fill="url(#gasDuration)"
+                        radius={[8, 8, 4, 4]}
+                        maxBarSize={46}
+                      >
+                        <LabelList
+                          dataKey="dias"
+                          position="top"
+                          fontSize={10}
+                          fill="var(--muted-foreground)"
+                        />
+                        {durationSeries.map((item, index) => (
+                          <Cell
+                            key={index}
+                            fill="url(#gasDuration)"
+                            fillOpacity={
+                              summary.averageDays != null && item.dias < summary.averageDays
+                                ? 0.6
+                                : 1
+                            }
+                          />
+                        ))}
+                      </Bar>
                     </BarChart>
                   </ResponsiveContainer>
                 ) : (
-                  <p className="flex h-full items-center justify-center text-sm text-muted-foreground">
+                  <p className="flex h-full items-center justify-center text-center text-sm text-muted-foreground">
                     A duração aparece a partir da segunda troca registrada.
                   </p>
                 )}
@@ -269,28 +477,50 @@ function GasPage() {
             </section>
 
             <section className="rounded-2xl border border-border bg-card p-4">
-              <h2 className="flex items-center gap-2 font-display text-base font-semibold">
-                <TrendingDown className="size-4 text-muted-foreground" aria-hidden />
-                Evolução do preço do botijão
-              </h2>
-              <div className="mt-3 h-64">
+              <div className="flex flex-wrap items-baseline justify-between gap-2">
+                <h2 className="flex items-center gap-2 font-display text-base font-semibold">
+                  <TrendingDown className="size-4 text-muted-foreground" aria-hidden />
+                  Evolução do preço do botijão
+                </h2>
+                <span className="text-xs text-muted-foreground">
+                  média {formatCurrency(summary.averageAmount)}
+                </span>
+              </div>
+              <div className="mt-4 h-64">
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={priceSeries}>
+                  <AreaChart data={priceSeries} margin={{ top: 18, right: 12, left: -8 }}>
+                    <defs>
+                      <linearGradient id="gasPrice" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor={PRICE_COLOR} stopOpacity={0.35} />
+                        <stop offset="100%" stopColor={PRICE_COLOR} stopOpacity={0.02} />
+                      </linearGradient>
+                    </defs>
                     <CartesianGrid {...gridProps} />
-                    <XAxis dataKey="label" {...axisProps} />
-                    <YAxis {...axisProps} />
+                    <XAxis dataKey="label" {...axisProps} interval="preserveStartEnd" />
+                    <YAxis
+                      {...axisProps}
+                      width={56}
+                      tickFormatter={(value: number) => `R$ ${Math.round(value)}`}
+                    />
                     <Tooltip
                       {...tooltipProps}
-                      formatter={(value: number) => formatCurrency(value)}
+                      formatter={(value: number) => [formatCurrency(value), "Valor pago"]}
                     />
-                    <Line
+                    <ReferenceLine
+                      y={summary.averageAmount}
+                      stroke="var(--muted-foreground)"
+                      strokeDasharray="4 4"
+                    />
+                    <Area
                       type="monotone"
                       dataKey="valor"
-                      stroke={seriesColor(1)}
-                      strokeWidth={2}
-                      dot={{ r: 3 }}
+                      stroke={PRICE_COLOR}
+                      strokeWidth={2.5}
+                      fill="url(#gasPrice)"
+                      dot={{ r: 3, fill: PRICE_COLOR, strokeWidth: 0 }}
+                      activeDot={{ r: 5 }}
                     />
-                  </LineChart>
+                  </AreaChart>
                 </ResponsiveContainer>
               </div>
             </section>
@@ -358,9 +588,12 @@ function GasPage() {
         </>
       )}
 
+      <MetricDetailDialog
+        detail={detailKey ? (details[detailKey] ?? null) : null}
+        onClose={() => setDetailKey(null)}
+      />
       <GasRefillDialog open={dialogOpen} onOpenChange={setDialogOpen} refill={editing} />
       <GasImportDialog open={importOpen} onOpenChange={setImportOpen} />
-
     </AppShell>
   );
 }

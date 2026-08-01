@@ -12,18 +12,41 @@
 
 import { DEFAULT_AI_LIMITS, type AiLimits } from "./ai-limits";
 
-export const AI_TRIAL_SOURCES = ["trial", "teste", "test", "demo", "cortesia", "gratis"];
+export const AI_TRIAL_SOURCES = [
+  "trial",
+  "teste",
+  "test",
+  "demo",
+  "cortesia",
+  "gratis",
+  "trial_gift",
+];
 export const AI_TRIAL_SLUGS = ["free", "gratuito", "gratis", "trial", "teste", "test", "demo"];
 
 /** Planos pagos que incluem o Consultor de IA. */
 export const AI_PLAN_SLUGS = ["premium_ia", "premium-ia", "premium_ai", "ia", "ai"];
 
+/**
+ * Testes de cortesia distribuídos pelo administrador (licenças de 7 dias):
+ * recursos limitados e IA SEMPRE bloqueada, pois cada análise consome créditos.
+ */
+export const AI_BLOCKED_TRIAL_SLUGS = ["trial_7_basic", "trial_gift", "trial_7_gift"];
+
+/** Falso quando o período de teste em vigor é um teste de cortesia sem IA. */
+export function trialIncludesAi(trialPlanSlug?: string | null): boolean {
+  const value = String(trialPlanSlug ?? "").toLowerCase();
+  if (!value) return true;
+  return !AI_BLOCKED_TRIAL_SLUGS.includes(value);
+}
+
 /** Verdadeiro quando o slug do plano corresponde a um plano com IA integrada. */
 export function planIncludesAi(slug?: string | null): boolean {
   const value = String(slug ?? "").toLowerCase();
   if (!value) return false;
+  if (AI_BLOCKED_TRIAL_SLUGS.includes(value)) return false;
   return AI_PLAN_SLUGS.includes(value) || /(^|[-_])(ia|ai)([-_]|$)/.test(value);
 }
+
 
 /** Limites mensais por assinante (usados no painel de créditos). */
 export const AI_MONTHLY_QUERY_LIMIT = 120;
@@ -36,6 +59,10 @@ export const AI_BLOCK_MESSAGE =
 
 export const AI_UPGRADE_MESSAGE =
   "Seu plano é pago, mas não inclui o Consultor de IA. Faça upgrade para o Premium IA para liberar as análises com inteligência artificial.";
+
+export const AI_TRIAL_BLOCK_MESSAGE =
+  "As licenças de teste de 7 dias liberam apenas os recursos básicos e não incluem o Consultor de IA. Assine o Premium IA para liberar as análises com inteligência artificial.";
+
 
 
 /** Rate limiting por usuário (protege trial/teste de tentativas repetidas). */
@@ -72,6 +99,7 @@ export type AiEntitlementReason =
   | "plan_without_ai"
   | "trial_active"
   | "trial_expired"
+  | "trial_without_ai"
   | "trial_plan"
   | "free_plan"
   | "no_plan";
@@ -94,6 +122,8 @@ export function evaluateAiEntitlement(input: {
   isAdmin?: boolean | null;
   /** Fim do período de teste do usuário (tudo liberado enquanto vigente). */
   trialEndsAt?: string | Date | null;
+  /** Slug do plano de teste em vigor (testes de cortesia nunca liberam IA). */
+  trialPlanSlug?: string | null;
   now?: Date;
 }): AiEntitlement {
   const now = input.now ?? new Date();
@@ -126,14 +156,33 @@ export function evaluateAiEntitlement(input: {
     };
   }
 
-  // Período de teste vigente: tudo liberado, inclusive a IA.
+  // Período de teste vigente: tudo liberado, inclusive a IA — exceto nos
+  // testes de cortesia de 7 dias, que nunca liberam a IA.
   const trialEnd = input.trialEndsAt ? new Date(input.trialEndsAt) : null;
+  const trialSlug = String(input.trialPlanSlug ?? "").toLowerCase();
   if (trialEnd && Number.isFinite(trialEnd.getTime())) {
     if (trialEnd.getTime() > now.getTime()) {
+      if (!trialIncludesAi(trialSlug)) {
+        return {
+          entitled: false,
+          reason: "trial_without_ai",
+          planSlug,
+          message: AI_TRIAL_BLOCK_MESSAGE,
+        };
+      }
       return { entitled: true, reason: "trial_active", planSlug };
     }
     return { entitled: false, reason: "trial_expired", planSlug, message: AI_BLOCK_MESSAGE };
   }
+  if (!trialIncludesAi(planSlug)) {
+    return {
+      entitled: false,
+      reason: "trial_without_ai",
+      planSlug,
+      message: AI_TRIAL_BLOCK_MESSAGE,
+    };
+  }
+
 
   const reason: AiEntitlementReason = !input.plan
     ? "no_plan"

@@ -8,7 +8,7 @@
  * - `paid`   → assinatura ativa (licença paga ou plano com preço).
  */
 
-import { planIncludesAi } from "./ai-entitlement";
+import { planIncludesAi, trialIncludesAi } from "./ai-entitlement";
 
 export type PlanTier = "free" | "trial" | "paid";
 
@@ -76,6 +76,21 @@ export const FEATURE_LABEL: Record<FeatureKey, string> = {
   unlimited_transactions: "Lançamentos ilimitados",
 };
 
+/**
+ * Recursos liberados nas licenças de teste de cortesia (7 dias): um pouco mais
+ * que o gratuito, mas sem IA, sem relatórios avançados e sem exportações.
+ */
+export const TRIAL_BASIC_FEATURES: FeatureKey[] = [
+  "dashboard",
+  "transactions",
+  "categories",
+  "monthly_balance",
+  "budgets",
+  "goals",
+  "recurring",
+  "notifications",
+];
+
 /** Limite de lançamentos por mês no plano gratuito. */
 export const FREE_MONTHLY_TRANSACTION_LIMIT = 30;
 
@@ -97,6 +112,8 @@ export type PlanAccessInput = {
   planTier?: string | null;
   planPrice?: number | string | null;
   trialEndsAt?: string | Date | null;
+  /** Slug do plano de teste em vigor (testes de cortesia são limitados e sem IA). */
+  trialPlanSlug?: string | null;
   hasPaidLicense?: boolean | null;
   isAdmin?: boolean | null;
   now?: Date;
@@ -109,6 +126,8 @@ export type PlanAccess = {
   /** Verdadeiro quando o plano atual inclui o Consultor de IA. */
   aiIncluded: boolean;
   trialActive: boolean;
+  /** Teste de cortesia de 7 dias: recursos limitados e IA bloqueada. */
+  courtesyTrial: boolean;
   trialDaysLeft: number;
   trialEndsAt: string | null;
   features: FeatureKey[];
@@ -136,16 +155,26 @@ export function resolvePlanAccess(input: PlanAccessInput): PlanAccess {
 
   const tier: PlanTier = paid ? "paid" : trialValid ? "trial" : "free";
 
-  // A IA integrada acompanha somente o plano Premium IA (ou teste/admin/licença paga).
+  const trialSlug = String(input.trialPlanSlug ?? "").toLowerCase();
+  // Teste de cortesia (licença de 7 dias doada pelo admin): recursos limitados.
+  const courtesyTrial =
+    tier === "trial" && (!trialIncludesAi(trialSlug) || !trialIncludesAi(planSlug));
+
+  // A IA integrada acompanha somente o plano Premium IA (ou teste completo,
+  // admin ou licença paga). Testes de cortesia nunca liberam a IA.
   const aiIncluded =
-    tier === "trial" || isAdmin || input.hasPaidLicense === true || planIncludesAi(planSlug);
+    isAdmin ||
+    input.hasPaidLicense === true ||
+    (tier === "trial" ? !courtesyTrial : planIncludesAi(planSlug));
 
   const features =
     tier === "free"
       ? FREE_FEATURES
-      : aiIncluded
-        ? ALL_FEATURES
-        : ALL_FEATURES.filter((feature) => feature !== "ai_advisor");
+      : courtesyTrial
+        ? TRIAL_BASIC_FEATURES
+        : aiIncluded
+          ? ALL_FEATURES
+          : ALL_FEATURES.filter((feature) => feature !== "ai_advisor");
 
   return {
     tier,
@@ -153,6 +182,7 @@ export function resolvePlanAccess(input: PlanAccessInput): PlanAccess {
     isAdmin,
     aiIncluded,
     trialActive: tier === "trial",
+    courtesyTrial,
     trialDaysLeft,
     trialEndsAt: trialEnd ? trialEnd.toISOString() : null,
     features,
