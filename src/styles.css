@@ -460,6 +460,31 @@
     -webkit-overflow-scrolling: touch;
   }
 
+  /* Desktop: rolagem apenas pela roda do mouse/trackpad, sem barras visíveis. */
+  @media (hover: hover) and (pointer: fine) {
+    html,
+    body,
+    [data-scroll-area],
+    [data-radix-scroll-area-viewport],
+    .overflow-y-auto,
+    .overflow-auto,
+    .overflow-x-auto {
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    html::-webkit-scrollbar,
+    body::-webkit-scrollbar,
+    [data-scroll-area]::-webkit-scrollbar,
+    [data-radix-scroll-area-viewport]::-webkit-scrollbar,
+    .overflow-y-auto::-webkit-scrollbar,
+    .overflow-auto::-webkit-scrollbar,
+    .overflow-x-auto::-webkit-scrollbar {
+      width: 0;
+      height: 0;
+    }
+  }
+
   img,
   svg,
   video,
@@ -467,6 +492,7 @@
   table {
     max-width: 100%;
   }
+
 
   /* Toques confortáveis no celular sem inflar o layout. */
   @media (max-width: 639px) {
