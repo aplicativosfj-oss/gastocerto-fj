@@ -581,6 +581,48 @@ export function TransactionDialog({
                   </div>
                 </Alert>
               )}
+              {dateInconsistent && !isLockedMonth ? (
+                <Alert className="mt-2 border-amber-300/70 bg-amber-50 py-2 dark:border-amber-800 dark:bg-amber-900/20">
+                  <AlertTitle className="text-xs font-semibold text-amber-800 dark:text-amber-200">
+                    Competência fora do período atual
+                  </AlertTitle>
+                  <AlertDescription className="text-[11px] text-amber-700 dark:text-amber-300">
+                    {competence.outOfMonth
+                      ? `Este lançamento está em ${formatDate(date)}, em outro mês. Mova para a data correta se foi um erro.`
+                      : `Este lançamento está em ${formatDate(date)}, fora da semana atual.`}
+                    <span className="mt-2 flex flex-wrap gap-2">
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        className="h-7 text-[11px]"
+                        onClick={() => setDate(competence.todayIso)}
+                      >
+                        Mover para hoje
+                      </Button>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        className="h-7 text-[11px]"
+                        onClick={() => setDate(competence.weekStart)}
+                      >
+                        Esta semana ({formatDate(competence.weekStart)})
+                      </Button>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        className="h-7 text-[11px]"
+                        onClick={() => setDate(competence.sameDayThisMonth)}
+                      >
+                        Este mês ({formatDate(competence.sameDayThisMonth)})
+                      </Button>
+                    </span>
+                  </AlertDescription>
+                </Alert>
+              ) : null}
+
               <div className="mt-2 flex flex-wrap gap-2">
                 <Button type="button" variant="outline" size="sm" onClick={() => shiftDate("today")}>
                   Hoje
