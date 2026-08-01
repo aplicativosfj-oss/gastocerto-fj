@@ -45,6 +45,10 @@ import {
 } from "@/lib/finance";
 import { useClosings } from "@/lib/closing";
 import { MIN_TRANSACTION_DATE, lockedMonthKeys } from "@/lib/closing-lock";
+import { useClosingPolicy } from "@/lib/use-closing-policy";
+import { useAuth } from "@/hooks/use-auth";
+import { PasswordConfirmDialog } from "@/components/finance/password-confirm-dialog";
+
 import { formatDate } from "@/lib/format";
 import { amountToInput, maskAmountInput } from "@/lib/money-input";
 import { upperText } from "@/lib/text-case";
