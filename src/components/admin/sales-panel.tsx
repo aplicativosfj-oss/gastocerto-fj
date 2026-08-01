@@ -497,12 +497,6 @@ export function SalesPanel({ globalSearch = "" }: { globalSearch?: string }) {
                       <span className="text-[11px] text-muted-foreground">{payment.email}</span>
                     </div>
                   </TableCell>
-                    {formatDateTime(payment.paid_at ?? payment.created_at)}
-                  </TableCell>
-                  <TableCell>
-                    <span className="block font-medium">{payment.license?.full_name ?? "—"}</span>
-                    <span className="text-xs text-muted-foreground">{payment.email ?? "—"}</span>
-                  </TableCell>
                   <TableCell className="text-sm">
                     {payment.license?.plans?.name ?? "—"}
                     <span className="block text-xs text-muted-foreground">

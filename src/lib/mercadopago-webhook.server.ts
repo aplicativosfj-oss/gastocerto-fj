@@ -64,6 +64,6 @@ export async function processMercadoPagoWebhook(externalId: string, topic: strin
     }
 
   } catch (error) {
-    console.error(\"[Webhook] Error processing MP payment:\", error);
+    console.error("[Webhook] Error processing MP payment:", error);
   }
 }
