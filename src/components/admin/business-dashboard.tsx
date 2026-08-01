@@ -1,10 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { adminGetBusinessMetrics } from "@/lib/admin-expansion.functions";
 import { StatTile } from "@/components/finance/stat-tile";
-import { TrendingUp, Users, DollarSign, BrainCircuit, FileDown, Loader2 } from "lucide-react";
+import { TrendingUp, Users, DollarSign, BrainCircuit, FileDown, Loader2, FileText } from "lucide-react";
 import { formatCurrency } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
 
 export function BusinessDashboard() {
   const { data: metrics, isLoading } = useQuery({
@@ -41,14 +43,48 @@ export function BusinessDashboard() {
     toast.success("CSV exportado com sucesso");
   };
 
+  const exportPdf = () => {
+    if (!rawMetrics.length) return;
+    const doc = new jsPDF();
+    doc.text("Relatório de Métricas de Negócio - GastoCerto", 14, 15);
+    doc.setFontSize(10);
+    doc.text(`Gerado em: ${new Date().toLocaleString()}`, 14, 22);
+
+    const headers = [["Data", "MRR", "Assinantes", "Custo IA", "Rec. Bruta"]];
+    const data = rawMetrics.map(m => [
+      m.date,
+      formatCurrency(m.mrr),
+      m.total_active_subscribers,
+      formatCurrency(m.ai_cost_estimated),
+      formatCurrency(m.revenue_gross)
+    ]);
+
+    autoTable(doc, {
+      startY: 30,
+      head: headers,
+      body: data,
+      theme: 'striped',
+      headStyles: { fillColor: [16, 185, 129] } // Brand Emerald
+    });
+
+    doc.save(`business-metrics-${new Date().toISOString().split('T')[0]}.pdf`);
+    toast.success("PDF exportado com sucesso");
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-lg font-semibold">Métricas de Negócio</h2>
-        <Button variant="outline" size="sm" onClick={exportCsv} className="gap-2">
-          <FileDown className="size-4" />
-          Exportar CSV
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={exportCsv} className="gap-2">
+            <FileDown className="size-4" />
+            CSV
+          </Button>
+          <Button variant="outline" size="sm" onClick={exportPdf} className="gap-2">
+            <FileText className="size-4" />
+            PDF
+          </Button>
+        </div>
       </div>
       <div className="grid gap-3 auto-cards-sm">
         <StatTile tone="brand" label="MRR (Mensal)" value={formatCurrency(mrrValue)} icon={DollarSign} />

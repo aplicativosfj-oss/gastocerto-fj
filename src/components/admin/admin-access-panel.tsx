@@ -98,10 +98,10 @@ export function AdminAccessPanel() {
         <div>
           <CardTitle className="flex items-center gap-2 text-lg">
             <ShieldCheck className="size-5 text-primary" />
-            Acessos & Gerador de Código
+            Acessos & Gerador de Códigos
           </CardTitle>
           <CardDescription>
-            Gerencie códigos de acesso rápido para administradores e suporte.
+            Gerencie códigos de acesso rápido e chaves de licença temporárias.
           </CardDescription>
         </div>
         <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>

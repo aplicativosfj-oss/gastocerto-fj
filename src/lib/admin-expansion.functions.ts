@@ -79,7 +79,12 @@ export const adminUpdatePlanConfig = createServerFn({ method: "POST" })
 export const adminGetAnnouncements = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    await assertAdmin(context);
+    // Permite que suporte também visualize os avisos
+    const { data: isAdmin } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
+    const { data: isSupport } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "support" });
+    
+    if (!isAdmin && !isSupport) throw new Error("Acesso negado");
+    
     const { data, error } = await context.supabase.from("global_announcements" as any).select("*").order("created_at", { ascending: false });
     if (error) throw error;
     return data as any[];
