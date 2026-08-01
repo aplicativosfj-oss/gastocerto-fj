@@ -81,7 +81,7 @@ function CategoriesPage() {
   const refresh = useRefreshFinance();
 
   const [tab, setTab] = useState<"expense" | "income">("expense");
-  const [draft, setDraft] = useState<Draft | null>(null);
+  const [draft, setDraft] = useState<(Draft & { description?: string | null }) | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -126,6 +126,7 @@ function CategoriesPage() {
           type: draft.type, 
           color: draft.color, 
           icon: draft.icon,
+          description: draft.description?.trim() || null,
           display_order: draft.display_order ?? 0,
           parent_id: draft.parent_id || null,
         },
@@ -303,6 +304,22 @@ function CategoriesPage() {
                 }
               />
               {error ? <p className="mt-1 text-xs text-destructive">{error}</p> : null}
+            </div>
+
+            <div>
+              <Label htmlFor="category-desc">Descrição / Nota da Categoria</Label>
+              <Input
+                id="category-desc"
+                value={draft?.description ?? ""}
+                className="mt-1.5"
+                placeholder="Ex.: Gastos com reparos, peças e mecânica"
+                onChange={(event) =>
+                  setDraft((current) => (current ? { ...current, description: event.target.value } : current))
+                }
+              />
+              <p className="mt-1 text-[10px] text-muted-foreground">
+                Esta descrição é exibida durante o lançamento para orientar o preenchimento.
+              </p>
             </div>
 
             <div className="grid grid-cols-2 gap-3">

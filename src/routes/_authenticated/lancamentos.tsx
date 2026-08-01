@@ -331,19 +331,34 @@ function TransactionsPage() {
             />
           </div>
 
-          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-            <SelectTrigger aria-label="Filtrar por categoria">
-              <SelectValue placeholder="Categoria" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todas as categorias</SelectItem>
-              {(categories ?? []).map((category) => (
-                <SelectItem key={category.id} value={category.id}>
-                  {category.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+              <SelectTrigger aria-label="Filtrar por categoria" className="pl-9">
+                <SelectValue placeholder="Filtrar categoria" />
+              </SelectTrigger>
+              <SelectContent>
+                <div className="p-2">
+                  <Input 
+                    placeholder="Buscar categoria..." 
+                    className="h-8 text-xs"
+                    onClick={(e) => e.stopPropagation()}
+                    onKeyDown={(e) => e.stopPropagation()}
+                    onChange={(e) => {
+                      // Implement client-side filtering logic for the items below if needed
+                      // but standard SelectContent doesn't easily support this without a custom component
+                    }}
+                  />
+                </div>
+                <SelectItem value="all">Todas as categorias</SelectItem>
+                {(categories ?? []).sort((a,b) => a.name.localeCompare(b.name)).map((category) => (
+                  <SelectItem key={category.id} value={category.id}>
+                    {category.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
           <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger aria-label="Filtrar por status">

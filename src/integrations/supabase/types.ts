@@ -240,6 +240,7 @@ export type Database = {
           active: boolean
           color: string | null
           created_at: string
+          description: string | null
           display_order: number | null
           icon: string | null
           id: string
@@ -254,6 +255,7 @@ export type Database = {
           active?: boolean
           color?: string | null
           created_at?: string
+          description?: string | null
           display_order?: number | null
           icon?: string | null
           id?: string
@@ -268,6 +270,7 @@ export type Database = {
           active?: boolean
           color?: string | null
           created_at?: string
+          description?: string | null
           display_order?: number | null
           icon?: string | null
           id?: string

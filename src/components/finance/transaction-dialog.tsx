@@ -80,7 +80,7 @@ type Kind = "expense" | "income";
 export function TransactionDialog({
   open,
   onOpenChange,
-  kind = "expense",
+  kind: initialKind = "expense",
   transaction,
   defaultDate,
   onSaved,
@@ -99,6 +99,11 @@ export function TransactionDialog({
   /** Subcategoria já escolhida no menu rápido. */
   presetSubCategoryId?: string | null;
 }) {
+  const [kind, setKind] = useState<Kind>(initialKind);
+
+  useEffect(() => {
+    if (open && initialKind) setKind(initialKind);
+  }, [open, initialKind]);
 
   const editing = Boolean(transaction);
   const { data: categories } = useCategories();
@@ -114,6 +119,7 @@ export function TransactionDialog({
     () => (categories ?? []).filter((category) => category.type === kind),
     [categories, kind],
   );
+
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [advanced, setAdvanced] = useState(false);
@@ -146,6 +152,11 @@ export function TransactionDialog({
   const [subCategoryId, setSubCategoryId] = useState((transaction as any)?.sub_category_id ?? "");
   const saveFeedback = useSaveCategoryFeedback();
   const [revenueSuggestion, setRevenueSuggestion] = useState<{ message: string; date: string } | null>(null);
+
+  const selectedCategory = useMemo(
+    () => (categories ?? []).find((c) => c.id === (subCategoryId || categoryId)),
+    [categories, subCategoryId, categoryId],
+  );
 
   useEffect(() => {
     async function checkRevenue() {
@@ -688,13 +699,17 @@ export function TransactionDialog({
             </div>
 
 
-            <div>
+            <div className="space-y-1.5">
               <Label>Categoria</Label>
               <CategoryPicker
                 categories={options}
                 value={subCategoryId || categoryId}
                 onChange={(id) => {
-                  const selectedCat = options.find(c => c.id === id);
+                  const selectedCat = options.find((c) => c.id === id);
+                  if (selectedCat) {
+                    if (selectedCat.type === "income") setKind("income");
+                    else setKind("expense");
+                  }
                   if (suggestion && suggestion.id !== id) {
                     saveFeedback.mutate({
                       description: description,
@@ -758,6 +773,26 @@ export function TransactionDialog({
                 </div>
               )}
 
+              {selectedCategory?.description && (
+                <p className="px-1 text-[10px] italic text-muted-foreground">
+                  {selectedCategory.description}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="description">Descrição do lançamento</Label>
+              <Input
+                id="description"
+                value={description}
+                onChange={(event) => setDescription(upperText(event.target.value))}
+                placeholder={kind === "income" ? "Ex.: Salário, Venda..." : "Ex.: Almoço, Peças..."}
+                maxLength={100}
+                required
+              />
+              <p className="px-1 text-[10px] text-muted-foreground">
+                Dica: Mantenha a descrição focada no gasto específico. O nome da categoria ("{selectedCategory?.name || "..."}") já é salvo automaticamente.
+              </p>
             </div>
 
 

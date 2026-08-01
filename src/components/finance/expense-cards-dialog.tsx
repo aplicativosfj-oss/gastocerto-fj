@@ -20,6 +20,7 @@ import { useCategories } from "@/lib/queries";
 import { addMonths } from "@/lib/commitment-schedule";
 import { useSaveRecurringRule } from "@/lib/recurring";
 import { useSaveTransaction, useTransactions, type Category } from "@/lib/transactions";
+import { Search } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
@@ -59,6 +60,17 @@ export function ExpenseCardsDialog({
   const { data: categories } = useCategories();
   const save = useSaveTransaction();
   const saveRecurring = useSaveRecurringRule();
+  const [search, setSearch] = useState("");
+
+  const cards = useMemo(() => {
+    const list = (categories ?? []).filter((c) => c.type === "expense");
+    if (!search) return list.slice(0, 15);
+    const term = search.toLowerCase();
+    return list.filter(c => 
+      c.name.toLowerCase().includes(term) || 
+      (c.description?.toLowerCase().includes(term))
+    ).slice(0, 15);
+  }, [categories, search]);
 
   const today = new Date();
   const currentRange = monthRange(today.getFullYear(), today.getMonth() + 1);
@@ -68,7 +80,6 @@ export function ExpenseCardsDialog({
   const [digits, setDigits] = useState("");
   const [note, setNote] = useState("");
   const [date, setDate] = useState(isoDate(new Date()));
-  const [search, setSearch] = useState("");
   const [kind, setKind] = useState<ExpenseKind>("single");
   const [installmentsTotal, setInstallmentsTotal] = useState("12");
   const [installmentsPaid, setInstallmentsPaid] = useState("0");
@@ -323,13 +334,16 @@ export function ExpenseCardsDialog({
 
         {!selected ? (
           <div className="space-y-3">
-            <Input
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="Buscar categoria (feira, gás, combustível...)"
-              className="h-10"
-              aria-label="Buscar categoria"
-            />
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder="Buscar categoria (feira, oficina, roçagem...)"
+                className="h-10 pl-9"
+                aria-label="Buscar categoria"
+              />
+            </div>
 
             {phoneCategory ? (
               <button

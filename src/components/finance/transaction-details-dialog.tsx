@@ -97,10 +97,16 @@ export function TransactionDetailsDialog({
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="max-h-[85vh] gap-3 overflow-y-auto p-4 sm:max-w-md">
           <DialogHeader className="space-y-0.5 text-left">
-            <DialogTitle className="text-base leading-tight">{transaction.description}</DialogTitle>
+            <DialogTitle className="text-base leading-tight">
+              {transaction.description}
+              {category && (
+                <span className="ml-2 inline-flex items-center rounded bg-muted px-1.5 py-0.5 text-[10px] font-normal text-muted-foreground">
+                  {category.name}
+                </span>
+              )}
+            </DialogTitle>
             <DialogDescription className="text-xs">
               {isIncome ? "Receita" : "Despesa"} de {formatDate(transaction.transaction_date)}
-              {category ? ` · ${category.name}` : ""}
             </DialogDescription>
           </DialogHeader>
 
