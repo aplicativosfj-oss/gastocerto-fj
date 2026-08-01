@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const MODEL = "google/gemini-3.6-flash";
+export const MODEL = "google/gemini-2.0-flash";
 
 export const AskInput = z.object({
   question: z.string().trim().min(3).max(400),

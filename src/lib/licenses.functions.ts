@@ -369,3 +369,60 @@ export const activateLicense = createServerFn({ method: "POST" })
       expiresAt: expiresAt.toISOString(),
     };
   });
+
+/**
+ * Exclui uma licença (ação definitiva para limpeza ou correção).
+ */
+export const adminDeleteLicense = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: license } = await supabaseAdmin
+      .from("licenses")
+      .select("license_key, email, user_id")
+      .eq("id", data.id)
+      .maybeSingle();
+
+    const { error } = await supabaseAdmin.from("licenses").delete().eq("id", data.id);
+    if (error) throw new Error("Não foi possível excluir a licença");
+
+    await context.supabase.from("admin_logs").insert({
+      actor_id: context.userId,
+      target_user_id: license?.user_id ?? null,
+      action: "license_deleted",
+      details: { license_key: license?.license_key, email: license?.email },
+    });
+
+    return { ok: true };
+  });
+
+/**
+ * Exclui um código de acesso administrativo.
+ */
+export const adminDeleteAccessCode = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: code } = await supabaseAdmin
+      .from("admin_access_codes")
+      .select("code, label")
+      .eq("id", data.id)
+      .maybeSingle();
+
+    const { error } = await supabaseAdmin.from("admin_access_codes").delete().eq("id", data.id);
+    if (error) throw new Error("Não foi possível excluir o código");
+
+    await context.supabase.from("admin_logs").insert({
+      actor_id: context.userId,
+      action: "admin_code_deleted",
+      details: { code: code?.code, label: code?.label },
+    });
+
+    return { ok: true };
+  });

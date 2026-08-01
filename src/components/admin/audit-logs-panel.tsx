@@ -45,7 +45,7 @@ function download(name: string, blob: Blob) {
   URL.revokeObjectURL(url);
 }
 
-export function AuditLogsPanel() {
+export function AuditLogsPanel({ globalSearch = "" }: { globalSearch?: string }) {
   const listLogs = useServerFn(adminListAuditLogs);
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
@@ -75,7 +75,7 @@ export function AuditLogsPanel() {
         category,
         search,
       }),
-    [data, category, search],
+    [data, category, search, globalSearch],
   );
 
   function exportCsv() {

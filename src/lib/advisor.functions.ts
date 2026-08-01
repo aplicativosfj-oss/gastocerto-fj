@@ -113,7 +113,7 @@ export const askAdvisor = createServerFn({ method: "POST" })
     const result = await generateText({
       model: gateway(MODEL),
       system: SYSTEM_PROMPT,
-      prompt: `Resumo financeiro do usuário:\n${summary}\n\nPergunta do usuário: ${data.question}`,
+      prompt: `Resumo financeiro do usuário:\n${summary}\n\nPergunta do usuário: ${data.question}${limits.economyMode ? '\n\nResponda de forma extremamente concisa para economizar créditos.' : ''}`,
     });
 
     // 5) Auditoria do consumo de créditos.

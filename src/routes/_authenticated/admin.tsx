@@ -143,6 +143,7 @@ function AdminPage() {
 function AdminConsole({ isAdmin }: { isAdmin: boolean }) {
   const { user } = useAuth();
   const [active, setActive] = useState("overview");
+  const [search, setSearch] = useState("");
 
   const sections = useMemo(
     () => SECTIONS.filter((section) => isAdmin || !section.adminOnly),
@@ -158,6 +159,8 @@ function AdminConsole({ isAdmin }: { isAdmin: boolean }) {
       onSelect={setActive}
       operatorName={user?.email ?? "Operador"}
       role={isAdmin ? "Administrador" : "Suporte"}
+      searchTerm={search}
+      onSearchChange={setSearch}
     >
       <Suspense
         fallback={
@@ -167,12 +170,12 @@ function AdminConsole({ isAdmin }: { isAdmin: boolean }) {
         }
       >
         {current === "overview" ? <AdminOverviewPanel isAdmin={isAdmin} onNavigate={setActive} /> : null}
-        {current === "users" ? <UsersPanel isAdmin={isAdmin} /> : null}
+        {current === "users" ? <UsersPanel isAdmin={isAdmin} globalSearch={search} /> : null}
         {current === "business" ? <BusinessDashboard /> : null}
-        {current === "sales" ? <SalesPanel /> : null}
+        {current === "sales" ? <SalesPanel globalSearch={search} /> : null}
         {current === "plans" ? <PlanConfigsPanel /> : null}
-        {current === "licenses" ? <LicensesPanel /> : null}
-        {current === "codes" ? <ClientCodesPanel /> : null}
+        {current === "licenses" ? <LicensesPanel globalSearch={search} /> : null}
+        {current === "codes" ? <ClientCodesPanel globalSearch={search} /> : null}
         {current === "trials" ? (
           <div className="space-y-4">
             <TrialGrantPanel />
@@ -189,14 +192,14 @@ function AdminConsole({ isAdmin }: { isAdmin: boolean }) {
             <ReopenRequestsPanel />
           </div>
         ) : null}
-        {current === "audit" ? <AuditLogsPanel /> : null}
+        {current === "audit" ? <AuditLogsPanel globalSearch={search} /> : null}
         {current === "security" ? (
           <div className="space-y-4">
             <AdminAccessPanel />
             <BlockedIpsPanel />
           </div>
         ) : null}
-        {current === "logs" ? <LogsTable /> : null}
+        {current === "logs" ? <LogsTable globalSearch={search} /> : null}
       </Suspense>
     </AdminConsoleShell>
   );

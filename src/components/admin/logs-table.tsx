@@ -13,7 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { formatDateTime } from "@/lib/format";
 
 /** Trilha completa de ações administrativas. */
-export function LogsTable() {
+export function LogsTable({ globalSearch = "" }: { globalSearch?: string }) {
   const logs = useQuery({
     queryKey: ["admin", "logs", "full"],
     staleTime: 60_000,
@@ -46,6 +46,19 @@ export function LogsTable() {
     return map;
   }, [profiles.data]);
 
+  const filteredLogs = useMemo(() => {
+    const rows = logs.data ?? [];
+    const term = globalSearch.trim().toLowerCase();
+    if (!term) return rows;
+    return rows.filter((log) => {
+      const actor = (nameByUser.get(log.actor_id) ?? "").toLowerCase();
+      const target = log.target_user_id ? (nameByUser.get(log.target_user_id) ?? "").toLowerCase() : "";
+      const action = (log.action || "").toLowerCase();
+      const details = JSON.stringify(log.details || "").toLowerCase();
+      return actor.includes(term) || target.includes(term) || action.includes(term) || details.includes(term);
+    });
+  }, [logs.data, globalSearch, nameByUser]);
+
   return (
     <div className="overflow-x-auto rounded-xl border border-border bg-card">
       <Table>
@@ -59,14 +72,14 @@ export function LogsTable() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {(logs.data ?? []).length === 0 ? (
+          {filteredLogs.length === 0 ? (
             <TableRow>
               <TableCell colSpan={5} className="py-8 text-center text-sm text-muted-foreground">
                 Nenhuma ação registrada ainda.
               </TableCell>
             </TableRow>
           ) : (
-            (logs.data ?? []).map((log) => (
+            filteredLogs.map((log) => (
               <TableRow key={log.id}>
                 <TableCell>{formatDateTime(log.created_at)}</TableCell>
                 <TableCell>{nameByUser.get(log.actor_id) ?? "Equipe"}</TableCell>

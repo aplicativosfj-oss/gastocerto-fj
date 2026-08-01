@@ -1,13 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { KeyRound, Clock, Search } from "lucide-react";
+import { KeyRound, Clock, Search, Trash2, Loader2 } from "lucide-react";
 import { useMemo, useState } from "react";
 
-import { adminListLicenses } from "@/lib/licenses.functions";
+import { adminListLicenses, adminDeleteLicense } from "@/lib/licenses.functions";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -19,9 +21,12 @@ import {
 import { formatDateTime } from "@/lib/format";
 import { remainingTime } from "@/lib/audit-log";
 import { useNow } from "@/lib/use-now";
+import { toast } from "sonner";
 
-export function ClientCodesPanel() {
+export function ClientCodesPanel({ globalSearch = "" }: { globalSearch?: string }) {
+  const queryClient = useQueryClient();
   const listLicenses = useServerFn(adminListLicenses);
+  const deleteLicense = useServerFn(adminDeleteLicense);
   const [search, setSearch] = useState("");
   const now = useNow(1000);
 
@@ -32,8 +37,17 @@ export function ClientCodesPanel() {
     refetchOnWindowFocus: true,
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => deleteLicense({ data: { id } }),
+    onSuccess: () => {
+      toast.success("Código excluído definitivamente");
+      void queryClient.invalidateQueries({ queryKey: ["admin", "client-codes"] });
+    },
+    onError: (err: any) => toast.error(err.message || "Erro ao excluir"),
+  });
+
   const rows = useMemo(() => {
-    const term = search.trim().toLowerCase();
+    const term = (globalSearch || search).trim().toLowerCase();
     const licenses = (data?.licenses ?? []) as any[];
     if (!term) return licenses;
     return licenses.filter(
@@ -87,6 +101,7 @@ export function ClientCodesPanel() {
                   <TableHead>Situação</TableHead>
                   <TableHead>Expira em</TableHead>
                   <TableHead>Tempo restante</TableHead>
+                  <TableHead className="text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -137,6 +152,25 @@ export function ClientCodesPanel() {
                           <Clock className="size-3" />
                           {remaining.text}
                         </div>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="size-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                          disabled={deleteMutation.isPending}
+                          onClick={() => {
+                            if (window.confirm("Excluir este código definitivamente?")) {
+                              deleteMutation.mutate(license.id);
+                            }
+                          }}
+                        >
+                          {deleteMutation.isPending ? (
+                            <Loader2 className="size-4 animate-spin" />
+                          ) : (
+                            <Trash2 className="size-4" />
+                          )}
+                        </Button>
                       </TableCell>
                     </TableRow>
                   );

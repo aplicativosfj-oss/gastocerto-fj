@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Loader2, Save, Undo2 } from "lucide-react";
+import { Loader2, Save, Undo2, Zap, ZapOff } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { EmblemGauge } from "@/components/ui/panel-emblems";
+import { Switch } from "@/components/ui/switch";
 import { DEFAULT_AI_LIMITS, AiLimitsSchema, type AiLimits } from "@/lib/ai-limits";
 import { getAiLimits, saveAiLimits } from "@/lib/settings.functions";
 
@@ -144,6 +145,24 @@ export function AiSettingsPanel() {
       </header>
 
       <form className="mt-4 space-y-4" onSubmit={submit} noValidate>
+        <div className="flex items-start justify-between gap-4 rounded-xl border border-primary/20 bg-primary/5 p-4">
+          <div className="flex gap-3">
+            <div className="mt-0.5 rounded-lg bg-primary/10 p-2 text-primary">
+              {form.economyMode === "true" ? <ZapOff className="size-5" /> : <Zap className="size-5" />}
+            </div>
+            <div>
+              <Label className="text-sm font-semibold">Modo Econômico Lovable (Gemini)</Label>
+              <p className="text-xs text-muted-foreground">
+                Quando ativo, as respostas da IA serão mais curtas e diretas, economizando tokens e créditos mensais dos assinantes.
+              </p>
+            </div>
+          </div>
+          <Switch
+            checked={form.economyMode === "true"}
+            onCheckedChange={(checked) => setForm(f => ({ ...f, economyMode: String(checked) }))}
+          />
+        </div>
+
         {(["rate", "quota"] as const).map((group) => (
           <fieldset key={group} className="rounded-xl border border-border/70 p-3">
             <legend className="px-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
