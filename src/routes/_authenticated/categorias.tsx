@@ -362,7 +362,97 @@ function CategoriesPage() {
             })}
           </div>
         )}
+
+        {inactiveCategories.length > 0 ? (
+          <section className="rounded-2xl border border-dashed border-border bg-muted/20 p-4">
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <h2 className="text-[13px] font-bold tracking-tight text-foreground">
+                  Desativadas ({inactiveCategories.length})
+                </h2>
+                <p className="text-[11px] text-muted-foreground">
+                  Nada foi excluído. Restaure quando quiser voltar a usar nos lançamentos.
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={async () => {
+                  const ids = inactiveCategories.map((category) => category.id);
+                  const results = await Promise.all(ids.map((id) => applyActive(id, true)));
+                  if (results.every(Boolean)) toast.success("Todas as categorias foram restauradas.");
+                }}
+              >
+                <RotateCcw className="mr-2 size-3.5" />
+                Restaurar todas
+              </Button>
+            </div>
+            <div className="grid gap-2 auto-cards-sm">
+              {inactiveCategories.map((category) => {
+                const Icon = categoryIcon(category.icon);
+                return (
+                  <div
+                    key={category.id}
+                    className="flex items-center justify-between gap-3 rounded-xl border border-border/50 bg-card/60 p-3"
+                  >
+                    <div className="flex min-w-0 items-center gap-2.5">
+                      <span
+                        className="grid size-8 shrink-0 place-items-center rounded-lg opacity-60 grayscale"
+                        style={{
+                          backgroundColor: `${category.color ?? "#94a3b8"}15`,
+                          color: category.color ?? "#94a3b8",
+                        }}
+                      >
+                        <Icon className="size-4" />
+                      </span>
+                      <div className="min-w-0">
+                        <span className="block truncate text-[13px] font-semibold text-muted-foreground">
+                          {category.name}
+                        </span>
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                          Inativa
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex shrink-0 items-center gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        aria-label={`Editar categoria ${category.name}`}
+                        className="size-8 rounded-lg"
+                        onClick={() => {
+                          setError(null);
+                          setDraft({
+                            id: category.id,
+                            name: category.name,
+                            type: category.type as "expense" | "income",
+                            color: category.color ?? COLORS[0],
+                            icon: category.icon ?? "circle-ellipsis",
+                            display_order: category.display_order ?? 0,
+                            parent_id: category.parent_id,
+                            description: category.description,
+                          });
+                        }}
+                      >
+                        <Pencil className="size-3.5" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        onClick={() => setPending({ id: category.id, name: category.name, next: true })}
+                      >
+                        <RotateCcw className="mr-1.5 size-3.5" />
+                        Restaurar
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        ) : null}
       </div>
+
 
       <Dialog open={draft !== null} onOpenChange={(open) => !open && setDraft(null)}>
         <DialogContent>
