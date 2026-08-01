@@ -33,15 +33,16 @@ export const adminUpdatePlan = createServerFn({ method: "POST" })
     const { assertAdminCtx, auditLog } = await import("@/lib/admin-guard.server");
     await assertAdminCtx(context);
 
-    const payload: Record<string, unknown> = {
-      monthly_price: data.monthlyPrice,
-      annual_price: data.annualPrice,
-      active: data.active,
-      updated_at: new Date().toISOString(),
-    };
-    if (data.name) payload["name"] = data.name;
-
-    const { error } = await context.supabase.from("plans").update(payload).eq("id", data.id);
+    const { error } = await context.supabase
+      .from("plans")
+      .update({
+        monthly_price: data.monthlyPrice,
+        annual_price: data.annualPrice,
+        active: data.active,
+        ...(data.name ? { name: data.name } : {}),
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", data.id);
     if (error) throw error;
 
     await auditLog(context, "plan_updated", {
