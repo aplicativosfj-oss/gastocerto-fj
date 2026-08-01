@@ -1,12 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Loader2, Upload, User } from "lucide-react";
+import { Loader2, Settings2, Upload, User } from "lucide-react";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
 import { PageHeader } from "@/components/finance/page-header";
+import { AccountSettingsDialog } from "@/components/finance/account-settings-dialog";
+import { AvatarCropDialog } from "@/components/finance/avatar-crop-dialog";
 import { LicenseCard } from "@/components/finance/license-card";
-import { PlanSummaryCard } from "@/components/finance/plan-summary-card";
+import { LicenseDetailPanel } from "@/components/finance/license-detail-panel";
 import { TrialCard } from "@/components/finance/trial-card";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -17,6 +19,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { useAvatarUrl, useInvalidateProfile, useProfile, useRoles } from "@/lib/queries";
 import { profileSchema, validateAvatarFile } from "@/lib/validation";
+
 
 export const Route = createFileRoute("/_authenticated/perfil")({
   head: () => ({
