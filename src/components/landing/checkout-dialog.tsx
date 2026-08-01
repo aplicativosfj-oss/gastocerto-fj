@@ -299,7 +299,7 @@ export function CheckoutDialog({
               />
             </div>
             <div>
-              <Label htmlFor="checkout-email">E-mail para receber a chave</Label>
+              <Label htmlFor="checkout-email">E-mail para receber o código e a chave</Label>
               <Input
                 id="checkout-email"
                 type="email"
@@ -309,6 +309,9 @@ export function CheckoutDialog({
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
               />
+              <p className="mt-1 text-[11px] text-muted-foreground">
+                Sua conta só é criada depois que você confirmar este e-mail.
+              </p>
             </div>
             <div>
               <Label htmlFor="checkout-cpf">CPF do pagador</Label>
@@ -332,13 +335,79 @@ export function CheckoutDialog({
               >
                 Voltar
               </Button>
-              <Button type="submit" className="flex-1" disabled={create.isPending}>
-                {create.isPending ? (
+              <Button type="submit" className="flex-1" disabled={verify.isPending}>
+                {verify.isPending ? (
+                  <Loader2 className="mr-2 size-4 animate-spin" aria-hidden="true" />
+                ) : (
+                  <ShieldCheck className="mr-2 size-4" aria-hidden="true" />
+                )}
+                Enviar código
+              </Button>
+            </div>
+          </form>
+        ) : null}
+
+        {step === "code" && verification ? (
+          <form
+            className="space-y-3"
+            onSubmit={(event) => {
+              event.preventDefault();
+              confirm.mutate();
+            }}
+          >
+            <div className="rounded-xl border border-border bg-secondary/30 p-3 text-sm">
+              Enviamos um código de 6 dígitos para{" "}
+              <span className="font-semibold">{verification.email}</span>. Ele expira em 15 minutos.
+            </div>
+
+            {!verification.emailDelivered && verification.fallbackCode ? (
+              <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-3 text-xs">
+                <p className="font-semibold text-amber-600">Envio de e-mail ainda não configurado</p>
+                <p className="mt-1 text-muted-foreground">
+                  Enquanto o domínio remetente não estiver ativo, use o código abaixo:
+                </p>
+                <p className="tabular mt-1.5 text-lg font-extrabold tracking-[0.3em]">
+                  {verification.fallbackCode}
+                </p>
+              </div>
+            ) : null}
+
+            <div>
+              <Label htmlFor="checkout-code">Código de verificação</Label>
+              <Input
+                id="checkout-code"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                maxLength={6}
+                required
+                placeholder="000000"
+                className="tabular mt-1.5 text-center text-lg tracking-[0.4em]"
+                value={code}
+                onChange={(event) => setCode(event.target.value.replace(/\D/g, "").slice(0, 6))}
+              />
+            </div>
+
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                className="flex-1"
+                disabled={verify.isPending}
+                onClick={() => verify.mutate()}
+              >
+                Reenviar código
+              </Button>
+              <Button
+                type="submit"
+                className="flex-1"
+                disabled={confirm.isPending || create.isPending || code.length !== 6}
+              >
+                {confirm.isPending || create.isPending ? (
                   <Loader2 className="mr-2 size-4 animate-spin" aria-hidden="true" />
                 ) : (
                   <QrCode className="mr-2 size-4" aria-hidden="true" />
                 )}
-                Gerar Pix
+                Confirmar e gerar Pix
               </Button>
             </div>
           </form>
@@ -347,6 +416,7 @@ export function CheckoutDialog({
         {step === "pix" && charge ? (
           <div className="space-y-3">
             <div className="flex items-center justify-between gap-2 rounded-xl border border-border bg-secondary/30 p-3 text-sm">
+
               <span>
                 {charge.planName} · {cycle === "annual" ? "anual" : "mensal"}
               </span>
