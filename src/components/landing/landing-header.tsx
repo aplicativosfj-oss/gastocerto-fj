@@ -101,6 +101,13 @@ export function LandingHeader() {
             className={cn("hidden sm:inline-flex", !scrolled && "text-white hover:bg-white/10 hover:text-white")}
             asChild
           >
+            <Link to="/demonstracao">Ver demonstração</Link>
+          </Button>
+          <Button
+            variant="ghost"
+            className={cn("hidden sm:inline-flex", !scrolled && "text-white hover:bg-white/10 hover:text-white")}
+            asChild
+          >
             <Link to="/auth" search={{ mode: "login" }}>Entrar</Link>
           </Button>
           <Button className="hidden shadow-soft sm:inline-flex" asChild>
