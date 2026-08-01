@@ -43,6 +43,13 @@
   --color-warning-foreground: var(--warning-foreground);
   --color-brand: var(--brand);
   --color-brand-foreground: var(--brand-foreground);
+  /* Tons calibrados de dinheiro: legíveis sem saturação agressiva. */
+  --color-expense: var(--expense);
+  --color-expense-surface: var(--expense-surface);
+  --color-expense-border: var(--expense-border);
+  --color-income: var(--income);
+  --color-income-surface: var(--income-surface);
+  --color-income-border: var(--income-border);
   --color-surface: var(--surface);
   --color-border: var(--border);
   --color-input: var(--input);
