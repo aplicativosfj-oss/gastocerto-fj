@@ -104,9 +104,18 @@ function ReportsPage() {
       if (methodFilter !== "all" && item.payment_method !== methodFilter) return false;
       if (essentialFilter === "essential" && !item.is_essential) return false;
       if (essentialFilter === "non_essential" && item.is_essential) return false;
+      
+      if (recipientFilter !== "all") {
+        const hasTag = (item.tags ?? []).some(t => t.toLowerCase().includes(recipientFilter.toLowerCase()));
+        const hasNotes = (item.notes ?? "").toLowerCase().includes(recipientFilter.toLowerCase());
+        const hasMerchant = (item.merchant_name ?? "").toLowerCase().includes(recipientFilter.toLowerCase());
+        if (!hasTag && !hasNotes && !hasMerchant) return false;
+      }
+
       return true;
     });
-  }, [transactions, typeFilter, categoryFilter, methodFilter, essentialFilter]);
+  }, [transactions, typeFilter, categoryFilter, methodFilter, essentialFilter, recipientFilter]);
+
 
   const totals = useMemo(() => {
     let income = 0;
