@@ -17,7 +17,7 @@ function hashCode(code: string, salt: string) {
 }
 
 export type VerificationRequest = {
-  planSlug: "premium" | "premium_ia";
+  planSlug: "free" | "premium" | "premium_ia";
   cycle: "monthly" | "annual";
   fullName: string;
   email: string;

@@ -63,9 +63,7 @@ function LandingPage() {
           <Benefits />
         </div>
         <CompactOverview />
-        <div className="hidden sm:block">
-          <Pricing />
-        </div>
+        <Pricing />
         <div className="hidden sm:block">
           <CtaBanner />
         </div>

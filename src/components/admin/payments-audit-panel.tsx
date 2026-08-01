@@ -127,7 +127,7 @@ export function PaymentsAuditPanel({ globalSearch = "" }: { globalSearch?: strin
                 ) : (
                   <RefreshCcw className="size-3.5" />
                 )}
-                Revalidar
+                Sincronizar
               </Button>
             </div>
           </div>
@@ -165,7 +165,9 @@ export function PaymentsAuditPanel({ globalSearch = "" }: { globalSearch?: strin
                       <Badge variant="outline" className="text-[10px]">
                         E-mail enviado
                       </Badge>
-                    ) : null}
+                    ) : (
+                      <ResendButton paymentId={charge.id} />
+                    )}
                   </div>
                 </div>
 
@@ -276,5 +278,41 @@ function Metric({
       <p className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</p>
       <p className={`text-lg font-bold ${toneClass}`}>{value}</p>
     </div>
+  );
+}
+
+function ResendButton({ paymentId }: { paymentId: string }) {
+  const resend = useServerFn(require("@/lib/checkout.functions").resendLicenseDelivery);
+  const [loading, setLoading] = useState(false);
+
+  const handleResend = async () => {
+    setLoading(true);
+    try {
+      const result = await resend({ data: { paymentId } });
+      if (result.delivered) {
+        toast.success("E-mail reenviado com sucesso.");
+      } else {
+        toast.info("Chave reprocessada, mas envio por e-mail ainda em fallback.", {
+          description: "O domínio remetente pode não estar configurado.",
+        });
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Falha ao reenviar.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Button
+      size="xs"
+      variant="ghost"
+      className="h-6 gap-1 px-1.5 text-[10px] text-brand"
+      disabled={loading}
+      onClick={handleResend}
+    >
+      {loading ? <Loader2 className="size-2.5 animate-spin" /> : <Mail className="size-2.5" />}
+      Reenviar
+    </Button>
   );
 }
