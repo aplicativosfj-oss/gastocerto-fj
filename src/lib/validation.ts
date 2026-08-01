@@ -1,5 +1,4 @@
 import { z } from "zod";
-
 import { isValidCpf, onlyDigits } from "@/lib/cpf";
 
 /** Remove caracteres de controle e espaços extras. */
@@ -72,12 +71,6 @@ export const signInSchema = z.object({
   password: z.string().min(1, "Informe sua senha").max(72),
 });
 
-/** Schema específico para login por CPF, garantindo que não misture campos. */
-export const cpfSignInSchema = z.object({
-  cpf: cpfSchema,
-  pin: pinSchema,
-});
-
 /** CPF: aceita com ou sem máscara, valida dígitos verificadores. */
 export const cpfSchema = z
   .string()
@@ -143,7 +136,6 @@ export const cpfSignUpSchema = z
 
 export const forgotPasswordSchema = z.object({ email: emailSchema });
 
-
 export const newPasswordSchema = z
   .object({
     password: passwordSchema,
@@ -185,9 +177,5 @@ export function friendlyAuthError(message?: string): string {
   if (raw.includes("user already registered")) return "Já existe uma conta com este CPF ou e-mail.";
   if (raw.includes("pwned") || raw.includes("compromised"))
     return "Esta senha já apareceu em vazamentos. Escolha outra.";
-  if (raw.includes("rate limit") || raw.includes("too many"))
-    return "Muitas tentativas. Aguarde alguns minutos e tente novamente.";
-  if (raw.includes("same password"))
-    return "A nova senha precisa ser diferente da anterior.";
-  return "Não foi possível concluir a operação. Tente novamente.";
+  return message ?? "Erro ao processar solicitação.";
 }
