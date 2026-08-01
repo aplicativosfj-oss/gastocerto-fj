@@ -95,22 +95,22 @@ export function Benefits() {
           <h2 id="beneficios-titulo" className="mt-1.5 section-title">
             Por que o GastoCerto organiza melhor o seu dinheiro
           </h2>
-          <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground sm:text-sm">
+          <p className="mt-2 hidden text-[13px] leading-relaxed text-muted-foreground sm:block sm:text-sm">
             Seis diferenciais que separam um controle improvisado de uma gestão financeira
             documentada — do lançamento diário ao relatório do mês.
           </p>
         </Reveal>
 
-        <ul className="mt-4 grid gap-2.5 sm:mt-5 sm:grid-cols-2 sm:gap-3 lg:grid-cols-3">
+        <ul className="mt-3 grid grid-cols-2 gap-2 sm:mt-5 sm:gap-3 lg:grid-cols-3">
           {benefits.map((benefit, index) => (
             <Reveal as="li" key={benefit.title} delay={index * 60}>
               <article
-                className="group h-full rounded-2xl border border-border bg-card p-3.5 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lifted sm:p-4"
+                className="group flex h-full flex-col rounded-2xl border border-border bg-card p-2.5 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lifted sm:p-4"
                 style={{
                   backgroundImage: `linear-gradient(150deg, color-mix(in oklab, ${benefit.accent} 10%, transparent), transparent 62%)`,
                 }}
               >
-                <div className="flex items-start justify-between gap-2">
+                <div className="flex items-start justify-between gap-1.5">
                   <span
                     className="grid size-9 shrink-0 place-items-center rounded-xl border sm:size-10"
                     style={{
@@ -133,10 +133,10 @@ export function Benefits() {
                     </span>
                   </span>
                 </div>
-                <h3 className="mt-2.5 font-display text-[14.5px] font-bold leading-snug tracking-tight sm:text-[15px]">
+                <h3 className="mt-2 font-display text-[13px] font-bold leading-snug tracking-tight sm:text-[15px]">
                   {benefit.title}
                 </h3>
-                <p className="mt-1 text-[12.5px] leading-relaxed text-muted-foreground sm:text-[13px]">
+                <p className="mt-1 line-clamp-3 text-[11.5px] leading-snug text-muted-foreground sm:line-clamp-none sm:text-[13px] sm:leading-relaxed">
                   {benefit.text}
                 </p>
               </article>
@@ -144,7 +144,7 @@ export function Benefits() {
           ))}
         </ul>
 
-        <Reveal className="mt-3.5 grid gap-2 rounded-2xl border border-brand/25 bg-brand/8 p-3.5 sm:mt-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:p-4">
+        <Reveal className="mt-3.5 hidden gap-2 rounded-2xl border border-brand/25 bg-brand/8 p-3.5 sm:mt-4 sm:grid sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:p-4">
           <p className="text-[13px] font-medium leading-relaxed sm:text-sm">
             Comece pelo plano Gratuito e evolua quando precisar de relatórios avançados, múltiplos
             veículos e consultor com inteligência artificial.
