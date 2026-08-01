@@ -130,10 +130,20 @@ export type PlanAccess = {
   courtesyTrial: boolean;
   trialDaysLeft: number;
   trialEndsAt: string | null;
+  /**
+   * Conta somente-leitura: o período de teste/licença venceu e não há plano
+   * pago. Nenhum lançamento pode ser criado, editado ou excluído até a compra.
+   */
+  readOnly: boolean;
+  readOnlyReason: string | null;
   features: FeatureKey[];
   locked: FeatureKey[];
   freeTransactionLimit: number | null;
 };
+
+export const READ_ONLY_MESSAGE =
+  "Seu período de teste venceu. A conta está em modo somente leitura: você continua consultando os dados, mas para inserir ou editar lançamentos é necessário ativar uma nova licença ou assinar um plano.";
+
 
 export function resolvePlanAccess(input: PlanAccessInput): PlanAccess {
   const now = input.now ?? new Date();
