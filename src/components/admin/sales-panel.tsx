@@ -487,11 +487,15 @@ export function SalesPanel({ globalSearch = "" }: { globalSearch?: string }) {
                   onClick={() => setDetailId(payment.id)}
                 >
                   <TableCell className="whitespace-nowrap text-muted-foreground">
-                    {formatDateTime(payment.paid_at ?? payment.created_at)}
+                    {formatDateTime(payment.paid_at || payment.created_at)}
                   </TableCell>
                   <TableCell>
-                    <span className="block font-medium">{payment.license?.full_name ?? "—"}</span>
-                    <span className="text-xs text-muted-foreground">{payment.email ?? "—"}</span>
+                    <div className="flex flex-col">
+                      <span className="font-medium text-foreground">
+                        {payment.license?.full_name || "—"}
+                      </span>
+                      <span className="text-[11px] text-muted-foreground">{payment.email}</span>
+                    </div>
                   </TableCell>
                   <TableCell className="text-sm">
                     {payment.license?.plans?.name ?? "—"}
