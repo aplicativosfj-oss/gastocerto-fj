@@ -307,7 +307,10 @@ export const activateLicense = createServerFn({ method: "POST" })
       amount: license.amount,
       planSlug: plan?.slug ?? null,
     });
-    const trialDays = courtesy || Number(license.amount) === 0 ? (plan?.trial_days ?? 7) : null;
+    const trialDays =
+      courtesy || Number(license.amount) === 0
+        ? (license.trial_days ?? plan?.trial_days ?? 7)
+        : null;
 
     // Teste de cortesia: a validade SEMPRE começa a contar no momento em que o
     // cliente ativa a chave (nunca antes) e nunca libera a IA.
