@@ -611,6 +611,19 @@ function CalendarPage() {
                     );
                   }}
                 />
+                <PreferenceRow
+                  id="pref-gas"
+                  label="Lembretes do botijão de gás"
+                  description="Avisa quando o gás deve acabar, com base na duração média das suas trocas."
+                  checked={preferences?.gas_alerts ?? true}
+                  onChange={(checked) => {
+                    savePreferences.mutate(
+                      { gas_alerts: checked },
+                      { onError: () => toast.error("Não foi possível salvar a preferência") },
+                    );
+                  }}
+                />
+
               </div>
             </section>
           </aside>
