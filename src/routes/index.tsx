@@ -47,7 +47,7 @@ export const Route = createFileRoute("/")({
 
 function LandingPage() {
   return (
-    <div className="relative flex min-h-dvh flex-col bg-background" data-description="corrija, para nao deixar mistura em campos oinde so aceita cpf com verificador nao aceitra por emails e virse versa; \n\nAdicionar uma fila de suporte para eu responder e acompanhar os chamados gerados pelo modal de suporte dos clientes. \n\nImplementar um simulador de custos de IA que cruza consumo de créditos com custo real das APIs para eu verificar margem de lucro. \n\nCriar uma interface para eu gerenciar planos e limites dinamicamente, permitindo ajustar preços e cotas sem mexer no código. \n\nAdicionar uma ferramenta de avisos globais no painel do administrador para eu publicar banners que aparecem para todos os usuários. \n\nImplementar um dashboard financeiro no painel do administrador com gráficos de MRR, Churn e LTV para eu acompanhar a saúde do negócio.\n\n;api do mercadopago;">
+    <div className="relative flex min-h-dvh flex-col bg-background">
 
       <PageBackground />
       <a
@@ -62,7 +62,9 @@ function LandingPage() {
         <Benefits />
         <CompactOverview />
         <Pricing />
-        <CtaBanner />
+        <div className="hidden sm:block">
+          <CtaBanner />
+        </div>
       </main>
       <LandingFooter />
     </div>

@@ -377,7 +377,7 @@ export function CompactOverview() {
                 </Reveal>
               ))}
             </div>
-            <div id="depoimentos" className="mt-3 grid gap-2.5 sm:grid-cols-3">
+            <div id="depoimentos" className="mt-3 hidden gap-2.5 sm:grid sm:grid-cols-3">
               {proofs.map((p, index) => (
                 <Reveal key={p.name} delay={index * 70}>
                   <div className="interactive-card h-full rounded-xl border border-border bg-card p-3">
@@ -417,7 +417,11 @@ export function CompactOverview() {
             <h3 className="sr-only">{tabMeta["faq"].label}</h3>
             <Accordion type="single" collapsible className="grid gap-x-6 sm:grid-cols-2">
               {faqs.map((faq, index) => (
-                <AccordionItem key={faq.q} value={`item-${index}`}>
+                <AccordionItem
+                  key={faq.q}
+                  value={`item-${index}`}
+                  className={index > 3 ? "hidden sm:block" : undefined}
+                >
                   <AccordionTrigger className="py-2.5 text-left text-[13px] font-semibold sm:text-sm">{faq.q}</AccordionTrigger>
                   <AccordionContent className="text-xs leading-relaxed text-muted-foreground">
                     {faq.a}
