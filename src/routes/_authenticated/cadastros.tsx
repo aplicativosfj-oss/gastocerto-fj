@@ -9,12 +9,14 @@ import {
   Plus,
   Tags,
   Trash2,
+  Users,
   Wallet,
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
+import { DependentDialog } from "@/components/finance/dependent-dialog";
 import { AccountDialog } from "@/components/finance/account-dialog";
 import { CommitmentDialog } from "@/components/finance/commitment-dialog";
 import { VehicleDialog } from "@/components/finance/vehicle-dialog";
@@ -28,6 +30,13 @@ import {
   useDeleteCommitment,
   type Commitment,
 } from "@/lib/commitments";
+import {
+  dependentAge,
+  relationLabel,
+  useDeleteDependent,
+  useDependents,
+  type Dependent,
+} from "@/lib/dependents";
 import { labelFor } from "@/lib/finance";
 import { formatCurrency } from "@/lib/format";
 import { useCategories } from "@/lib/queries";
@@ -74,7 +83,9 @@ function RegistrationsPage() {
   const { data: accounts } = useAccounts();
   const { data: commitments } = useCommitments();
   const { data: categories } = useCategories();
+  const { data: dependents } = useDependents();
 
+  const removeDependent = useDeleteDependent();
   const removeVehicle = useDeleteVehicle();
   const archiveAccount = useArchiveAccount();
   const removeCommitment = useDeleteCommitment();
@@ -85,6 +96,10 @@ function RegistrationsPage() {
   const [accountDialog, setAccountDialog] = useState<{ open: boolean; item?: Account | null }>({
     open: false,
   });
+  const [dependentDialog, setDependentDialog] = useState<{
+    open: boolean;
+    item?: Dependent | null;
+  }>({ open: false });
   const [commitmentDialog, setCommitmentDialog] = useState<{
     open: boolean;
     item?: Commitment | null;
@@ -102,6 +117,7 @@ function RegistrationsPage() {
     { label: "Bancos e carteiras", done: banks.length > 0 },
     { label: "Cartões", done: cards.length > 0 },
     { label: "Dívidas e compromissos", done: (commitments ?? []).length > 0 },
+    { label: "Filhos e dependentes", done: (dependents ?? []).length > 0 },
     { label: "Categorias", done: (categories ?? []).length > 0 },
   ];
   const doneCount = steps.filter((step) => step.done).length;
@@ -353,6 +369,86 @@ function RegistrationsPage() {
             ) : null}
           </article>
 
+          {/* Filhos e dependentes */}
+          <article className="rounded-2xl border border-border bg-card p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex min-w-0 items-center gap-3">
+                <BlockGlyph tone="accent-coral">
+                  <Users className="size-5" />
+                </BlockGlyph>
+                <div className="min-w-0">
+                  <h2 className="font-semibold">Filhos e dependentes</h2>
+                  <p className="text-xs text-muted-foreground">
+                    {(dependents ?? []).length} cadastrado(s)
+                  </p>
+                </div>
+              </div>
+              <Button size="sm" onClick={() => setDependentDialog({ open: true, item: null })}>
+                <Plus className="mr-1.5 size-4" />
+                Novo
+              </Button>
+            </div>
+            <ul className="mt-3 divide-y divide-border">
+              {(dependents ?? []).length === 0 ? (
+                <li className="py-4 text-sm text-muted-foreground">
+                  Cadastre cada filho para separar os gastos extras: pix, lanche, presente,
+                  material didático e mesada — mesmo quando você já paga pensão.
+                </li>
+              ) : (
+                (dependents ?? []).map((dependent) => {
+                  const age = dependentAge(dependent);
+                  return (
+                    <li key={dependent.id} className="flex items-center justify-between gap-2 py-2">
+                      <div className="flex min-w-0 items-center gap-2">
+                        <span
+                          className="flex size-8 shrink-0 items-center justify-center rounded-full text-[11px] font-bold"
+                          style={{
+                            backgroundColor: `${dependent.color ?? "#64748b"}22`,
+                            color: dependent.color ?? undefined,
+                          }}
+                        >
+                          {(dependent.nickname?.trim() || dependent.name).slice(0, 2).toUpperCase()}
+                        </span>
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-medium">{dependent.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {relationLabel(dependent.relation)}
+                            {age !== null ? ` · ${age} anos` : ""}
+                            {dependent.monthly_allowance
+                              ? ` · mesada ${formatCurrency(Number(dependent.monthly_allowance))}`
+                              : ""}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex shrink-0">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          aria-label={`Editar ${dependent.name}`}
+                          onClick={() => setDependentDialog({ open: true, item: dependent })}
+                        >
+                          <Pencil className="size-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          aria-label={`Remover ${dependent.name}`}
+                          onClick={async () => {
+                            await removeDependent.mutateAsync(dependent.id).catch(() => {
+                              toast.error("Não foi possível remover o dependente.");
+                            });
+                          }}
+                        >
+                          <Trash2 className="size-4" />
+                        </Button>
+                      </div>
+                    </li>
+                  );
+                })
+              )}
+            </ul>
+          </article>
+
           {/* Categorias */}
           <article className="rounded-2xl border border-border bg-card p-4">
             <div className="flex items-start justify-between gap-3">
@@ -384,6 +480,15 @@ function RegistrationsPage() {
           </article>
         </section>
       </div>
+
+      {dependentDialog.open ? (
+        <DependentDialog
+          key={dependentDialog.item?.id ?? "new-dependent"}
+          open={dependentDialog.open}
+          onOpenChange={(open) => setDependentDialog({ open })}
+          dependent={dependentDialog.item ?? null}
+        />
+      ) : null}
 
       {vehicleDialog.open ? (
         <VehicleDialog
