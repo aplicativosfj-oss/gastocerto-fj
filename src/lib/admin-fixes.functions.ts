@@ -41,7 +41,8 @@ export const fixComplexAdjustments = createServerFn({ method: "POST" })
     const results = {
       movedRevenues: 0,
       correctedExpense262: 0,
-      nexxusCount: 0
+      nexxusCount: 0,
+      correctedExpense253: 0
     };
 
     // 1. Transferir receitas de final de julho para agosto
@@ -74,6 +75,23 @@ export const fixComplexAdjustments = createServerFn({ method: "POST" })
       .select();
 
     results.correctedExpense262 = expense262?.length ?? 0;
+    
+    // 3. Corrigir o gasto de R$ 253,89 que "não foi hoje" (01/08), mas nesta semana
+    // Movendo para 29/07 (dentro da semana de 01/08/2026 - sábado)
+    const { data: expense253 } = await supabaseAdmin
+      .from("transactions")
+      .update({ 
+        transaction_date: '2026-07-29', 
+        notes: 'Data corrigida: gasto realizado na semana, não em 01/08' 
+      })
+      .match({ 
+        user_id: data.userId, 
+        amount: 253.89,
+        transaction_date: '2026-08-01'
+      })
+      .select();
+
+    results.correctedExpense253 = expense253?.length ?? 0;
 
     return results;
   });
