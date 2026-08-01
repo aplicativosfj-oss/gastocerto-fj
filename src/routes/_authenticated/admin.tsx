@@ -295,6 +295,9 @@ function AdminContent({ isAdmin }: { isAdmin: boolean }) {
               <TabsContent value="licenses" className="mt-4">
                 <LicensesPanel />
               </TabsContent>
+              <TabsContent value="client-codes" className="mt-4">
+                <ClientCodesPanel />
+              </TabsContent>
               <TabsContent value="payments" className="mt-4">
                 <SalesPanel />
               </TabsContent>
