@@ -289,7 +289,7 @@ function Metric({
 }
 
 function ResendButton({ paymentId }: { paymentId: string }) {
-  const resend = useServerFn(require("@/lib/checkout.functions").resendLicenseDelivery);
+  const resend = useServerFn(resendLicenseDelivery);
   const [loading, setLoading] = useState(false);
 
   const handleResend = async () => {
