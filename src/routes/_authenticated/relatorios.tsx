@@ -337,6 +337,27 @@ function ReportsPage() {
             </Select>
           </div>
           <div>
+            <Label>Destinatário (Pessoa/Contexto)</Label>
+            <Select value={recipientFilter} onValueChange={setRecipientFilter}>
+              <SelectTrigger className="mt-1.5">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os destinatários</SelectItem>
+                <SelectItem value="esposa">Esposa</SelectItem>
+                <SelectItem value="marido">Marido</SelectItem>
+                <SelectItem value="mãe">Mãe</SelectItem>
+                <SelectItem value="pai">Pai</SelectItem>
+                <SelectItem value="filho">Filhos</SelectItem>
+                <SelectItem value="tio">Tio / Tia</SelectItem>
+                <SelectItem value="amigo">Amigo / Outros</SelectItem>
+                <SelectItem value="presente">Presentes</SelectItem>
+                <SelectItem value="cabelo">Cabelo / Beleza</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
             <Label>Pagamento</Label>
             <Select value={methodFilter} onValueChange={setMethodFilter}>
               <SelectTrigger className="mt-1.5">
