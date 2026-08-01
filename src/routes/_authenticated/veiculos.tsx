@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { AppShell } from "@/components/app-shell";
 import { FeatureGate } from "@/components/finance/feature-gate";
 import { FuelDialog } from "@/components/finance/fuel-dialog";
+import { PageHeader } from "@/components/finance/page-header";
 import { ReceiptViewer } from "@/components/finance/receipt-viewer";
 import { VehicleDialog } from "@/components/finance/vehicle-dialog";
 import {
