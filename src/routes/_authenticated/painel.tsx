@@ -580,6 +580,7 @@ function DashboardPage() {
               <RecurringAlerts />
             </div>
           </div>
+          </div>
         )}
 
         {/* Bloco de métricas secundárias */}
@@ -622,6 +623,8 @@ function DashboardPage() {
             />
           </div>
         </div>
+      </>
+    )}
         
         {!loadingTransactions && (
           <div className="space-y-4">
@@ -979,8 +982,7 @@ function DashboardPage() {
             </section>
           </div>
         )}
-      </>
-    )}
+      </div>
 
       <MetricDetailDialog
         detail={detail}
