@@ -998,7 +998,19 @@ export function TransactionDialog({
             </Button>
           </DialogFooter>
         </form>
+
+        <PasswordConfirmDialog
+          open={passwordOpen}
+          onOpenChange={setPasswordOpen}
+          email={user?.email}
+          description={`Para ${editing ? "editar" : "registrar"} um lançamento de ${formatDate(date)} (mês anterior) confirme sua senha.`}
+          onConfirmed={() => {
+            setIdentityConfirmed(true);
+            window.setTimeout(() => formRef.current?.requestSubmit(), 0);
+          }}
+        />
       </DialogContent>
     </Dialog>
   );
 }
+
