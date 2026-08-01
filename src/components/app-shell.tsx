@@ -5,6 +5,7 @@ import {
   BarChart3,
   Bell,
   Car,
+  Flame,
   LayoutDashboard,
   LogOut,
   Menu,
@@ -21,6 +22,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { ContrastToggle } from "@/components/contrast-toggle";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { usePlanRealtimeSync } from "@/hooks/use-plan";
 import { supabase } from "@/integrations/supabase/client";
 import { useAvatarUrl, useProfile, useRoles } from "@/lib/queries";
 import { sortBySavedOrder, useNavLabels } from "@/lib/nav-labels";
@@ -73,6 +75,7 @@ export const navGroups: NavGroup[] = [
       { key: "vehicles.audit", label: "Auditoria", to: "/veiculos-auditoria" },
     ],
   },
+  { key: "gas", label: "Botijão de gás", to: "/gas", icon: Flame },
   {
     key: "planning",
     label: "Planejamento",
@@ -110,6 +113,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { data: roles } = useRoles();
   const { data: notifications } = useNotifications();
   const avatarUrl = useAvatarUrl(profile?.avatar_url);
+  usePlanRealtimeSync();
   const unreadCount = (notifications ?? []).filter((item) => !item.read_at).length;
   const isStaff = (roles ?? []).some((role) => role === "admin" || role === "support");
   const { labelFor, order } = useNavLabels();
