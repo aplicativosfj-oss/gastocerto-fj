@@ -46,7 +46,7 @@ const plans = [
     slug: "premium_ia",
     name: "Premium IA",
     monthly: 34.9,
-    yearly: 29.08,
+    yearly: 29,
     description: "Tudo do Premium + Consultor de IA integrado.",
     highlighted: true,
     cta: "Assinar o Premium IA",
