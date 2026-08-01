@@ -4,6 +4,8 @@ import {
   ChevronRight,
   Copy,
   Download,
+  FileDown,
+
   Paperclip,
   Pencil,
   Plus,
@@ -53,6 +55,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { formatCurrency, formatDate } from "@/lib/format";
+import { exportTransactionPdf } from "@/lib/transaction-detail-export";
+import { fetchNoteHistory } from "@/lib/transaction-notes";
+
 import { PAYMENT_METHODS, TRANSACTION_STATUS, labelFor, monthRange, periodDefaultDate } from "@/lib/finance";
 import { useCategories } from "@/lib/queries";
 import { useVehicles } from "@/lib/vehicles";
@@ -197,7 +202,22 @@ function TransactionsPage() {
     0,
   );
 
+  /** Exporta o PDF do lançamento direto da lista, sem abrir o diálogo. */
+  async function handleRowPdf(row: Transaction) {
+    try {
+      const history = await fetchNoteHistory(row.id);
+      await exportTransactionPdf(row, {
+        categoryName: row.category_id ? categoryNames.get(row.category_id) : undefined,
+        history,
+      });
+      toast.success("PDF gerado");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Não foi possível gerar o PDF");
+    }
+  }
+
   async function handleDuplicate(row: Transaction) {
+
     try {
       await save.mutateAsync({
         values: {
@@ -591,11 +611,21 @@ function TransactionsPage() {
                         <Button
                           variant="ghost"
                           size="icon"
+                          aria-label="Baixar PDF do lançamento"
+                          title="Baixar PDF"
+                          onClick={() => handleRowPdf(row)}
+                        >
+                          <FileDown className="size-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
                           aria-label="Excluir"
                           onClick={() => setConfirmDelete([row.id])}
                         >
                           <Trash2 className="size-4" />
                         </Button>
+
                       </div>
                     </TableCell>
                   </TableRow>

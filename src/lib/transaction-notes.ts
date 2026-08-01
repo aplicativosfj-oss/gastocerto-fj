@@ -33,3 +33,15 @@ export function useRefreshNoteHistory() {
   return (transactionId: string) =>
     queryClient.invalidateQueries({ queryKey: ["transaction-note-history", transactionId] });
 }
+
+/** Busca pontual do histórico (usado em exportações fora de componentes React). */
+export async function fetchNoteHistory(transactionId: string): Promise<NoteHistoryEntry[]> {
+  const { data, error } = await supabase
+    .from("transaction_note_history")
+    .select("*")
+    .eq("transaction_id", transactionId)
+    .order("changed_at", { ascending: false })
+    .limit(50);
+  if (error) throw error;
+  return data ?? [];
+}
