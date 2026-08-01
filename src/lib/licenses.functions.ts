@@ -112,11 +112,12 @@ export const adminCreateLicense = createServerFn({ method: "POST" })
 
 const trialBatchSchema = z.object({
   quantity: z.number().int().min(1).max(50),
+  trialDays: z.union([z.literal(7), z.literal(15), z.literal(30)]).optional(),
   notes: z.string().max(300).optional(),
 });
 
 /**
- * Gera licenças de teste (7 dias, recursos limitados e sem IA) para o
+ * Gera licenças de teste (7, 15 ou 30 dias, recursos limitados e sem IA) para o
  * administrador distribuir. Elas ficam pendentes e só passam a valer quando o
  * cliente ativa a chave dentro do app.
  */
@@ -134,31 +135,37 @@ export const adminCreateTrialLicenses = createServerFn({ method: "POST" })
       .maybeSingle();
     if (!plan) throw new Error("Plano de teste de 7 dias não encontrado");
 
+    const days = data.trialDays ?? plan.trial_days ?? 7;
+
     const rows = Array.from({ length: data.quantity }).map(() => ({
       plan_id: plan.id,
       billing_cycle: "monthly" as const,
       amount: 0,
       source: TRIAL_GIFT_SOURCE,
       status: "pending" as const,
+      trial_days: days,
       created_by: context.userId,
-      notes: data.notes || "Licença de teste 7 dias — recursos limitados, sem IA",
+      notes:
+        data.notes ||
+        `Licença de teste ${days} dias — recursos limitados, sem IA`,
     }));
 
     const { data: created, error } = await supabaseAdmin
       .from("licenses")
       .insert(rows)
-      .select("id, license_key, status, created_at, notes");
+      .select("id, license_key, status, created_at, notes, trial_days");
     if (error) throw new Error("Não foi possível gerar as licenças de teste");
 
     await context.supabase.from("admin_logs").insert({
       actor_id: context.userId,
       target_user_id: null,
       action: "trial_licenses_created",
-      details: { quantity: data.quantity },
+      details: { quantity: data.quantity, trial_days: days },
     });
 
     return created ?? [];
   });
+
 
 const statusSchema = z.object({
   licenseId: z.string().uuid(),
