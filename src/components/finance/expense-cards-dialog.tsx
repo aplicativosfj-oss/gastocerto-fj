@@ -60,6 +60,17 @@ export function ExpenseCardsDialog({
   const { data: categories } = useCategories();
   const save = useSaveTransaction();
   const saveRecurring = useSaveRecurringRule();
+  const [search, setSearch] = useState("");
+
+  const cards = useMemo(() => {
+    const list = (categories ?? []).filter((c) => c.type === "expense");
+    if (!search) return list.slice(0, 15);
+    const term = search.toLowerCase();
+    return list.filter(c => 
+      c.name.toLowerCase().includes(term) || 
+      (c.description?.toLowerCase().includes(term))
+    ).slice(0, 15);
+  }, [categories, search]);
 
   const today = new Date();
   const currentRange = monthRange(today.getFullYear(), today.getMonth() + 1);
