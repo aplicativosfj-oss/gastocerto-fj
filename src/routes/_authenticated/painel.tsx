@@ -52,6 +52,8 @@ import { PastMonthsLockNotice } from "@/components/finance/past-months-lock-noti
 import { VehicleEmblem } from "@/components/finance/vehicle-emblem";
 import { usePeriodStore } from "@/lib/period-store";
 import { InteractiveCalendar } from "@/components/finance/interactive-calendar";
+import { StatTile } from "@/components/finance/stat-tile";
+
 
 
 import { Badge } from "@/components/ui/badge";
