@@ -38,7 +38,7 @@ export function PeriodPicker({ year, month, onChange, className }: PeriodPickerP
       <Button
         variant="outline"
         size="icon"
-        className="h-9 w-9 shrink-0"
+        className="size-11 shrink-0 sm:size-9"
         onClick={() => shift(-1)}
         aria-label="Mês anterior"
       >
@@ -49,7 +49,7 @@ export function PeriodPicker({ year, month, onChange, className }: PeriodPickerP
         <SheetTrigger asChild>
           <Button
             variant="outline"
-            className="h-9 min-w-[120px] justify-start gap-2 px-3 text-left font-bold tracking-tight sm:min-w-[140px]"
+            className="h-11 min-w-[132px] justify-start gap-2 px-3 text-left font-bold tracking-tight sm:h-9 sm:min-w-[140px]"
           >
             <CalendarDays className="size-4 shrink-0 text-muted-foreground" />
             <span className="truncate">
@@ -174,7 +174,7 @@ export function PeriodPicker({ year, month, onChange, className }: PeriodPickerP
               <Button
                 variant="secondary"
                 size="sm"
-                className="h-8 text-[12px]"
+                className="h-11 text-[13px] sm:h-9"
                 onClick={() => handleSelect(today.getFullYear(), today.getMonth() + 1)}
               >
                 Mês atual
@@ -182,7 +182,7 @@ export function PeriodPicker({ year, month, onChange, className }: PeriodPickerP
               <Button
                 variant="outline"
                 size="sm"
-                className="h-8 text-[12px]"
+                className="h-11 text-[13px] sm:h-9"
                 onClick={() => {
                   const previous = new Date(today.getFullYear(), today.getMonth() - 1, 1);
                   handleSelect(previous.getFullYear(), previous.getMonth() + 1);
@@ -193,7 +193,7 @@ export function PeriodPicker({ year, month, onChange, className }: PeriodPickerP
               <Button
                 variant="ghost"
                 size="sm"
-                className="ml-auto h-8 text-[12px]"
+                className="ml-auto h-11 text-[13px] sm:h-9"
                 onClick={() => setOpen(false)}
               >
                 <X className="size-3.5" aria-hidden />
@@ -208,7 +208,7 @@ export function PeriodPicker({ year, month, onChange, className }: PeriodPickerP
       <Button
         variant="outline"
         size="icon"
-        className="h-9 w-9 shrink-0"
+        className="size-11 shrink-0 sm:size-9"
         onClick={() => shift(1)}
         aria-label="Próximo mês"
       >
