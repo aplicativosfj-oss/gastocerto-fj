@@ -43,6 +43,8 @@ import { TrialLicensesPanel } from "@/components/admin/trial-licenses-panel";
 import { BlockedIpsPanel } from "@/components/admin/blocked-ips-panel";
 import { ClosingPolicyPanel } from "@/components/admin/closing-policy-panel";
 import { CategoriesCatalogPanel } from "@/components/admin/categories-panel";
+import { AdminAccessPanel } from "@/components/admin/admin-access-panel";
+
 import {
   adminCancelSubscription,
   adminDeleteUser,
@@ -385,8 +387,10 @@ function AdminContent({ isAdmin }: { isAdmin: boolean }) {
 
           {isAdmin ? (
             <TabsContent value="security" className="mt-4 space-y-4">
+              <AdminAccessPanel />
               <BlockedIpsPanel />
             </TabsContent>
+
           ) : null}
 
           {isAdmin ? (

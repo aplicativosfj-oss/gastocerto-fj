@@ -10,8 +10,9 @@ export const adminAccessByCode = createServerFn({ method: "POST" })
   )
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { getWebRequest } = await import("@tanstack/react-start/server");
-    const request = getWebRequest() as Request;
+    const { getRequest } = await import("@tanstack/react-start/server");
+    const request = getRequest();
+
 
 
 
