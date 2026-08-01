@@ -5,6 +5,8 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 import authSide from "@/assets/auth-side.jpg";
+import { PENDING_LICENSE_KEY } from "@/components/landing/code-access-dialog";
+import { activateLicense } from "@/lib/licenses.functions";
 import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
