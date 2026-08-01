@@ -47,7 +47,7 @@ export function FilterPresets({
     : FILTER_PRESETS;
 
   return (
-    <div className="grid gap-2 rounded-xl border border-border bg-card/60 p-2.5">
+    <div className={cn("grid gap-2 rounded-xl border border-border bg-card/60 p-2.5", className)}>
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
         <p className="flex min-w-0 items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
           <Filter className="size-3.5 shrink-0 text-brand" aria-hidden="true" />
@@ -110,7 +110,7 @@ export function FilterPresets({
       ) : null}
 
       <div className="-mx-0.5 flex gap-1.5 overflow-x-auto px-0.5 pb-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {FILTER_PRESETS.map((preset) => (
+        {presets.map((preset) => (
           <button
             key={preset.key}
             type="button"
