@@ -483,7 +483,7 @@ function TransactionsPage() {
                     aria-selected={active}
                     onClick={() => {
                       navigate({
-                        search: (prev) => ({
+                        search: (prev: any) => ({
                           ...prev,
                           tipo: item.key,
                         }),
@@ -510,7 +510,7 @@ function TransactionsPage() {
                 month={period.month}
                 onChange={(next) => {
                   navigate({
-                    search: (prev) => ({
+                    search: (prev: any) => ({
                       ...prev,
                       ano: next.year,
                       mes: next.month,
@@ -1137,7 +1137,12 @@ function TransactionsPage() {
           defaultDate={periodDefaultDate(period.year, period.month)}
           onSaved={(savedDate) => {
             const [y, m] = savedDate.split("-").map(Number);
-            if (y && m && (y !== period.year || m !== period.month)) setPeriod({ year: y, month: m });
+            if (y && m && (y !== period.year || m !== period.month)) {
+              navigate({
+                search: (prev: any) => ({ ...prev, ano: y, mes: m }),
+                replace: true,
+              });
+            }
           }}
         />
 
