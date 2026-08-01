@@ -933,6 +933,7 @@ function DashboardPage() {
         open={cardsOpen}
         onOpenChange={setCardsOpen}
         onAdvanced={() => {
+          setEditingTx(null);
           setDialogKind("expense");
           setPreset({ categoryId: null, subCategoryId: null });
           setDialogOpen(true);
