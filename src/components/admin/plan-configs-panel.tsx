@@ -82,8 +82,7 @@ export function PlanConfigsPanel() {
                     />
                     <Button
                       size="icon"
-                      variant="brand"
-                      className="size-9 shrink-0"
+                      className="size-9 shrink-0 bg-brand text-brand-foreground hover:bg-brand/90"
                       disabled={mutation.isPending || editing[plan.id] === undefined || editing[plan.id] === plan.price}
                       onClick={() => mutation.mutate({ id: plan.id, price: editing[plan.id] })}
                     >
