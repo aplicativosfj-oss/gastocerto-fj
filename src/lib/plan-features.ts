@@ -8,6 +8,8 @@
  * - `paid`   → assinatura ativa (licença paga ou plano com preço).
  */
 
+import { planIncludesAi } from "./ai-entitlement";
+
 export type PlanTier = "free" | "trial" | "paid";
 
 export type FeatureKey =
@@ -104,6 +106,8 @@ export type PlanAccess = {
   tier: PlanTier;
   planSlug: string;
   isAdmin: boolean;
+  /** Verdadeiro quando o plano atual inclui o Consultor de IA. */
+  aiIncluded: boolean;
   trialActive: boolean;
   trialDaysLeft: number;
   trialEndsAt: string | null;
@@ -131,12 +135,23 @@ export function resolvePlanAccess(input: PlanAccessInput): PlanAccess {
     (price > 0 && planSlug !== "free");
 
   const tier: PlanTier = paid ? "paid" : trialValid ? "trial" : "free";
-  const features = tier === "free" ? FREE_FEATURES : ALL_FEATURES;
+
+  // A IA integrada acompanha somente o plano Premium IA (ou teste/admin/licença paga).
+  const aiIncluded =
+    tier === "trial" || isAdmin || input.hasPaidLicense === true || planIncludesAi(planSlug);
+
+  const features =
+    tier === "free"
+      ? FREE_FEATURES
+      : aiIncluded
+        ? ALL_FEATURES
+        : ALL_FEATURES.filter((feature) => feature !== "ai_advisor");
 
   return {
     tier,
     planSlug,
     isAdmin,
+    aiIncluded,
     trialActive: tier === "trial",
     trialDaysLeft,
     trialEndsAt: trialEnd ? trialEnd.toISOString() : null,

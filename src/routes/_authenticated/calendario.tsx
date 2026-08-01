@@ -53,11 +53,46 @@ export const Route = createFileRoute("/_authenticated/calendario")({
 
 const WEEKDAYS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
+type CalendarKind =
+  | "commitments"
+  | "installments"
+  | "allowance"
+  | "tax"
+  | "due"
+  | "others";
+
+const KIND_FILTERS: { key: CalendarKind; label: string }[] = [
+  { key: "commitments", label: "Compromissos" },
+  { key: "installments", label: "Parcelas" },
+  { key: "allowance", label: "Mesada e filhos" },
+  { key: "tax", label: "Imposto de Renda" },
+  { key: "due", label: "Vencimentos em aberto" },
+  { key: "others", label: "Outros" },
+];
+
+type Horizon = "month" | "7" | "15" | "30";
+
+const HORIZONS: { key: Horizon; label: string }[] = [
+  { key: "month", label: "Mês" },
+  { key: "7", label: "7 dias" },
+  { key: "15", label: "15 dias" },
+  { key: "30", label: "30 dias" },
+];
+
 function CalendarPage() {
   const today = useMemo(() => new Date(), []);
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth() + 1);
   const [selectedDay, setSelectedDay] = useState<string | null>(isoDate(today));
+  const [active, setActive] = useState<CalendarKind[]>([]);
+  const [horizon, setHorizon] = useState<Horizon>("month");
+
+  function toggleKind(kind: CalendarKind) {
+    setActive((current) =>
+      current.includes(kind) ? current.filter((item) => item !== kind) : [...current, kind],
+    );
+  }
+
 
   const range = useMemo(() => monthRange(year, month), [year, month]);
   const { data: transactions, isLoading } = useTransactions(range);
@@ -76,17 +111,77 @@ function CalendarPage() {
     return map;
   }, [categories]);
 
+  /** Classifica um lançamento nos grupos filtráveis do calendário. */
+  const kindsOf = useMemo(() => {
+    return (item: {
+      tags?: string[] | null;
+      installment_number?: number | null;
+      total_installments?: number | null;
+      category_id?: string | null;
+      due_date?: string | null;
+      status?: string | null;
+      description?: string | null;
+    }): CalendarKind[] => {
+      const tags = (item.tags ?? []).map((tag) => String(tag).toLowerCase());
+      const category = (
+        item.category_id ? (categoryName.get(item.category_id) ?? "") : ""
+      ).toLowerCase();
+      const text = `${item.description ?? ""}`.toLowerCase();
+      const kinds: CalendarKind[] = [];
+
+      if (tags.some((tag) => tag.startsWith("commitment:"))) kinds.push("commitments");
+      if (Number(item.total_installments ?? 0) > 1 || Number(item.installment_number ?? 0) > 0) {
+        kinds.push("installments");
+      }
+      if (
+        tags.some((tag) => tag.startsWith("dependente:")) ||
+        category.includes("mesada") ||
+        category.includes("filho")
+      ) {
+        kinds.push("allowance");
+      }
+      if (category.includes("imposto de renda") || text.includes("imposto de renda")) {
+        kinds.push("tax");
+      }
+      if (item.due_date && item.status !== "paid" && item.status !== "received") {
+        kinds.push("due");
+      }
+      if (kinds.length === 0) kinds.push("others");
+      return kinds;
+    };
+  }, [categoryName]);
+
+  const filtered = useMemo(() => {
+    const list = transactions ?? [];
+    if (active.length === 0) return list;
+    return list.filter((item) => kindsOf(item).some((kind) => active.includes(kind)));
+  }, [transactions, active, kindsOf]);
+
   /** Agrupa lançamentos por data-alvo (vencimento quando existir). */
   const byDay = useMemo(() => {
     const map = new Map<string, typeof transactions>();
-    for (const item of transactions ?? []) {
+    for (const item of filtered) {
       const key = item.due_date ?? item.transaction_date;
       const list = map.get(key) ?? [];
       list.push(item);
       map.set(key, list);
     }
     return map;
-  }, [transactions]);
+  }, [filtered]);
+
+  /** Agenda do período escolhido (mês inteiro ou próximos N dias). */
+  const agenda = useMemo(() => {
+    const todayIso = isoDate(new Date());
+    const limitIso =
+      horizon === "month"
+        ? null
+        : isoDate(new Date(Date.now() + Number(horizon) * 86_400_000));
+    return filtered
+      .map((item) => ({ item, day: item.due_date ?? item.transaction_date }))
+      .filter(({ day }) => (limitIso ? day >= todayIso && day <= limitIso : true))
+      .sort((a, b) => a.day.localeCompare(b.day));
+  }, [filtered, horizon]);
+
 
   const budgetAlerts = useMemo(() => {
     const spentByCategory = new Map<string, number>();
@@ -201,6 +296,71 @@ function CalendarPage() {
           </div>
         </header>
 
+        <section className="rounded-xl border border-border bg-card p-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs font-medium text-muted-foreground">Filtros:</span>
+            {KIND_FILTERS.map((filter) => {
+              const on = active.includes(filter.key);
+              return (
+                <button
+                  key={filter.key}
+                  type="button"
+                  aria-pressed={on}
+                  onClick={() => toggleKind(filter.key)}
+                  className={[
+                    "rounded-full border px-3 py-1 text-xs font-medium transition-colors",
+                    on
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "border-border text-muted-foreground hover:bg-secondary/60",
+                  ].join(" ")}
+                >
+                  {filter.label}
+                </button>
+              );
+            })}
+            {active.length > 0 ? (
+              <Button size="sm" variant="ghost" onClick={() => setActive([])}>
+                Limpar
+              </Button>
+            ) : null}
+          </div>
+
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <span className="text-xs font-medium text-muted-foreground">Período:</span>
+            {HORIZONS.map((option) => (
+              <button
+                key={option.key}
+                type="button"
+                aria-pressed={horizon === option.key}
+                onClick={() => setHorizon(option.key)}
+                className={[
+                  "rounded-full border px-3 py-1 text-xs font-medium transition-colors",
+                  horizon === option.key
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-border text-muted-foreground hover:bg-secondary/60",
+                ].join(" ")}
+              >
+                {option.label}
+              </button>
+            ))}
+            <span className="text-xs text-muted-foreground">
+              {agenda.length} item(s) no período · saídas{" "}
+              {formatCurrency(
+                agenda.reduce(
+                  (sum, entry) =>
+                    sum +
+                    (entry.item.transaction_type === "expense"
+                      ? Number(entry.item.amount || 0)
+                      : 0),
+                  0,
+                ),
+              )}
+            </span>
+          </div>
+        </section>
+
+
+
         <div className="grid gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
           <section className="rounded-xl border border-border bg-card p-4">
             {isLoading ? (
@@ -306,6 +466,49 @@ function CalendarPage() {
           </section>
 
           <aside className="space-y-4">
+            <section className="rounded-xl border border-border bg-card p-4">
+              <h2 className="flex items-center gap-2 text-sm font-medium">
+                <CalendarDays className="size-4" />
+                Agenda do período
+              </h2>
+              <ul className="mt-3 space-y-2">
+                {agenda.length === 0 ? (
+                  <li className="text-sm text-muted-foreground">
+                    Nada encontrado com os filtros atuais.
+                  </li>
+                ) : (
+                  agenda.slice(0, 20).map(({ item, day }) => (
+                    <li
+                      key={`${item.id}-${day}`}
+                      className="rounded-lg border border-border px-3 py-2 text-sm"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="min-w-0 truncate font-medium">{item.description}</span>
+                        <span
+                          className={
+                            item.transaction_type === "income"
+                              ? "shrink-0 font-medium text-primary"
+                              : "shrink-0 font-medium"
+                          }
+                        >
+                          {formatCurrency(Number(item.amount || 0))}
+                        </span>
+                      </div>
+                      <p className="mt-0.5 flex flex-wrap gap-1.5 text-[11px] text-muted-foreground">
+                        <span>{formatDate(`${day}T00:00:00`)}</span>
+                        {kindsOf(item).map((kind) => (
+                          <Badge key={kind} variant="secondary" className="text-[10px]">
+                            {KIND_FILTERS.find((filter) => filter.key === kind)?.label ?? kind}
+                          </Badge>
+                        ))}
+                      </p>
+                    </li>
+                  ))
+                )}
+              </ul>
+            </section>
+
+
             <section className="rounded-xl border border-border bg-card p-4">
               <div className="flex items-center justify-between gap-2">
                 <h2 className="flex items-center gap-2 text-sm font-medium">

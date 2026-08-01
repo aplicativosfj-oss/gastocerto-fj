@@ -15,6 +15,16 @@ import { DEFAULT_AI_LIMITS, type AiLimits } from "./ai-limits";
 export const AI_TRIAL_SOURCES = ["trial", "teste", "test", "demo", "cortesia", "gratis"];
 export const AI_TRIAL_SLUGS = ["free", "gratuito", "gratis", "trial", "teste", "test", "demo"];
 
+/** Planos pagos que incluem o Consultor de IA. */
+export const AI_PLAN_SLUGS = ["premium_ia", "premium-ia", "premium_ai", "ia", "ai"];
+
+/** Verdadeiro quando o slug do plano corresponde a um plano com IA integrada. */
+export function planIncludesAi(slug?: string | null): boolean {
+  const value = String(slug ?? "").toLowerCase();
+  if (!value) return false;
+  return AI_PLAN_SLUGS.includes(value) || /(^|[-_])(ia|ai)([-_]|$)/.test(value);
+}
+
 /** Limites mensais por assinante (usados no painel de créditos). */
 export const AI_MONTHLY_QUERY_LIMIT = 120;
 export const AI_MONTHLY_CREDIT_ALLOWANCE = 50;
@@ -22,7 +32,11 @@ export const AI_MONTHLY_CREDIT_ALLOWANCE = 50;
 export const AI_CREDITS_PER_1K_TOKENS = 0.05;
 
 export const AI_BLOCK_MESSAGE =
-  "O consultor de IA está disponível nos planos pagos e durante o período de teste. Seu acesso atual (plano gratuito ou teste expirado) não inclui a IA, pois cada análise consome créditos. Ative um teste ou assine para liberar as análises personalizadas.";
+  "O consultor de IA está disponível no plano Premium IA e durante o período de teste. Seu acesso atual não inclui a IA, pois cada análise consome créditos. Ative um teste ou assine o Premium IA para liberar as análises personalizadas.";
+
+export const AI_UPGRADE_MESSAGE =
+  "Seu plano é pago, mas não inclui o Consultor de IA. Faça upgrade para o Premium IA para liberar as análises com inteligência artificial.";
+
 
 /** Rate limiting por usuário (protege trial/teste de tentativas repetidas). */
 export const AI_RATE_WINDOW_SECONDS = 60;
@@ -55,6 +69,7 @@ export type AiEntitlementReason =
   | "admin"
   | "paid_license"
   | "paid_plan"
+  | "plan_without_ai"
   | "trial_active"
   | "trial_expired"
   | "trial_plan"
@@ -100,7 +115,16 @@ export function evaluateAiEntitlement(input: {
     Number(input.plan?.annual_price ?? 0),
   );
   const paidPlan = price > 0 && !AI_TRIAL_SLUGS.includes(planSlug);
-  if (paidPlan) return { entitled: true, reason: "paid_plan", planSlug };
+  if (paidPlan) {
+    // A IA só acompanha o plano pago com IA integrada (Premium IA).
+    if (planIncludesAi(planSlug)) return { entitled: true, reason: "paid_plan", planSlug };
+    return {
+      entitled: false,
+      reason: "plan_without_ai",
+      planSlug,
+      message: AI_UPGRADE_MESSAGE,
+    };
+  }
 
   // Período de teste vigente: tudo liberado, inclusive a IA.
   const trialEnd = input.trialEndsAt ? new Date(input.trialEndsAt) : null;
