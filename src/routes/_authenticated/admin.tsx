@@ -143,6 +143,7 @@ function AdminPage() {
 function AdminConsole({ isAdmin }: { isAdmin: boolean }) {
   const { user } = useAuth();
   const [active, setActive] = useState("overview");
+  const [search, setSearch] = useState("");
 
   const sections = useMemo(
     () => SECTIONS.filter((section) => isAdmin || !section.adminOnly),
@@ -158,6 +159,8 @@ function AdminConsole({ isAdmin }: { isAdmin: boolean }) {
       onSelect={setActive}
       operatorName={user?.email ?? "Operador"}
       role={isAdmin ? "Administrador" : "Suporte"}
+      searchTerm={search}
+      onSearchChange={setSearch}
     >
       <Suspense
         fallback={
