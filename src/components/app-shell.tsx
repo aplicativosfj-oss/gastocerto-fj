@@ -289,6 +289,7 @@ function MobileTabBar({
   onOpenChange: (value: boolean) => void;
   onSignOut: () => void;
 }) {
+  const navigate = useNavigate();
   const primary = MOBILE_PRIMARY.map((to) => items.find((item) => item.to === to)).filter(
     (item): item is NavGroup => Boolean(item),
   );
