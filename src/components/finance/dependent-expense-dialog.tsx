@@ -86,6 +86,7 @@ export function DependentExpenseDialog({
     const list = (categories ?? []).filter((item) => item.type === "expense");
     return (
       list.find((item) => item.name === reasonInfo.category) ??
+      list.find((item) => item.name === "Presentes") ??
       list.find((item) => item.name === "Filhos") ??
       list[0] ??
       null
@@ -220,7 +221,7 @@ export function DependentExpenseDialog({
                 }}
               >
                 <Plus className="size-4" aria-hidden />
-                Cadastrar filho / dependente
+                Cadastrar pessoa (filho, esposa, mãe, amigo...)
               </Button>
             </div>
           ) : (
