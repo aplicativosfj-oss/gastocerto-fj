@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Loader2, Mail, RefreshCcw, Save, Sparkles, Tag } from "lucide-react";
+import { ArrowRight, Loader2, Mail, RefreshCcw, Save, Sparkles, Tag } from "lucide-react";
 import { toast } from "sonner";
 import { formatCurrency } from "@/lib/format";
 import { normalizePlanPrices, suggestedAnnual } from "@/lib/plan-pricing";
@@ -213,6 +213,7 @@ export function PlanConfigsPanel() {
               draft.active !== plan.active);
           const hasAi = plan.slug.includes("ia");
           const isTrial = plan.tier === "trial";
+          const saving = mutation.isPending && mutation.variables?.id === plan.id;
 
 
           return (
