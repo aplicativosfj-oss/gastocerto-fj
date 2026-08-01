@@ -317,7 +317,8 @@ function DashboardPage() {
     const income = rows
       .filter((row) => row.transaction_type === "income")
       .reduce((sum, row) => sum + Number(row.amount), 0);
-      
+
+    setDetailDate(iso);
     setDetail({
       label: `Movimentos de ${formatDate(iso)}`,
       value: formatCurrency(expense),
