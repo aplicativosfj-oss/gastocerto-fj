@@ -40,6 +40,7 @@ import { AiSettingsPanel } from "@/components/admin/ai-settings-panel";
 import { TrialGrantPanel } from "@/components/admin/trial-grant-panel";
 import { TrialLicensesPanel } from "@/components/admin/trial-licenses-panel";
 import { BlockedIpsPanel } from "@/components/admin/blocked-ips-panel";
+import { ClosingPolicyPanel } from "@/components/admin/closing-policy-panel";
 import {
   adminCancelSubscription,
   adminDeleteUser,
@@ -384,7 +385,8 @@ function AdminContent({ isAdmin }: { isAdmin: boolean }) {
             </TabsContent>
           ) : null}
 
-          <TabsContent value="reopen" className="mt-4">
+          <TabsContent value="reopen" className="mt-4 space-y-4">
+            <ClosingPolicyPanel />
             <ReopenRequestsPanel />
           </TabsContent>
 

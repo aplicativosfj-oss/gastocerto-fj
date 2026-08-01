@@ -124,9 +124,13 @@ function DashboardPage() {
     const totalIncome = sum(incomes);
     const generalBudget = (budgets ?? []).find((budget) => !budget.category_id);
     const limit = generalBudget ? Number(generalBudget.limit_amount) : 0;
-    const previousExpense = (previousTransactions ?? [])
-      .filter((row) => row.transaction_type === "expense")
-      .reduce((total, row) => total + Number(row.amount), 0);
+    const previousMonthExpenses = (previousTransactions ?? []).filter(
+      (row) => row.transaction_type === "expense",
+    );
+    const previousExpense = previousMonthExpenses.reduce(
+      (total, row) => total + Number(row.amount),
+      0,
+    );
 
     const isCurrentMonth =
       period.year === today.getFullYear() && period.month === today.getMonth() + 1;
@@ -139,7 +143,17 @@ function DashboardPage() {
       today: isCurrentMonth
         ? sum(expenses.filter((row) => row.transaction_date === todayIso))
         : 0,
-      week: isCurrentMonth ? sum(expenses.filter((row) => row.transaction_date >= weekStart)) : 0,
+      /**
+       * Últimos 7 dias corridos (inclui o dia de hoje). Considera também o mês
+       * anterior quando a janela cruza a virada do mês e ignora datas futuras.
+       */
+      week: isCurrentMonth
+        ? sum(
+            [...expenses, ...previousMonthExpenses].filter(
+              (row) => row.transaction_date >= weekStart && row.transaction_date <= todayIso,
+            ),
+          )
+        : 0,
 
       totalExpense,
       totalIncome,
@@ -180,10 +194,17 @@ function DashboardPage() {
       todayExpenses: sameMonth
         ? expenses.filter((row) => row.transaction_date === todayIso)
         : [],
-      weekExpenses: sameMonth ? expenses.filter((row) => row.transaction_date >= weekStart) : [],
+      weekExpenses: sameMonth
+        ? [
+            ...expenses,
+            ...(previousTransactions ?? []).filter((row) => row.transaction_type === "expense"),
+          ]
+            .filter((row) => row.transaction_date >= weekStart && row.transaction_date <= todayIso)
+            .sort((a, b) => b.transaction_date.localeCompare(a.transaction_date))
+        : [],
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [transactions, period.year, period.month]);
+  }, [transactions, previousTransactions, period.year, period.month]);
 
 
   const byDay = useMemo(() => {
@@ -431,7 +452,8 @@ function DashboardPage() {
                   setDetail({
                     label: "Gasto nos últimos 7 dias",
                     value: formatCurrency(metrics.week),
-                    formula: "Soma das despesas dos últimos 7 dias dentro do período.",
+                    formula:
+                      "Soma das despesas dos 7 dias corridos até hoje, incluindo os dias que caem no mês anterior.",
                     rows: detailRows.weekExpenses,
                   })
                 }

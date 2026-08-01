@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -45,6 +45,10 @@ import {
 } from "@/lib/finance";
 import { useClosings } from "@/lib/closing";
 import { MIN_TRANSACTION_DATE, lockedMonthKeys } from "@/lib/closing-lock";
+import { useClosingPolicy } from "@/lib/use-closing-policy";
+import { useAuth } from "@/hooks/use-auth";
+import { PasswordConfirmDialog } from "@/components/finance/password-confirm-dialog";
+
 import { formatDate } from "@/lib/format";
 import { amountToInput, maskAmountInput } from "@/lib/money-input";
 import { upperText } from "@/lib/text-case";
@@ -243,6 +247,21 @@ export function TransactionDialog({
   const isBeforeStart = Boolean(date) && date < MIN_TRANSACTION_DATE;
   const isLockedMonth = lockedKeys.has(monthKey);
 
+  /** Política global do administrador para competências passadas. */
+  const { policy } = useClosingPolicy();
+  const { user } = useAuth();
+  const formRef = useRef<HTMLFormElement>(null);
+  const [passwordOpen, setPasswordOpen] = useState(false);
+  const [identityConfirmed, setIdentityConfirmed] = useState(false);
+  const adminBlockedPast = policy.lockPastMonths && isPastMonth;
+  const needsPassword =
+    policy.requirePasswordForPastEdits && isPastMonth && !adminBlockedPast && !identityConfirmed;
+
+  useEffect(() => {
+    if (!open) setIdentityConfirmed(false);
+  }, [open]);
+
+
   function shiftDate(kindOfShift: "today" | "yesterday" | "lastMonth") {
     const base = new Date();
     if (kindOfShift === "yesterday") base.setDate(base.getDate() - 1);
@@ -356,6 +375,18 @@ export function TransactionDialog({
     else if (isLockedMonth)
       nextErrors.date =
         "Este mês já foi fechado. Solicite a liberação ao administrador em Fechamento mensal.";
+    else if (adminBlockedPast)
+      nextErrors.date =
+        policy.notice ||
+        "O administrador desativou alterações em meses anteriores. Solicite a liberação em Fechamento mensal.";
+
+    if (!nextErrors.date && needsPassword) {
+      setErrors({});
+      setPasswordOpen(true);
+      return;
+    }
+
+
 
     const itemsCheck = validatePurchaseItems(items, value);
     
@@ -487,6 +518,7 @@ export function TransactionDialog({
         </DialogHeader>
 
         <form
+          ref={formRef}
           onSubmit={handleSubmit}
           onKeyDown={handleFormKeyDown}
           className="space-y-4"
@@ -968,7 +1000,19 @@ export function TransactionDialog({
             </Button>
           </DialogFooter>
         </form>
+
+        <PasswordConfirmDialog
+          open={passwordOpen}
+          onOpenChange={setPasswordOpen}
+          email={user?.email}
+          description={`Para ${editing ? "editar" : "registrar"} um lançamento de ${formatDate(date)} (mês anterior) confirme sua senha.`}
+          onConfirmed={() => {
+            setIdentityConfirmed(true);
+            window.setTimeout(() => formRef.current?.requestSubmit(), 0);
+          }}
+        />
       </DialogContent>
     </Dialog>
   );
 }
+
