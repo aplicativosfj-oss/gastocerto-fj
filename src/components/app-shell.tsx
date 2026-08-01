@@ -195,27 +195,20 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur">
-          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-2">
+          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2">
             <div className="flex min-w-0 items-center gap-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="lg:hidden"
-                onClick={() => setOpen((value) => !value)}
-                aria-label={open ? "Fechar menu" : "Abrir menu"}
-                aria-expanded={open}
-              >
-                {open ? <X className="size-5" /> : <Menu className="size-5" />}
-              </Button>
-              <Link to="/painel" className="lg:hidden">
+              <Link to="/painel" className="min-w-0 lg:hidden">
                 <Logo />
               </Link>
+              <p className="hidden min-w-0 truncate text-sm font-semibold lg:block">
+                {activeGroup ? activeGroup.label : "Painel"}
+              </p>
             </div>
 
-            <div className="flex shrink-0 items-center gap-2">
+            <div className="flex shrink-0 items-center gap-1 sm:gap-2">
               <Link to="/calendario" aria-label="Notificações" className="relative">
-                <span className="inline-flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground">
-                  <Bell className="size-5" />
+                <span className="inline-flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground sm:size-9">
+                  <Bell className="size-[18px]" />
                 </span>
                 {unreadCount > 0 ? (
                   <span className="absolute -right-0.5 -top-0.5 flex size-4 items-center justify-center rounded-full bg-destructive text-[10px] font-semibold text-destructive-foreground">
@@ -226,7 +219,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               <ThemeToggle />
               <ContrastToggle />
               <Link to="/perfil" aria-label="Meu perfil">
-                <Avatar className="size-8">
+                <Avatar className="size-7 sm:size-8">
                   {avatarUrl ? <AvatarImage src={avatarUrl} alt="Foto de perfil" /> : null}
                   <AvatarFallback className="text-xs">{initials}</AvatarFallback>
                 </Avatar>
@@ -234,32 +227,11 @@ export function AppShell({ children }: { children: ReactNode }) {
             </div>
           </div>
 
-          {open ? (
-            <nav className="border-t border-border bg-background px-3 py-3 lg:hidden">
-              {items.map((item) => (
-                <NavLink
-                  key={item.to}
-                  item={item}
-                  active={activeGroup?.to === item.to}
-                  onNavigate={() => setOpen(false)}
-                />
-              ))}
-              <Button
-                variant="ghost"
-                className="mt-1 w-full justify-start gap-2 text-muted-foreground"
-                onClick={handleSignOut}
-              >
-                <LogOut className="size-4" />
-                Sair
-              </Button>
-            </nav>
-          ) : null}
-
           {subTabs.length > 1 ? (
             <div className="border-t border-border bg-background/80">
               <nav
                 aria-label="Seções da área"
-                className="mx-auto flex w-full max-w-6xl gap-1 overflow-x-auto px-4 py-1.5"
+                className="mx-auto flex w-full max-w-6xl gap-1 overflow-x-auto px-3 py-1 sm:px-4 sm:py-1.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
               >
                 {subTabs.map((tab) => (
                   <Link
@@ -267,7 +239,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                     to={tab.to as never}
                     aria-current={pathname === tab.to ? "page" : undefined}
                     className={cn(
-                      "shrink-0 rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
+                      "shrink-0 rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors sm:px-3 sm:py-1.5 sm:text-xs",
                       pathname === tab.to
                         ? "bg-brand text-brand-foreground"
                         : "text-muted-foreground hover:bg-secondary hover:text-foreground",
@@ -281,12 +253,131 @@ export function AppShell({ children }: { children: ReactNode }) {
           ) : null}
         </header>
 
-        <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-3 sm:py-4">{children}</main>
-        <footer className="border-t border-border px-4 py-2.5 text-center text-xs text-muted-foreground">
+        <main className="mx-auto w-full min-w-0 max-w-6xl flex-1 px-3 py-2.5 pb-[calc(4.75rem+env(safe-area-inset-bottom))] sm:px-4 sm:py-4 lg:pb-6">
+          {children}
+        </main>
+        <footer className="hidden border-t border-border px-4 py-2 text-center text-[11px] text-muted-foreground lg:block">
           Dev. Franc D&apos;nis · Feijó-AC
         </footer>
       </div>
+
+      <MobileTabBar
+        items={items}
+        activeGroup={activeGroup?.to}
+        open={open}
+        onOpenChange={setOpen}
+        onSignOut={handleSignOut}
+        labelGroups={labelGroups}
+      />
     </div>
+  );
+}
+
+const MOBILE_PRIMARY = ["/painel", "/lancamentos", "/veiculos", "/relatorios"];
+
+function MobileTabBar({
+  items,
+  activeGroup,
+  open,
+  onOpenChange,
+  onSignOut,
+  labelGroups,
+}: {
+  items: NavGroup[];
+  activeGroup?: string;
+  open: boolean;
+  onOpenChange: (value: boolean) => void;
+  onSignOut: () => void;
+  labelGroups: Array<{ key: string; fallback: string; children?: Array<{ key: string; fallback: string }> }>;
+}) {
+  const primary = MOBILE_PRIMARY.map((to) => items.find((item) => item.to === to)).filter(
+    (item): item is NavGroup => Boolean(item),
+  );
+
+  return (
+    <>
+      {open ? (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <button
+            type="button"
+            aria-label="Fechar menu"
+            onClick={() => onOpenChange(false)}
+            className="absolute inset-0 bg-foreground/40 backdrop-blur-sm"
+          />
+          <div className="absolute inset-x-0 bottom-0 max-h-[78svh] overflow-y-auto rounded-t-2xl border-t border-border bg-background pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-lifted">
+            <div className="sticky top-0 flex items-center justify-between border-b border-border bg-background/95 px-4 py-2.5 backdrop-blur">
+              <p className="text-sm font-semibold">Menu</p>
+              <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)} aria-label="Fechar menu">
+                <X className="size-5" />
+              </Button>
+            </div>
+            <div className="grid grid-cols-2 gap-1.5 p-3">
+              {items.map((item) => (
+                <Link
+                  key={item.to}
+                  to={item.to as never}
+                  onClick={() => onOpenChange(false)}
+                  className={cn(
+                    "flex min-h-11 items-center gap-2 rounded-xl border border-border bg-card px-3 text-[13px] font-medium transition-colors",
+                    activeGroup === item.to ? "border-brand/40 bg-brand/10 text-foreground" : "text-muted-foreground",
+                  )}
+                >
+                  <item.icon className="size-4 shrink-0 text-brand" />
+                  <span className="truncate">{item.label}</span>
+                </Link>
+              ))}
+            </div>
+            <div className="grid gap-1.5 border-t border-border p-3">
+              <div className="flex items-center gap-1.5">
+                <ThemeToggle />
+                <ContrastToggle />
+                <div className="min-w-0 flex-1">
+                  <NavLabelsDialog groups={labelGroups} />
+                </div>
+              </div>
+              <Button variant="outline" className="justify-center gap-2" onClick={onSignOut}>
+                <LogOut className="size-4" />
+                Sair
+              </Button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      <nav
+        aria-label="Navegação principal"
+        className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden"
+      >
+        <div className="grid grid-cols-5">
+          {primary.map((item) => (
+            <Link
+              key={item.to}
+              to={item.to as never}
+              aria-current={activeGroup === item.to ? "page" : undefined}
+              className={cn(
+                "flex min-h-14 flex-col items-center justify-center gap-0.5 px-1 text-[10px] font-medium transition-colors",
+                activeGroup === item.to ? "text-brand" : "text-muted-foreground",
+              )}
+            >
+              <item.icon className="size-5 shrink-0" />
+              <span className="w-full truncate text-center leading-tight">{item.label}</span>
+            </Link>
+          ))}
+          <button
+            type="button"
+            onClick={() => onOpenChange(!open)}
+            aria-expanded={open}
+            className={cn(
+              "flex min-h-14 flex-col items-center justify-center gap-0.5 px-1 text-[10px] font-medium transition-colors",
+              open ? "text-brand" : "text-muted-foreground",
+            )}
+          >
+            <Menu className="size-5 shrink-0" />
+            <span>Menu</span>
+          </button>
+        </div>
+      </nav>
+    </>
   );
 }
 
