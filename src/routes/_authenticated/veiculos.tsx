@@ -557,7 +557,7 @@ function VehiclesPage() {
                         {formatCurrency(Number(entry.price_per_liter))}
                       </TableCell>
                       <TableCell className="text-right tabular-nums text-[14px] font-bold text-foreground">
-                        {formatCurrency(Number(entry.total_amount ?? entry.total_cost ?? 0))}
+                        {formatCurrency(Number(entry.total_amount ?? 0))}
                       </TableCell>
                       <TableCell className="hidden lg:table-cell text-right tabular-nums">
                         {entry.consumption ? (
