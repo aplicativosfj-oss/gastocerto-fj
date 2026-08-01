@@ -36,10 +36,10 @@ export const Route = createFileRoute("/auth")({
         name: "description",
         content: "Faça login no GastoCerto para controlar suas finanças pessoais.",
       },
-      { property: "og:title", content: "Entrar com CPF — GastoCerto" },
+      { property: "og:title", content: "Acesse sua conta — GastoCerto" },
       {
         property: "og:description",
-        content: "Acesse o GastoCerto com seu CPF e senha de 6 dígitos.",
+        content: "Faça login no GastoCerto para controlar suas finanças pessoais.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
