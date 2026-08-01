@@ -980,9 +980,6 @@ function DashboardPage() {
           </div>
         )}
       </div>
-    </AppShell>
-  );
-}
 
       <MetricDetailDialog
         detail={detail}
@@ -993,6 +990,47 @@ function DashboardPage() {
         onEditTransaction={(row) => {
           setDetail(null);
           setEditingTx(row);
+          setDialogKind(row.transaction_type === "income" ? "income" : "expense");
+          setPreset({ categoryId: null, subCategoryId: null });
+          setDialogOpen(true);
+        }}
+      />
+
+      <DependentExpenseDialog open={dependentOpen} onOpenChange={setDependentOpen} />
+
+      <TaxQuickDialog open={taxOpen} onOpenChange={setTaxOpen} />
+
+      <ExpenseCardsDialog
+        open={cardsOpen}
+        onOpenChange={setCardsOpen}
+        onAdvanced={() => {
+          setEditingTx(null);
+          setDialogKind("expense");
+          setPreset({ categoryId: null, subCategoryId: null });
+          setDialogOpen(true);
+        }}
+      />
+
+      <TransactionDialog
+        open={dialogOpen}
+        onOpenChange={(next) => {
+          setDialogOpen(next);
+          if (!next) setEditingTx(null);
+        }}
+        kind={dialogKind}
+        transaction={editingTx}
+        presetCategoryId={preset.categoryId}
+        presetSubCategoryId={preset.subCategoryId}
+        defaultDate={periodDefaultDate(period.year, period.month)}
+
+        onSaved={(savedDate) => {
+          const [y, m] = savedDate.split("-").map(Number);
+          if (y && m && (y !== period.year || m !== period.month)) setPeriod({ year: y, month: m });
+        }}
+      />
+    </AppShell>
+  );
+}
           setDialogKind(row.transaction_type === "income" ? "income" : "expense");
           setPreset({ categoryId: null, subCategoryId: null });
           setDialogOpen(true);
