@@ -32,6 +32,7 @@ import { InlineNotes } from "@/components/finance/inline-notes";
 import { TransactionDetailsDialog } from "@/components/finance/transaction-details-dialog";
 import { TransactionDialog } from "@/components/finance/transaction-dialog";
 import { ExpenseCardsDialog } from "@/components/finance/expense-cards-dialog";
+import { cn } from "@/lib/utils";
 
 
 import {
@@ -390,14 +391,14 @@ function TransactionsPage() {
           }
         />
 
-        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4 lg:gap-3">
+        <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4 sm:gap-4">
           <StatTile
             label="Entradas"
             value={formatCurrency(periodTotals.income)}
             tone="success"
             icon={TrendingUp}
             hint={`${periodTotals.incomeCount} recebimentos`}
-            className="sm:p-3"
+            className="sm:p-3.5"
           />
           <StatTile
             label="Saídas"
@@ -405,7 +406,7 @@ function TransactionsPage() {
             tone="expense"
             icon={TrendingDown}
             hint={`${periodTotals.expenseCount} gastos`}
-            className="sm:p-3"
+            className="sm:p-3.5"
             progress={
               periodTotals.income ? (periodTotals.expense / periodTotals.income) * 100 : undefined
             }
@@ -416,7 +417,7 @@ function TransactionsPage() {
             tone={total >= 0 ? "brand" : "warning"}
             icon={Wallet}
             hint={total >= 0 ? "Sobra no período" : "Déficit no período"}
-            className="sm:p-3"
+            className="sm:p-3.5"
           />
           <StatTile
             label="Abertos"
@@ -424,7 +425,7 @@ function TransactionsPage() {
             tone={periodTotals.openCount ? "warning" : "neutral"}
             icon={Clock}
             hint={`${periodTotals.openCount} pendências`}
-            className="sm:p-3"
+            className="sm:p-3.5"
           />
         </div>
 
@@ -605,10 +606,14 @@ function TransactionsPage() {
               <Skeleton key={index} className="h-20 rounded-2xl" />
             ))
           ) : rows.length === 0 ? (
-            <div className="rounded-2xl border border-border bg-card p-8 text-center">
-              <p className="text-sm text-muted-foreground">Nenhum lançamento encontrado.</p>
+            <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-muted/30 p-10 text-center">
+              <div className="flex size-12 items-center justify-center rounded-full bg-muted text-muted-foreground/60">
+                <Search className="size-6" />
+              </div>
+              <p className="mt-4 text-sm font-medium text-muted-foreground">Nenhum lançamento encontrado.</p>
               <Button
-                className="mt-3"
+                variant="outline"
+                className="mt-4"
                 size="sm"
                 onClick={() => {
                   setEditing(null);
@@ -616,7 +621,7 @@ function TransactionsPage() {
                 }}
               >
                 <Plus className="mr-2 size-4" />
-                Adicionar lançamento
+                Novo lançamento
               </Button>
             </div>
           ) : (
@@ -625,71 +630,66 @@ function TransactionsPage() {
               return (
                 <article
                   key={row.id}
-                  className="overflow-hidden rounded-2xl border border-border bg-card shadow-soft"
+                  className="interactive-card overflow-hidden rounded-xl border border-border bg-card shadow-soft transition-all active:scale-[0.98]"
                 >
                   <div className="flex items-stretch">
                     <span
                       aria-hidden="true"
-                      className={income ? "w-1 shrink-0 bg-success" : "w-1 shrink-0 bg-destructive"}
+                      className={income ? "w-1.5 shrink-0 bg-success/80" : "w-1.5 shrink-0 bg-destructive/80"}
                     />
-                    <div className="min-w-0 flex-1 p-3">
-                      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2">
+                    <div className="min-w-0 flex-1 p-3.5">
+                      <div className="flex items-start justify-between gap-3">
                         <button
                           type="button"
-                          className="min-w-0 text-left"
+                          className="min-w-0 flex-1 text-left"
                           onClick={() => setDetails(row)}
                         >
-                          <p className="flex items-center gap-1.5 truncate text-[13.5px] font-semibold leading-tight">
-                            <span className="truncate">{row.description}</span>
+                          <div className="flex items-center gap-1.5">
+                            <span className="truncate text-[14px] font-bold tracking-tight text-foreground">
+                              {row.description}
+                            </span>
                             {row.attachment_url ? (
-                              <Paperclip
-                                className="size-3.5 shrink-0 text-muted-foreground"
-                                aria-label="Possui comprovante"
-                              />
+                              <Paperclip className="size-3.5 shrink-0 text-muted-foreground" />
                             ) : null}
-                          </p>
-                          <p className="mt-0.5 truncate text-[11px] text-muted-foreground">
-                            {formatDate(row.transaction_date)}
-                            {row.category_id
-                              ? ` · ${categoryNames.get(row.category_id) ?? "Sem categoria"}`
-                              : ""}
-                          </p>
+                          </div>
+                          <div className="mt-1 flex items-center gap-1.5 text-[11px] text-muted-foreground font-medium uppercase tracking-wider">
+                            <span>{formatDate(row.transaction_date)}</span>
+                            {row.category_id && (
+                              <>
+                                <span>•</span>
+                                <span className="truncate">{categoryNames.get(row.category_id)}</span>
+                              </>
+                            )}
+                          </div>
                         </button>
-                        <p
-                          className={
-                            income
-                              ? "shrink-0 text-right font-display text-[15px] font-bold tabular text-success"
-                              : "shrink-0 text-right font-display text-[15px] font-bold tabular text-destructive"
-                          }
-                        >
-                          {income ? "+" : "−"}
-                          {formatCurrency(Number(row.amount))}
-                        </p>
+                        <div className="text-right">
+                          <p className={cn(
+                            "font-display text-[16px] font-bold tabular tracking-tight",
+                            income ? "text-success" : "text-destructive"
+                          )}>
+                            {income ? "+" : "−"}
+                            {formatCurrency(Number(row.amount))}
+                          </p>
+                        </div>
                       </div>
-                      <div className="mt-2 flex items-center justify-between gap-2">
-                        <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+                      
+                      <div className="mt-3 flex items-center justify-between">
+                        <div className="flex flex-wrap items-center gap-1.5">
                           <Badge
-                            variant={
-                              row.status === "overdue"
-                                ? "destructive"
-                                : row.status === "pending"
-                                  ? "secondary"
-                                  : "outline"
-                            }
-                            className="h-5 px-1.5 text-[10px]"
+                            variant={row.status === "overdue" ? "destructive" : row.status === "pending" ? "secondary" : "outline"}
+                            className="h-5 px-2 text-[9px] font-bold uppercase tracking-wider rounded-md"
                           >
                             {labelFor(TRANSACTION_STATUS, row.status)}
                           </Badge>
-                          <span className="rounded-full border border-border bg-secondary px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
+                          <span className="inline-flex items-center rounded-md border border-border bg-muted/50 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
                             {labelFor(PAYMENT_METHODS, row.payment_method)}
                           </span>
                         </div>
-                        <div className="flex shrink-0 items-center gap-0.5">
+                        <div className="flex items-center gap-1">
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="size-8"
-                            aria-label="Editar"
+                            className="size-8 rounded-lg hover:bg-muted"
                             onClick={() => {
                               setEditing(row);
                               setDialogOpen(true);
@@ -700,17 +700,7 @@ function TransactionsPage() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="size-8"
-                            aria-label="Baixar PDF do lançamento"
-                            onClick={() => handleRowPdf(row)}
-                          >
-                            <FileDown className="size-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-8"
-                            aria-label="Excluir"
+                            className="size-8 rounded-lg hover:bg-muted"
                             onClick={() => setConfirmDelete([row.id])}
                           >
                             <Trash2 className="size-4" />
@@ -725,7 +715,7 @@ function TransactionsPage() {
           )}
         </section>
 
-        <section className="hidden overflow-x-auto rounded-2xl border border-border bg-card shadow-soft sm:block">
+        <section className="hidden overflow-hidden rounded-2xl border border-border bg-card shadow-soft sm:block">
           {isLoading ? (
             <div className="space-y-2 p-4">
               {Array.from({ length: 6 }).map((_, index) => (
@@ -733,189 +723,179 @@ function TransactionsPage() {
               ))}
             </div>
           ) : rows.length === 0 ? (
-            <div className="p-10 text-center">
-              <p className="text-sm text-muted-foreground">Nenhum lançamento encontrado.</p>
+            <div className="flex flex-col items-center justify-center p-20 text-center">
+              <div className="flex size-16 items-center justify-center rounded-full bg-muted text-muted-foreground/40">
+                <Search className="size-8" />
+              </div>
+              <p className="mt-5 text-base font-semibold">Nenhum lançamento para exibir</p>
+              <p className="text-sm text-muted-foreground">Ajuste os filtros ou adicione uma nova transação.</p>
               <Button
-                className="mt-3"
-                size="sm"
+                className="mt-6"
                 onClick={() => {
                   setEditing(null);
                   setDialogOpen(true);
                 }}
               >
                 <Plus className="mr-2 size-4" />
-                Adicionar lançamento
+                Novo lançamento
               </Button>
             </div>
           ) : (
             <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-10">
+              <TableHeader className="bg-muted/30">
+                <TableRow className="hover:bg-transparent">
+                  <TableHead className="w-12 text-center">
                     <Checkbox
                       aria-label="Selecionar tudo"
                       checked={rows.every((row) => selected.includes(row.id))}
                       onCheckedChange={(checked) =>
                         setSelected(checked ? rows.map((row) => row.id) : [])
                       }
+                      className="rounded"
                     />
                   </TableHead>
-                  <TableHead>Data</TableHead>
-                  <TableHead>Descrição</TableHead>
-                  <TableHead className="hidden md:table-cell">Categoria</TableHead>
-                  <TableHead className="hidden lg:table-cell">Pagamento</TableHead>
-                  <TableHead className="hidden sm:table-cell">Status</TableHead>
-                  <TableHead className="text-right">Valor</TableHead>
-                  <TableHead className="w-28 text-right">Ações</TableHead>
+                  <TableHead className="font-bold text-[11px] uppercase tracking-wider text-muted-foreground">Data</TableHead>
+                  <TableHead className="font-bold text-[11px] uppercase tracking-wider text-muted-foreground">Descrição</TableHead>
+                  <TableHead className="hidden font-bold text-[11px] uppercase tracking-wider text-muted-foreground md:table-cell">Categoria</TableHead>
+                  <TableHead className="hidden font-bold text-[11px] uppercase tracking-wider text-muted-foreground lg:table-cell">Pagamento</TableHead>
+                  <TableHead className="hidden font-bold text-[11px] uppercase tracking-wider text-muted-foreground sm:table-cell">Status</TableHead>
+                  <TableHead className="text-right font-bold text-[11px] uppercase tracking-wider text-muted-foreground">Valor</TableHead>
+                  <TableHead className="w-24 text-right font-bold text-[11px] uppercase tracking-wider text-muted-foreground">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {rows.map((row) => (
                   <Fragment key={row.id}>
                     <TableRow
-                      className="cursor-pointer hover:bg-muted/50"
+                      className="group cursor-pointer hover:bg-muted/40 transition-colors"
                       onClick={(e) => {
                         const target = e.target as HTMLElement;
                         if (target.closest("button") || target.closest('[role="checkbox"]')) return;
                         setDetails(row);
                       }}
                     >
-
-
-
-                    <TableCell>
-                      <Checkbox
-                        aria-label={`Selecionar ${row.description}`}
-                        checked={selected.includes(row.id)}
-                        onCheckedChange={(checked) =>
-                          setSelected((current) =>
-                            checked
-                              ? [...current, row.id]
-                              : current.filter((id) => id !== row.id),
-                          )
-                        }
-                      />
-                    </TableCell>
-                    <TableCell className="whitespace-nowrap tabular-nums">
-                      {formatDate(row.transaction_date)}
-                    </TableCell>
-                    <TableCell className="max-w-[220px] font-medium">
-                      <div className="flex items-center gap-1">
-                        <button
-                          type="button"
-                          aria-label={
-                            expanded.includes(row.id) ? "Recolher anotações" : "Expandir anotações"
-                          }
-                          className="shrink-0 rounded p-0.5 text-muted-foreground hover:text-foreground"
-                          onClick={() =>
-                            setExpanded((current) =>
-                              current.includes(row.id)
-                                ? current.filter((id) => id !== row.id)
-                                : [...current, row.id],
+                      <TableCell className="text-center">
+                        <Checkbox
+                          aria-label={`Selecionar ${row.description}`}
+                          checked={selected.includes(row.id)}
+                          onCheckedChange={(checked) =>
+                            setSelected((current) =>
+                              checked
+                                ? [...current, row.id]
+                                : current.filter((id) => id !== row.id),
                             )
                           }
+                          className="rounded"
+                        />
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap tabular-nums text-[13px] text-muted-foreground">
+                        {formatDate(row.transaction_date)}
+                      </TableCell>
+                      <TableCell className="max-w-[280px]">
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            className="shrink-0 rounded p-1 text-muted-foreground/60 hover:bg-muted hover:text-foreground transition-all"
+                            onClick={() =>
+                              setExpanded((current) =>
+                                current.includes(row.id)
+                                  ? current.filter((id) => id !== row.id)
+                                  : [...current, row.id],
+                              )
+                            }
+                          >
+                            {expanded.includes(row.id) ? (
+                              <ChevronDown className="size-3.5" />
+                            ) : (
+                              <ChevronRight className="size-3.5" />
+                            )}
+                          </button>
+                          <button
+                            type="button"
+                            className="flex min-w-0 flex-1 items-center gap-1.5 truncate text-left text-[14px] font-semibold tracking-tight hover:text-brand transition-colors"
+                            onClick={() => setDetails(row)}
+                          >
+                            <span className="truncate">{row.description}</span>
+                            {row.attachment_url ? (
+                              <Paperclip className="size-3.5 shrink-0 text-muted-foreground/60" />
+                            ) : null}
+                          </button>
+                        </div>
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell text-[13px] text-muted-foreground font-medium">
+                        {row.category_id ? (categoryNames.get(row.category_id) ?? "—") : "—"}
+                      </TableCell>
+                      <TableCell className="hidden lg:table-cell">
+                        <span className="inline-flex rounded-md bg-muted/60 px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
+                          {labelFor(PAYMENT_METHODS, row.payment_method)}
+                        </span>
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell">
+                        <Badge
+                          variant={row.status === "overdue" ? "destructive" : row.status === "pending" ? "secondary" : "outline"}
+                          className="h-5 px-2 text-[10px] font-bold uppercase tracking-wide rounded-md"
                         >
-                          {expanded.includes(row.id) ? (
-                            <ChevronDown className="size-4" />
-                          ) : (
-                            <ChevronRight className="size-4" />
-                          )}
-                        </button>
-                        <button
-                          type="button"
-                          className="flex w-full items-center gap-1.5 truncate text-left hover:underline"
-                          onClick={() => setDetails(row)}
-                        >
-                          <span className="truncate">{row.description}</span>
-                          {row.attachment_url ? (
-                            <Paperclip
-                              className="size-3.5 shrink-0 text-muted-foreground"
-                              aria-label="Possui comprovante"
-                            />
-                          ) : null}
-                        </button>
-                      </div>
-                    </TableCell>
-
-
-                    <TableCell className="hidden md:table-cell">
-                      {row.category_id ? (categoryNames.get(row.category_id) ?? "—") : "—"}
-                    </TableCell>
-                    <TableCell className="hidden lg:table-cell">
-                      {labelFor(PAYMENT_METHODS, row.payment_method)}
-                    </TableCell>
-                    <TableCell className="hidden sm:table-cell">
-                      <Badge
-                        variant={
-                          row.status === "overdue"
-                            ? "destructive"
-                            : row.status === "pending"
-                              ? "secondary"
-                              : "outline"
-                        }
+                          {labelFor(TRANSACTION_STATUS, row.status)}
+                        </Badge>
+                      </TableCell>
+                      <TableCell
+                        className={cn(
+                          "text-right font-display text-[15px] font-bold tabular-nums tracking-tight",
+                          row.transaction_type === "income" ? "text-success" : "text-foreground"
+                        )}
                       >
-                        {labelFor(TRANSACTION_STATUS, row.status)}
-                      </Badge>
-                    </TableCell>
-                    <TableCell
-                      className={
-                        row.transaction_type === "income"
-                          ? "text-right font-semibold tabular-nums text-primary"
-                          : "text-right font-semibold tabular-nums"
-                      }
-                    >
-                      {row.transaction_type === "income" ? "+" : "−"}
-                      {formatCurrency(Number(row.amount))}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          aria-label="Editar"
-                          onClick={() => {
-                            setEditing(row);
-                            setDialogOpen(true);
-                          }}
-                        >
-                          <Pencil className="size-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          aria-label="Duplicar"
-                          onClick={() => handleDuplicate(row)}
-                        >
-                          <Copy className="size-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          aria-label="Baixar PDF do lançamento"
-                          title="Baixar PDF"
-                          onClick={() => handleRowPdf(row)}
-                        >
-                          <FileDown className="size-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          aria-label="Excluir"
-                          onClick={() => setConfirmDelete([row.id])}
-                        >
-                          <Trash2 className="size-4" />
-                        </Button>
-
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                  {expanded.includes(row.id) ? (
-                    <TableRow>
-                      <TableCell colSpan={8} className="bg-muted/10">
-                        <InlineNotes transaction={row} />
+                        {row.transaction_type === "income" ? "+" : "−"}
+                        {formatCurrency(Number(row.amount))}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="size-8 rounded-lg"
+                            onClick={() => {
+                              setEditing(row);
+                              setDialogOpen(true);
+                            }}
+                          >
+                            <Pencil className="size-3.5" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="size-8 rounded-lg"
+                            onClick={() => handleDuplicate(row)}
+                          >
+                            <Copy className="size-3.5" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="size-8 rounded-lg"
+                            onClick={() => handleRowPdf(row)}
+                          >
+                            <FileDown className="size-3.5" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="size-8 rounded-lg hover:text-destructive hover:bg-destructive/10"
+                            onClick={() => setConfirmDelete([row.id])}
+                          >
+                            <Trash2 className="size-3.5" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
-                  ) : null}
+                    {expanded.includes(row.id) && (
+                      <TableRow className="bg-muted/5 hover:bg-muted/5">
+                        <TableCell colSpan={8} className="py-0 px-0">
+                          <div className="border-t border-border/50 p-4">
+                            <InlineNotes transaction={row} />
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    )}
                   </Fragment>
                 ))}
 
