@@ -15,11 +15,11 @@ export const adminGetSupportTickets = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     await assertAdmin(context);
     const { data, error } = await context.supabase
-      .from("support_tickets")
+      .from("support_tickets" as any)
       .select("*, profiles(full_name, contact_email)")
       .order("created_at", { ascending: false });
     if (error) throw error;
-    return data;
+    return data as any[];
   });
 
 export const adminUpdateTicket = createServerFn({ method: "POST" })
@@ -28,8 +28,8 @@ export const adminUpdateTicket = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const { error } = await context.supabase
-      .from("support_tickets")
-      .update({ status: data.status, admin_notes: data.adminNotes, updated_at: new Date().toISOString() })
+      .from("support_tickets" as any)
+      .update({ status: data.status, admin_notes: data.adminNotes, updated_at: new Date().toISOString() } as any)
       .eq("id", data.id);
     if (error) throw error;
     return { ok: true };
@@ -39,9 +39,9 @@ export const adminGetPlanConfigs = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertAdmin(context);
-    const { data, error } = await context.supabase.from("plan_configs").select("*").order("slug");
+    const { data, error } = await context.supabase.from("plan_configs" as any).select("*").order("slug");
     if (error) throw error;
-    return data;
+    return data as any[];
   });
 
 export const adminUpdatePlanConfig = createServerFn({ method: "POST" })
@@ -50,13 +50,13 @@ export const adminUpdatePlanConfig = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const { error } = await context.supabase
-      .from("plan_configs")
+      .from("plan_configs" as any)
       .update({ 
         monthly_price: data.monthlyPrice, 
         annual_price: data.annualPrice, 
         limits: data.limits,
         updated_at: new Date().toISOString() 
-      })
+      } as any)
       .eq("id", data.id);
     if (error) throw error;
     return { ok: true };
@@ -66,9 +66,9 @@ export const adminGetAnnouncements = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertAdmin(context);
-    const { data, error } = await context.supabase.from("global_announcements").select("*").order("created_at", { ascending: false });
+    const { data, error } = await context.supabase.from("global_announcements" as any).select("*").order("created_at", { ascending: false });
     if (error) throw error;
-    return data;
+    return data as any[];
   });
 
 export const adminCreateAnnouncement = createServerFn({ method: "POST" })
@@ -77,7 +77,7 @@ export const adminCreateAnnouncement = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const { error } = await context.supabase
-      .from("global_announcements")
+      .from("global_announcements" as any)
       .insert({ 
         title: data.title, 
         content: data.content, 
@@ -85,7 +85,7 @@ export const adminCreateAnnouncement = createServerFn({ method: "POST" })
         active: data.active, 
         expires_at: data.expiresAt,
         created_by: context.userId
-      });
+      } as any);
     if (error) throw error;
     return { ok: true };
   });
@@ -94,9 +94,9 @@ export const adminGetBusinessMetrics = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertAdmin(context);
-    const { data, error } = await context.supabase.from("business_metrics_daily").select("*").order("date", { ascending: false }).limit(30);
+    const { data, error } = await context.supabase.from("business_metrics_daily" as any).select("*").order("date", { ascending: false }).limit(30);
     if (error) throw error;
-    return data;
+    return data as any[];
   });
 
 export const createSupportTicket = createServerFn({ method: "POST" })
@@ -104,12 +104,12 @@ export const createSupportTicket = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => z.object({ subject: z.string(), message: z.string() }).parse(d))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
-      .from("support_tickets")
+      .from("support_tickets" as any)
       .insert({ 
         user_id: context.userId,
         subject: data.subject, 
         message: data.message 
-      });
+      } as any);
     if (error) throw error;
     return { ok: true };
   });
