@@ -329,10 +329,15 @@ function MobileTabBar({
             <div className="sticky top-0 z-10 border-b border-border bg-background/95 px-3 py-2.5 backdrop-blur">
               <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
                 <div className="min-w-0">
-                  <p className="text-[13px] font-bold leading-tight">Tudo do seu controle</p>
-                  <p className="truncate text-[11px] text-muted-foreground">
-                    Toque em uma área para abrir a seção
+                  <p className="text-[13px] font-bold leading-tight">
+                    {adminArea ? "Área administrativa" : "Tudo do seu controle"}
                   </p>
+                  <p className="truncate text-[11px] text-muted-foreground">
+                    {adminArea
+                      ? "Gestão do negócio, usuários e licenças"
+                      : "Toque em uma área para abrir a seção"}
+                  </p>
+
                 </div>
                 <div className="flex shrink-0 items-center gap-1">
                   <ThemeToggle />
