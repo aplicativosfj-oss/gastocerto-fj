@@ -148,6 +148,18 @@ export function CardMonthSummary({
         detail={detail}
         categories={categories}
         onOpenChange={(next) => !next && setDetail(null)}
+        onEditTransaction={(row) => {
+          setDetail(null);
+          setEditingTx(row);
+        }}
+      />
+      <TransactionDialog
+        open={Boolean(editingTx)}
+        onOpenChange={(next) => {
+          if (!next) setEditingTx(null);
+        }}
+        kind={editingTx?.transaction_type === "income" ? "income" : "expense"}
+        transaction={editingTx}
       />
     </section>
   );
