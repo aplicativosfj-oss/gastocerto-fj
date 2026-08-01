@@ -66,7 +66,7 @@ export const askAdvisor = createServerFn({ method: "POST" })
 
     // 2) Limite mensal de consumo de créditos.
     const usage = await getMonthlyAiUsage(supabase, userId, limits);
-    if (usage.quotaExceeded) {
+    if (usage.quotaExceeded || (limits.geminiMonthlyCreditLimit > 0 && usage.credits >= limits.geminiMonthlyCreditLimit)) {
       await logAiUsage(supabase, {
         userId,
         action: "quota_exceeded",
