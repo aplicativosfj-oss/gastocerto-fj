@@ -1,8 +1,9 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Menu, X } from "lucide-react";
+import { KeyRound, Menu, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { CodeAccessDialog } from "@/components/landing/code-access-dialog";
 import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { cn } from "@/lib/utils";
@@ -10,11 +11,10 @@ import { handleAnchorClick } from "@/lib/scroll";
 
 const navItems = [
   { label: "Início", href: "#inicio" },
-  { label: "Explorar", href: "#explorar" },
   { label: "Recursos", href: "#recursos" },
   { label: "Planos", href: "#planos" },
-  { label: "FAQ", href: "#faq" },
 ];
+
 
 export function LandingHeader({ hideActions }: { hideActions?: boolean }) {
   const [scrolled, setScrolled] = useState(false);
