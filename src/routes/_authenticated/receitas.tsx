@@ -89,26 +89,26 @@ function IncomePage() {
   return (
     <AppShell>
       <div className="space-y-4">
-        <header className="flex flex-wrap items-center justify-between gap-3">
-          <div className="min-w-0">
-            <h1 className="text-2xl font-bold tracking-tight">Receitas</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Cadastre e categorize salários, vendas e serviços para relatórios detalhados.
-            </p>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <PeriodPicker year={period.year} month={period.month} onChange={setPeriod} />
-            <Button
-              onClick={() => {
-                setEditing(null);
-                setDialogOpen(true);
-              }}
-            >
-              <Plus className="mr-2 size-4" />
-              Nova receita
-            </Button>
-          </div>
-        </header>
+        <PageHeader
+          icon={TrendingUp}
+          eyebrow="Entradas do mês"
+          title="Receitas"
+          description="Cadastre e categorize salários, vendas e serviços para relatórios detalhados."
+          actions={
+            <>
+              <PeriodPicker year={period.year} month={period.month} onChange={setPeriod} />
+              <Button
+                onClick={() => {
+                  setEditing(null);
+                  setDialogOpen(true);
+                }}
+              >
+                <Plus className="mr-2 size-4" />
+                Nova receita
+              </Button>
+            </>
+          }
+        />
 
         <section className="auto-cards-sm">
           <Card label="Total recebido" value={formatCurrency(totalIncome)} />

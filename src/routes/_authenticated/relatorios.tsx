@@ -1,5 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Download, FileText } from "lucide-react";
+import {
+  BarChart3,
+  CalendarRange,
+  Download,
+  FileText,
+  ListFilter,
+  PieChart as PieChartIcon,
+  Receipt,
+  TrendingDown,
+  TrendingUp,
+  Wallet,
+} from "lucide-react";
 import { useMemo, useState } from "react";
 import {
   Bar,
@@ -18,6 +29,10 @@ import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
 import { FeatureGate } from "@/components/finance/feature-gate";
+import { FilterField, FilterPanel } from "@/components/finance/filter-panel";
+import { MetaChip, PageHeader } from "@/components/finance/page-header";
+import { Panel } from "@/components/finance/panel";
+import { StatTile } from "@/components/finance/stat-tile";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -267,54 +282,83 @@ function ReportsPage() {
     }
   }
 
+  const activeFilters = [
+    typeFilter !== "all",
+    categoryFilter !== "all",
+    recipientFilter !== "all",
+    methodFilter !== "all",
+    essentialFilter !== "all",
+  ].filter(Boolean).length;
+
+  function clearFilters() {
+    setTypeFilter("all");
+    setCategoryFilter("all");
+    setRecipientFilter("all");
+    setMethodFilter("all");
+    setEssentialFilter("all");
+  }
+
+  const savingRate = totals.income ? (totals.balance / totals.income) * 100 : 0;
+  const topCategory = byCategory[0];
+
   return (
     <AppShell>
       <FeatureGate feature="reports_advanced">
-      <div className="space-y-4">
-        <header className="flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <h1 className="font-display text-2xl font-semibold tracking-tight">Relatórios e Filtros</h1>
-            <p className="text-sm text-muted-foreground">
-              Analise quanto você gastou ou recebeu em cada categoria e exporte os resultados.
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={exportCsv} disabled={rows.length === 0}>
-              <Download className="mr-2 size-4" />
-              CSV
-            </Button>
-            <Button onClick={exportPdf} disabled={rows.length === 0}>
-              <FileText className="mr-2 size-4" />
-              PDF
-            </Button>
-          </div>
-        </header>
+      <div className="space-y-3 sm:space-y-4">
+        <PageHeader
+          icon={BarChart3}
+          eyebrow="Análise financeira"
+          title="Relatórios e Filtros"
+          description="Compare receitas e despesas do período, veja o peso de cada categoria e exporte o resultado."
+          meta={
+            <>
+              <MetaChip icon={CalendarRange}>
+                {formatDate(`${start}T00:00:00`)} — {formatDate(`${end}T00:00:00`)}
+              </MetaChip>
+              <MetaChip icon={ListFilter} tone={activeFilters ? "brand" : "neutral"}>
+                {activeFilters ? `${activeFilters} filtro(s)` : "Sem filtros"}
+              </MetaChip>
+              <MetaChip icon={Receipt}>{totals.count} lançamento(s)</MetaChip>
+            </>
+          }
+          actions={
+            <>
+              <Button variant="outline" onClick={exportCsv} disabled={rows.length === 0}>
+                <Download className="mr-2 size-4" />
+                CSV
+              </Button>
+              <Button onClick={exportPdf} disabled={rows.length === 0}>
+                <FileText className="mr-2 size-4" />
+                PDF
+              </Button>
+            </>
+          }
+        />
 
-        <section className="grid gap-3 rounded-xl border border-border bg-card p-4 auto-cards-sm">
-          <div>
-            <Label htmlFor="report-start">De</Label>
+        <FilterPanel
+          description="Ajuste período, tipo, categoria e forma de pagamento"
+          activeCount={activeFilters}
+          onClear={clearFilters}
+        >
+          <FilterField label="De" htmlFor="report-start">
             <Input
               id="report-start"
               type="date"
               value={start}
               onChange={(event) => setStart(event.target.value)}
-              className="mt-1.5"
             />
-          </div>
-          <div>
-            <Label htmlFor="report-end">Até</Label>
+          </FilterField>
+          <FilterField label="Até" htmlFor="report-end">
             <Input
               id="report-end"
               type="date"
               value={end}
               onChange={(event) => setEnd(event.target.value)}
-              className="mt-1.5"
             />
-          </div>
-          <div>
-            <Label>Tipo</Label>
+          </FilterField>
+          <FilterField label="Tipo">
             <Select value={typeFilter} onValueChange={setTypeFilter}>
-              <SelectTrigger className="mt-1.5">
+              <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -323,11 +367,10 @@ function ReportsPage() {
                 <SelectItem value="income">Entradas (recebimentos)</SelectItem>
               </SelectContent>
             </Select>
-          </div>
-          <div>
-            <Label>Categoria</Label>
+          </FilterField>
+          <FilterField label="Categoria">
             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger className="mt-1.5">
+              <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -339,11 +382,10 @@ function ReportsPage() {
                 ))}
               </SelectContent>
             </Select>
-          </div>
-          <div>
-            <Label>Destinatário (Pessoa/Contexto)</Label>
+          </FilterField>
+          <FilterField label="Destinatário">
             <Select value={recipientFilter} onValueChange={setRecipientFilter}>
-              <SelectTrigger className="mt-1.5">
+              <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -359,12 +401,10 @@ function ReportsPage() {
                 <SelectItem value="cabelo">Cabelo / Beleza</SelectItem>
               </SelectContent>
             </Select>
-          </div>
-
-          <div>
-            <Label>Pagamento</Label>
+          </FilterField>
+          <FilterField label="Pagamento">
             <Select value={methodFilter} onValueChange={setMethodFilter}>
-              <SelectTrigger className="mt-1.5">
+              <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -376,11 +416,10 @@ function ReportsPage() {
                 ))}
               </SelectContent>
             </Select>
-          </div>
-          <div>
-            <Label>Essencialidade</Label>
+          </FilterField>
+          <FilterField label="Essencialidade">
             <Select value={essentialFilter} onValueChange={setEssentialFilter}>
-              <SelectTrigger className="mt-1.5">
+              <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -389,23 +428,60 @@ function ReportsPage() {
                 <SelectItem value="non_essential">Não essenciais</SelectItem>
               </SelectContent>
             </Select>
-          </div>
-        </section>
+          </FilterField>
+        </FilterPanel>
 
-        <div className="grid gap-3 auto-cards-sm">
-          <MetricCard label="Receitas" value={formatCurrency(totals.income)} />
-          <MetricCard label="Despesas" value={formatCurrency(totals.expense)} />
-          <MetricCard label="Saldo" value={formatCurrency(totals.balance)} />
-          <MetricCard label="Média mensal de gastos" value={formatCurrency(totals.average)} />
+        <div className="grid gap-2.5 sm:gap-3 auto-cards-sm">
+          <StatTile
+            label="Receitas"
+            value={formatCurrency(totals.income)}
+            tone="success"
+            icon={TrendingUp}
+            hint="Entradas confirmadas no período"
+          />
+          <StatTile
+            label="Despesas"
+            value={formatCurrency(totals.expense)}
+            tone="expense"
+            icon={TrendingDown}
+            hint={
+              totals.income
+                ? `${formatPercent((totals.expense / totals.income) * 100, 1)} das receitas`
+                : "Saídas do período"
+            }
+            progress={totals.income ? (totals.expense / totals.income) * 100 : undefined}
+          />
+          <StatTile
+            label="Saldo"
+            value={formatCurrency(totals.balance)}
+            tone={totals.balance >= 0 ? "brand" : "warning"}
+            icon={Wallet}
+            hint={
+              totals.income
+                ? `Taxa de sobra de ${formatPercent(savingRate, 1)}`
+                : "Receitas menos despesas"
+            }
+          />
+          <StatTile
+            label="Média mensal de gastos"
+            value={formatCurrency(totals.average)}
+            tone="neutral"
+            icon={CalendarRange}
+            hint={`${monthsBetween(start, end)} mês(es) no período`}
+          />
         </div>
 
         {isLoading ? (
-          <Skeleton className="h-72" />
+          <Skeleton className="h-72 rounded-2xl" />
         ) : (
           <div className="auto-cards-lg">
-            <div className="rounded-xl border border-border bg-card p-4">
-              <h2 className="text-sm font-medium">Receitas x despesas por mês</h2>
-              <div className="mt-4 h-64">
+            <Panel
+              title="Receitas x despesas por mês"
+              description="Evolução mensal do período filtrado"
+              icon={BarChart3}
+              bodyClassName="p-2 sm:p-4"
+            >
+              <div className="h-60 sm:h-64">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={byMonth}>
                     <CartesianGrid {...gridProps} />
@@ -418,11 +494,22 @@ function ReportsPage() {
                   </BarChart>
                 </ResponsiveContainer>
               </div>
-            </div>
+            </Panel>
 
-            <div className="rounded-xl border border-border bg-card p-4">
-              <h2 className="text-sm font-medium">Distribuição por categoria ({typeFilter === 'income' ? 'Receitas' : 'Despesas'})</h2>
-              <div className="mt-4 h-64">
+            <Panel
+              title={`Distribuição por categoria (${typeFilter === "income" ? "Receitas" : "Despesas"})`}
+              description={
+                topCategory
+                  ? `Maior peso: ${topCategory.name} · ${formatPercent(
+                      totals.expense ? (topCategory.value / totals.expense) * 100 : 0,
+                      1,
+                    )}`
+                  : "Sem dados no período"
+              }
+              icon={PieChartIcon}
+              bodyClassName="p-2 sm:p-4"
+            >
+              <div className="h-60 sm:h-64">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
@@ -442,57 +529,115 @@ function ReportsPage() {
                   </PieChart>
                 </ResponsiveContainer>
               </div>
-            </div>
+            </Panel>
           </div>
         )}
 
-        <section className="rounded-xl border border-border bg-card">
-          <h2 className="border-b border-border px-4 py-3 text-sm font-medium">
-            Detalhamento por categoria
-          </h2>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Categoria</TableHead>
-                <TableHead className="text-right">Total</TableHead>
-                <TableHead className="text-right">% das despesas</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {byCategory.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={3} className="py-8 text-center text-sm text-muted-foreground">
-                    Nenhum lançamento no período com os filtros escolhidos.
-                  </TableCell>
-                </TableRow>
-              ) : (
-                byCategory.map((item) => (
-                  <TableRow key={item.name}>
-                    <TableCell>{item.name}</TableCell>
-                    <TableCell className="text-right">{formatCurrency(item.value)}</TableCell>
-                    <TableCell className="text-right">
-                      {formatPercent(totals.expense ? (item.value / totals.expense) * 100 : 0, 1)}
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </section>
+        <Panel
+          title="Detalhamento por categoria"
+          description="Participação de cada categoria no total de despesas"
+          icon={ListFilter}
+          bodyClassName="p-0"
+        >
+          {byCategory.length === 0 ? (
+            <p className="p-8 text-center text-sm text-muted-foreground">
+              Nenhum lançamento no período com os filtros escolhidos.
+            </p>
+          ) : (
+            <>
+              {/* Mobile: lista com barra de proporção */}
+              <ul className="divide-y divide-border sm:hidden">
+                {byCategory.map((item, index) => {
+                  const share = totals.expense ? (item.value / totals.expense) * 100 : 0;
+                  return (
+                    <li key={item.name} className="px-3 py-2.5">
+                      <div className="flex items-baseline justify-between gap-2">
+                        <span className="flex min-w-0 items-center gap-2">
+                          <span
+                            aria-hidden="true"
+                            className="size-2.5 shrink-0 rounded-full"
+                            style={{ background: seriesColor(index) }}
+                          />
+                          <span className="truncate text-[13px] font-medium">{item.name}</span>
+                        </span>
+                        <span className="shrink-0 text-[13px] font-semibold tabular">
+                          {formatCurrency(item.value)}
+                        </span>
+                      </div>
+                      <div className="mt-1.5 flex items-center gap-2">
+                        <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
+                          <div
+                            className="h-full rounded-full"
+                            style={{ width: `${Math.min(100, share)}%`, background: seriesColor(index) }}
+                          />
+                        </div>
+                        <span className="w-12 shrink-0 text-right text-[11px] font-semibold text-muted-foreground tabular">
+                          {formatPercent(share, 1)}
+                        </span>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+
+              <div className="hidden sm:block">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Categoria</TableHead>
+                      <TableHead className="text-right">Total</TableHead>
+                      <TableHead className="w-[38%]">% das despesas</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {byCategory.map((item, index) => {
+                      const share = totals.expense ? (item.value / totals.expense) * 100 : 0;
+                      return (
+                        <TableRow key={item.name}>
+                          <TableCell className="font-medium">
+                            <span className="flex items-center gap-2">
+                              <span
+                                aria-hidden="true"
+                                className="size-2.5 shrink-0 rounded-full"
+                                style={{ background: seriesColor(index) }}
+                              />
+                              {item.name}
+                            </span>
+                          </TableCell>
+                          <TableCell className="text-right font-semibold tabular">
+                            {formatCurrency(item.value)}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
+                                <div
+                                  className="h-full rounded-full"
+                                  style={{
+                                    width: `${Math.min(100, share)}%`,
+                                    background: seriesColor(index),
+                                  }}
+                                />
+                              </div>
+                              <span className="w-14 shrink-0 text-right text-xs font-semibold tabular">
+                                {formatPercent(share, 1)}
+                              </span>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
+            </>
+          )}
+        </Panel>
       </div>
     </FeatureGate>
     </AppShell>
   );
 }
 
-function MetricCard({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-xl border border-border bg-card p-4">
-      <p className="text-xs text-muted-foreground">{label}</p>
-      <p className="mt-1 font-display text-xl font-semibold">{value}</p>
-    </div>
-  );
-}
 
 function monthsBetween(start: string, end: string): number {
   const from = new Date(`${start}T00:00:00`);

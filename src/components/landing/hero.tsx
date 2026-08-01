@@ -37,7 +37,7 @@ export function Hero() {
   return (
     <section
       id="inicio"
-      className="relative isolate flex min-h-[78svh] items-center overflow-hidden bg-[oklch(0.16_0.03_258)] pt-20 pb-8 text-white sm:min-h-[46svh] sm:max-h-[540px] sm:pt-20 sm:pb-7 lg:pt-24"
+      className="relative isolate flex items-center overflow-hidden bg-[oklch(0.16_0.03_258)] pt-[4.75rem] pb-7 text-white sm:min-h-[46svh] sm:max-h-[540px] sm:pt-20 sm:pb-7 lg:pt-24"
     >
       {/* photographic layer: desktop/tablet only — on phones it crops badly */}
       <img
