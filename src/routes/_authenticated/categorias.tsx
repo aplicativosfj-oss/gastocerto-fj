@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Check, Loader2, Pencil, Plus, Power, ToggleLeft, ToggleRight } from "lucide-react";
+import { Loader2, Pencil, Plus } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
