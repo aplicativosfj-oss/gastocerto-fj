@@ -15,6 +15,8 @@ import {
   RefreshCcw,
   User2,
   X,
+  TrendingUp,
+  TrendingDown,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
 
@@ -326,21 +328,39 @@ function MobileTabBar({
 
             {/* Atalhos rápidos: as ações mais usadas em uma linha só. */}
             <div className="grid grid-cols-3 gap-1.5 px-3 pt-3">
-              {[
-                { to: "/lancamentos", label: "Lançar", icon: Plus },
-                { to: "/calendario", label: "Alertas", icon: Bell },
-                { to: "/perfil", label: "Perfil", icon: User2 },
-              ].map((shortcut) => (
-                <Link
-                  key={shortcut.to}
-                  to={shortcut.to as never}
-                  onClick={() => onOpenChange(false)}
-                  className="flex min-h-14 flex-col items-center justify-center gap-1 rounded-2xl border border-brand/25 bg-brand/10 text-[11px] font-semibold text-foreground"
-                >
-                  <shortcut.icon className="size-4 text-brand" aria-hidden="true" />
-                  {shortcut.label}
-                </Link>
-              ))}
+              <Button
+                variant="outline"
+                onClick={() => {
+                  onOpenChange(false);
+                  navigate({ to: "/lancamentos", search: { tipo: "income" } as any });
+                }}
+                className="flex h-14 flex-col items-center justify-center gap-1 rounded-2xl border-emerald-500/25 bg-emerald-500/10 text-[11px] font-bold text-foreground"
+              >
+                <TrendingUp className="size-4 text-emerald-500" />
+                Receita
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  onOpenChange(false);
+                  navigate({ to: "/lancamentos", search: { tipo: "expense" } as any });
+                }}
+                className="flex h-14 flex-col items-center justify-center gap-1 rounded-2xl border-rose-500/25 bg-rose-500/10 text-[11px] font-bold text-foreground"
+              >
+                <TrendingDown className="size-4 text-rose-500" />
+                Despesa
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  onOpenChange(false);
+                  navigate({ to: "/recorrencia" });
+                }}
+                className="flex h-14 flex-col items-center justify-center gap-1 rounded-2xl border-brand/25 bg-brand/10 text-[11px] font-bold text-foreground"
+              >
+                <RefreshCcw className="size-4 text-brand" />
+                Fixos
+              </Button>
             </div>
 
             {/* Áreas com suas subseções: qualquer página em 2 toques. */}

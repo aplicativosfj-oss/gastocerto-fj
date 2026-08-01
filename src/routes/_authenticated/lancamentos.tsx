@@ -7,6 +7,7 @@ import {
   Copy,
   Download,
   FileDown,
+  Printer,
   Filter,
   Lock,
   Paperclip,
@@ -346,6 +347,14 @@ function TransactionsPage() {
     (sum, row) => sum + (row.transaction_type === "income" ? Number(row.amount) : -Number(row.amount)),
     0,
   );
+  
+  const incomeTotal = filtered
+    .filter(row => row.transaction_type === "income")
+    .reduce((sum, row) => sum + Number(row.amount), 0);
+    
+  const expenseTotal = filtered
+    .filter(row => row.transaction_type === "expense")
+    .reduce((sum, row) => sum + Number(row.amount), 0);
 
   /** Totais por natureza para os cartões de resumo do período filtrado. */
   const periodTotals = useMemo(() => {
@@ -475,6 +484,23 @@ function TransactionsPage() {
   return (
     <AppShell>
       <div className="mx-auto max-w-7xl space-y-3 sm:space-y-4">
+        <section className="grid grid-cols-3 gap-2 sm:grid-cols-3">
+          <div className="flex flex-col rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-3 text-center">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-600">Receitas</p>
+            <p className="mt-0.5 text-sm font-bold text-emerald-700">{formatCurrency(incomeTotal)}</p>
+          </div>
+          <div className="flex flex-col rounded-2xl border border-rose-500/20 bg-rose-500/5 p-3 text-center">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-rose-600">Despesas</p>
+            <p className="mt-0.5 text-sm font-bold text-rose-700">{formatCurrency(expenseTotal)}</p>
+          </div>
+          <div className="flex flex-col rounded-2xl border border-brand/20 bg-brand/5 p-3 text-center">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-brand">Saldo</p>
+            <p className={cn("mt-0.5 text-sm font-bold", total >= 0 ? "text-emerald-700" : "text-rose-700")}>
+              {formatCurrency(total)}
+            </p>
+          </div>
+        </section>
+
         <PageHeader
           icon={view.icon}
           eyebrow="Lançamentos"
@@ -495,6 +521,26 @@ function TransactionsPage() {
           }
           actions={
             <div className="flex items-center gap-1.5 sm:gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-9 px-3"
+                onClick={exportCsv}
+                title="Exportar para CSV"
+              >
+                <Download className="mr-2 size-4" />
+                CSV
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-9 px-3"
+                onClick={() => window.print()}
+                title="Imprimir relatório"
+              >
+                <Printer className="mr-2 size-4" />
+                PDF
+              </Button>
               <Button
                 size="sm"
                 className="h-9 px-3"
