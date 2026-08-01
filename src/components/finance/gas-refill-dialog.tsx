@@ -217,17 +217,18 @@ export function GasRefillDialog({
               maxLength={280}
             />
           </div>
-          {!refill ? (
-            <label className="flex items-center gap-2 text-sm sm:col-span-2">
-              <input
-                type="checkbox"
-                checked={createExpense}
-                onChange={(event) => setCreateExpense(event.target.checked)}
-                className="size-4 accent-[oklch(0.72_0.17_45)]"
-              />
-              Lançar também como despesa na categoria <strong>Gás</strong>
-            </label>
-          ) : null}
+          <label className="flex items-center gap-2 text-sm sm:col-span-2">
+            <input
+              type="checkbox"
+              checked={createExpense}
+              onChange={(event) => setCreateExpense(event.target.checked)}
+              className="size-4 accent-[oklch(0.72_0.17_45)]"
+            />
+            {refill
+              ? "Manter a despesa na categoria Gás sincronizada com esta troca"
+              : "Lançar automaticamente como despesa na categoria Gás"}
+          </label>
+
         </div>
 
         <DialogFooter className="gap-2 sm:justify-between">
