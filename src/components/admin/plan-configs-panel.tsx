@@ -49,7 +49,7 @@ export function PlanConfigsPanel() {
                     type="number" 
                     defaultValue={plan.monthly_price} 
                     className="w-24 h-8"
-                    id={}
+                    id={`price-m-${plan.id}`}
                   />
                 ) : (
                   plan.monthly_price
@@ -61,7 +61,7 @@ export function PlanConfigsPanel() {
                     type="number" 
                     defaultValue={plan.annual_price} 
                     className="w-24 h-8"
-                    id={}
+                    id={`price-a-${plan.id}`}
                   />
                 ) : (
                   plan.annual_price
@@ -72,8 +72,8 @@ export function PlanConfigsPanel() {
                   <Button 
                     size="sm" 
                     onClick={() => {
-                      const m = Number((document.getElementById() as HTMLInputElement).value);
-                      const a = Number((document.getElementById() as HTMLInputElement).value);
+                      const m = Number((document.getElementById(`price-m-${plan.id}`) as HTMLInputElement).value);
+                      const a = Number((document.getElementById(`price-a-${plan.id}`) as HTMLInputElement).value);
                       updateMutation.mutate({ data: { id: plan.id, monthlyPrice: m, annualPrice: a, limits: plan.limits } });
                     }}
                   >
