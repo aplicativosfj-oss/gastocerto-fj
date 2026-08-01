@@ -327,15 +327,22 @@ function DashboardPage() {
             <section className="grid gap-3 auto-cards-sm">
               <StatCard
                 tile="var(--acc-4)"
-                label={`Gasto hoje · ${formatDate(isoDate(today))}`}
+                label={
+                  metrics.isCurrentMonth
+                    ? `Gasto hoje · ${formatDate(isoDate(today))}`
+                    : "Gasto hoje"
+                }
                 value={formatCurrency(metrics.today)}
                 hint={
-                  detailRows.todayExpenses.length === 0
-                    ? "Nenhum lançamento hoje"
-                    : `${detailRows.todayExpenses.length} lançamento${
-                        detailRows.todayExpenses.length > 1 ? "s" : ""
-                      } só de hoje`
+                  !metrics.isCurrentMonth
+                    ? "Disponível apenas no mês atual"
+                    : detailRows.todayExpenses.length === 0
+                      ? "Nenhum lançamento hoje"
+                      : `${detailRows.todayExpenses.length} lançamento${
+                          detailRows.todayExpenses.length > 1 ? "s" : ""
+                        } só de hoje`
                 }
+
                 icon={<TrendingDown className="size-4" />}
                 onClick={() =>
                   setDetail({
