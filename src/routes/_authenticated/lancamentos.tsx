@@ -504,15 +504,17 @@ function TransactionsPage() {
         ) : null}
       </div>
 
+      <ExpenseCardsDialog
+        open={cardsOpen}
+        onOpenChange={setCardsOpen}
+        onAdvanced={() => {
+          setEditing(null);
+          setDialogOpen(true);
+        }}
+      />
+
       {dialogOpen ? (
-        <ExpenseCardsDialog
-          open={cardsOpen}
-          onOpenChange={setCardsOpen}
-          onAdvanced={() => {
-            setEditing(null);
-            setDialogOpen(true);
-          }}
-        />
+
 
         <TransactionDialog
           key={editing?.id ?? "new"}
