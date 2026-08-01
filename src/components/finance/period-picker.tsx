@@ -59,7 +59,7 @@ export function PeriodPicker({ year, month, onChange, className }: PeriodPickerP
         </SheetTrigger>
         <SheetContent
           side="bottom"
-          className="rounded-t-3xl border-t border-border bg-background px-0 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-0 sm:mx-auto sm:max-w-md focus-visible:outline-none"
+          className="max-h-[86svh] overflow-y-auto overscroll-contain rounded-t-3xl border-t border-border bg-background px-0 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-0 sm:mx-auto sm:max-w-md focus-visible:outline-none"
           onOpenAutoFocus={(e) => {
             const currentYearBtn = document.getElementById(`year-btn-${year}`);
             if (currentYearBtn) {
@@ -68,30 +68,32 @@ export function PeriodPicker({ year, month, onChange, className }: PeriodPickerP
             }
           }}
         >
-          {/* Cabeçalho com o período selecionado sempre visível */}
-          <SheetHeader className="space-y-0 border-b border-border bg-gradient-to-b from-secondary/60 to-transparent px-4 pb-3 pt-4 text-left">
-            <SheetTitle className="font-display text-[15px] font-semibold">
+          {/* Cabeçalho fixo: mantém o período selecionado visível ao rolar */}
+          <SheetHeader className="sticky top-0 z-10 space-y-0 border-b border-border bg-background/95 px-4 pb-3 pt-4 text-left backdrop-blur-md">
+            <span aria-hidden className="mx-auto mb-3 block h-1.5 w-10 rounded-full bg-muted" />
+            <SheetTitle className="font-display text-base font-semibold">
               Selecionar período
             </SheetTitle>
-            <p className="mt-0.5 text-[12px] text-muted-foreground">
-              Selecionado:{" "}
-              <strong className="text-foreground">
+            <div className="mt-1.5 flex items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-brand px-3 py-1 text-[12px] font-bold text-brand-foreground">
+                <CalendarDays className="size-3.5" aria-hidden />
                 {MONTH_NAMES[month - 1]} de {year}
-              </strong>
-            </p>
+              </span>
+              <span className="text-[11px] text-muted-foreground">período em uso</span>
+            </div>
           </SheetHeader>
 
-          <div className="px-4 pt-3">
+          <div className="px-4 pt-4">
             {/* Navegação de ano em linha própria, com setas dedicadas */}
             <div className="flex items-center gap-2">
               <Button
-                variant="ghost"
+                variant="outline"
                 size="icon"
-                className="size-8 shrink-0"
+                className="size-11 shrink-0"
                 aria-label="Ano anterior"
                 onClick={() => onChange({ year: year - 1, month })}
               >
-                <ChevronLeft className="size-4" />
+                <ChevronLeft className="size-5" />
               </Button>
               <div
                 className="flex flex-1 gap-1.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
@@ -105,7 +107,7 @@ export function PeriodPicker({ year, month, onChange, className }: PeriodPickerP
                     onClick={() => onChange({ year: y, month })}
                     aria-pressed={y === year}
                     className={cn(
-                      "shrink-0 rounded-lg px-2.5 py-1.5 text-[13px] font-semibold tabular outline-none transition-colors focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2",
+                      "min-h-11 shrink-0 rounded-xl px-3.5 text-[14px] font-semibold tabular-nums outline-none transition-colors focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2",
                       y === year
                         ? "bg-brand text-brand-foreground shadow-sm"
                         : "text-muted-foreground hover:bg-muted",
@@ -116,18 +118,18 @@ export function PeriodPicker({ year, month, onChange, className }: PeriodPickerP
                 ))}
               </div>
               <Button
-                variant="ghost"
+                variant="outline"
                 size="icon"
-                className="size-8 shrink-0"
+                className="size-11 shrink-0"
                 aria-label="Próximo ano"
                 onClick={() => onChange({ year: year + 1, month })}
               >
-                <ChevronRight className="size-4" />
+                <ChevronRight className="size-5" />
               </Button>
             </div>
 
             <div
-              className="mt-3 grid grid-cols-4 gap-1.5"
+              className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-4"
               role="grid"
               aria-label="Meses do ano"
             >
@@ -146,26 +148,26 @@ export function PeriodPicker({ year, month, onChange, className }: PeriodPickerP
                     aria-selected={active}
                     role="gridcell"
                     className={cn(
-                      "relative flex h-11 flex-col items-center justify-center rounded-xl border text-[13px] font-semibold outline-none transition-colors focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2",
+                      "relative flex h-14 flex-col items-center justify-center gap-0.5 rounded-2xl border text-[14px] font-semibold outline-none transition-all focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2",
                       active
-                        ? "border-brand bg-brand text-brand-foreground shadow-sm"
+                        ? "border-brand bg-brand text-brand-foreground shadow-soft ring-2 ring-brand/25"
                         : cn(
-                            "border-border bg-card hover:bg-muted",
+                            "border-border bg-card hover:bg-muted active:scale-[0.98]",
                             isFuture ? "text-muted-foreground" : "text-foreground",
                           ),
                     )}
                   >
                     {name.slice(0, 3)}
-                    {isCurrent && !active ? (
-                      <span
-                        aria-hidden
-                        className="absolute bottom-1.5 size-1.5 rounded-full bg-brand"
-                      />
+                    {active ? (
+                      <Check className="size-3.5" aria-hidden />
+                    ) : isCurrent ? (
+                      <span className="text-[10px] font-medium text-brand">hoje</span>
                     ) : null}
                   </button>
                 );
               })}
             </div>
+
 
             {/* Atalhos rápidos */}
             <div className="mt-3 flex flex-wrap gap-1.5 border-t border-border pt-3">
