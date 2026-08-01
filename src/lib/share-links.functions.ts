@@ -174,7 +174,7 @@ export const openShareLink = createServerFn({ method: "POST" })
         month: link.month,
         expiresAt: link.expires_at,
         visibility,
-        totals: visibility.totals
+        totals: visibility.totals && visibility.amounts
           ? { income, expense, balance: income - expense, count: list.length }
           : { income: 0, expense: 0, balance: 0, count: list.length },
         categories: showCategories
