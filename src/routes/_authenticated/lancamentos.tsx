@@ -1010,25 +1010,24 @@ function TransactionsPage() {
         }}
       />
 
+      <PasswordConfirmDialog
+        open={askPassword}
+        onOpenChange={(next) => {
+          setAskPassword(next);
+          if (!next) setPendingAction(null);
+        }}
+        description="Confirme sua senha para editar lançamentos de meses anteriores."
+        onConfirmed={() => {
+          pastUnlock.grant();
+          const action = pendingAction;
+          setPendingAction(null);
+          action?.();
+        }}
+      />
+
       {dialogOpen ? (
-
-
-        <PasswordConfirmDialog
-          open={askPassword}
-          onOpenChange={(next) => {
-            setAskPassword(next);
-            if (!next) setPendingAction(null);
-          }}
-          description="Confirme sua senha para editar lançamentos de meses anteriores."
-          onConfirmed={() => {
-            pastUnlock.grant();
-            const action = pendingAction;
-            setPendingAction(null);
-            action?.();
-          }}
-        />
-
         <TransactionDialog
+
           key={editing?.id ?? "new"}
           open={dialogOpen}
           onOpenChange={setDialogOpen}
