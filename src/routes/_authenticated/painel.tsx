@@ -486,8 +486,8 @@ function DashboardPage() {
               <InteractiveCalendar onDayClick={openDayDetail} />
               
               <div className="grid gap-3 auto-cards-sm">
-                <StatCard
-                  tile="var(--acc-4)"
+                <StatTile
+                  tone="brand"
                   label={
                     metrics.isCurrentMonth
                       ? `Gasto hoje · ${formatDate(isoDate(today))}`
@@ -503,9 +503,10 @@ function DashboardPage() {
                             detailRows.todayExpenses.length > 1 ? "s" : ""
                           } só de hoje`
                   }
-                  icon={<Zap className="size-4" />}
+                  icon={Zap}
                   onClick={() => openDayDetail(today.getDate())}
                 />
+
 
                 <StatTile
                   tone="warning"
