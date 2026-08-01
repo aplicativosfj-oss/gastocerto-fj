@@ -88,6 +88,7 @@ export const navGroups: NavGroup[] = [
       { key: "planning.goals", label: "Metas", to: "/metas" },
       { key: "planning.categories", label: "Categorias", to: "/categorias" },
       { key: "planning.closing", label: "Fechamento mensal", to: "/fechamento" },
+      { key: "planning.annual", label: "Balanço anual", to: "/balanco-anual" },
     ],
   },
   {
