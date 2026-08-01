@@ -149,14 +149,33 @@ export function evaluateAiEntitlement(input: {
     };
   }
 
-  // Período de teste vigente: tudo liberado, inclusive a IA.
+  // Período de teste vigente: tudo liberado, inclusive a IA — exceto nos
+  // testes de cortesia de 7 dias, que nunca liberam a IA.
   const trialEnd = input.trialEndsAt ? new Date(input.trialEndsAt) : null;
+  const trialSlug = String(input.trialPlanSlug ?? "").toLowerCase();
   if (trialEnd && Number.isFinite(trialEnd.getTime())) {
     if (trialEnd.getTime() > now.getTime()) {
+      if (!trialIncludesAi(trialSlug)) {
+        return {
+          entitled: false,
+          reason: "trial_without_ai",
+          planSlug,
+          message: AI_TRIAL_BLOCK_MESSAGE,
+        };
+      }
       return { entitled: true, reason: "trial_active", planSlug };
     }
     return { entitled: false, reason: "trial_expired", planSlug, message: AI_BLOCK_MESSAGE };
   }
+  if (!trialIncludesAi(planSlug)) {
+    return {
+      entitled: false,
+      reason: "trial_without_ai",
+      planSlug,
+      message: AI_TRIAL_BLOCK_MESSAGE,
+    };
+  }
+
 
   const reason: AiEntitlementReason = !input.plan
     ? "no_plan"
