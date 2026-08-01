@@ -104,12 +104,16 @@ function TransactionsPage() {
   const remove = useDeleteTransaction();
 
   const [search, setSearch] = useState("");
+  const [merchantFilter, setMerchantFilter] = useState("");
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
   const [sort, setSort] = useState("date_desc");
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<string[]>([]);
+  const [expanded, setExpanded] = useState<string[]>([]);
   const [editing, setEditing] = useState<Transaction | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [cardsOpen, setCardsOpen] = useState(false);
@@ -125,9 +129,20 @@ function TransactionsPage() {
 
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();
+    const merchantTerm = merchantFilter.trim().toLowerCase();
     let rows = (transactions ?? []).filter((row) => {
-      if (term && !`${row.description} ${row.merchant_name ?? ""}`.toLowerCase().includes(term))
+      // A busca cobre descrição, estabelecimento e palavras-chave das anotações.
+      if (
+        term &&
+        !`${row.description} ${row.merchant_name ?? ""} ${row.notes ?? ""}`
+          .toLowerCase()
+          .includes(term)
+      )
         return false;
+      if (merchantTerm && !(row.merchant_name ?? "").toLowerCase().includes(merchantTerm))
+        return false;
+      if (fromDate && row.transaction_date < fromDate) return false;
+      if (toDate && row.transaction_date > toDate) return false;
       if (categoryFilter !== "all" && row.category_id !== categoryFilter) return false;
       if (statusFilter !== "all" && row.status !== statusFilter) return false;
       if (typeFilter !== "all" && row.transaction_type !== typeFilter) return false;
@@ -143,12 +158,35 @@ function TransactionsPage() {
     });
 
     return rows;
-  }, [transactions, search, categoryFilter, statusFilter, typeFilter, vehicleFilter, sort]);
+  }, [
+    transactions,
+    search,
+    merchantFilter,
+    fromDate,
+    toDate,
+    categoryFilter,
+    statusFilter,
+    typeFilter,
+    vehicleFilter,
+    sort,
+  ]);
 
   // Qualquer mudança de filtro volta para a primeira página da lista.
   useEffect(() => {
     setPage(1);
-  }, [categoryFilter, statusFilter, typeFilter, vehicleFilter, sort, period.year, period.month]);
+  }, [
+    categoryFilter,
+    statusFilter,
+    typeFilter,
+    vehicleFilter,
+    merchantFilter,
+    fromDate,
+    toDate,
+    sort,
+    period.year,
+    period.month,
+  ]);
+
 
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const currentPage = Math.min(page, pageCount);
