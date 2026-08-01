@@ -22,6 +22,7 @@ import {
   cpfSignInSchema,
   cpfSignUpSchema,
   forgotPasswordSchema,
+  emailSchema,
   emailSignInSchema,
   friendlyAuthError,
   signInSchema,
