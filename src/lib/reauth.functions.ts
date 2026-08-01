@@ -3,8 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-
-const PasswordSchema = z.object({ password: z.string().min(1).max(200) });
+import { cpfFromLoginEmail, pinToPassword } from "@/lib/cpf";
 
 /**
  * Reconfirma a senha do próprio usuário sem trocar a sessão do navegador.
@@ -14,7 +13,9 @@ const PasswordSchema = z.object({ password: z.string().min(1).max(200) });
  */
 export const verifyMyPassword = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => PasswordSchema.parse(input))
+  .inputValidator((input: unknown) =>
+    z.object({ password: z.string().min(1).max(200) }).parse(input),
+  )
   .handler(async ({ data, context }): Promise<{ ok: boolean; reason?: string }> => {
     const { data: userData } = await context.supabase.auth.getUser();
     const email = userData?.user?.email;
@@ -38,9 +39,14 @@ export const verifyMyPassword = createServerFn({ method: "POST" })
       },
     });
 
+    const cpf = cpfFromLoginEmail(email);
+    const authenticationPassword = cpf
+      ? pinToPassword(cpf, data.password)
+      : data.password;
+
     const { data: signIn, error } = await client.auth.signInWithPassword({
       email,
-      password: data.password,
+      password: authenticationPassword,
     });
     if (signIn?.session) {
       await client.auth.signOut();
