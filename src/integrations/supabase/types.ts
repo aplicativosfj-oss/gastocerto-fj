@@ -59,6 +59,77 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_access_codes: {
+        Row: {
+          code: string
+          created_at: string
+          created_by: string | null
+          expires_at: string
+          id: string
+          label: string | null
+          max_uses: number
+          revoked_at: string | null
+          usage_count: number
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          created_by?: string | null
+          expires_at: string
+          id?: string
+          label?: string | null
+          max_uses?: number
+          revoked_at?: string | null
+          usage_count?: number
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string
+          id?: string
+          label?: string | null
+          max_uses?: number
+          revoked_at?: string | null
+          usage_count?: number
+        }
+        Relationships: []
+      }
+      admin_access_logs: {
+        Row: {
+          code_id: string
+          id: string
+          ip_address: string | null
+          success: boolean
+          used_at: string
+          user_agent: string | null
+        }
+        Insert: {
+          code_id: string
+          id?: string
+          ip_address?: string | null
+          success?: boolean
+          used_at?: string
+          user_agent?: string | null
+        }
+        Update: {
+          code_id?: string
+          id?: string
+          ip_address?: string | null
+          success?: boolean
+          used_at?: string
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_access_logs_code_id_fkey"
+            columns: ["code_id"]
+            isOneToOne: false
+            referencedRelation: "admin_access_codes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       admin_logs: {
         Row: {
           action: string
