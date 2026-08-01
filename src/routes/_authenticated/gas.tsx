@@ -154,9 +154,22 @@ function MetricDetailDialog({
                 </div>
               ))}
             </dl>
-            {detail.extra}
-          </>
-        ) : null}
+             {detail.extra}
+             {detail.chartData ? (
+               <div className="mt-4 h-48">
+                 <ResponsiveContainer width="100%" height="100%">
+                   <BarChart data={detail.chartData}>
+                     <CartesianGrid {...gridProps} />
+                     <XAxis dataKey="label" {...axisProps} />
+                     <Tooltip {...tooltipProps} />
+                     <Bar dataKey={detail.chartKey ?? "value"} fill={detail.chartColor ?? "var(--chart-1)"} radius={[4, 4, 0, 0]} />
+                   </BarChart>
+                 </ResponsiveContainer>
+               </div>
+             ) : null}
+           </>
+         ) : null}
+
       </DialogContent>
     </Dialog>
   );
