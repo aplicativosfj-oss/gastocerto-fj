@@ -219,9 +219,10 @@ export function CheckoutDialog({
                 ? "Informe seus dados: enviaremos um código para confirmar seu e-mail."
                 : step === "code"
                   ? "Digite o código de 6 dígitos enviado ao seu e-mail."
-                  : step === "pix"
-                    ? "Pague o Pix e a chave de ativação é liberada automaticamente."
+                  : step === "manual"
+                    ? "Faça o pagamento e aguarde a confirmação do administrador."
                     : "Sua chave de ativação está pronta."}
+
           </DialogDescription>
 
         </DialogHeader>
