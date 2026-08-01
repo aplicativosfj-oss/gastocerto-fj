@@ -741,7 +741,24 @@ export function TransactionDialog({
                   />
                 </div>
 
+                {kind === "expense" && installments && Number(installments) > 1 && (
+                  <div className="rounded-lg bg-muted/50 p-3 sm:col-span-2">
+                    <p className="text-xs font-medium text-muted-foreground">Impacto Mensal Estimado</p>
+                    <div className="mt-1 flex items-baseline gap-2">
+                      <span className="text-lg font-semibold tracking-tight">
+                        R$ {(parseAmount(amount) / Number(installments)).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                      </span>
+                      <span className="text-[10px] uppercase text-muted-foreground">por mês</span>
+                    </div>
+                    <p className="mt-1.5 text-[10px] leading-relaxed text-muted-foreground italic">
+                      Lançamento em {merchant || "estabelecimento"} dividido em {installments}x. 
+                      O sistema gerará as parcelas futuras automaticamente.
+                    </p>
+                  </div>
+                )}
+
                 <div className="sm:col-span-2">
+
                   <Label htmlFor="notes">Observações e detalhes</Label>
                   <Textarea
                     id="notes"
