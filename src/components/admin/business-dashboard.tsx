@@ -4,6 +4,7 @@ import { StatTile } from "@/components/finance/stat-tile";
 import { TrendingUp, Users, DollarSign, BrainCircuit, FileDown, Loader2, FileText, ArrowUpRight, ArrowDownRight } from "lucide-react";
 import { formatCurrency } from "@/lib/format";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { 
   BarChart, 
   Bar, 
