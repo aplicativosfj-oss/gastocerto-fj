@@ -74,6 +74,11 @@ export function ExpenseCardsDialog({
   const [firstDue, setFirstDue] = useState(isoDate(new Date()));
   const [endDate, setEndDate] = useState("");
   const [confirming, setConfirming] = useState(false);
+  // Recarga / plano de celular: valor, gigas contratados e validade.
+  const [phoneMode, setPhoneMode] = useState(false);
+  const [gigas, setGigas] = useState("");
+  const [validityDays, setValidityDays] = useState("30");
+
 
   const expenseCategories = useMemo(() => {
     const all = (categories ?? []).filter(
