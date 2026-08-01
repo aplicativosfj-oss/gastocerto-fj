@@ -12,18 +12,41 @@
 
 import { DEFAULT_AI_LIMITS, type AiLimits } from "./ai-limits";
 
-export const AI_TRIAL_SOURCES = ["trial", "teste", "test", "demo", "cortesia", "gratis"];
+export const AI_TRIAL_SOURCES = [
+  "trial",
+  "teste",
+  "test",
+  "demo",
+  "cortesia",
+  "gratis",
+  "trial_gift",
+];
 export const AI_TRIAL_SLUGS = ["free", "gratuito", "gratis", "trial", "teste", "test", "demo"];
 
 /** Planos pagos que incluem o Consultor de IA. */
 export const AI_PLAN_SLUGS = ["premium_ia", "premium-ia", "premium_ai", "ia", "ai"];
 
+/**
+ * Testes de cortesia distribuídos pelo administrador (licenças de 7 dias):
+ * recursos limitados e IA SEMPRE bloqueada, pois cada análise consome créditos.
+ */
+export const AI_BLOCKED_TRIAL_SLUGS = ["trial_7_basic", "trial_gift", "trial_7_gift"];
+
+/** Falso quando o período de teste em vigor é um teste de cortesia sem IA. */
+export function trialIncludesAi(trialPlanSlug?: string | null): boolean {
+  const value = String(trialPlanSlug ?? "").toLowerCase();
+  if (!value) return true;
+  return !AI_BLOCKED_TRIAL_SLUGS.includes(value);
+}
+
 /** Verdadeiro quando o slug do plano corresponde a um plano com IA integrada. */
 export function planIncludesAi(slug?: string | null): boolean {
   const value = String(slug ?? "").toLowerCase();
   if (!value) return false;
+  if (AI_BLOCKED_TRIAL_SLUGS.includes(value)) return false;
   return AI_PLAN_SLUGS.includes(value) || /(^|[-_])(ia|ai)([-_]|$)/.test(value);
 }
+
 
 /** Limites mensais por assinante (usados no painel de créditos). */
 export const AI_MONTHLY_QUERY_LIMIT = 120;
