@@ -2,48 +2,101 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-/** Situação das integrações (Mercado Pago com credenciais sempre mascaradas). */
+const manualSchema = z.object({
+  pixKey: z.string().trim().max(160).default(""),
+  pixKeyType: z.enum(["cpf", "cnpj", "email", "telefone", "aleatoria"]).default("cpf"),
+  holder: z.string().trim().max(120).default(""),
+  bank: z.string().trim().max(120).default(""),
+  whatsapp: z.string().trim().max(40).default(""),
+  instructions: z.string().trim().max(600).default(""),
+});
+
+export type ManualPaymentSettings = z.infer<typeof manualSchema>;
+
+export const MANUAL_PAYMENT_DEFAULTS: ManualPaymentSettings = {
+  pixKey: "",
+  pixKeyType: "cpf",
+  holder: "",
+  bank: "",
+  whatsapp: "",
+  instructions:
+    "Faça o Pix no valor do plano, envie o comprovante e o administrador confirma o pagamento e libera sua chave de ativação.",
+};
+
+/** Situação das integrações ativas (pagamento manual, IA e e-mail). */
 export const adminGetIntegrationSettings = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { assertAdminCtx } = await import("@/lib/admin-guard.server");
     await assertAdminCtx(context);
 
-    const { describeMercadoPagoCredentials } = await import("@/lib/mercadopago-credentials.server");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const credentials = await describeMercadoPagoCredentials();
-    const { data: lastEvent } = await supabaseAdmin
-      .from("payment_events")
-      .select("created_at, source")
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
+    const [{ data: setting }, { data: lastEvent }, { data: pending }] = await Promise.all([
+      supabaseAdmin.from("app_settings").select("value, updated_at").eq("key", "manual_payment").maybeSingle(),
+      supabaseAdmin
+        .from("payment_events")
+        .select("created_at, source")
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+      supabaseAdmin.from("payments").select("id").eq("status", "pending").limit(200),
+    ]);
+
+    const manual = manualSchema.parse({ ...MANUAL_PAYMENT_DEFAULTS, ...((setting?.value as object) ?? {}) });
 
     return {
-      mercadopago: {
-        ...credentials,
-        active: credentials.configured,
-        mode: "transparent",
-        webhook_configured: true,
-        last_sync: (lastEvent?.created_at as string | null) ?? null,
-        last_sync_source: (lastEvent?.source as string | null) ?? null,
+      manual_payment: {
+        ...manual,
+        configured: Boolean(manual.pixKey),
+        pending_orders: (pending ?? []).length,
+        updated_at: (setting?.updated_at as string | null) ?? null,
+        last_event: (lastEvent?.created_at as string | null) ?? null,
+        last_event_source: (lastEvent?.source as string | null) ?? null,
       },
       gemini: { active: true, model: "gemini-2.0-flash", economy_mode: true },
       email: { provider: "resend", verified_domain: "gastocerto.com.br" },
     };
   });
 
-/** Rotaciona a Public key e o Access token, aplicando no servidor na hora. */
-export const adminSaveMercadoPagoCredentials = createServerFn({ method: "POST" })
+/** Salva os dados de pagamento manual exibidos no checkout do site. */
+export const adminSaveManualPaymentSettings = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => manualSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    const { assertAdminCtx, auditLog } = await import("@/lib/admin-guard.server");
+    await assertAdminCtx(context);
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.from("app_settings").upsert(
+      {
+        key: "manual_payment",
+        value: data as never,
+        updated_at: new Date().toISOString(),
+        updated_by: context.userId,
+      },
+      { onConflict: "key" },
+    );
+    if (error) throw new Error("Não foi possível salvar os dados de pagamento.");
+
+    await auditLog(context, "manual_payment_settings_updated", {
+      pix_key_type: data.pixKeyType,
+      has_pix_key: Boolean(data.pixKey),
+      holder: data.holder,
+    });
+
+    return { ok: true, ...data };
+  });
+
+/** Confirma ou recusa manualmente um pedido, liberando a chave quando aprovado. */
+export const adminSettleManualOrder = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
     z
       .object({
-        publicKey: z.string().trim().min(20).max(200),
-        accessToken: z.string().trim().min(20).max(300),
-        clientId: z.string().trim().max(120).optional(),
-        clientSecret: z.string().trim().max(200).optional(),
+        paymentId: z.string().uuid(),
+        status: z.enum(["approved", "cancelled"]),
+        note: z.string().trim().max(300).optional(),
       })
       .parse(input),
   )
@@ -51,41 +104,20 @@ export const adminSaveMercadoPagoCredentials = createServerFn({ method: "POST" }
     const { assertAdminCtx, auditLog } = await import("@/lib/admin-guard.server");
     await assertAdminCtx(context);
 
-    const { saveMercadoPagoCredentials, maskCredential } = await import(
-      "@/lib/mercadopago-credentials.server"
-    );
-    const summary = await saveMercadoPagoCredentials({
-      publicKey: data.publicKey,
-      accessToken: data.accessToken,
-      clientId: data.clientId ?? null,
-      clientSecret: data.clientSecret ?? null,
-      updatedBy: context.userId,
+    const { settleManualPayment } = await import("@/lib/manual-orders.server");
+    const result = await settleManualPayment(data.paymentId, {
+      status: data.status,
+      source: "admin_manual",
+      note: data.note ?? null,
     });
 
-    // A auditoria guarda apenas máscaras — o valor real nunca é registrado.
-    await auditLog(context, "mercadopago_credentials_rotated", {
-      public_key: maskCredential(data.publicKey),
-      access_token: maskCredential(data.accessToken),
-      environment: summary.environment,
+    await auditLog(context, "manual_payment_settled", {
+      payment_id: data.paymentId,
+      status: data.status,
+      delivered: result.delivered,
+      note: data.note ?? null,
     });
 
-    return summary;
-  });
-
-/** Testa a credencial ativa direto na API do Mercado Pago. */
-export const adminTestMercadoPago = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    const { assertAdminCtx, auditLog } = await import("@/lib/admin-guard.server");
-    await assertAdminCtx(context);
-
-    const { testMercadoPagoCredentials } = await import("@/lib/mercadopago-credentials.server");
-    const result = await testMercadoPagoCredentials();
-    await auditLog(context, "mercadopago_connection_test", {
-      ok: result.ok,
-      status: result.status,
-      pix_enabled: result.pixEnabled,
-    });
     return result;
   });
 
@@ -98,70 +130,29 @@ export const adminTestEmailDelivery = createServerFn({ method: "POST" })
     await assertAdminCtx(context);
 
     const { sendLicenseKeyEmail } = await import("@/lib/license-delivery.server");
-    
+
     // Simulamos um recibo/licença real para o teste ser fiel
     const result = await sendLicenseKeyEmail({
       to: data.to,
       fullName: "Destinatário de Teste",
       planName: "Premium IA (Teste)",
       licenseKey: "GC-TEST-EMAIL-SENT",
-      statusUrl: `${process.env["APP_URL"] || "http://localhost:8080"}/pedido/test-id`
+      statusUrl: `${process.env["APP_URL"] || "http://localhost:8080"}/pedido/test-id`,
     });
 
     await auditLog(context, "admin_email_test_sent", {
       to: data.to,
       success: result.delivered,
       channel: result.channel,
-      reason: result.reason
+      reason: result.reason,
     });
 
     return result;
   });
 
-
-/** Dispara a revalidação dos pagamentos pendentes manualmente. */
-export const adminReconcilePayments = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
-    z.object({ hours: z.number().int().min(1).max(720).default(72) }).parse(input ?? {}),
-  )
-  .handler(async ({ data, context }) => {
-    const { assertAdminCtx, auditLog } = await import("@/lib/admin-guard.server");
-    await assertAdminCtx(context);
-
-    const { reconcilePendingPayments } = await import("@/lib/mercadopago.server");
-    const summary = await reconcilePendingPayments({ hours: data.hours, limit: 100 });
-    await auditLog(context, "mercadopago_manual_reconciliation", {
-      checked: summary.checked,
-      corrected: summary.corrected,
-      failed: summary.failed,
-      hours: data.hours,
-    });
-    return summary;
-  });
-
-/** Desativa e remove as credenciais do Mercado Pago salvas no banco. */
-export const adminDeleteMercadoPagoCredentials = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    const { assertAdminCtx, auditLog } = await import("@/lib/admin-guard.server");
-    await assertAdminCtx(context);
-
-    const { disableStoredCredentials } = await import("@/lib/mercadopago-credentials.server");
-    const summary = await disableStoredCredentials(context.userId);
-
-    await auditLog(context, "mercadopago_credentials_deleted", {
-      action: "disabled_and_deleted_from_db",
-      fallback: summary.source === "environment" ? "using_env_vars" : "none",
-    });
-
-    return summary;
-  });
-
-
 /**
- * Auditoria do checkout Pix: tentativas de verificação por e-mail, cobranças
- * criadas, situação atual e erros devolvidos pelo Mercado Pago.
+ * Auditoria do checkout: tentativas de verificação por e-mail, pedidos criados,
+ * situação atual e liberação da chave.
  */
 export const adminGetCheckoutAudit = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -228,15 +219,12 @@ export const adminGetCheckoutAudit = createServerFn({ method: "POST" })
         id: payment.id as string,
         email: (payment.email as string | null) ?? null,
         userId: (payment.user_id as string | null) ?? null,
-        method: String(payment.method ?? "pix"),
+        method: String(payment.method ?? "manual"),
         externalId: (payment.external_id as string | null) ?? null,
         amount: Number(payment.amount ?? 0),
         status: String(payment.status ?? "pending"),
         statusDetail: (raw["status_detail"] as string | null) ?? null,
-        mpError:
-          (raw["message"] as string | null) ??
-          (Array.isArray(raw["cause"]) ? String(raw["cause"][0]?.description ?? "") : null) ??
-          null,
+        mpError: null as string | null,
         licenseId: (payment.license_id as string | null) ?? null,
         createdAt: payment.created_at as string,
         paidAt: (payment.paid_at as string | null) ?? null,
@@ -246,7 +234,7 @@ export const adminGetCheckoutAudit = createServerFn({ method: "POST" })
         events: timeline.slice(0, 12).map((event) => ({
           type: String(event.event_type),
           status: (event.status as string | null) ?? null,
-          source: String(event.source ?? "webhook"),
+          source: String(event.source ?? "admin_manual"),
           createdAt: event.created_at as string,
         })),
       };
@@ -287,11 +275,13 @@ export const adminGetCheckoutAudit = createServerFn({ method: "POST" })
 export const adminLogIntegrationAction = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
-    z.object({ 
-      integration: z.enum(["mercadopago", "gemini", "email"]),
-      action: z.string().max(50),
-      detail: z.string().max(200).optional()
-    }).parse(input)
+    z
+      .object({
+        integration: z.enum(["manual_payment", "gemini", "email"]),
+        action: z.string().max(50),
+        detail: z.string().max(200).optional(),
+      })
+      .parse(input),
   )
   .handler(async ({ data, context }) => {
     const { assertStaffCtx, auditLog } = await import("@/lib/admin-guard.server");
@@ -300,7 +290,7 @@ export const adminLogIntegrationAction = createServerFn({ method: "POST" })
     await auditLog(context, "integration_action_click", {
       integration: data.integration,
       action: data.action,
-      detail: data.detail
+      detail: data.detail,
     });
 
     return { ok: true };
@@ -313,13 +303,10 @@ export const adminAdjustGeminiLimits = createServerFn({ method: "POST" })
     const { assertAdminCtx, auditLog } = await import("@/lib/admin-guard.server");
     await assertAdminCtx(context);
 
-    // No futuro aqui viria a lógica real de alteração de cotas no banco.
-    // Por enquanto registramos a intenção e o acesso.
     await auditLog(context, "gemini_limits_adjustment_triggered", {
       model: "gemini-2.0-flash",
-      economy_mode: true
+      economy_mode: true,
     });
 
     return { ok: true, message: "Limites sincronizados com o plano atual." };
   });
-
