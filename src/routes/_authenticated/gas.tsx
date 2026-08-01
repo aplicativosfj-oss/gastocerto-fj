@@ -89,6 +89,8 @@ function GasPage() {
   const { data: refills, isLoading } = useGasRefills();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<GasRefill | null>(null);
+  const [importOpen, setImportOpen] = useState(false);
+
 
   const summary = useMemo(() => summarizeGas(refills ?? []), [refills]);
 
