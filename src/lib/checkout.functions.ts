@@ -267,3 +267,29 @@ export const getOrderStatus = createServerFn({ method: "POST" })
       })),
     };
   });
+
+/**
+ * Dados públicos de pagamento manual exibidos no checkout (chave Pix, titular e
+ * instruções). Configurados pelo administrador no painel de integrações.
+ */
+export const getManualPaymentInstructions = createServerFn({ method: "GET" }).handler(async () => {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data } = await supabaseAdmin
+    .from("app_settings")
+    .select("value")
+    .eq("key", "manual_payment")
+    .maybeSingle();
+
+  const value = (data?.value ?? {}) as Record<string, unknown>;
+  return {
+    pixKey: String(value["pixKey"] ?? ""),
+    pixKeyType: String(value["pixKeyType"] ?? "cpf"),
+    holder: String(value["holder"] ?? ""),
+    bank: String(value["bank"] ?? ""),
+    whatsapp: String(value["whatsapp"] ?? ""),
+    instructions: String(
+      value["instructions"] ??
+        "Faça o Pix no valor do plano, envie o comprovante e o administrador confirma o pagamento e libera sua chave de ativação.",
+    ),
+  };
+});
