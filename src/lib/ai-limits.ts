@@ -25,6 +25,8 @@ export type AiLimits = {
   lowCreditRatio: number;
   /** Modo econômico: usa modelos mais leves ou instruções mais curtas. */
   economyMode: boolean;
+  /** Máximo de créditos permitidos para Gemini por usuário por mês. */
+  geminiMonthlyCreditLimit: number;
 };
 
 export const AI_LIMITS_SETTING_KEY = "ai_limits";
@@ -50,6 +52,7 @@ export const AiLimitsSchema = z.object({
   monthlyCreditAllowance: z.coerce.number().min(0.1).max(100_000),
   lowCreditRatio: z.coerce.number().min(0.01).max(0.9),
   economyMode: z.boolean().default(false),
+  geminiMonthlyCreditLimit: z.coerce.number().min(0.1).max(500),
 });
 
 /** Normaliza qualquer valor vindo do banco/formulário para limites válidos. */
