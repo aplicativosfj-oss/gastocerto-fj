@@ -103,7 +103,30 @@ export function InsightsPanel({ year, month }: InsightsPanelProps) {
   const trendData = trends.map((trend) => ({
     name: trend.name,
     variacao: trend.delta,
+    percent: trend.percent,
+    current: trend.current,
   }));
+
+  const pct = (value: number, total: number) =>
+    total > 0 ? `${Math.round((value / total) * 100)}%` : "—";
+
+  /** Média do percentual que sobra nos meses com receita. */
+  const monthsWithIncome = series.filter((point) => point.income > 0);
+  const averageSavings = monthsWithIncome.length
+    ? Math.round(
+        monthsWithIncome.reduce((sum, point) => sum + point.savingsRate, 0) / monthsWithIncome.length,
+      )
+    : 0;
+
+  const totalIncome = series.reduce((sum, point) => sum + point.income, 0);
+  const totalExpense = series.reduce((sum, point) => sum + point.expense, 0);
+  const weekdayTotal = weekdays.reduce((sum, point) => sum + point.gasto, 0);
+  const topWeekday = weekdays.reduce(
+    (best, point) => (point.gasto > best.gasto ? point : best),
+    weekdays[0] ?? { label: "—", gasto: 0, count: 0 },
+  );
+  const monthExpense = essentials.essential + essentials.nonEssential;
+
 
   return (
     <section className="space-y-4">
