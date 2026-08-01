@@ -81,7 +81,12 @@ export function IntegrationsPanel() {
                 {testWebhook.isPending ? <RefreshCw className="mr-2 size-3 animate-spin" /> : <Settings2 className="mr-2 size-3" />} 
                 Testar Webhook
               </Button>
-              <Button size="sm" variant="outline" className="w-full text-xs h-8">
+              <Button 
+                size="sm" 
+                variant="outline" 
+                className="w-full text-xs h-8"
+                onClick={() => window.open("https://www.mercadopago.com.br/developers/panel", "_blank")}
+              >
                 <ExternalLink className="mr-2 size-3" /> Dashboard
               </Button>
             </div>
@@ -187,9 +192,18 @@ export function IntegrationsPanel() {
               >
                 <Sparkles className="mr-2 size-3" /> Testar Envio
               </Button>
-              <Button size="sm" variant="ghost" className="w-full text-xs h-8">
+            <div className="flex flex-col gap-2">
+              <Button 
+                size="sm" 
+                variant="outline" 
+                className="w-full text-xs h-8"
+                onClick={() => {
+                  window.open("https://resend.com/domains", "_blank");
+                }}
+              >
                 <Settings2 className="mr-2 size-3" /> DNS Settings
               </Button>
+            </div>
             </div>
           </CardContent>
         </Card>
