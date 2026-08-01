@@ -13,7 +13,7 @@ const startSchema = z.object({
 });
 
 const verifySchema = z.object({
-  planSlug: z.enum(["premium", "premium_ia"]),
+  planSlug: z.enum(["free", "premium", "premium_ia"]),
   cycle: z.enum(["monthly", "annual"]),
   fullName: z.string().trim().min(3).max(120),
   email: z.string().trim().email({ message: "Informe um e-mail válido" }).max(160),
@@ -152,6 +152,36 @@ export const startPixCheckout = createServerFn({ method: "POST" })
       qrCodeBase64: charge.qrCodeBase64,
       ticketUrl: charge.ticketUrl,
       expiresAt: charge.expiresAt,
+    };
+  });
+
+/**
+ * Reenvia a chave de licença por e-mail (se disponível) ou devolve os dados
+ * para exibição na tela. Chamada pelo administrador ou pelo próprio cliente
+ * na tela de acompanhamento.
+ */
+export const resendLicenseDelivery = createServerFn({ method: "POST" })
+  .inputValidator((input: unknown) => z.object({ paymentId: z.string().uuid() }).parse(input))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { settlePixPayment } = await import("@/lib/mercadopago.server");
+
+    const { data: payment } = await supabaseAdmin
+      .from("payments")
+      .select("id, external_id, status")
+      .eq("id", data.paymentId)
+      .maybeSingle();
+
+    if (!payment) throw new Error("Pedido não encontrado.");
+
+    // SettlePixPayment já cuida de não duplicar a chave e de tentar o e-mail.
+    // Usamos a fonte "resend_request" para diferenciar na auditoria.
+    const result = await settlePixPayment(payment.external_id || payment.id, "resend_request");
+
+    return {
+      success: true,
+      delivered: result.delivered,
+      status: result.status,
     };
   });
 

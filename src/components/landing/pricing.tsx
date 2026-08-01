@@ -83,7 +83,7 @@ export function Pricing() {
 
   const [cycle, setCycle] = useState<Cycle>("yearly");
   const isYearly = cycle === "yearly";
-  const [checkoutPlan, setCheckoutPlan] = useState<"premium" | "premium_ia" | null>(null);
+  const [checkoutPlan, setCheckoutPlan] = useState<"free" | "premium" | "premium_ia" | null>(null);
 
 
   return (
@@ -199,21 +199,14 @@ export function Pricing() {
                 </ul>
 
                 <div className="mt-3">
-                  {plan.monthly === 0 ? (
-                    <Button className="h-10 w-full" variant="outline" asChild>
-                      <Link to="/auth" search={{ mode: "signup" }}>
-                        {plan.cta}
-                      </Link>
-                    </Button>
-                  ) : (
-                    <Button
-                      className="h-10 w-full"
-                      variant={plan.highlighted ? "default" : "outline"}
-                      onClick={() => setCheckoutPlan(plan.slug as "premium" | "premium_ia")}
-                    >
-                      {plan.cta} · Pix
-                    </Button>
-                  )}
+                  <Button
+                    className="h-10 w-full"
+                    variant={plan.highlighted ? "default" : "outline"}
+                    onClick={() => setCheckoutPlan(plan.slug as "free" | "premium" | "premium_ia")}
+                  >
+                    {plan.cta}
+                    {plan.monthly > 0 && " · Pix"}
+                  </Button>
                   <p className="mt-1.5 text-center text-[11px] text-muted-foreground">
                     {plan.monthly === 0
                       ? "Sem cartão. Comece em menos de um minuto."

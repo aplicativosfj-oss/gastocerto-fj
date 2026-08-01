@@ -204,18 +204,17 @@ const shortcuts = [
   { label: "FAQ", href: "#faq", icon: HelpCircle },
 ] as const;
 
-const tabs = ["recursos", "como-funciona", "seguranca", "faq"] as const;
+const tabs = ["recursos", "seguranca", "faq"] as const;
 type TabValue = (typeof tabs)[number];
 
 const tabMeta: Record<TabValue, { label: string; description: string }> = {
   recursos: { label: "Recursos", description: "Dezesseis recursos organizados em quatro frentes" },
-  "como-funciona": { label: "Como funciona", description: "Três passos e depoimentos de clientes" },
   seguranca: { label: "Segurança", description: "LGPD, criptografia e controle de acesso" },
   faq: { label: "FAQ", description: "Perguntas frequentes: seis dúvidas comuns sobre planos e demonstração" },
 };
 
 export function CompactOverview() {
-  const [tab, setTab] = useState<TabValue>("como-funciona");
+  const [tab, setTab] = useState<TabValue>("recursos");
 
   useEffect(() => {
     const sync = () => {
@@ -299,12 +298,12 @@ export function CompactOverview() {
               aria-describedby="tabs-hint"
               className="flex h-auto w-full flex-nowrap justify-start gap-1 overflow-x-auto p-1 [scrollbar-width:none] sm:flex-wrap [&::-webkit-scrollbar]:hidden"
             >
-              {tabs.map((value, index) => (
+              {tabs.map((value) => (
                 <TabsTrigger
                   key={value}
                   value={value}
                   id={value === "faq" ? "faq" : undefined}
-                  className={index === 0 || index === 2 ? "hidden sm:inline-flex shrink-0" : "shrink-0"}
+                  className="shrink-0"
                 >
                   {tabMeta[value].label}
                 </TabsTrigger>
@@ -316,9 +315,9 @@ export function CompactOverview() {
             {`Seção ativa: ${tabMeta[tab].label}. ${tabMeta[tab].description}.`}
           </p>
 
-          <TabsContent value="recursos" className="mt-3.5 outline-none panel-enter hidden sm:block" tabIndex={0}>
+          <TabsContent value="recursos" className="mt-3.5 outline-none panel-enter" tabIndex={0}>
             <h3 className="sr-only">{tabMeta["recursos"].label}</h3>
-            <div className="grid gap-2.5 lg:grid-cols-2">
+            <div className="grid gap-2.5 sm:grid-cols-2">
               {featureGroups.map((group, groupIndex) => (
                 <Reveal
                   key={group.group}
@@ -361,41 +360,8 @@ export function CompactOverview() {
             </div>
           </TabsContent>
 
-          <TabsContent value="como-funciona" className="mt-3.5 outline-none panel-enter" tabIndex={0}>
-            <h3 className="sr-only">{tabMeta["como-funciona"].label}</h3>
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-2.5">
-              {steps.map((step, index) => (
-                <Reveal key={step.title} delay={index * 70}>
-                  <div className="interactive-card h-full rounded-xl border border-border bg-card p-3 sm:p-3.5">
-                    <span className="grid size-8 place-items-center rounded-lg bg-brand text-sm font-bold text-brand-foreground">
-                      {index + 1}
-                    </span>
-                    <p className="mt-2 text-sm font-semibold">{step.title}</p>
-                    <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{step.text}</p>
-                  </div>
-                </Reveal>
-              ))}
-            </div>
-            <div id="depoimentos" className="mt-3 grid gap-2.5 sm:grid-cols-3">
-              {proofs.map((p, index) => (
-                <Reveal key={p.name} delay={index * 70} className={index > 0 ? "hidden sm:block" : "block"}>
-                  <div className="interactive-card h-full rounded-xl border border-border bg-card p-3">
-                    <div className="flex gap-0.5 text-warning">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <Star key={i} className="size-3 fill-current" />
-                      ))}
-                    </div>
-                    <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">“{p.text}”</p>
-                    <p className="mt-1.5 truncate text-xs font-semibold">
-                      {p.name} · <span className="font-normal text-muted-foreground">{p.role}</span>
-                    </p>
-                  </div>
-                </Reveal>
-              ))}
-            </div>
-          </TabsContent>
 
-          <TabsContent value="seguranca" className="mt-3.5 outline-none panel-enter hidden sm:block" tabIndex={0}>
+          <TabsContent value="seguranca" className="mt-3.5 outline-none panel-enter" tabIndex={0}>
             <h3 className="sr-only">{tabMeta["seguranca"].label}</h3>
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-2.5">
               {pillars.map((pillar, index) => (

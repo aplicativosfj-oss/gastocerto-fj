@@ -6,7 +6,7 @@
 export type CheckoutCycle = "monthly" | "annual";
 
 export type CheckoutPlan = {
-  slug: "premium" | "premium_ia";
+  slug: "free" | "premium" | "premium_ia";
   name: string;
   tagline: string;
   monthly: number;
@@ -16,6 +16,19 @@ export type CheckoutPlan = {
 };
 
 export const CHECKOUT_PLANS: CheckoutPlan[] = [
+  {
+    slug: "free",
+    name: "Gratuito",
+    tagline: "Para quem está começando a se organizar.",
+    monthly: 0,
+    annual: 0,
+    highlights: [
+      "Até 30 lançamentos por mês",
+      "Categorias, painel e balancete",
+      "Um veículo integrado",
+      "Sem custo fixo",
+    ],
+  },
   {
     slug: "premium",
     name: "Premium",

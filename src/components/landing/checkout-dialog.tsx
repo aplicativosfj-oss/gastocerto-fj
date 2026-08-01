@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { Check, Copy, Loader2, QrCode, ShieldCheck, Sparkles } from "lucide-react";
+import { Check, Copy, Loader2, Mail, QrCode, ShieldCheck, Sparkles } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useNavigate } from "@tanstack/react-router";
@@ -150,8 +150,15 @@ export function CheckoutDialog({
         data: { verificationId: verification?.verificationId ?? "", code: code.trim() },
       }),
     onSuccess: () => {
-      toast.success("E-mail confirmado. Gerando seu Pix...");
-      create.mutate();
+      if (price > 0) {
+        toast.success("E-mail confirmado. Gerando seu Pix...");
+        create.mutate();
+      } else {
+        toast.success("E-mail confirmado. Liberando seu acesso gratuito...");
+        setStep("done");
+        // No gratuito a chave é liberada "virtualmente" como PENDING para o /auth
+        setLicenseKey(PENDING_LICENSE_KEY);
+      }
     },
     onError: (error) =>
       toast.error(error instanceof Error ? error.message : "Código inválido."),
