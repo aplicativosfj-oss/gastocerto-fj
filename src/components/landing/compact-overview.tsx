@@ -215,7 +215,7 @@ const tabMeta: Record<TabValue, { label: string; description: string }> = {
 };
 
 export function CompactOverview() {
-  const [tab, setTab] = useState<TabValue>("recursos");
+  const [tab, setTab] = useState<TabValue>("como-funciona");
 
   useEffect(() => {
     const sync = () => {
@@ -304,8 +304,7 @@ export function CompactOverview() {
                   key={value}
                   value={value}
                   id={value === "faq" ? "faq" : undefined}
-                  aria-label={`${tabMeta[value].label}: ${tabMeta[value].description} — seção ${index + 1} de ${tabs.length}`}
-                  className={value === "faq" ? "shrink-0 scroll-mt-24" : "shrink-0"}
+                  className={index === 0 || index === 2 ? "hidden sm:inline-flex shrink-0" : "shrink-0"}
                 >
                   {tabMeta[value].label}
                 </TabsTrigger>
@@ -317,7 +316,7 @@ export function CompactOverview() {
             {`Seção ativa: ${tabMeta[tab].label}. ${tabMeta[tab].description}.`}
           </p>
 
-          <TabsContent value="recursos" className="mt-3.5 outline-none panel-enter" tabIndex={0}>
+          <TabsContent value="recursos" className="mt-3.5 outline-none panel-enter hidden sm:block" tabIndex={0}>
             <h3 className="sr-only">{tabMeta["recursos"].label}</h3>
             <div className="grid gap-2.5 lg:grid-cols-2">
               {featureGroups.map((group, groupIndex) => (
@@ -396,7 +395,7 @@ export function CompactOverview() {
             </div>
           </TabsContent>
 
-          <TabsContent value="seguranca" className="mt-3.5 outline-none panel-enter" tabIndex={0}>
+          <TabsContent value="seguranca" className="mt-3.5 outline-none panel-enter hidden sm:block" tabIndex={0}>
             <h3 className="sr-only">{tabMeta["seguranca"].label}</h3>
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-2.5">
               {pillars.map((pillar, index) => (

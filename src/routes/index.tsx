@@ -59,9 +59,13 @@ function LandingPage() {
       <LandingHeader hideActions />
       <main id="conteudo" tabIndex={-1} className="flex-1 outline-none">
         <Hero />
-        <Benefits />
+        <div className="hidden sm:block">
+          <Benefits />
+        </div>
         <CompactOverview />
-        <Pricing />
+        <div className="hidden sm:block">
+          <Pricing />
+        </div>
         <div className="hidden sm:block">
           <CtaBanner />
         </div>
