@@ -168,10 +168,10 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen bg-secondary/20 lg:flex">
-      <aside className="sticky top-0 hidden h-screen w-56 shrink-0 flex-col border-r border-border bg-background lg:flex">
-        <div className="flex h-14 items-center border-b border-border px-4">
-          <Link to="/painel" aria-label="Ir para o painel">
-            <Logo />
+      <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-border bg-background lg:flex">
+        <div className="flex h-20 items-center border-b border-border px-6">
+          <Link to="/painel" aria-label="Ir para o painel" className="transition-transform hover:scale-[1.02]">
+            <Logo className="scale-110 origin-left" />
           </Link>
         </div>
         <nav className="flex-1 space-y-1 overflow-y-auto p-3">

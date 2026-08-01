@@ -19,14 +19,14 @@ export function Logo({
   onDark?: boolean;
 }) {
   return (
-    <span className={cn("inline-flex items-center gap-2", className)}>
-      <BrandMark className="size-9 shrink-0" />
+    <span className={cn("inline-flex items-center gap-2.5", className)}>
+      <BrandMark className={cn(compact ? "size-10" : "size-11", "shrink-0 shadow-lg")} />
       {!compact && (
-        <div className="flex flex-col leading-tight">
-          <span className={cn("text-lg font-extrabold tracking-tight", onDark ? "text-white" : "text-foreground")}>
+        <div className="flex flex-col leading-none">
+          <span className={cn("text-xl font-black tracking-tighter", onDark ? "text-white" : "text-foreground")}>
             Gasto<span className="text-[oklch(0.52_0.13_162)]">Certo</span>
           </span>
-          <span className={cn("text-[9.5px] font-bold uppercase tracking-[0.08em] opacity-90", onDark ? "text-white/80" : "text-muted-foreground")}>
+          <span className={cn("mt-0.5 text-[10px] font-bold uppercase tracking-[0.12em] opacity-90", onDark ? "text-white/80" : "text-muted-foreground")}>
             Controle hoje, tranquilidade sempre
           </span>
         </div>
