@@ -107,6 +107,11 @@ export const cpfSignInSchema = z.object({
   pin: pinSchema,
 });
 
+export const emailSignInSchema = z.object({
+  email: emailSchema,
+  password: z.string().min(1, "Informe sua senha"),
+});
+
 export const cpfSignUpSchema = z
   .object({
     fullName: fullNameSchema,
