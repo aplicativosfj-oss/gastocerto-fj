@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { AppShell } from "@/components/app-shell";
 import { PageHeader } from "@/components/finance/page-header";
 import { PeriodPicker } from "@/components/finance/period-picker";
+import { MonthPresets, loadPeriod } from "@/components/finance/month-presets";
 import { TransactionDialog } from "@/components/finance/transaction-dialog";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -39,7 +40,9 @@ export const Route = createFileRoute("/_authenticated/receitas")({
 
 function IncomePage() {
   const today = new Date();
-  const [period, setPeriod] = useState({ year: today.getFullYear(), month: today.getMonth() + 1 });
+  const [period, setPeriod] = useState(
+    () => loadPeriod("receitas") ?? { year: today.getFullYear(), month: today.getMonth() + 1 },
+  );
   const range = monthRange(period.year, period.month);
   const { data: transactions, isLoading } = useTransactions(range);
   const { data: categories } = useCategories();
