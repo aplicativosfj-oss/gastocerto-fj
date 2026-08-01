@@ -170,3 +170,88 @@ export function EmblemAlert(props: EmblemProps) {
     </Frame>
   );
 }
+
+/** Emblema de carro para categorias de veículo. */
+export function EmblemCar(props: EmblemProps) {
+  return (
+    <Frame {...props}>
+      <defs>
+        <linearGradient id="em-car" x1="0" y1="0" x2="40" y2="40">
+          <stop offset="0%" stopColor="oklch(0.72 0.16 160)" />
+          <stop offset="100%" stopColor="oklch(0.62 0.14 210)" />
+        </linearGradient>
+      </defs>
+      <path
+        d="M7 26h26v2c0 1.1-.9 2-2 2h-2c-1.1 0-2-.9-2-2v-1H13v1c0 1.1-.9 2-2 2H9c-1.1 0-2-.9-2-2z"
+        fill="url(#em-car)"
+        opacity="0.3"
+      />
+      <path
+        d="M6 21l2-8c.5-2 2-3.5 4-3.5h16c2 0 3.5 1.5 4 3.5l2 8v6c0 1.1-.9 2-2 2h-1c-1.1 0-2-.9-2-2v-2H11v2c0 1.1-.9 2-2 2H8c-1.1 0-2-.9-2-2z"
+        stroke="url(#em-car)"
+        strokeWidth="1.8"
+        strokeLinejoin="round"
+      />
+      <path d="M10 21h20M13 10l-2 11M27 10l2 11" stroke="url(#em-car)" strokeWidth="1.2" />
+      <circle cx="11" cy="24" r="1.5" fill="url(#em-car)" />
+      <circle cx="29" cy="24" r="1.5" fill="url(#em-car)" />
+    </Frame>
+  );
+}
+
+/** Emblema de moto para categorias de duas rodas. */
+export function EmblemBike(props: EmblemProps) {
+  return (
+    <Frame {...props}>
+      <defs>
+        <linearGradient id="em-bike" x1="0" y1="0" x2="40" y2="40">
+          <stop offset="0%" stopColor="oklch(0.75 0.14 190)" />
+          <stop offset="100%" stopColor="oklch(0.65 0.18 240)" />
+        </linearGradient>
+      </defs>
+      <circle cx="12" cy="26" r="6" stroke="url(#em-bike)" strokeWidth="1.8" />
+      <circle cx="28" cy="26" r="6" stroke="url(#em-bike)" strokeWidth="1.8" />
+      <path
+        d="M12 26l6-10h8l6 10M18 16l4-8h4"
+        stroke="url(#em-bike)"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <circle cx="12" cy="26" r="2" fill="url(#em-bike)" />
+      <circle cx="28" cy="26" r="2" fill="url(#em-bike)" />
+    </Frame>
+  );
+}
+
+/** Emblema de presente/pessoas para categorias de amigos/família. */
+export function EmblemGift(props: EmblemProps) {
+  return (
+    <Frame {...props}>
+      <defs>
+        <linearGradient id="em-gift" x1="0" y1="0" x2="40" y2="40">
+          <stop offset="0%" stopColor="oklch(0.72 0.22 25)" />
+          <stop offset="100%" stopColor="oklch(0.6 0.18 340)" />
+        </linearGradient>
+      </defs>
+      <rect
+        x="8"
+        y="16"
+        width="24"
+        height="16"
+        rx="2"
+        stroke="url(#em-gift)"
+        strokeWidth="1.8"
+        fill="oklch(0.72 0.22 25 / 0.05)"
+      />
+      <path d="M20 16v16M8 22h24" stroke="url(#em-gift)" strokeWidth="1.8" />
+      <path
+        d="M20 16c-4-4-6-1-3 0 3 1 3-3 3-3s0 4 3 3c3-1 1-4-3 0z"
+        fill="url(#em-gift)"
+        stroke="url(#em-gift)"
+        strokeWidth="1"
+      />
+    </Frame>
+  );
+}
+
