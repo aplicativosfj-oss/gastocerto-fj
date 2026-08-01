@@ -4,7 +4,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { Loader2, Mail, RefreshCcw, Search } from "lucide-react";
 import { toast } from "sonner";
 
-import { adminGetCheckoutAudit, adminReconcilePayments } from "@/lib/admin-integrations.functions";
+import { adminGetCheckoutAudit, adminSettleManualOrder } from "@/lib/admin-integrations.functions";
+import { resendLicenseDelivery } from "@/lib/checkout.functions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
