@@ -748,8 +748,19 @@ function AdminSignInForm({ onBack }: { onBack: () => void }) {
           id="admin-email"
           name="email"
           type="email"
+          inputMode="email"
           autoComplete="email"
+          spellCheck={false}
+          placeholder="nome@empresa.com"
           required
+          onBlur={(event) => {
+            const value = event.target.value.trim();
+            const result = emailSchema.safeParse(value);
+            setErrors((prev) => ({
+              ...prev,
+              email: value && !result.success ? "Informe um e-mail válido (ex.: nome@empresa.com)" : "",
+            }));
+          }}
           aria-invalid={Boolean(errors.email) || undefined}
           aria-describedby={describedBy(errors.email && "admin-email-error")}
           className="mt-1.5"
