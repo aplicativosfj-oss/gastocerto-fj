@@ -28,6 +28,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { isoDate, parseAmount } from "@/lib/finance";
+import { MoneyInput } from "@/components/ui/money-input";
 import { formatCurrency, formatDate, formatPercent } from "@/lib/format";
 import {
   GOAL_STATUS,
@@ -372,22 +373,21 @@ function GoalDialog({
           <div className="auto-cards-md">
             <div>
               <Label htmlFor="goal-target">Valor objetivo</Label>
-              <Input
+              <MoneyInput
                 id="goal-target"
                 name="target"
-                inputMode="decimal"
-                defaultValue={goal ? String(goal.target_amount) : ""}
-                placeholder="5000,00"
+                defaultValue={goal?.target_amount ?? null}
+                placeholder="5.000,00"
                 className="mt-1.5"
               />
             </div>
             <div>
               <Label htmlFor="goal-current">Já acumulado</Label>
-              <Input
+              <MoneyInput
                 id="goal-current"
                 name="current"
-                inputMode="decimal"
-                defaultValue={goal ? String(goal.current_amount) : "0"}
+                defaultValue={goal?.current_amount ?? null}
+                placeholder="0,00"
                 className="mt-1.5"
               />
             </div>
@@ -478,10 +478,9 @@ function ContributionDialog({ goal, onClose }: { goal: Goal | null; onClose: () 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <Label htmlFor="contribution-amount">Valor</Label>
-            <Input
+            <MoneyInput
               id="contribution-amount"
               name="amount"
-              inputMode="decimal"
               placeholder="250,00"
               className="mt-1.5"
             />

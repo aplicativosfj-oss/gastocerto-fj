@@ -27,6 +27,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatCurrency } from "@/lib/format";
 import { monthRange, parseAmount, toCents } from "@/lib/finance";
+import { MoneyInput } from "@/components/ui/money-input";
 import { useCategories } from "@/lib/queries";
 import { useBudgets, useSaveBudget, useTransactions } from "@/lib/transactions";
 
@@ -222,12 +223,11 @@ function BudgetsPage() {
 
             <div>
               <Label htmlFor="budget-amount">Limite (R$)</Label>
-              <Input
+              <MoneyInput
                 id="budget-amount"
-                inputMode="decimal"
                 value={amount}
-                onChange={(event) => setAmount(event.target.value)}
-                className="mt-1.5 tabular-nums"
+                onValueChange={setAmount}
+                className="mt-1.5"
                 placeholder="1.500,00"
               />
             </div>
