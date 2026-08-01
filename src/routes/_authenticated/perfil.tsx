@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Loader2, Upload, User } from "lucide-react";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 import { AppShell } from "@/components/app-shell";
 import { PageHeader } from "@/components/finance/page-header";
@@ -151,7 +152,7 @@ function ProfilePage() {
 
   return (
     <AppShell>
-      <div className="mx-auto max-w-2xl space-y-4 sm:space-y-6">
+      <div className="mx-auto max-w-2xl space-y-5 sm:space-y-7">
         <PageHeader
           icon={User}
           eyebrow="Configurações"
@@ -160,15 +161,16 @@ function ProfilePage() {
           className="lg:p-4"
         />
 
-        <section className="flex items-center gap-4 rounded-2xl border border-border bg-card p-4">
-          <Avatar className="size-16">
+        <section className="interactive-card flex items-center gap-5 rounded-xl border border-border bg-card p-5 shadow-soft">
+          <Avatar className="size-20 border-2 border-background shadow-sm">
             {avatarUrl ? <AvatarImage src={avatarUrl} alt="Foto de perfil" /> : null}
-            <AvatarFallback>{initials}</AvatarFallback>
+            <AvatarFallback className="bg-muted text-lg font-bold">{initials}</AvatarFallback>
           </Avatar>
-          <div>
+          <div className="space-y-2">
             <Button
               type="button"
-              variant="outline"
+              variant="secondary"
+              className="h-9 font-bold uppercase tracking-wider text-[11px]"
               onClick={() => fileRef.current?.click()}
               disabled={uploading}
             >
@@ -179,7 +181,9 @@ function ProfilePage() {
               )}
               Alterar foto
             </Button>
-            <p className="mt-2 text-xs text-muted-foreground">JPG, PNG ou WEBP até 2 MB.</p>
+            <p className="text-[11px] font-medium text-muted-foreground/70 uppercase tracking-wide">
+              Resolução recomendada: 400x400px
+            </p>
             <input
               ref={fileRef}
               type="file"
@@ -192,62 +196,65 @@ function ProfilePage() {
 
         <form
           onSubmit={handleSubmit}
-          className="space-y-4 rounded-2xl border border-border bg-card p-4"
+          className="interactive-card space-y-5 rounded-xl border border-border bg-card p-6 shadow-soft"
           noValidate
         >
-          <div>
-            <Label htmlFor="fullName">Nome completo</Label>
-            <Input
-              id="fullName"
-              name="fullName"
-              defaultValue={profile?.full_name ?? ""}
-              className="mt-1.5"
-              maxLength={100}
-            />
-            {errors.fullName ? (
-              <p className="mt-1 text-xs text-destructive">{errors.fullName}</p>
-            ) : null}
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="fullName" className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Nome completo</Label>
+              <Input
+                id="fullName"
+                name="fullName"
+                defaultValue={profile?.full_name ?? ""}
+                className="h-10 rounded-lg border-border/60"
+                maxLength={100}
+              />
+              {errors.fullName ? (
+                <p className="mt-1 text-[11px] text-destructive font-medium">{errors.fullName}</p>
+              ) : null}
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="email" className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">E-mail</Label>
+              <Input id="email" value={user?.email ?? ""} className="h-10 rounded-lg bg-muted/30 border-border/40" disabled />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="phone" className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Telefone</Label>
+              <Input
+                id="phone"
+                name="phone"
+                defaultValue={profile?.phone ?? ""}
+                className="h-10 rounded-lg border-border/60"
+                maxLength={20}
+              />
+              {errors.phone ? <p className="mt-1 text-[11px] text-destructive font-medium">{errors.phone}</p> : null}
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="monthlyIncome" className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Renda mensal (R$)</Label>
+              <Input
+                id="monthlyIncome"
+                name="monthlyIncome"
+                inputMode="decimal"
+                defaultValue={profile?.monthly_income != null ? String(profile.monthly_income) : ""}
+                className="h-10 rounded-lg border-border/60 tabular-nums font-semibold"
+              />
+              {errors.monthlyIncome ? (
+                <p className="mt-1 text-[11px] text-destructive font-medium">{errors.monthlyIncome}</p>
+              ) : null}
+            </div>
           </div>
 
-          <div>
-            <Label htmlFor="email">E-mail</Label>
-            <Input id="email" value={user?.email ?? ""} className="mt-1.5" disabled />
+          <div className="flex items-center justify-between border-t border-border/40 pt-5">
+            <div className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground/60">
+              Acesso: <span className="text-foreground">{(roles ?? ["user"]).join(", ")}</span>
+            </div>
+            <Button type="submit" size="sm" className="h-9 px-5 font-bold uppercase tracking-wider text-[11px]" disabled={saving}>
+              {saving ? <Loader2 className="mr-2 size-3 animate-spin" /> : null}
+              Salvar Alterações
+            </Button>
           </div>
-
-          <div>
-            <Label htmlFor="phone">Telefone</Label>
-            <Input
-              id="phone"
-              name="phone"
-              defaultValue={profile?.phone ?? ""}
-              className="mt-1.5"
-              maxLength={20}
-            />
-            {errors.phone ? <p className="mt-1 text-xs text-destructive">{errors.phone}</p> : null}
-          </div>
-
-          <div>
-            <Label htmlFor="monthlyIncome">Renda mensal (R$)</Label>
-            <Input
-              id="monthlyIncome"
-              name="monthlyIncome"
-              inputMode="decimal"
-              defaultValue={profile?.monthly_income != null ? String(profile.monthly_income) : ""}
-              className="mt-1.5 tabular-nums"
-            />
-            {errors.monthlyIncome ? (
-              <p className="mt-1 text-xs text-destructive">{errors.monthlyIncome}</p>
-            ) : null}
-          </div>
-
-          <div className="text-xs text-muted-foreground">
-            Perfil de acesso: {(roles ?? ["user"]).join(", ")}
-          </div>
-
-          <Button type="submit" disabled={saving}>
-            {saving ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
-            Salvar alterações
-          </Button>
         </form>
 
         <PlanSummaryCard />

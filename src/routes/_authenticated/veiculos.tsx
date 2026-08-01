@@ -13,11 +13,13 @@ import {
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 import { AppShell } from "@/components/app-shell";
 import { FeatureGate } from "@/components/finance/feature-gate";
 import { FuelDialog } from "@/components/finance/fuel-dialog";
 import { PageHeader } from "@/components/finance/page-header";
+import { StatTile } from "@/components/finance/stat-tile";
 import { ReceiptViewer } from "@/components/finance/receipt-viewer";
 import { VehicleDialog } from "@/components/finance/vehicle-dialog";
 import {
@@ -94,13 +96,16 @@ export const Route = createFileRoute("/_authenticated/veiculos")({
   component: VehiclesPage,
 });
 
-function Metric({ label, value, hint }: { label: string; value: string; hint?: string }) {
+function Metric({ label, value, hint, icon, tone }: { label: string; value: string; hint?: string; icon?: any; tone?: any }) {
   return (
-    <div className="rounded-2xl border border-border bg-card p-4">
-      <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</p>
-      <p className="mt-1 text-xl font-semibold tabular-nums">{value}</p>
-      {hint ? <p className="mt-1 text-xs text-muted-foreground">{hint}</p> : null}
-    </div>
+    <StatTile 
+      label={label}
+      value={value}
+      hint={hint}
+      icon={icon}
+      tone={tone}
+      className="sm:p-3.5"
+    />
   );
 }
 
@@ -278,30 +283,33 @@ function VehiclesPage() {
             </Button>
           </section>
         ) : (
-          <section className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 lg:gap-3">
+          <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {(vehicles ?? []).map((vehicle) => (
               <article
                 key={vehicle.id}
-                className="rounded-2xl border border-border bg-card p-3 shadow-sm transition-all hover:shadow-md sm:p-4"
+                className="interactive-card group relative overflow-hidden rounded-xl border border-border bg-card p-4 shadow-soft transition-all"
               >
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex min-w-0 items-start gap-2.5">
-                    <VehicleEmblem vehicleType={vehicle.vehicle_type} className="size-9 shrink-0 sm:size-10" />
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex min-w-0 items-start gap-3">
+                    <div className="shrink-0 transition-transform group-hover:scale-105">
+                      <VehicleEmblem vehicleType={vehicle.vehicle_type} className="size-11 sm:size-12" />
+                    </div>
                     <div className="min-w-0">
-                      <h2 className="truncate text-sm font-semibold sm:text-base">{vehicle.name}</h2>
-                      <p className="mt-0.5 truncate text-[10px] text-muted-foreground sm:text-xs">
+                      <h2 className="truncate text-[15px] font-bold tracking-tight text-foreground sm:text-[16px]">
+                        {vehicle.name}
+                      </h2>
+                      <p className="mt-0.5 truncate text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
                         {[vehicle.brand, vehicle.model, vehicle.year].filter(Boolean).join(" · ") ||
                           labelFor(VEHICLE_TYPES, vehicle.vehicle_type)}
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex shrink-0">
+                  <div className="flex shrink-0 gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="size-8"
-                      aria-label={`Editar ${vehicle.name}`}
+                      className="size-8 rounded-lg"
                       onClick={() => {
                         setEditingVehicle(vehicle);
                         setVehicleDialog(true);
@@ -312,32 +320,45 @@ function VehiclesPage() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="size-8 text-muted-foreground hover:text-destructive"
-                      aria-label={`Remover ${vehicle.name}`}
+                      className="size-8 rounded-lg hover:text-destructive hover:bg-destructive/10"
                       onClick={() => setConfirmVehicle(vehicle)}
                     >
                       <Trash2 className="size-3.5" />
                     </Button>
                   </div>
                 </div>
-                <div className="mt-2.5 flex flex-wrap gap-1.5 text-[10px]">
-                  <Badge variant="secondary" className="px-1.5 py-0">{labelFor(FUEL_TYPES, vehicle.fuel_type)}</Badge>
-                  {vehicle.plate ? <Badge variant="outline" className="px-1.5 py-0">{vehicle.plate}</Badge> : null}
-                  {vehicle.tank_capacity ? (
-                    <Badge variant="outline" className="px-1.5 py-0">{vehicle.tank_capacity} L</Badge>
-                  ) : null}
+                
+                <div className="mt-4 flex flex-wrap gap-1.5">
+                  <Badge variant="secondary" className="bg-muted/60 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md">
+                    {labelFor(FUEL_TYPES, vehicle.fuel_type)}
+                  </Badge>
+                  {vehicle.plate && (
+                    <Badge variant="outline" className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 border-border/60 rounded-md">
+                      {vehicle.plate}
+                    </Badge>
+                  )}
+                  {vehicle.tank_capacity && (
+                    <Badge variant="outline" className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 border-border/60 rounded-md">
+                      {vehicle.tank_capacity}L
+                    </Badge>
+                  )}
                 </div>
-                <Button
-                  variant="link"
-                  className="mt-2 h-auto p-0 text-[11px] font-semibold text-brand"
-                  onClick={() => {
-                    setEditingEntry(null);
-                    setVehicleFilter(vehicle.id);
-                    setFuelDialog(true);
-                  }}
-                >
-                  Registrar abastecimento
-                </Button>
+
+                <div className="mt-5 border-t border-border/50 pt-3">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-full justify-center text-[11px] font-bold uppercase tracking-[0.1em] text-brand hover:bg-brand/5"
+                    onClick={() => {
+                      setEditingEntry(null);
+                      setVehicleFilter(vehicle.id);
+                      setFuelDialog(true);
+                    }}
+                  >
+                    <Plus className="mr-1.5 size-3" />
+                    Abastecer
+                  </Button>
+                </div>
               </article>
             ))}
           </section>
@@ -386,90 +407,100 @@ function VehiclesPage() {
           />
         </section>
 
-        <section className="grid gap-3 auto-cards-sm">
+        <section className="grid gap-3 grid-cols-2 lg:grid-cols-4">
           <Metric
             label="Gasto no filtro"
             value={formatCurrency(summary.total)}
-            hint={`${summary.entries} abastecimento(s)`}
+            hint={`${summary.entries} abastecimentos`}
+            icon={Fuel}
+            tone="brand"
           />
           <Metric
             label="Consumo médio"
             value={summary.averageConsumption ? `${summary.averageConsumption} km/l` : "—"}
-            hint={`${summary.liters} litros abastecidos`}
+            hint={`${summary.liters} litros totais`}
+            icon={Droplets}
+            tone="success"
           />
           <Metric
             label="Custo por km"
             value={summary.costPerKm ? formatCurrency(summary.costPerKm) : "—"}
-            hint={`${summary.distance} km percorridos`}
+            hint={`${summary.distance} km rodados`}
+            icon={Car}
+            tone="neutral"
           />
           <Metric
-            label="Preço médio do litro"
+            label="Preço médio"
             value={summary.averagePrice ? formatCurrency(summary.averagePrice) : "—"}
-            hint={
-              summary.best?.consumption
-                ? `Melhor média: ${summary.best.consumption} km/l`
-                : "Registre dois abastecimentos para calcular"
-            }
+            hint={summary.best?.consumption ? `Recorde: ${summary.best.consumption} km/l` : "—"}
+            icon={TriangleAlert}
+            tone="warning"
           />
         </section>
 
         {perVehicle.length > 0 ? (
           <section className="space-y-3">
-            <h2 className="text-sm font-semibold tracking-tight">Desempenho por veículo</h2>
-            <div className="grid gap-3 auto-cards-sm">
+            <h2 className="text-[11px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60 px-1">Desempenho por veículo</h2>
+            <div className="grid gap-3 sm:grid-cols-2">
               {perVehicle.map(({ vehicle, summary: stats, target, threshold, deviation, alert, budgetAlert }) => (
                 <article
                   key={vehicle.id}
-                  className={`rounded-2xl border bg-card p-4 ${
-                    alert ? "border-destructive/50" : "border-border"
-                  }`}
+                  className={cn(
+                    "interactive-card rounded-xl border bg-card p-5 shadow-soft",
+                    alert ? "border-destructive/30" : "border-border"
+                  )}
                 >
-                  <div className="flex items-start justify-between gap-2">
-                    <h3 className="truncate font-semibold">{vehicle.name}</h3>
-                    <Badge variant={alert ? "destructive" : "secondary"}>
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <h3 className="truncate text-base font-bold tracking-tight">{vehicle.name}</h3>
+                      <p className="mt-1 text-[11px] font-medium text-muted-foreground uppercase tracking-wider">Métrica atual</p>
+                    </div>
+                    <Badge variant={alert ? "destructive" : "secondary"} className="h-6 px-2 text-[12px] font-bold rounded-lg">
                       {stats.averageConsumption ? `${stats.averageConsumption} km/l` : "—"}
                     </Badge>
                   </div>
-                  <dl className="mt-3 grid grid-cols-2 gap-2 text-sm">
-                    <div>
-                      <dt className="text-xs text-muted-foreground">Gasto</dt>
-                      <dd className="font-medium tabular-nums">{formatCurrency(stats.total)}</dd>
+                  <div className="mt-5 grid grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <dt className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60">Gasto Total</dt>
+                      <dd className="text-sm font-bold tabular-nums">{formatCurrency(stats.total)}</dd>
                     </div>
-                    <div>
-                      <dt className="text-xs text-muted-foreground">Custo por km</dt>
-                      <dd className="font-medium tabular-nums">
+                    <div className="space-y-1">
+                      <dt className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60">Custo/km</dt>
+                      <dd className="text-sm font-bold tabular-nums">
                         {stats.costPerKm ? formatCurrency(stats.costPerKm) : "—"}
                       </dd>
                     </div>
-                    <div>
-                      <dt className="text-xs text-muted-foreground">Litros</dt>
-                      <dd className="font-medium tabular-nums">{stats.liters} L</dd>
+                  </div>
+                  
+                  {target && (
+                    <div className="mt-5 border-t border-border/40 pt-4">
+                      <div className="flex items-center justify-between text-[11px] font-medium text-muted-foreground">
+                        <span>Meta: {target} km/l</span>
+                        <span className={cn(deviation && deviation > 0 ? "text-success" : "text-destructive")}>
+                          {deviation != null ? `${deviation > 0 ? "+" : ""}${deviation}%` : "—"}
+                        </span>
+                      </div>
+                      <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
+                        <div 
+                          className={cn("h-full rounded-full transition-all", alert ? "bg-destructive" : "bg-success")}
+                          style={{ width: `${Math.min(100, (Number(stats.averageConsumption ?? 0) / target) * 100)}%` }}
+                        />
+                      </div>
                     </div>
-                    <div>
-                      <dt className="text-xs text-muted-foreground">Distância</dt>
-                      <dd className="font-medium tabular-nums">{stats.distance} km</dd>
+                  )}
+
+                  {alert && (
+                    <div className="mt-4 flex items-start gap-2 rounded-lg bg-destructive/5 p-3 text-[11px] font-semibold text-destructive">
+                      <TriangleAlert className="mt-0.5 size-3.5 shrink-0" />
+                      <span>Consumo abaixo da meta. Verifique calibragem ou manutenção.</span>
                     </div>
-                  </dl>
-                  <p className="mt-3 text-xs text-muted-foreground">
-                    {target
-                      ? `Meta: ${target} km/l · tolerância ${threshold}%${
-                          deviation != null ? ` · variação ${deviation > 0 ? "+" : ""}${deviation}%` : ""
-                        }`
-                      : "Cadastre o consumo médio do veículo para receber alertas de limite."}
-                  </p>
-                  {alert ? (
-                    <p className="mt-2 flex items-start gap-2 rounded-lg bg-destructive/10 p-2 text-xs text-destructive">
+                  )}
+                  {budgetAlert && (
+                    <div className="mt-2 flex items-start gap-2 rounded-lg bg-amber-500/10 p-3 text-[11px] font-semibold text-amber-600 dark:text-amber-400">
                       <TriangleAlert className="mt-0.5 size-3.5 shrink-0" />
-                      Consumo abaixo da meta no período. Verifique calibragem, trajeto ou
-                      manutenção.
-                    </p>
-                  ) : null}
-                  {budgetAlert ? (
-                    <p className="mt-2 flex items-start gap-2 rounded-lg bg-amber-500/10 p-2 text-xs text-amber-600 dark:text-amber-400">
-                      <TriangleAlert className="mt-0.5 size-3.5 shrink-0" />
-                      Gasto acima do teto mensal definido para este veículo.
-                    </p>
-                  ) : null}
+                      <span>Gasto acima do teto mensal para este veículo.</span>
+                    </div>
+                  )}
                 </article>
               ))}
             </div>
@@ -478,7 +509,10 @@ function VehiclesPage() {
 
 
 
-        <section className="overflow-x-auto rounded-2xl border border-border bg-card">
+        <section className="overflow-hidden rounded-xl border border-border bg-card shadow-soft">
+          <div className="bg-muted/30 border-b border-border/50 px-4 py-3">
+            <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60">Histórico de abastecimentos</h3>
+          </div>
           {loadingEntries ? (
             <div className="space-y-2 p-4">
               {Array.from({ length: 5 }).map((_, index) => (
@@ -486,81 +520,93 @@ function VehiclesPage() {
               ))}
             </div>
           ) : filtered.length === 0 ? (
-            <div className="p-10 text-center text-sm text-muted-foreground">
-              <Droplets className="mx-auto mb-2 size-6" />
-              Nenhum abastecimento no período selecionado.
+            <div className="flex flex-col items-center justify-center p-20 text-center">
+              <div className="flex size-14 items-center justify-center rounded-full bg-muted text-muted-foreground/40">
+                <Droplets className="size-7" />
+              </div>
+              <p className="mt-5 text-sm font-semibold">Nenhum abastecimento encontrado</p>
+              <p className="mt-1 text-xs text-muted-foreground">Tente ajustar os filtros ou registre um novo gasto.</p>
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Data</TableHead>
-                  <TableHead className="hidden md:table-cell">Veículo</TableHead>
-                  <TableHead className="text-right">Odômetro</TableHead>
-                  <TableHead className="text-right">Litros</TableHead>
-                  <TableHead className="hidden sm:table-cell text-right">R$/L</TableHead>
-                  <TableHead className="text-right">Total</TableHead>
-                  <TableHead className="hidden lg:table-cell text-right">km/l</TableHead>
-                  <TableHead className="w-24 text-right">Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filtered.map((entry) => (
-                  <TableRow key={entry.id}>
-                    <TableCell className="whitespace-nowrap tabular-nums">
-                      {formatDate(entry.entry_date)}
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell">
-                      {vehicleNames.get(entry.vehicle_id) ?? "—"}
-                    </TableCell>
-                    <TableCell className="text-right tabular-nums">{entry.odometer}</TableCell>
-                    <TableCell className="text-right tabular-nums">{entry.liters}</TableCell>
-                    <TableCell className="hidden sm:table-cell text-right tabular-nums">
-                      {formatCurrency(Number(entry.price_per_liter))}
-                    </TableCell>
-                    <TableCell className="text-right font-semibold tabular-nums">
-                      {formatCurrency(Number(entry.total_amount))}
-                    </TableCell>
-                    <TableCell className="hidden lg:table-cell text-right tabular-nums">
-                      {entry.consumption ?? "—"}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end">
-                        {entry.attachment_url ? (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader className="bg-muted/20">
+                  <TableRow className="hover:bg-transparent">
+                    <TableHead className="font-bold text-[10px] uppercase tracking-wider text-muted-foreground">Data</TableHead>
+                    <TableHead className="hidden font-bold text-[10px] uppercase tracking-wider text-muted-foreground md:table-cell">Veículo</TableHead>
+                    <TableHead className="text-right font-bold text-[10px] uppercase tracking-wider text-muted-foreground">Odômetro</TableHead>
+                    <TableHead className="text-right font-bold text-[10px] uppercase tracking-wider text-muted-foreground">Litros</TableHead>
+                    <TableHead className="hidden sm:table-cell text-right font-bold text-[10px] uppercase tracking-wider text-muted-foreground">R$/L</TableHead>
+                    <TableHead className="text-right font-bold text-[10px] uppercase tracking-wider text-muted-foreground">Total</TableHead>
+                    <TableHead className="hidden lg:table-cell text-right font-bold text-[10px] uppercase tracking-wider text-muted-foreground">km/l</TableHead>
+                    <TableHead className="w-20 text-right font-bold text-[10px] uppercase tracking-wider text-muted-foreground">Ações</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filtered.map((entry) => (
+                    <TableRow key={entry.id} className="group hover:bg-muted/40 transition-colors">
+                      <TableCell className="whitespace-nowrap tabular-nums text-[13px] font-medium text-muted-foreground">
+                        {formatDate(entry.entry_date)}
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell text-[13px] font-semibold">
+                        {vehicleNames.get(entry.vehicle_id) ?? "—"}
+                      </TableCell>
+                      <TableCell className="text-right tabular-nums text-[13px] font-medium">{entry.odometer}</TableCell>
+                      <TableCell className="text-right tabular-nums text-[13px] font-medium">{entry.liters}L</TableCell>
+                      <TableCell className="hidden sm:table-cell text-right tabular-nums text-[13px] text-muted-foreground">
+                        {formatCurrency(Number(entry.price_per_liter))}
+                      </TableCell>
+                      <TableCell className="text-right tabular-nums text-[14px] font-bold text-foreground">
+                        {formatCurrency(Number(entry.total_amount ?? 0))}
+                      </TableCell>
+                      <TableCell className="hidden lg:table-cell text-right tabular-nums">
+                        {entry.consumption ? (
+                          <span className="inline-flex rounded-md bg-success/10 px-2 py-0.5 text-[11px] font-bold text-success">
+                            {entry.consumption} km/l
+                          </span>
+                        ) : (
+                          <span className="text-muted-foreground/40">—</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                          {entry.attachment_url && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="size-8 rounded-lg"
+                              onClick={() => setReceipt(entry.attachment_url)}
+                            >
+                              <Droplets className="size-3.5" />
+                            </Button>
+                          )}
                           <Button
                             variant="ghost"
                             size="icon"
-                            aria-label="Ver comprovante"
-                            onClick={() => setReceipt(entry.attachment_url)}
+                            className="size-8 rounded-lg"
+                            onClick={() => {
+                              setEditingEntry(entry);
+                              setVehicleFilter(entry.vehicle_id);
+                              setFuelDialog(true);
+                            }}
                           >
-                            <Droplets className="size-4" />
+                            <Pencil className="size-3.5" />
                           </Button>
-                        ) : null}
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          aria-label="Editar abastecimento"
-                          onClick={() => {
-                            setEditingEntry(entry);
-                            setFuelDialog(true);
-                          }}
-                        >
-                          <Pencil className="size-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          aria-label="Remover abastecimento"
-                          onClick={() => setConfirmEntry(entry)}
-                        >
-                          <Trash2 className="size-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="size-8 rounded-lg hover:text-destructive hover:bg-destructive/10"
+                            onClick={() => setConfirmEntry(entry)}
+                          >
+                            <Trash2 className="size-3.5" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           )}
         </section>
 

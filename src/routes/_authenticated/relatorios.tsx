@@ -431,13 +431,14 @@ function ReportsPage() {
           </FilterField>
         </FilterPanel>
 
-        <div className="grid gap-2.5 sm:gap-3 auto-cards-sm">
+        <div className="grid grid-cols-2 gap-2.5 sm:gap-4 lg:grid-cols-4">
           <StatTile
             label="Receitas"
             value={formatCurrency(totals.income)}
             tone="success"
             icon={TrendingUp}
-            hint="Entradas confirmadas no período"
+            hint="Entradas confirmadas"
+            className="sm:p-3.5"
           />
           <StatTile
             label="Despesas"
@@ -446,10 +447,11 @@ function ReportsPage() {
             icon={TrendingDown}
             hint={
               totals.income
-                ? `${formatPercent((totals.expense / totals.income) * 100, 1)} das receitas`
-                : "Saídas do período"
+                ? `${formatPercent((totals.expense / totals.income) * 100, 1)} da renda`
+                : "Saídas totais"
             }
             progress={totals.income ? (totals.expense / totals.income) * 100 : undefined}
+            className="sm:p-3.5"
           />
           <StatTile
             label="Saldo"
@@ -458,27 +460,30 @@ function ReportsPage() {
             icon={Wallet}
             hint={
               totals.income
-                ? `Taxa de sobra de ${formatPercent(savingRate, 1)}`
-                : "Receitas menos despesas"
+                ? `Sobra de ${formatPercent(savingRate, 1)}`
+                : "Diferença do período"
             }
+            className="sm:p-3.5"
           />
           <StatTile
-            label="Média mensal de gastos"
+            label="Média Mensal"
             value={formatCurrency(totals.average)}
             tone="neutral"
             icon={CalendarRange}
-            hint={`${monthsBetween(start, end)} mês(es) no período`}
+            hint={`${monthsBetween(start, end)} meses analisados`}
+            className="sm:p-3.5"
           />
         </div>
 
         {isLoading ? (
           <Skeleton className="h-72 rounded-2xl" />
         ) : (
-          <div className="auto-cards-lg">
+          <div className="grid gap-3 sm:gap-4 md:grid-cols-2">
             <Panel
               title="Receitas x despesas por mês"
               description="Evolução mensal do período filtrado"
               icon={BarChart3}
+              className="interactive-card shadow-soft"
               bodyClassName="p-2 sm:p-4"
             >
               <div className="h-60 sm:h-64">
@@ -507,6 +512,7 @@ function ReportsPage() {
                   : "Sem dados no período"
               }
               icon={PieChartIcon}
+              className="interactive-card shadow-soft"
               bodyClassName="p-2 sm:p-4"
             >
               <div className="h-60 sm:h-64">
@@ -537,6 +543,7 @@ function ReportsPage() {
           title="Detalhamento por categoria"
           description="Participação de cada categoria no total de despesas"
           icon={ListFilter}
+          className="interactive-card shadow-soft"
           bodyClassName="p-0"
         >
           {byCategory.length === 0 ? (
