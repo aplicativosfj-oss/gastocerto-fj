@@ -575,14 +575,15 @@ function DashboardPage() {
 
             <div className="space-y-4">
               {metrics.limit > 0 && (
-                <StatCard
-                  tile="var(--acc-6)"
+                <StatTile
+                  tone="neutral"
                   label="Orçamento geral"
                   value={formatCurrency(metrics.limit)}
                   progress={metrics.usedPercent}
-                  icon={<Wallet className="size-4" />}
+                  icon={Wallet}
                   hint={`Você já usou ${metrics.usedPercent.toFixed(1)}% do seu limite definido.`}
                 />
+
               )}
               
               <RecurringAlerts />
@@ -593,8 +594,8 @@ function DashboardPage() {
         {/* Bloco de métricas secundárias */}
         {!loadingTransactions && (
           <div className="grid gap-3 auto-cards-sm mt-4">
-            <StatCard
-              tile="var(--acc-1)"
+            <StatTile
+              tone="neutral"
               label="Média diária"
               value={formatCurrency(metrics.dailyAverage)}
               onClick={() =>
@@ -610,8 +611,9 @@ function DashboardPage() {
                 })
               }
             />
-            <StatCard
-              tile="var(--acc-6)"
+
+            <StatTile
+              tone="warning"
               label="Projeção do mês"
               value={formatCurrency(metrics.projection)}
               hint="Com base no ritmo atual"
@@ -628,6 +630,7 @@ function DashboardPage() {
                 })
               }
             />
+
           </div>
         )}
       
