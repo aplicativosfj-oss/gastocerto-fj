@@ -89,6 +89,7 @@ function DashboardPage() {
   const [dialogKind, setDialogKind] = useState<"expense" | "income">("expense");
   const [preset, setPreset] = useState<QuickPick>({ categoryId: null, subCategoryId: null });
   const [detail, setDetail] = useState<MetricDetail | null>(null);
+  const [editingTx, setEditingTx] = useState<Transaction | null>(null);
   const [dependentOpen, setDependentOpen] = useState(false);
   const [taxOpen, setTaxOpen] = useState(false);
 
