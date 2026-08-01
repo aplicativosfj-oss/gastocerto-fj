@@ -41,6 +41,7 @@ import { MetricDetailDialog, type MetricDetail } from "@/components/finance/metr
 import { QuickCategoryMenu, type QuickPick } from "@/components/finance/quick-category-menu";
 import { PeriodPicker } from "@/components/finance/period-picker";
 import { CardMonthSummary } from "@/components/finance/card-month-summary";
+import { EmblemBike, EmblemCar } from "@/components/ui/panel-emblems";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
