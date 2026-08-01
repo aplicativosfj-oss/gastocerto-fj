@@ -580,75 +580,47 @@ function DashboardPage() {
             </div>
           </div>
         )}
-              <StatCard
-                tile="var(--acc-2)"
-                label="Recebido no mês"
-                value={formatCurrency(metrics.totalIncome)}
-                icon={<TrendingUp className="size-4" />}
-                onClick={() =>
-                  setDetail({
-                    label: "Recebido no mês",
-                    value: formatCurrency(metrics.totalIncome),
-                    formula: "Soma de todas as receitas do período selecionado.",
-                    rows: detailRows.incomes,
-                  })
-                }
-              />
-              <StatCard
-                tile={metrics.balance >= 0 ? "var(--acc-2)" : "var(--acc-4)"}
-                label="Saldo do mês"
-                value={formatCurrency(metrics.balance)}
-                icon={<Wallet className="size-4" />}
-                hint={metrics.balance >= 0 ? "Positivo" : "Negativo"}
-                onClick={() =>
-                  setDetail({
-                    label: "Saldo do mês",
-                    value: formatCurrency(metrics.balance),
-                    hint: metrics.balance >= 0 ? "Sobrou dinheiro no período." : "As despesas passaram das receitas.",
-                    formula: "Receitas do período menos as despesas do período.",
-                    rows: detailRows.all,
-                    extra: [
-                      { label: "Receitas", value: formatCurrency(metrics.totalIncome) },
-                      { label: "Despesas", value: formatCurrency(metrics.totalExpense) },
-                    ],
-                  })
-                }
-              />
-              <StatCard
-                tile="var(--acc-1)"
-                label="Média diária"
-                value={formatCurrency(metrics.dailyAverage)}
-                onClick={() =>
-                  setDetail({
-                    label: "Média diária de gastos",
-                    value: formatCurrency(metrics.dailyAverage),
-                    formula: "Gasto do mês dividido pelos dias já decorridos do período.",
-                    rows: detailRows.expenses,
-                    extra: [
-                      { label: "Gasto no mês", value: formatCurrency(metrics.totalExpense) },
-                      { label: "Projeção do mês", value: formatCurrency(metrics.projection) },
-                    ],
-                  })
-                }
-              />
-              <StatCard
-                tile="var(--acc-6)"
-                label="Projeção do mês"
-                value={formatCurrency(metrics.projection)}
-                hint="Com base no ritmo atual"
-                onClick={() =>
-                  setDetail({
-                    label: "Projeção do mês",
-                    value: formatCurrency(metrics.projection),
-                    formula: "Média diária multiplicada pelo total de dias do mês.",
-                    rows: detailRows.expenses,
-                    extra: [
-                      { label: "Média diária", value: formatCurrency(metrics.dailyAverage) },
-                      { label: "Gasto até agora", value: formatCurrency(metrics.totalExpense) },
-                    ],
-                  })
-                }
-              />
+
+        {/* Bloco de métricas secundárias */}
+        {!loadingTransactions && (
+          <div className="grid gap-3 auto-cards-sm mt-4">
+            <StatCard
+              tile="var(--acc-1)"
+              label="Média diária"
+              value={formatCurrency(metrics.dailyAverage)}
+              onClick={() =>
+                setDetail({
+                  label: "Média diária de gastos",
+                  value: formatCurrency(metrics.dailyAverage),
+                  formula: "Gasto do mês dividido pelos dias já decorridos do período.",
+                  rows: detailRows.expenses,
+                  extra: [
+                    { label: "Gasto no mês", value: formatCurrency(metrics.totalExpense) },
+                    { label: "Projeção do mês", value: formatCurrency(metrics.projection) },
+                  ],
+                })
+              }
+            />
+            <StatCard
+              tile="var(--acc-6)"
+              label="Projeção do mês"
+              value={formatCurrency(metrics.projection)}
+              hint="Com base no ritmo atual"
+              onClick={() =>
+                setDetail({
+                  label: "Projeção do mês",
+                  value: formatCurrency(metrics.projection),
+                  formula: "Média diária multiplicada pelo total de dias do mês.",
+                  rows: detailRows.expenses,
+                  extra: [
+                    { label: "Média diária", value: formatCurrency(metrics.dailyAverage) },
+                    { label: "Gasto até agora", value: formatCurrency(metrics.totalExpense) },
+                  ],
+                })
+              }
+            />
+          </div>
+        )}
               <StatCard
                 tile={
                   !metrics.diffAvailable
