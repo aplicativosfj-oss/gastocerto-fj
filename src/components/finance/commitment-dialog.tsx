@@ -225,7 +225,7 @@ export function CommitmentDialog({
       const installmentsTotal = installments ? Number(installments) : 0;
       if (!isOpenAccount && installmentsTotal > 0 && savedId) {
         try {
-          const created = await generate.mutateAsync({
+          const result = await generate.mutateAsync({
             id: savedId,
             name: name.trim().slice(0, 120),
             commitment_type: type,
@@ -243,9 +243,15 @@ export function CommitmentDialog({
             is_open_account: false,
             status,
           } as Commitment);
-          if (created > 0) {
-            toast.success(`${created} parcela(s) futura(s) lançada(s) automaticamente.`);
+          const parts = [
+            result.created > 0 ? `${result.created} nova(s)` : null,
+            result.updated > 0 ? `${result.updated} ajustada(s)` : null,
+            result.removed > 0 ? `${result.removed} removida(s)` : null,
+          ].filter(Boolean);
+          if (parts.length > 0) {
+            toast.success(`Parcelas sincronizadas: ${parts.join(", ")}.`);
           }
+
         } catch (genError) {
           console.error("[compromissos] falha ao gerar parcelas", genError);
           toast.error("Compromisso salvo, mas não foi possível gerar as parcelas futuras.");
