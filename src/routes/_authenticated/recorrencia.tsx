@@ -252,12 +252,12 @@ function RecurringPage() {
               variant="outline"
               onClick={() => {
                 setEditing(null);
-                setPreset({ type: "expense", frequency: "weekly" });
+                setPreset({ type: "expense", frequency: "monthly" });
                 setDialogOpen(true);
               }}
             >
               <Plus className="mr-2 size-4" />
-              Despesa semanal
+              Financiamento/Parcela
             </Button>
             <Button
               onClick={() => {
@@ -269,6 +269,7 @@ function RecurringPage() {
               <Plus className="mr-2 size-4" />
               Nova recorrência
             </Button>
+
           </div>
 
         </header>

@@ -83,6 +83,8 @@ function ReportsPage() {
   const [end, setEnd] = useState(initial.end);
   const [typeFilter, setTypeFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
+  const [recipientFilter, setRecipientFilter] = useState("all");
+
   const [methodFilter, setMethodFilter] = useState("all");
   const [essentialFilter, setEssentialFilter] = useState("all");
 
@@ -102,9 +104,18 @@ function ReportsPage() {
       if (methodFilter !== "all" && item.payment_method !== methodFilter) return false;
       if (essentialFilter === "essential" && !item.is_essential) return false;
       if (essentialFilter === "non_essential" && item.is_essential) return false;
+      
+      if (recipientFilter !== "all") {
+        const hasTag = (item.tags ?? []).some(t => t.toLowerCase().includes(recipientFilter.toLowerCase()));
+        const hasNotes = (item.notes ?? "").toLowerCase().includes(recipientFilter.toLowerCase());
+        const hasMerchant = (item.merchant_name ?? "").toLowerCase().includes(recipientFilter.toLowerCase());
+        if (!hasTag && !hasNotes && !hasMerchant) return false;
+      }
+
       return true;
     });
-  }, [transactions, typeFilter, categoryFilter, methodFilter, essentialFilter]);
+  }, [transactions, typeFilter, categoryFilter, methodFilter, essentialFilter, recipientFilter]);
+
 
   const totals = useMemo(() => {
     let income = 0;
@@ -325,6 +336,27 @@ function ReportsPage() {
               </SelectContent>
             </Select>
           </div>
+          <div>
+            <Label>Destinatário (Pessoa/Contexto)</Label>
+            <Select value={recipientFilter} onValueChange={setRecipientFilter}>
+              <SelectTrigger className="mt-1.5">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os destinatários</SelectItem>
+                <SelectItem value="esposa">Esposa</SelectItem>
+                <SelectItem value="marido">Marido</SelectItem>
+                <SelectItem value="mãe">Mãe</SelectItem>
+                <SelectItem value="pai">Pai</SelectItem>
+                <SelectItem value="filho">Filhos</SelectItem>
+                <SelectItem value="tio">Tio / Tia</SelectItem>
+                <SelectItem value="amigo">Amigo / Outros</SelectItem>
+                <SelectItem value="presente">Presentes</SelectItem>
+                <SelectItem value="cabelo">Cabelo / Beleza</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
           <div>
             <Label>Pagamento</Label>
             <Select value={methodFilter} onValueChange={setMethodFilter}>

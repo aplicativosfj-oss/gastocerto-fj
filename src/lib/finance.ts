@@ -17,7 +17,13 @@ export const EXPENSE_TYPES = [
   { value: "recorrente", label: "Recorrente" },
   { value: "parcelada", label: "Parcelada" },
   { value: "eventual", label: "Eventual" },
+  { value: "financiamento", label: "Financiamento" },
+  { value: "emprestimo", label: "Empréstimo" },
+  { value: "crediario", label: "Crediário" },
+  { value: "funcionario", label: "Funcionário / Doméstico" },
+  { value: "cartao", label: "Cartão de Crédito" },
 ] as const;
+
 
 export const TRANSACTION_STATUS = [
   { value: "paid", label: "Pago" },

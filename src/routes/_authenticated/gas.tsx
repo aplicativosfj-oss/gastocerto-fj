@@ -88,7 +88,11 @@ type MetricDetail = {
   description: string;
   rows: [string, string][];
   extra?: ReactNode;
+  chartData?: any[];
+  chartKey?: string;
+  chartColor?: string;
 };
+
 
 /** Card de indicador clicável — abre o detalhamento completo do número. */
 function MetricCard({
@@ -150,9 +154,22 @@ function MetricDetailDialog({
                 </div>
               ))}
             </dl>
-            {detail.extra}
-          </>
-        ) : null}
+             {detail.extra}
+             {detail.chartData ? (
+               <div className="mt-4 h-48">
+                 <ResponsiveContainer width="100%" height="100%">
+                   <BarChart data={detail.chartData}>
+                     <CartesianGrid {...gridProps} />
+                     <XAxis dataKey="label" {...axisProps} />
+                     <Tooltip {...tooltipProps} />
+                     <Bar dataKey={detail.chartKey ?? "value"} fill={detail.chartColor ?? "var(--chart-1)"} radius={[4, 4, 0, 0]} />
+                   </BarChart>
+                 </ResponsiveContainer>
+               </div>
+             ) : null}
+           </>
+         ) : null}
+
       </DialogContent>
     </Dialog>
   );
@@ -172,15 +189,20 @@ function buildDetails(summary: GasSummary): Record<string, MetricDetail> {
         summary.averageDays != null
           ? `~${nf(summary.averageWeeks)} semanas · ~${nf(summary.averageMonths)} mês(es)`
           : "Registre a próxima troca para calcular",
-      description: "Média dos intervalos entre uma compra e a troca seguinte.",
+      description: "Intervalo médio entre uma compra e a troca seguinte. Se for curto, você pode estar consumindo muito ou o botijão veio com menos gás.",
       rows: [
         ["Ciclos usados no cálculo", String(summary.closed.length)],
         ["Menor duração", nf(summary.shortestDays, " dias")],
         ["Maior duração", nf(summary.longestDays, " dias")],
-        ["Em semanas", nf(summary.averageWeeks, " semanas")],
-        ["Em meses", nf(summary.averageMonths, " mês(es)")],
       ],
+      chartData: summary.closed.map((cycle) => ({
+        label: formatDate(cycle.startDate).slice(0, 5),
+        dias: cycle.days ?? 0,
+      })),
+      chartKey: "dias",
+      chartColor: DURATION_COLOR,
       extra: lastCycles.length ? (
+
         <div className="mt-1 space-y-1.5">
           <p className="text-xs uppercase text-muted-foreground">Últimos ciclos encerrados</p>
           {lastCycles.map((cycle) => (
@@ -268,9 +290,23 @@ function GasPage() {
   const [editing, setEditing] = useState<GasRefill | null>(null);
   const [importOpen, setImportOpen] = useState(false);
   const [detailKey, setDetailKey] = useState<string | null>(null);
+  const [chartRange, setChartRange] = useState("all");
 
   const summary = useMemo(() => summarizeGas(refills ?? []), [refills]);
-  const details = useMemo(() => buildDetails(summary), [summary]);
+
+  const filteredRefills = useMemo(() => {
+    if (!refills) return [];
+    if (chartRange === "all") return refills;
+    const days = parseInt(chartRange, 10);
+    const limit = new Date();
+    limit.setDate(limit.getDate() - days);
+    return refills.filter(r => new Date(r.refill_date) >= limit);
+  }, [refills, chartRange]);
+
+
+  const filteredSummary = useMemo(() => summarizeGas(filteredRefills), [filteredRefills]);
+  const details = useMemo(() => buildDetails(filteredSummary), [filteredSummary]);
+
 
   const durationSeries = useMemo(
     () =>
@@ -336,6 +372,29 @@ function GasPage() {
           </Button>
         </div>
       </header>
+
+      <section className="mt-6 flex flex-wrap items-center gap-3 rounded-2xl border border-border bg-card p-3">
+        <span className="text-sm font-medium">Intervalo do gráfico:</span>
+        <div className="flex gap-2">
+          {[
+            { label: "Todo histórico", value: "all" },
+            { label: "30 dias", value: "30" },
+            { label: "60 dias", value: "60" },
+            { label: "90 dias", value: "90" },
+          ].map((range) => (
+            <Button
+              key={range.value}
+              size="sm"
+              variant={chartRange === range.value ? "secondary" : "ghost"}
+              className="h-8 text-xs"
+              onClick={() => setChartRange(range.value)}
+            >
+              {range.label}
+            </Button>
+          ))}
+        </div>
+      </section>
+
 
       {isLoading ? (
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
