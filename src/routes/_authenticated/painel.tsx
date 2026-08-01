@@ -621,43 +621,6 @@ function DashboardPage() {
             />
           </div>
         )}
-              <StatCard
-                tile={
-                  !metrics.diffAvailable
-                    ? "var(--acc-1)"
-                    : metrics.diffPercent >= 0
-                      ? "var(--acc-4)"
-                      : "var(--acc-2)"
-                }
-                label="Comparado ao mês anterior"
-                value={
-                  metrics.diffAvailable
-                    ? `${metrics.diffPercent >= 0 ? "+" : ""}${metrics.diffPercent.toFixed(1)}%`
-                    : "—"
-                }
-                hint={
-                  metrics.diffAvailable
-                    ? formatCurrency(metrics.previousExpense)
-                    : "Sem gastos suficientes para comparar"
-                }
-                onClick={() =>
-                  setDetail({
-                    label: "Comparado ao mês anterior",
-                    value: metrics.diffAvailable
-                      ? `${metrics.diffPercent >= 0 ? "+" : ""}${metrics.diffPercent.toFixed(1)}%`
-                      : "—",
-                    formula: metrics.diffAvailable
-                      ? "Variação entre o gasto deste período e o do período anterior."
-                      : "A comparação aparece quando este mês e o anterior têm gastos lançados (meses futuros não são comparados).",
-                    rows: detailRows.expenses,
-                    extra: [
-                      { label: "Gasto deste mês", value: formatCurrency(metrics.totalExpense) },
-                      { label: "Mês anterior", value: formatCurrency(metrics.previousExpense) },
-                    ],
-                  })
-                }
-              />
-            </section>
 
 
             <section className="rounded-2xl border border-border bg-card p-4">
@@ -1011,7 +974,6 @@ function DashboardPage() {
               )}
             </section>
 
-          </>
         )}
       </div>
 
