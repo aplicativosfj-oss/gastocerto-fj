@@ -47,6 +47,7 @@ import {
 import { useClosings } from "@/lib/closing";
 import { MIN_TRANSACTION_DATE, lockedMonthKeys } from "@/lib/closing-lock";
 import { useClosingPolicy } from "@/lib/use-closing-policy";
+import { PAST_EDIT_UNLOCK_MINUTES, usePastEditUnlock } from "@/lib/past-edit-unlock";
 import { useAuth } from "@/hooks/use-auth";
 import { PasswordConfirmDialog } from "@/components/finance/password-confirm-dialog";
 
@@ -253,14 +254,13 @@ export function TransactionDialog({
   const { user } = useAuth();
   const formRef = useRef<HTMLFormElement>(null);
   const [passwordOpen, setPasswordOpen] = useState(false);
-  const [identityConfirmed, setIdentityConfirmed] = useState(false);
+  /** Liberação reaproveitável: vale para toda a competência por alguns minutos. */
+  const pastUnlock = usePastEditUnlock(monthKey);
   const adminBlockedPast = policy.lockPastMonths && isPastMonth;
   const needsPassword =
-    policy.requirePasswordForPastEdits && isPastMonth && !adminBlockedPast && !identityConfirmed;
+    policy.requirePasswordForPastEdits && isPastMonth && !adminBlockedPast && !pastUnlock.unlocked;
 
-  useEffect(() => {
-    if (!open) setIdentityConfirmed(false);
-  }, [open]);
+
 
 
   function shiftDate(kindOfShift: "today" | "yesterday" | "lastMonth") {
@@ -1016,12 +1016,13 @@ export function TransactionDialog({
           open={passwordOpen}
           onOpenChange={setPasswordOpen}
           email={user?.email}
-          description={`Para ${editing ? "editar" : "registrar"} um lançamento de ${formatDate(date)} (mês anterior) confirme sua senha.`}
+          description={`Para ${editing ? "editar" : "registrar"} um lançamento de ${formatDate(date)} (mês anterior) confirme sua senha. A liberação vale ${PAST_EDIT_UNLOCK_MINUTES} minutos para todo o mês.`}
           onConfirmed={() => {
-            setIdentityConfirmed(true);
+            pastUnlock.grant();
             window.setTimeout(() => formRef.current?.requestSubmit(), 0);
           }}
         />
+
       </DialogContent>
     </Dialog>
   );

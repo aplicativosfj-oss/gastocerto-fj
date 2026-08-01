@@ -12,6 +12,7 @@ import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
+import { PastMonthsLockNotice } from "@/components/finance/past-months-lock-notice";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -295,6 +296,8 @@ function CalendarPage() {
             </Button>
           </div>
         </header>
+
+        <PastMonthsLockNotice monthKey={`${year}-${String(month).padStart(2, "0")}`} />
 
         <section className="rounded-xl border border-border bg-card p-3">
           <div className="flex flex-wrap items-center gap-2">

@@ -41,7 +41,10 @@ import { MetricDetailDialog, type MetricDetail } from "@/components/finance/metr
 import { QuickCategoryMenu, type QuickPick } from "@/components/finance/quick-category-menu";
 import { PeriodPicker } from "@/components/finance/period-picker";
 import { CardMonthSummary } from "@/components/finance/card-month-summary";
+import { InsightsPanel } from "@/components/finance/insights-panel";
+import { PastMonthsLockNotice } from "@/components/finance/past-months-lock-notice";
 import { VehicleEmblem } from "@/components/finance/vehicle-emblem";
+
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -626,6 +629,10 @@ function DashboardPage() {
               )}
             </section>
 
+            <PastMonthsLockNotice
+              monthKey={`${period.year}-${String(period.month).padStart(2, "0")}`}
+            />
+
             <RecurringAlerts days={7} />
 
             {budgetAlerts.length > 0 ? (
@@ -779,10 +786,13 @@ function DashboardPage() {
               </ChartCard>
             </section>
 
+            <InsightsPanel year={period.year} month={period.month} />
+
             <CardMonthSummary
               transactions={transactions ?? []}
               categories={categories ?? []}
               monthLabel={`${MONTH_NAMES[period.month - 1]}/${period.year}`}
+
             />
 
             <section className="auto-cards-lg">
