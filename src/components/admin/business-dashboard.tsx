@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { adminGetBusinessMetrics } from "@/lib/admin-expansion.functions";
 import { StatTile } from "@/components/finance/stat-tile";
-import { TrendingUp, Users, DollarSign, BrainCircuit, FileDown } from "lucide-react";
+import { TrendingUp, Users, DollarSign, BrainCircuit, FileDown, Loader2 } from "lucide-react";
 import { formatCurrency } from "@/lib/format";
-import { Loader2, Button } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
 export function BusinessDashboard() {
