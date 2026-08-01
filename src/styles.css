@@ -302,6 +302,18 @@
   height: clamp(150px, 34vw, 230px);
 }
 
+/* Área de conteúdo do app com altura mínima estável entre navegações,
+   para a janela ativa não mudar de forma ao alternar menus e painéis. */
+@utility app-main {
+  min-height: calc(100svh - 8.75rem);
+}
+
+/* Faixa de abas com altura fixa: alternar seção não muda a altura do header. */
+@utility subnav-strip {
+  height: 2.375rem;
+}
+
+
 
 /* Revelação suave ao entrar na viewport. */
 @utility reveal {
