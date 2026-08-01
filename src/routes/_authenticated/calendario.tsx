@@ -53,11 +53,46 @@ export const Route = createFileRoute("/_authenticated/calendario")({
 
 const WEEKDAYS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
+type CalendarKind =
+  | "commitments"
+  | "installments"
+  | "allowance"
+  | "tax"
+  | "due"
+  | "others";
+
+const KIND_FILTERS: { key: CalendarKind; label: string }[] = [
+  { key: "commitments", label: "Compromissos" },
+  { key: "installments", label: "Parcelas" },
+  { key: "allowance", label: "Mesada e filhos" },
+  { key: "tax", label: "Imposto de Renda" },
+  { key: "due", label: "Vencimentos em aberto" },
+  { key: "others", label: "Outros" },
+];
+
+type Horizon = "month" | "7" | "15" | "30";
+
+const HORIZONS: { key: Horizon; label: string }[] = [
+  { key: "month", label: "Mês" },
+  { key: "7", label: "7 dias" },
+  { key: "15", label: "15 dias" },
+  { key: "30", label: "30 dias" },
+];
+
 function CalendarPage() {
   const today = useMemo(() => new Date(), []);
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth() + 1);
   const [selectedDay, setSelectedDay] = useState<string | null>(isoDate(today));
+  const [active, setActive] = useState<CalendarKind[]>([]);
+  const [horizon, setHorizon] = useState<Horizon>("month");
+
+  function toggleKind(kind: CalendarKind) {
+    setActive((current) =>
+      current.includes(kind) ? current.filter((item) => item !== kind) : [...current, kind],
+    );
+  }
+
 
   const range = useMemo(() => monthRange(year, month), [year, month]);
   const { data: transactions, isLoading } = useTransactions(range);
