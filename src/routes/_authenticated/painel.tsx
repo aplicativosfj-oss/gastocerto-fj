@@ -476,9 +476,8 @@ function DashboardPage() {
             ))}
           </div>
         ) : (
-          <>
-            <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
-              <div className="space-y-4">
+          <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
+            <div className="space-y-4">
               <InteractiveCalendar onDayClick={openDayDetail} />
               
               <div className="grid gap-3 auto-cards-sm">
@@ -622,8 +621,9 @@ function DashboardPage() {
             />
           </div>
         </div>
-      </>
-    )}
+        
+        {!loadingTransactions && (
+          <div className="space-y-4">
         
         {!loadingTransactions && (
           <div className="space-y-4">
@@ -981,6 +981,7 @@ function DashboardPage() {
             </section>
           </div>
         )}
+      </div>
 
       <MetricDetailDialog
         detail={detail}
@@ -1029,6 +1030,7 @@ function DashboardPage() {
           if (y && m && (y !== period.year || m !== period.month)) setPeriod({ year: y, month: m });
         }}
       />
+    </AppShell>
   );
 }
 
