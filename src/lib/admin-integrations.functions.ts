@@ -310,3 +310,120 @@ export const adminAdjustGeminiLimits = createServerFn({ method: "POST" })
 
     return { ok: true, message: "Limites sincronizados com o plano atual." };
   });
+
+/** Situação e credenciais mascaradas do Mercado Pago. */
+export const adminGetMercadoPagoStatus = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { assertAdminCtx } = await import("@/lib/admin-guard.server");
+    await assertAdminCtx(context);
+
+    const { resolveMercadoPagoCredentials, maskSecret } = await import("@/lib/mercadopago-credentials.server");
+    const credentials = await resolveMercadoPagoCredentials();
+
+    return {
+      source: credentials.source,
+      environment: credentials.environment,
+      rotatedAt: credentials.rotatedAt,
+      updatedAt: credentials.updatedAt,
+      hasPublicKey: Boolean(credentials.publicKey),
+      hasAccessToken: Boolean(credentials.accessToken),
+      hasClientId: Boolean(credentials.clientId),
+      hasClientSecret: Boolean(credentials.clientSecret),
+      publicKeyMasked: maskSecret(credentials.publicKey),
+      accessTokenMasked: maskSecret(credentials.accessToken),
+      clientIdMasked: maskSecret(credentials.clientId),
+      clientSecretMasked: maskSecret(credentials.clientSecret),
+    };
+  });
+
+/** Salva (rotaciona) as credenciais do Mercado Pago. */
+export const adminSaveMercadoPagoCredentials = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        publicKey: z.string().trim().max(200).optional(),
+        accessToken: z.string().trim().max(300).optional(),
+        clientId: z.string().trim().max(120).optional(),
+        clientSecret: z.string().trim().max(200).optional(),
+        environment: z.enum(["production", "sandbox"]).optional(),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { assertAdminCtx, auditLog } = await import("@/lib/admin-guard.server");
+    await assertAdminCtx(context);
+
+    const { saveMercadoPagoCredentials } = await import("@/lib/mercadopago-credentials.server");
+    const saved = await saveMercadoPagoCredentials({ ...data, updatedBy: context.userId });
+
+    await auditLog(context, "mercadopago_credentials_saved", {
+      environment: saved.environment,
+      changed_public_key: Boolean(data.publicKey),
+      changed_access_token: Boolean(data.accessToken),
+      changed_client_id: Boolean(data.clientId),
+      changed_client_secret: Boolean(data.clientSecret),
+    });
+
+    return { ok: true, source: saved.source, environment: saved.environment };
+  });
+
+/** Testa o Access Token do Mercado Pago e retorna conectado/desconectado. */
+export const adminTestMercadoPago = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { assertAdminCtx, auditLog } = await import("@/lib/admin-guard.server");
+    await assertAdminCtx(context);
+
+    const { resolveMercadoPagoCredentials, testAccessToken } = await import(
+      "@/lib/mercadopago-credentials.server"
+    );
+    const credentials = await resolveMercadoPagoCredentials();
+    const result = await testAccessToken(credentials.accessToken);
+
+    await auditLog(context, "mercadopago_access_token_tested", {
+      ok: result.ok,
+      message: result.message,
+      source: credentials.source,
+    });
+
+    return { ...result, source: credentials.source };
+  });
+
+/** Testa o Client ID e o Client Secret via OAuth e retorna conectado/desconectado. */
+export const adminTestMercadoPagoOAuth = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { assertAdminCtx, auditLog } = await import("@/lib/admin-guard.server");
+    await assertAdminCtx(context);
+
+    const { resolveMercadoPagoCredentials, testClientCredentials } = await import(
+      "@/lib/mercadopago-credentials.server"
+    );
+    const credentials = await resolveMercadoPagoCredentials();
+    const result = await testClientCredentials(credentials.clientId, credentials.clientSecret);
+
+    await auditLog(context, "mercadopago_client_credentials_tested", {
+      ok: result.ok,
+      message: result.message,
+      source: credentials.source,
+    });
+
+    return { ...result, source: credentials.source };
+  });
+
+/** Remove em tempo real as credenciais salvas no banco. */
+export const adminDeleteMercadoPagoCredentials = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { assertAdminCtx, auditLog } = await import("@/lib/admin-guard.server");
+    await assertAdminCtx(context);
+
+    const { disableStoredCredentials } = await import("@/lib/mercadopago-credentials.server");
+    const result = await disableStoredCredentials();
+
+    await auditLog(context, "mercadopago_credentials_deleted", { fallback_source: result.source });
+
+    return { ok: true, source: result.source };
+  });
