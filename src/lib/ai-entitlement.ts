@@ -115,7 +115,16 @@ export function evaluateAiEntitlement(input: {
     Number(input.plan?.annual_price ?? 0),
   );
   const paidPlan = price > 0 && !AI_TRIAL_SLUGS.includes(planSlug);
-  if (paidPlan) return { entitled: true, reason: "paid_plan", planSlug };
+  if (paidPlan) {
+    // A IA só acompanha o plano pago com IA integrada (Premium IA).
+    if (planIncludesAi(planSlug)) return { entitled: true, reason: "paid_plan", planSlug };
+    return {
+      entitled: false,
+      reason: "plan_without_ai",
+      planSlug,
+      message: AI_UPGRADE_MESSAGE,
+    };
+  }
 
   // Período de teste vigente: tudo liberado, inclusive a IA.
   const trialEnd = input.trialEndsAt ? new Date(input.trialEndsAt) : null;
