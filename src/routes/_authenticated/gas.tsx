@@ -359,6 +359,8 @@ function GasPage() {
       )}
 
       <GasRefillDialog open={dialogOpen} onOpenChange={setDialogOpen} refill={editing} />
+      <GasImportDialog open={importOpen} onOpenChange={setImportOpen} />
+
     </AppShell>
   );
 }
