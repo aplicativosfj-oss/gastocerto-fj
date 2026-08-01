@@ -18,19 +18,17 @@ export function Logo({
   compact?: boolean;
   onDark?: boolean;
 }) {
+  if (compact) {
+    return <BrandMark className={cn("size-10 shrink-0 shadow-lg", className)} />;
+  }
+
   return (
-    <span className={cn("inline-flex items-center gap-2.5", className)}>
-      <BrandMark className={cn(compact ? "size-10" : "size-11", "shrink-0 shadow-lg")} />
-      {!compact && (
-        <div className="flex flex-col leading-none">
-          <span className={cn("text-xl font-black tracking-tighter", onDark ? "text-white" : "text-foreground")}>
-            Gasto<span className="text-[oklch(0.52_0.13_162)]">Certo</span>
-          </span>
-          <span className={cn("mt-0.5 text-[10px] font-bold uppercase tracking-[0.12em] opacity-90", onDark ? "text-white/80" : "text-muted-foreground")}>
-            Controle hoje, tranquilidade sempre
-          </span>
-        </div>
-      )}
-    </span>
+    <div className={cn("relative h-11 transition-transform hover:scale-[1.02]", className)}>
+      <img 
+        src={logoAsset.url} 
+        alt="GastoCerto Logo" 
+        className={cn("h-full w-auto object-contain", onDark && "brightness-0 invert")} 
+      />
+    </div>
   );
 }
