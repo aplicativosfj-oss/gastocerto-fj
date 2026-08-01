@@ -1085,6 +1085,8 @@ function StatCard({
       ) : null}
     </Wrapper>
   );
+}
+
 
 function ChartCard({
   title,
