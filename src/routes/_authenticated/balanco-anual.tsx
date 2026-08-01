@@ -33,7 +33,23 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { EmblemReceipt } from "@/components/ui/panel-emblems";
-import { axisProps, seriesColor, tooltipProps } from "@/lib/chart-theme";
+import {
+  CHART_TOKENS,
+  axisProps,
+  barRadius,
+  gridProps,
+  legendProps,
+  tooltipProps,
+} from "@/lib/chart-theme";
+
+/** Eixo Y compacto: 12500 -> "12,5 mil". */
+function compactAxisValue(value: number) {
+  const abs = Math.abs(value);
+  if (abs >= 1000) {
+    return `${(value / 1000).toLocaleString("pt-BR", { maximumFractionDigits: 1 })} mil`;
+  }
+  return value.toLocaleString("pt-BR", { maximumFractionDigits: 0 });
+}
 import {
   buildAnnualBalance,
   exportAnnualBalanceCsv,
