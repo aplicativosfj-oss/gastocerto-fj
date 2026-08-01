@@ -191,7 +191,7 @@ export function CategoryPicker({
                 }}
                 className={cn(
                   "rounded p-0.5 transition-colors",
-                  isFavorite ? "text-amber-500" : "text-muted-foreground/50 hover:text-amber-500",
+                  isFavorite ? "text-amber-500" : "text-muted-foreground hover:text-amber-500",
                 )}
               >
                 <GlyphStar filled={isFavorite} className="size-3.5" />

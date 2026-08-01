@@ -44,7 +44,7 @@ export function LandingFooter() {
               key={social.label}
               href={social.href}
               aria-label={social.label}
-              className={`grid size-6 shrink-0 place-items-center text-foreground/70 transition-colors hover:text-foreground focus-visible:text-foreground sm:size-7 ${tapTarget} ${focusRing}`}
+              className={`grid size-6 shrink-0 place-items-center text-foreground transition-colors hover:text-foreground focus-visible:text-foreground sm:size-7 ${tapTarget} ${focusRing}`}
             >
               <social.icon className="size-3.5" aria-hidden="true" />
             </a>
@@ -59,7 +59,7 @@ export function LandingFooter() {
             <Link
               key={link.label}
               to={link.to}
-              className={`shrink-0 py-1 text-[11px] text-foreground/70 transition-colors hover:text-foreground focus-visible:text-foreground sm:text-xs ${focusRing}`}
+              className={`shrink-0 py-1 text-[11px] text-foreground transition-colors hover:text-foreground focus-visible:text-foreground sm:text-xs ${focusRing}`}
             >
               {link.label}
             </Link>
@@ -68,7 +68,7 @@ export function LandingFooter() {
             <a
               key={link.label}
               href={link.href}
-              className={`shrink-0 py-1 text-[11px] text-foreground/70 transition-colors hover:text-foreground focus-visible:text-foreground sm:text-xs ${focusRing}`}
+              className={`shrink-0 py-1 text-[11px] text-foreground transition-colors hover:text-foreground focus-visible:text-foreground sm:text-xs ${focusRing}`}
             >
               {link.label}
             </a>
@@ -77,7 +77,7 @@ export function LandingFooter() {
       </div>
 
       <div className="border-t border-border">
-        <div className="section-shell flex items-center justify-between gap-x-3 py-1.5 text-[10px] text-foreground/70 sm:py-2 sm:text-[11px]">
+        <div className="section-shell flex items-center justify-between gap-x-3 py-1.5 text-[10px] text-foreground sm:py-2 sm:text-[11px]">
           <p className="truncate">© {new Date().getFullYear()} GastoCerto.</p>
           <div className="flex shrink-0 items-center gap-1">
             <p className="truncate">Dev. Franc D&apos;nis · Feijó-AC</p>

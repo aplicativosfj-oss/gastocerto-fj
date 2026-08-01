@@ -87,22 +87,22 @@ function AuthPage() {
           <Logo onDark />
         </Link>
         <div className="max-w-sm">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/70">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/90">
             Acesso à plataforma
           </p>
           <h2 className="font-display mt-2 text-3xl font-extrabold leading-tight tracking-[-0.02em]">
             Suas finanças organizadas em um só sistema.
           </h2>
-          <p className="mt-2 text-sm leading-relaxed text-white/75">
+          <p className="mt-2 text-sm leading-relaxed text-white/90">
             Acesse com CPF e senha de 6 dígitos. Cadastro gratuito, sem necessidade de cartão.
           </p>
-          <ul className="mt-4 grid gap-1.5 text-[13px] text-white/80">
+          <ul className="mt-4 grid gap-1.5 text-[13px] text-white/90">
             <li>• Painel mensal com despesas por categoria</li>
             <li>• Controle de combustível com custo por quilômetro</li>
             <li>• Orçamentos, vencimentos e relatórios exportáveis</li>
           </ul>
         </div>
-        <p className="text-[11px] text-white/60">Dev. Franc D&apos;nis · Feijó-AC</p>
+        <p className="text-[11px] text-white/90">Dev. Franc D&apos;nis · Feijó-AC</p>
       </section>
 
       <section className="relative flex items-center justify-center bg-secondary/30 px-4 py-8">

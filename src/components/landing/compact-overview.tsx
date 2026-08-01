@@ -282,7 +282,7 @@ export function CompactOverview() {
               <div className="min-w-0">
                 <p className="tabular text-sm font-bold leading-none">{item.value}</p>
                 <p className="truncate text-[11px] text-muted-foreground">{item.label}</p>
-                <p className="hidden truncate text-[10px] text-muted-foreground/80 sm:block">{item.hint}</p>
+                <p className="hidden truncate text-[10px] text-muted-foreground sm:block">{item.hint}</p>
               </div>
             </div>
           ))}

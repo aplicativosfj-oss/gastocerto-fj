@@ -123,7 +123,7 @@ function MetricCard({
       </div>
       <p className="mt-1 font-display text-2xl font-semibold tabular-nums">{value}</p>
       {hint ? <p className="mt-1 text-xs text-muted-foreground">{hint}</p> : null}
-      <p className="mt-2 text-[11px] text-muted-foreground/80">Toque para ver os detalhes</p>
+      <p className="mt-2 text-[11px] text-muted-foreground">Toque para ver os detalhes</p>
     </button>
   );
 }

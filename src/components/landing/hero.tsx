@@ -47,7 +47,7 @@ export function Hero() {
 
       <div className="section-shell relative grid w-full items-center gap-5 lg:grid-cols-[1.05fr_1fr] lg:gap-9 xl:gap-11">
         <div>
-          <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/80 backdrop-blur sm:text-[11px]">
+          <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/90 backdrop-blur sm:text-[11px]">
             <ShieldCheck className="size-3.5 text-success" aria-hidden="true" />
             Controle hoje, tranquilidade sempre.
           </span>
@@ -56,7 +56,7 @@ export function Hero() {
             Seu dinheiro sob controle, sua vida com tranquilidade.
           </h1>
 
-          <p className="mt-2 max-w-lg text-[13px] leading-snug text-white/70 sm:text-[15px] sm:leading-relaxed">
+          <p className="mt-2 max-w-lg text-[13px] leading-snug text-white/90 sm:text-[15px] sm:leading-relaxed">
             Registre despesas, receitas, contas fixas, combustível e gás em um único sistema,
             com painéis mensais, orçamentos e relatórios prontos para consulta.
           </p>
@@ -81,7 +81,7 @@ export function Hero() {
               href="#explorar"
               onClick={(event) => handleAnchorClick(event, "#explorar")}
               aria-label="Explorar seções"
-              className="inline-flex min-h-11 min-w-11 items-center justify-center gap-1.5 rounded-md text-[13px] font-medium text-white/75 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent sm:h-11 sm:w-auto sm:px-3 sm:text-sm"
+              className="inline-flex min-h-11 min-w-11 items-center justify-center gap-1.5 rounded-md text-[13px] font-medium text-white/90 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent sm:h-11 sm:w-auto sm:px-3 sm:text-sm"
             >
               <span className="hidden sm:inline">Explorar seções</span>
               <ChevronDown className="size-4 shrink-0" aria-hidden="true" />
@@ -93,13 +93,13 @@ export function Hero() {
           <dl className="mt-4 grid grid-cols-3 gap-2 border-t border-white/10 pt-3">
             {stats.map((stat) => (
               <div key={stat.label} className="min-w-0">
-                <dt className="truncate text-[10px] uppercase tracking-wide text-white/75 sm:text-[11px]">
+                <dt className="truncate text-[10px] uppercase tracking-wide text-white/90 sm:text-[11px]">
                   {stat.label}
                 </dt>
                 <dd className="tabular mt-0.5 truncate text-sm font-bold text-white sm:text-base">
                   {stat.value}
                 </dd>
-                <p className="hidden truncate text-[11px] text-white/70 sm:block">{stat.hint}</p>
+                <p className="hidden truncate text-[11px] text-white/90 sm:block">{stat.hint}</p>
               </div>
             ))}
           </dl>
@@ -117,8 +117,8 @@ export function Hero() {
           </div>
 
           <div className="absolute -left-10 bottom-16 w-44 rounded-2xl border border-white/15 bg-[oklch(0.2_0.03_258/0.85)] p-3 shadow-lifted backdrop-blur-md">
-            <div className="flex items-center justify-between text-[11px] text-white/75">
-              <span className="inline-flex items-center gap-1.5 font-medium text-white/80">
+            <div className="flex items-center justify-between text-[11px] text-white/90">
+              <span className="inline-flex items-center gap-1.5 font-medium text-white/90">
                 <TrendingDown className="size-3.5 text-success" aria-hidden="true" />
                 Despesas
               </span>
@@ -130,12 +130,12 @@ export function Hero() {
           <div className="absolute right-0 top-10 flex w-40 items-center gap-3 rounded-2xl border border-white/15 bg-[oklch(0.2_0.03_258/0.85)] p-3 shadow-lifted backdrop-blur-md">
             <RingChart className="size-12 shrink-0 text-brand" value={68} />
             <div className="min-w-0">
-              <p className="text-[11px] text-white/75">Orçamento</p>
+              <p className="text-[11px] text-white/90">Orçamento</p>
               <p className="tabular text-sm font-bold text-white">68% usado</p>
             </div>
           </div>
 
-          <div className="absolute -bottom-2 right-4 inline-flex items-center gap-2 rounded-full border border-white/15 bg-[oklch(0.2_0.03_258/0.85)] px-3 py-1.5 text-[11px] font-medium text-white/80 shadow-lifted backdrop-blur-md">
+          <div className="absolute -bottom-2 right-4 inline-flex items-center gap-2 rounded-full border border-white/15 bg-[oklch(0.2_0.03_258/0.85)] px-3 py-1.5 text-[11px] font-medium text-white/90 shadow-lifted backdrop-blur-md">
             <Wallet className="size-3.5 text-brand" aria-hidden="true" />
             Consolidação diária automática
           </div>
