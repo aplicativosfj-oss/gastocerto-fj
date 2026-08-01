@@ -304,10 +304,13 @@ function CategoriesPage() {
                         })()}
                       </span>
                       <div className="min-w-0">
-                        <span className={cn(
-                          "block truncate text-[14px] font-bold tracking-tight transition-colors",
-                          isActive ? "text-foreground" : "text-muted-foreground"
-                        )}>
+                        <span
+                          title={category.name}
+                          className={cn(
+                            "block text-[13.5px] font-bold leading-tight tracking-tight transition-colors [overflow-wrap:anywhere] line-clamp-2",
+                            isActive ? "text-foreground" : "text-muted-foreground",
+                          )}
+                        >
                           {category.name}
                         </span>
                         <p className="mt-0.5 text-[11px] font-medium text-muted-foreground/60 uppercase tracking-wider">
