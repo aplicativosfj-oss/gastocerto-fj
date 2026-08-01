@@ -318,60 +318,69 @@ function CategoriesPage() {
                   </div>
                   
                   <div className="flex shrink-0 flex-col items-end gap-2">
-                    <div className="flex gap-0.5 transition-opacity lg:opacity-0 lg:group-hover:opacity-100 lg:group-focus-within:opacity-100">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        aria-label={`Editar categoria ${category.name}`}
-                        className="size-9 rounded-lg"
-                        onClick={() => {
-                          setError(null);
-                          setDraft({
-                            id: category.id,
-                            name: category.name,
-                            type: category.type as "expense" | "income",
-                            color: category.color ?? COLORS[0],
-                            icon: category.icon ?? "circle-ellipsis",
-                            display_order: category.display_order ?? 0,
-                            parent_id: category.parent_id,
-                            description: category.description
-                          });
-                        }}
-                      >
-                        <Pencil className="size-3.5" />
-                      </Button>
-                    </div>
+                    {isAdmin ? (
+                      <>
+                        <div className="flex gap-0.5 transition-opacity lg:opacity-0 lg:group-hover:opacity-100 lg:group-focus-within:opacity-100">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            aria-label={`Editar categoria ${category.name}`}
+                            className="size-9 rounded-lg"
+                            onClick={() => {
+                              setError(null);
+                              setDraft({
+                                id: category.id,
+                                name: category.name,
+                                type: category.type as "expense" | "income",
+                                color: category.color ?? COLORS[0],
+                                icon: category.icon ?? "circle-ellipsis",
+                                display_order: category.display_order ?? 0,
+                                parent_id: category.parent_id,
+                                description: category.description
+                              });
+                            }}
+                          >
+                            <Pencil className="size-3.5" />
+                          </Button>
+                        </div>
 
-                    <div className="flex items-center gap-2">
-                      <label
-                        htmlFor={`category-active-${category.id}`}
-                        className={cn(
-                          "cursor-pointer select-none text-[10px] font-bold uppercase tracking-wider transition-colors",
-                          isActive ? "text-success" : "text-muted-foreground",
-                        )}
-                      >
-                        {isActive ? "Ativa" : "Inativa"}
-                      </label>
-                      <Switch
-                        id={`category-active-${category.id}`}
-                        checked={isActive}
-                        aria-label={`${isActive ? "Desativar" : "Ativar"} a categoria ${category.name}`}
-                        aria-describedby={`category-active-hint-${category.id}`}
-                        onCheckedChange={(checked) =>
-                          setPending({ id: category.id, name: category.name, next: checked })
-                        }
-                        className={cn(
-                          "transition-all duration-500 focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-                          !isActive && "opacity-70",
-                        )}
-                      />
-                      <span id={`category-active-hint-${category.id}`} className="sr-only">
-                        {isActive
-                          ? "Categoria ativa e disponível nos lançamentos. Desativar não exclui nada."
-                          : "Categoria desativada. Ative para voltar a usá-la nos lançamentos."}
-                      </span>
-                    </div>
+                        <div className="flex items-center gap-2">
+                          <label
+                            htmlFor={`category-active-${category.id}`}
+                            className={cn(
+                              "cursor-pointer select-none text-[10px] font-bold uppercase tracking-wider transition-colors",
+                              isActive ? "text-success" : "text-muted-foreground",
+                            )}
+                          >
+                            {isActive ? "Ativa" : "Inativa"}
+                          </label>
+                          <Switch
+                            id={`category-active-${category.id}`}
+                            checked={isActive}
+                            aria-label={`${isActive ? "Desativar" : "Ativar"} a categoria ${category.name}`}
+                            aria-describedby={`category-active-hint-${category.id}`}
+                            onCheckedChange={(checked) =>
+                              setPending({ id: category.id, name: category.name, next: checked })
+                            }
+                            className={cn(
+                              "transition-all duration-500 focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                              !isActive && "opacity-70",
+                            )}
+                          />
+                          <span id={`category-active-hint-${category.id}`} className="sr-only">
+                            {isActive
+                              ? "Categoria ativa e disponível nos lançamentos. Desativar não exclui nada."
+                              : "Categoria desativada. Ative para voltar a usá-la nos lançamentos."}
+                          </span>
+                        </div>
+                      </>
+                    ) : (
+                      <Badge variant={isActive ? "secondary" : "outline"} className="text-[10px]">
+                        {isActive ? "Disponível" : "Indisponível"}
+                      </Badge>
+                    )}
                   </div>
+
                 </div>
               );
             })}
