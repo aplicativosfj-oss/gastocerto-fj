@@ -46,28 +46,70 @@ export function BusinessDashboard() {
   const exportPdf = () => {
     if (!rawMetrics.length) return;
     const doc = new jsPDF();
-    doc.text("Relatório de Métricas de Negócio - GastoCerto", 14, 15);
-    doc.setFontSize(10);
-    doc.text(`Gerado em: ${new Date().toLocaleString()}`, 14, 22);
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
 
-    const headers = [["Data", "MRR", "Assinantes", "Custo IA", "Rec. Bruta"]];
-    const data = rawMetrics.map(m => [
+    const dates = rawMetrics.map((m) => m.date).filter(Boolean).sort();
+    const periodStart = dates[0] ?? "—";
+    const periodEnd = dates[dates.length - 1] ?? "—";
+    const generatedAt = new Date().toLocaleString("pt-BR");
+
+    // Cabeçalho institucional
+    doc.setFillColor(16, 185, 129);
+    doc.rect(0, 0, pageWidth, 24, "F");
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(14);
+    doc.text("GastoCerto — Dashboard Financeiro", 14, 11);
+    doc.setFontSize(9);
+    doc.text("MRR, Churn e LTV — relatório interno", 14, 18);
+
+    doc.setTextColor(60, 60, 60);
+    doc.setFontSize(10);
+    doc.text(`Período: ${periodStart} a ${periodEnd}`, 14, 33);
+    doc.text(`Gerado em: ${generatedAt}`, 14, 39);
+
+    // Resumo executivo
+    doc.setFontSize(9);
+    doc.text(
+      `MRR atual: ${formatCurrency(mrrValue)}   |   Assinantes ativos: ${latest.total_active_subscribers || 0}   |   Custo IA: ${formatCurrency(aiCost)}`,
+      14,
+      47,
+    );
+
+    const headers = [["Data", "MRR", "Assinantes", "Churn", "LTV", "Custo IA", "Rec. Bruta"]];
+    const data = rawMetrics.map((m) => [
       m.date,
       formatCurrency(m.mrr),
-      m.total_active_subscribers,
+      String(m.total_active_subscribers ?? 0),
+      m.churn_rate != null ? `${Number(m.churn_rate).toFixed(1)}%` : "—",
+      m.ltv != null ? formatCurrency(m.ltv) : "—",
       formatCurrency(m.ai_cost_estimated),
-      formatCurrency(m.revenue_gross)
+      formatCurrency(m.revenue_gross),
     ]);
 
     autoTable(doc, {
-      startY: 30,
+      startY: 54,
       head: headers,
       body: data,
-      theme: 'striped',
-      headStyles: { fillColor: [16, 185, 129] } // Brand Emerald
+      theme: "striped",
+      styles: { fontSize: 8, cellPadding: 2.5 },
+      headStyles: { fillColor: [16, 185, 129], textColor: 255, fontSize: 8.5 },
+      margin: { top: 30, bottom: 20 },
+      didDrawPage: () => {
+        const page = doc.getNumberOfPages();
+        doc.setFontSize(8);
+        doc.setTextColor(120, 120, 120);
+        doc.text(
+          `Página ${doc.getCurrentPageInfo().pageNumber} de ${page}`,
+          pageWidth - 14,
+          pageHeight - 10,
+          { align: "right" },
+        );
+        doc.text("Documento confidencial — uso interno", 14, pageHeight - 10);
+      },
     });
 
-    doc.save(`business-metrics-${new Date().toISOString().split('T')[0]}.pdf`);
+    doc.save(`dashboard-financeiro-${periodStart}_${periodEnd}.pdf`);
     toast.success("PDF exportado com sucesso");
   };
 
