@@ -10,6 +10,8 @@ import { Switch } from "@/components/ui/switch";
 import { Loader2, Mail, RefreshCcw, Save, Sparkles, Tag } from "lucide-react";
 import { toast } from "sonner";
 import { formatCurrency } from "@/lib/format";
+import { normalizePlanPrices, suggestedAnnual } from "@/lib/plan-pricing";
+
 import { cn } from "@/lib/utils";
 import {
   adminGetOwnContact,
