@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Loader2, Pencil, Plus, Power } from "lucide-react";
+import { Check, Loader2, Pencil, Plus, Power, ToggleLeft, ToggleRight } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -28,6 +28,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { CategoryAutofixCard } from "@/components/finance/category-autofix-card";
 import { MetaChip, PageHeader } from "@/components/finance/page-header";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { CATEGORY_ICON_KEYS, categoryIcon } from "@/lib/category-icons";
 import { formatCurrency } from "@/lib/format";
@@ -97,13 +98,12 @@ function CategoriesPage() {
     return map;
   }, [transactions]);
 
-  const visible = (categories ?? [])
-    .filter((category) => category.type === tab && category.active !== false)
-    .sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
-
-  const inactive = (categories ?? [])
-    .filter((category) => category.type === tab && category.active === false)
-    .sort((a, b) => a.name.localeCompare(b.name));
+  const allCategories = (categories ?? [])
+    .filter((category) => category.type === tab)
+    .sort((a, b) => {
+      // Prioritize active ones? No, let's keep the user's order
+      return (a.display_order || 0) - (b.display_order || 0);
+    });
 
   async function handleSave() {
     if (!draft) return;
@@ -194,7 +194,7 @@ function CategoriesPage() {
                   type: tab, 
                   color: COLORS[0], 
                   icon: "circle-ellipsis",
-                  display_order: visible.length,
+                  display_order: allCategories.length,
                   parent_id: null
                 });
               }}
