@@ -177,10 +177,19 @@ export const adminOverview = createServerFn({ method: "GET" })
         .gte("created_at", since.toISOString()),
     ]);
 
+    // Métricas financeiras básicas
+    const { data: mrrData } = await supabaseAdmin
+      .from("business_metrics_daily")
+      .select("mrr")
+      .order("date", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
     return {
       totalUsers: users.count ?? 0,
       activeUsers: active.count ?? 0,
       totalTransactions: transactions.count ?? 0,
       newUsers30d: recent.count ?? 0,
+      totalMmr: Number(mrrData?.mrr || 0),
     };
   });
