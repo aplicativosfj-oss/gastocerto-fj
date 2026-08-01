@@ -220,7 +220,14 @@ export function ExpenseCardsDialog({
       toast.error("Digite o valor do gasto.");
       return;
     }
-    const description = note.trim() ? note.trim().slice(0, 140) : selected.name;
+    const baseDescription = note.trim() ? note.trim().slice(0, 140) : selected.name;
+    const description = phoneMode
+      ? `Recarga de celular${gigas.trim() ? ` ${gigas.trim()}GB` : ""}${note.trim() ? ` — ${note.trim()}` : ""}`.slice(
+          0,
+          140,
+        )
+      : baseDescription;
+
     try {
       if (kind === "installments") {
         if (total <= 0) {
