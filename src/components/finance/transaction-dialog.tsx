@@ -374,6 +374,18 @@ export function TransactionDialog({
     else if (isLockedMonth)
       nextErrors.date =
         "Este mês já foi fechado. Solicite a liberação ao administrador em Fechamento mensal.";
+    else if (adminBlockedPast)
+      nextErrors.date =
+        policy.notice ||
+        "O administrador desativou alterações em meses anteriores. Solicite a liberação em Fechamento mensal.";
+
+    if (!nextErrors.date && needsPassword) {
+      setErrors({});
+      setPasswordOpen(true);
+      return;
+    }
+
+
 
     const itemsCheck = validatePurchaseItems(items, value);
     
