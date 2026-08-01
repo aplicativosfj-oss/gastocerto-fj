@@ -178,31 +178,31 @@ function CategoriesPage() {
   return (
     <AppShell>
       <div className="space-y-4">
-        <header className="flex flex-wrap items-center justify-between gap-3">
-          <div className="min-w-0">
-            <h1 className="page-title">Categorias</h1>
-            <p className="page-subtitle mt-1">
-              Organize seus gastos e receitas do jeito que faz sentido para você.
-            </p>
-          </div>
-          <Button
-            onClick={() => {
-              setError(null);
-              setDraft({ 
-                name: "", 
-                type: tab, 
-                color: COLORS[0], 
-                icon: "circle-ellipsis",
-                display_order: visible.length,
-                parent_id: null
-              });
-
-            }}
-          >
-            <Plus className="mr-2 size-4" />
-            Nova categoria
-          </Button>
-        </header>
+        <PageHeader
+          icon={Plus}
+          eyebrow="Configuração"
+          title="Categorias"
+          description="Organize seus gastos e receitas do jeito que faz sentido para você."
+          className="lg:p-4"
+          actions={
+            <Button
+              onClick={() => {
+                setError(null);
+                setDraft({ 
+                  name: "", 
+                  type: tab, 
+                  color: COLORS[0], 
+                  icon: "circle-ellipsis",
+                  display_order: visible.length,
+                  parent_id: null
+                });
+              }}
+            >
+              <Plus className="mr-2 size-4" />
+              Nova categoria
+            </Button>
+          }
+        />
 
         <Tabs value={tab} onValueChange={(value) => setTab(value as "expense" | "income")}>
           <TabsList>

@@ -439,50 +439,57 @@ function VehiclesPage() {
 
         {perVehicle.length > 0 ? (
           <section className="space-y-3">
-            <h2 className="text-sm font-semibold tracking-tight">Desempenho por veículo</h2>
-            <div className="grid gap-3 auto-cards-sm">
+            <h2 className="text-[11px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60 px-1">Desempenho por veículo</h2>
+            <div className="grid gap-3 sm:grid-cols-2">
               {perVehicle.map(({ vehicle, summary: stats, target, threshold, deviation, alert, budgetAlert }) => (
                 <article
                   key={vehicle.id}
-                  className={`rounded-2xl border bg-card p-4 ${
-                    alert ? "border-destructive/50" : "border-border"
-                  }`}
+                  className={cn(
+                    "interactive-card rounded-xl border bg-card p-5 shadow-soft",
+                    alert ? "border-destructive/30" : "border-border"
+                  )}
                 >
-                  <div className="flex items-start justify-between gap-2">
-                    <h3 className="truncate font-semibold">{vehicle.name}</h3>
-                    <Badge variant={alert ? "destructive" : "secondary"}>
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <h3 className="truncate text-base font-bold tracking-tight">{vehicle.name}</h3>
+                      <p className="mt-1 text-[11px] font-medium text-muted-foreground uppercase tracking-wider">Métrica atual</p>
+                    </div>
+                    <Badge variant={alert ? "destructive" : "secondary"} className="h-6 px-2 text-[12px] font-bold rounded-lg">
                       {stats.averageConsumption ? `${stats.averageConsumption} km/l` : "—"}
                     </Badge>
                   </div>
-                  <dl className="mt-3 grid grid-cols-2 gap-2 text-sm">
-                    <div>
-                      <dt className="text-xs text-muted-foreground">Gasto</dt>
-                      <dd className="font-medium tabular-nums">{formatCurrency(stats.total)}</dd>
+                  <div className="mt-5 grid grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <dt className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60">Gasto Total</dt>
+                      <dd className="text-sm font-bold tabular-nums">{formatCurrency(stats.total)}</dd>
                     </div>
-                    <div>
-                      <dt className="text-xs text-muted-foreground">Custo por km</dt>
-                      <dd className="font-medium tabular-nums">
+                    <div className="space-y-1">
+                      <dt className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60">Custo/km</dt>
+                      <dd className="text-sm font-bold tabular-nums">
                         {stats.costPerKm ? formatCurrency(stats.costPerKm) : "—"}
                       </dd>
                     </div>
-                    <div>
-                      <dt className="text-xs text-muted-foreground">Litros</dt>
-                      <dd className="font-medium tabular-nums">{stats.liters} L</dd>
+                  </div>
+                  
+                  {target && (
+                    <div className="mt-5 border-t border-border/40 pt-4">
+                      <div className="flex items-center justify-between text-[11px] font-medium text-muted-foreground">
+                        <span>Meta: {target} km/l</span>
+                        <span className={cn(deviation && deviation > 0 ? "text-success" : "text-destructive")}>
+                          {deviation != null ? `${deviation > 0 ? "+" : ""}${deviation}%` : "—"}
+                        </span>
+                      </div>
+                      <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
+                        <div 
+                          className={cn("h-full rounded-full transition-all", alert ? "bg-destructive" : "bg-success")}
+                          style={{ width: `${Math.min(100, (stats.averageConsumption / target) * 100)}%` }}
+                        />
+                      </div>
                     </div>
-                    <div>
-                      <dt className="text-xs text-muted-foreground">Distância</dt>
-                      <dd className="font-medium tabular-nums">{stats.distance} km</dd>
-                    </div>
-                  </dl>
-                  <p className="mt-3 text-xs text-muted-foreground">
-                    {target
-                      ? `Meta: ${target} km/l · tolerância ${threshold}%${
-                          deviation != null ? ` · variação ${deviation > 0 ? "+" : ""}${deviation}%` : ""
-                        }`
-                      : "Cadastre o consumo médio do veículo para receber alertas de limite."}
-                  </p>
-                  {alert ? (
-                    <p className="mt-2 flex items-start gap-2 rounded-lg bg-destructive/10 p-2 text-xs text-destructive">
+                  )}
+
+                  {alert && (
+                    <div className="mt-4 flex items-start gap-2 rounded-lg bg-destructive/5 p-3 text-[11px] font-semibold text-destructive">
                       <TriangleAlert className="mt-0.5 size-3.5 shrink-0" />
                       Consumo abaixo da meta no período. Verifique calibragem, trajeto ou
                       manutenção.
