@@ -620,10 +620,10 @@ function DashboardPage() {
               }
             />
           </div>
-        )}
+        </div>
         
         {!loadingTransactions && (
-          <div className="space-y-4 mt-4">
+          <div className="space-y-4">
 
 
             <section className="rounded-2xl border border-border bg-card p-4">
