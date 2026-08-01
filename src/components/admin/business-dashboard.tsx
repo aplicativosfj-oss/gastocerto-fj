@@ -13,15 +13,19 @@ export function BusinessDashboard() {
 
   if (isLoading) return <div className="flex justify-center p-8"><Loader2 className="animate-spin" /></div>;
 
-  const latest = metrics?.[0] || { mrr: 0, total_active_subscribers: 0, ai_cost_estimated: 0, revenue_gross: 0 };
+  const rawMetrics = (metrics || []) as any[];
+  const latest = rawMetrics[0] || { mrr: 0, total_active_subscribers: 0, ai_cost_estimated: 0, revenue_gross: 0 };
+
+  const mrrValue = Number(latest.mrr || 0);
+  const aiCost = Number(latest.ai_cost_estimated || 0);
 
   return (
     <div className="space-y-6">
       <div className="grid gap-3 auto-cards-sm">
-        <StatTile tone="brand" label="MRR (Mensal)" value={formatCurrency(latest.mrr)} icon={DollarSign} />
-        <StatTile tone="success" label="Assinantes Ativos" value={String(latest.total_active_subscribers)} icon={Users} />
-        <StatTile tone="warning" label="Custo Estimado IA" value={formatCurrency(latest.ai_cost_estimated)} icon={BrainCircuit} />
-        <StatTile tone="neutral" label="Receita Bruta" value={formatCurrency(latest.revenue_gross)} icon={TrendingUp} />
+        <StatTile tone="brand" label="MRR (Mensal)" value={formatCurrency(mrrValue)} icon={DollarSign} />
+        <StatTile tone="success" label="Assinantes Ativos" value={String(latest.total_active_subscribers || 0)} icon={Users} />
+        <StatTile tone="warning" label="Custo Estimado IA" value={formatCurrency(aiCost)} icon={BrainCircuit} />
+        <StatTile tone="neutral" label="Receita Bruta" value={formatCurrency(Number(latest.revenue_gross || 0))} icon={TrendingUp} />
       </div>
       
       <div className="rounded-xl border border-border bg-card p-6">
@@ -29,8 +33,8 @@ export function BusinessDashboard() {
         <div className="grid gap-4 sm:grid-cols-3">
           <div className="space-y-1">
             <span className="text-xs text-muted-foreground">Lucro Bruto (Mensal)</span>
-            <div className="text-xl font-bold">{formatCurrency(latest.mrr - latest.ai_cost_estimated)}</div>
-            <p className="text-[10px] text-success">Margem: {latest.mrr > 0 ? ((latest.mrr - latest.ai_cost_estimated) / latest.mrr * 100).toFixed(1) : 0}%</p>
+            <div className="text-xl font-bold">{formatCurrency(mrrValue - aiCost)}</div>
+            <p className="text-[10px] text-success">Margem: {mrrValue > 0 ? ((mrrValue - aiCost) / mrrValue * 100).toFixed(1) : '0.0'}%</p>
           </div>
         </div>
       </div>
