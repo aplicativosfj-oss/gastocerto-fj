@@ -413,16 +413,17 @@ function GasPage() {
             <Input
               type="date"
               value={customStart}
-              onChange={(e) => setCustomStart(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCustomStart(e.target.value)}
               className="h-8 w-32 text-xs"
             />
             <span className="text-xs text-muted-foreground">até</span>
             <Input
               type="date"
               value={customEnd}
-              onChange={(e) => setCustomEnd(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCustomEnd(e.target.value)}
               className="h-8 w-32 text-xs"
             />
+
           </div>
         )}
       </section>
