@@ -980,9 +980,6 @@ function DashboardPage() {
           </div>
         )}
       </div>
-    </AppShell>
-  );
-}
 
       <MetricDetailDialog
         detail={detail}
@@ -1031,6 +1028,9 @@ function DashboardPage() {
           if (y && m && (y !== period.year || m !== period.month)) setPeriod({ year: y, month: m });
         }}
       />
+    </AppShell>
+  );
+}
 
     
 
