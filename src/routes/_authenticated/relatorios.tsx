@@ -83,6 +83,8 @@ function ReportsPage() {
   const [end, setEnd] = useState(initial.end);
   const [typeFilter, setTypeFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
+  const [recipientFilter, setRecipientFilter] = useState("all");
+
   const [methodFilter, setMethodFilter] = useState("all");
   const [essentialFilter, setEssentialFilter] = useState("all");
 
