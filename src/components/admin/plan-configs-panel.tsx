@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Loader2, Mail, RefreshCcw, Save, Sparkles, Tag } from "lucide-react";
+import { ArrowRight, Loader2, Mail, RefreshCcw, Save, Sparkles, Tag } from "lucide-react";
 import { toast } from "sonner";
 import { formatCurrency } from "@/lib/format";
 import { normalizePlanPrices, suggestedAnnual } from "@/lib/plan-pricing";
@@ -160,8 +160,11 @@ export function PlanConfigsPanel() {
   const setDraft = (plan: PlanRow, patch: Partial<Draft>) =>
     setDrafts((prev) => ({ ...prev, [plan.id]: { ...draftFor(plan), ...patch } }));
 
-  const activeCount = plans.filter((p) => p.active).length;
-  const paidCount = plans.filter((p) => p.active && Number(p.monthly_price) > 0).length;
+  // Catálogo comercial: apenas Gratuito, Premium e Premium IA aparecem no site.
+  const commercialPlans = plans.filter((p) => p.tier !== "trial");
+  const trialPlans = plans.filter((p) => p.tier === "trial");
+  const activeCount = commercialPlans.filter((p) => p.active).length;
+  const paidCount = commercialPlans.filter((p) => p.active && Number(p.monthly_price) > 0).length;
 
   return (
     <div className="space-y-6">
@@ -171,20 +174,22 @@ export function PlanConfigsPanel() {
             <CardTitle className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider">
               <Tag className="size-4 text-brand" /> Planos ativos
             </CardTitle>
-            <CardDescription className="text-xs">Situação atual do catálogo comercial.</CardDescription>
+            <CardDescription className="text-xs">
+              Catálogo comercial exibido no site: Gratuito, Premium e Premium IA.
+            </CardDescription>
           </CardHeader>
           <CardContent className="grid grid-cols-3 gap-3">
             <div>
               <p className="text-xl font-bold tabular-nums">{activeCount}</p>
-              <p className="text-[11px] text-muted-foreground">ativos</p>
+              <p className="text-[11px] text-muted-foreground">ativos no site</p>
             </div>
             <div>
               <p className="text-xl font-bold tabular-nums">{paidCount}</p>
               <p className="text-[11px] text-muted-foreground">pagos</p>
             </div>
             <div>
-              <p className="text-xl font-bold tabular-nums">{plans.length - activeCount}</p>
-              <p className="text-[11px] text-muted-foreground">inativos</p>
+              <p className="text-xl font-bold tabular-nums">{trialPlans.length}</p>
+              <p className="text-[11px] text-muted-foreground">testes internos</p>
             </div>
           </CardContent>
         </Card>
@@ -192,7 +197,8 @@ export function PlanConfigsPanel() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {plans.map((plan) => {
+        {commercialPlans.map((plan) => {
+
           const draft = draftFor(plan);
           const monthly = Number(draft.monthly.replace(",", "."));
           const annual = Number(draft.annual.replace(",", "."));
@@ -207,6 +213,7 @@ export function PlanConfigsPanel() {
               draft.active !== plan.active);
           const hasAi = plan.slug.includes("ia");
           const isTrial = plan.tier === "trial";
+          const saving = mutation.isPending && mutation.variables?.id === plan.id;
 
 
           return (
@@ -293,18 +300,46 @@ export function PlanConfigsPanel() {
                 </div>
 
                 <div className="rounded-lg border border-border/60 bg-muted/20 p-3">
-                  <div className="flex items-baseline justify-between gap-2">
-                    <span className="text-[11px] text-muted-foreground">Mensal</span>
-                    <strong className="tabular-nums text-base">
+                  <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                    <span>Valor atual</span>
+                    <span />
+                    <span className="text-right">Novo valor</span>
+                  </div>
+
+                  <div className="mt-1.5 grid grid-cols-[1fr_auto_1fr] items-center gap-2">
+                    <span className="tabular-nums text-sm text-muted-foreground line-through">
+                      {Number(plan.monthly_price) > 0
+                        ? `${formatCurrency(Number(plan.monthly_price))}/mês`
+                        : "Gratuito"}
+                    </span>
+                    <ArrowRight className="size-3 text-muted-foreground" aria-hidden="true" />
+                    <strong
+                      className={cn(
+                        "tabular-nums text-right text-base",
+                        preview.monthly !== Number(plan.monthly_price) && "text-brand",
+                      )}
+                    >
                       {preview.monthly > 0 ? `${formatCurrency(preview.monthly)}/mês` : "Gratuito"}
                     </strong>
                   </div>
-                  <div className="mt-1 flex items-baseline justify-between gap-2">
-                    <span className="text-[11px] text-muted-foreground">Anual</span>
-                    <strong className="tabular-nums text-base">
+
+                  <div className="mt-1 grid grid-cols-[1fr_auto_1fr] items-center gap-2">
+                    <span className="tabular-nums text-sm text-muted-foreground line-through">
+                      {Number(plan.annual_price) > 0
+                        ? `${formatCurrency(Number(plan.annual_price))}/ano`
+                        : "Gratuito"}
+                    </span>
+                    <ArrowRight className="size-3 text-muted-foreground" aria-hidden="true" />
+                    <strong
+                      className={cn(
+                        "tabular-nums text-right text-base",
+                        preview.annual !== Number(plan.annual_price) && "text-brand",
+                      )}
+                    >
                       {preview.annual > 0 ? `${formatCurrency(preview.annual)}/ano` : "Gratuito"}
                     </strong>
                   </div>
+
                   {preview.annual > 0 ? (
                     <p className="mt-1.5 text-[11px] text-muted-foreground">
                       Exibido como{" "}
@@ -335,15 +370,54 @@ export function PlanConfigsPanel() {
                     })
                   }
                 >
-                  {mutation.isPending ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}
-                  {changed ? "Confirmar e salvar" : "Sem alterações"}
+                  {saving ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}
+                  {saving ? "Aplicando..." : changed ? "Confirmar e salvar" : "Sem alterações"}
                 </Button>
+
+                {saving ? (
+                  <p className="text-center text-[11px] text-muted-foreground">
+                    Aplicando os novos valores no site, checkout e licenças...
+                  </p>
+                ) : null}
 
               </CardContent>
             </Card>
           );
         })}
       </div>
+
+      {trialPlans.length ? (
+        <Card className="border-border/60 bg-card/40">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider">
+              <Tag className="size-4 text-amber-500" /> Planos de teste (uso interno)
+            </CardTitle>
+            <CardDescription className="text-xs">
+              Não aparecem na página de preços nem no checkout. Servem apenas para conceder testes e
+              cortesias pelo painel.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+            {trialPlans.map((plan) => (
+              <div
+                key={plan.id}
+                className="flex items-center justify-between gap-2 rounded-lg border border-border/50 bg-background/40 px-3 py-2"
+              >
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold">{plan.name}</p>
+                  <p className="truncate text-[11px] text-muted-foreground">
+                    {plan.slug} · {plan.trial_days ?? 7} dias
+                  </p>
+                </div>
+                <Badge variant="outline" className="text-[10px] uppercase">
+                  {plan.active ? "no site" : "interno"}
+                </Badge>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      ) : null}
     </div>
+
   );
 }

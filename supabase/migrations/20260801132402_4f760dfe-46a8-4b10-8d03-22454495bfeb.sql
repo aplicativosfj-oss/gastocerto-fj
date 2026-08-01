@@ -1,0 +1,1 @@
+UPDATE public.plans SET active = false, updated_at = now() WHERE slug IN ('trial_7', 'trial_15', 'trial_30', 'trial_7_basic');
