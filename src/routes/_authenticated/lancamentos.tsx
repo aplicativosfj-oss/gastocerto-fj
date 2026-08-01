@@ -79,7 +79,7 @@ import { ShareLinkDialog } from "@/components/finance/share-link-dialog";
 import { exportTransactionPdf } from "@/lib/transaction-detail-export";
 import { fetchNoteHistory } from "@/lib/transaction-notes";
 
-import { PAYMENT_METHODS, TRANSACTION_STATUS, labelFor, monthRange, periodDefaultDate } from "@/lib/finance";
+import { PAYMENT_METHODS, TRANSACTION_STATUS, labelFor, monthRange, periodDefaultDate, MONTH_NAMES } from "@/lib/finance";
 import { useCategories } from "@/lib/queries";
 import { useVehicles } from "@/lib/vehicles";
 import {

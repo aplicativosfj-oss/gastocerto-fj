@@ -39,7 +39,11 @@ import { ExpenseCardsDialog } from "@/components/finance/expense-cards-dialog";
 import { DependentExpenseDialog } from "@/components/finance/dependent-expense-dialog";
 import { TaxQuickDialog } from "@/components/finance/tax-quick-dialog";
 import { RecurringAlerts } from "@/components/finance/recurring-alerts";
-import { MetricDetailDialog, type MetricDetail } from "@/components/finance/metric-detail-dialog";
+import { MetricDetailDialog, type MetricDetail as BaseMetricDetail } from "@/components/finance/metric-detail-dialog";
+
+interface MetricDetail extends BaseMetricDetail {
+  onAction?: () => void;
+}
 import { QuickCategoryMenu, type QuickPick } from "@/components/finance/quick-category-menu";
 import { PeriodPicker } from "@/components/finance/period-picker";
 import { CardMonthSummary } from "@/components/finance/card-month-summary";
@@ -472,86 +476,110 @@ function DashboardPage() {
             ))}
           </div>
         ) : (
-          <>
-            <section className="grid grid-cols-3 gap-2 sm:grid-cols-3">
-              <div className="flex flex-col rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-3 text-center">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-600">Receitas</p>
-                <p className="mt-0.5 text-sm font-bold text-emerald-700">{formatCurrency(metrics.totalIncome)}</p>
-              </div>
-              <div className="flex flex-col rounded-2xl border border-rose-500/20 bg-rose-500/5 p-3 text-center">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-rose-600">Despesas</p>
-                <p className="mt-0.5 text-sm font-bold text-rose-700">{formatCurrency(metrics.totalExpense)}</p>
-              </div>
-              <div className="flex flex-col rounded-2xl border border-brand/20 bg-brand/5 p-3 text-center">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-brand">Saldo</p>
-                <p className={cn("mt-0.5 text-sm font-bold", metrics.balance >= 0 ? "text-emerald-700" : "text-rose-700")}>
-                  {formatCurrency(metrics.balance)}
-                </p>
-              </div>
-            </section>
+          <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
+            <div className="space-y-4">
+              <InteractiveCalendar onDayClick={openDayDetail} />
+              
+              <div className="grid gap-3 auto-cards-sm">
+                <StatCard
+                  tile="var(--acc-4)"
+                  label={
+                    metrics.isCurrentMonth
+                      ? `Gasto hoje · ${formatDate(isoDate(today))}`
+                      : "Gasto hoje"
+                  }
+                  value={formatCurrency(metrics.today)}
+                  hint={
+                    !metrics.isCurrentMonth
+                      ? "Disponível apenas no mês atual"
+                      : detailRows.todayExpenses.length === 0
+                        ? "Nenhum lançamento hoje"
+                        : `${detailRows.todayExpenses.length} lançamento${
+                            detailRows.todayExpenses.length > 1 ? "s" : ""
+                          } só de hoje`
+                  }
+                  icon={<Zap className="size-4" />}
+                  onClick={() => openDayDetail(today.getDate())}
+                />
 
-            <section className={cn("grid gap-3 auto-cards-sm transition-all duration-300", loadingTransactions && "opacity-50 blur-[1px]")}>
-              <StatCard
-                tile="var(--acc-4)"
-                label={
-                  metrics.isCurrentMonth
-                    ? `Gasto hoje · ${formatDate(isoDate(today))}`
-                    : "Gasto hoje"
-                }
-                value={formatCurrency(metrics.today)}
-                hint={
-                  !metrics.isCurrentMonth
-                    ? "Disponível apenas no mês atual"
-                    : detailRows.todayExpenses.length === 0
-                      ? "Nenhum lançamento hoje"
-                      : `${detailRows.todayExpenses.length} lançamento${
-                          detailRows.todayExpenses.length > 1 ? "s" : ""
-                        } só de hoje`
-                }
+                <StatCard
+                  tile="var(--acc-3)"
+                  label="Gasto nos 7 dias"
+                  value={formatCurrency(metrics.week)}
+                  icon={<CalendarClock className="size-4" />}
+                  onClick={() =>
+                    setDetail({
+                      label: "Gasto nos últimos 7 dias",
+                      value: formatCurrency(metrics.week),
+                      formula:
+                        "Soma das despesas dos 7 dias corridos até hoje, incluindo os dias que caem no mês anterior.",
+                      rows: detailRows.weekExpenses,
+                    })
+                  }
+                />
+                
+                <StatCard
+                  tile="var(--acc-5)"
+                  label="Gasto no mês"
+                  value={formatCurrency(metrics.totalExpense)}
+                  icon={<TrendingDown className="size-4" />}
+                  onClick={() =>
+                    setDetail({
+                      label: "Gasto no mês",
+                      value: formatCurrency(metrics.totalExpense),
+                      formula: "Soma de todas as despesas do período selecionado.",
+                      rows: detailRows.expenses,
+                      extra: [
+                        { label: "Lançamentos", value: String(detailRows.expenses.length) },
+                        { label: "Média diária", value: formatCurrency(metrics.dailyAverage) },
+                      ],
+                    })
+                  }
+                />
 
-                icon={<TrendingDown className="size-4" />}
-                onClick={() =>
-                  setDetail({
-                    label: `Gasto hoje · ${formatDate(isoDate(today))}`,
-                    value: formatCurrency(metrics.today),
-                    formula:
-                      "Apenas despesas com a data de hoje. Os outros dias da semana ficam no card “Gasto nos 7 dias”.",
-                    rows: detailRows.todayExpenses,
-                  })
-                }
-              />
+                <StatCard
+                  tile="var(--acc-2)"
+                  label="Receita total"
+                  value={formatCurrency(metrics.totalIncome)}
+                  icon={<TrendingUp className="size-4" />}
+                  onClick={() =>
+                    setDetail({
+                      label: "Receita total",
+                      value: formatCurrency(metrics.totalIncome),
+                      formula: "Soma de todas as receitas do período selecionado.",
+                      rows: detailRows.incomes,
+                      extra: [
+                        { label: "Lançamentos", value: String(detailRows.incomes.length) },
+                      ],
+                    })
+                  }
+                />
 
-              <StatCard
-                tile="var(--acc-3)"
-                label="Gasto nos 7 dias"
-                value={formatCurrency(metrics.week)}
-                onClick={() =>
-                  setDetail({
-                    label: "Gasto nos últimos 7 dias",
-                    value: formatCurrency(metrics.week),
-                    formula:
-                      "Soma das despesas dos 7 dias corridos até hoje, incluindo os dias que caem no mês anterior.",
-                    rows: detailRows.weekExpenses,
-                  })
-                }
-              />
-              <StatCard
-                tile="var(--acc-5)"
-                label="Gasto no mês"
-                value={formatCurrency(metrics.totalExpense)}
-                onClick={() =>
-                  setDetail({
-                    label: "Gasto no mês",
-                    value: formatCurrency(metrics.totalExpense),
-                    formula: "Soma de todas as despesas do período selecionado.",
-                    rows: detailRows.expenses,
-                    extra: [
-                      { label: "Lançamentos", value: String(detailRows.expenses.length) },
-                      { label: "Média diária", value: formatCurrency(metrics.dailyAverage) },
-                    ],
-                  })
-                }
-              />
+                <StatCard
+                  tile="var(--acc-1)"
+                  label="Saldo disponível"
+                  value={formatCurrency(metrics.balance)}
+                  icon={<Wallet className="size-4" />}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              {metrics.limit > 0 && (
+                <StatCard
+                  tile="var(--acc-6)"
+                  label="Orçamento geral"
+                  value={formatCurrency(metrics.limit)}
+                  progress={metrics.usedPercent}
+                  icon={<Wallet className="size-4" />}
+                  hint={`Você já usou ${metrics.usedPercent.toFixed(1)}% do seu limite definido.`}
+                />
+              )}
+              
+              <RecurringAlerts />
+            </div>
+          </div>
+        )}
               <StatCard
                 tile="var(--acc-2)"
                 label="Recebido no mês"
