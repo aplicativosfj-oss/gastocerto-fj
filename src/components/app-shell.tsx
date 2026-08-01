@@ -112,6 +112,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { data: roles } = useRoles();
   const { data: notifications } = useNotifications();
   const avatarUrl = useAvatarUrl(profile?.avatar_url);
+  usePlanRealtimeSync();
   const unreadCount = (notifications ?? []).filter((item) => !item.read_at).length;
   const isStaff = (roles ?? []).some((role) => role === "admin" || role === "support");
   const { labelFor, order } = useNavLabels();
