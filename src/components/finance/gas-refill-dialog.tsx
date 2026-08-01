@@ -42,8 +42,8 @@ export function GasRefillDialog({
 }) {
   const save = useSaveGasRefill();
   const remove = useDeleteGasRefill();
-  const saveTransaction = useSaveTransaction();
-  const { data: categories } = useCategories();
+  const { sync: syncGasExpense } = useGasExpenseSync();
+
 
   const [date, setDate] = useState(isoDate(new Date()));
   const [amount, setAmount] = useState("");
