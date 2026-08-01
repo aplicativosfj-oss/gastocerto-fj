@@ -19,7 +19,7 @@ export function CtaBanner() {
           <div className="grid items-center gap-4 lg:grid-cols-[1.35fr_1fr]">
             <div className="min-w-0">
               <h2 className="section-title">
-                Em 1 minuto você já sabe para onde vai seu salário
+                Comece hoje e tenha o destino de cada real registrado e documentado
               </h2>
               <p className="mt-2 max-w-xl text-[13px] leading-snug text-white/80 sm:text-sm">
                 Conta gratuita, sem cartão de crédito e sem instalar nada. Prefere ver antes?
