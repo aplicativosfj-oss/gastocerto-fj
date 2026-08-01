@@ -8,6 +8,7 @@ import {
   Download,
   FileDown,
   Filter,
+  Lock,
   Paperclip,
   Pencil,
   Plus,
@@ -31,6 +32,10 @@ import { PeriodPicker } from "@/components/finance/period-picker";
 import { InlineNotes } from "@/components/finance/inline-notes";
 import { TransactionDetailsDialog } from "@/components/finance/transaction-details-dialog";
 import { TransactionDialog } from "@/components/finance/transaction-dialog";
+import { PastMonthsLockNotice } from "@/components/finance/past-months-lock-notice";
+import { PasswordConfirmDialog } from "@/components/finance/password-confirm-dialog";
+import { usePastEditUnlock } from "@/lib/past-edit-unlock";
+import { useClosingPolicy } from "@/lib/use-closing-policy";
 import { ExpenseCardsDialog } from "@/components/finance/expense-cards-dialog";
 import { cn } from "@/lib/utils";
 
@@ -137,6 +142,36 @@ function TransactionsPage() {
   const [cardsOpen, setCardsOpen] = useState(false);
   const [details, setDetails] = useState<Transaction | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<string[] | null>(null);
+
+  /** Cadeado de competências passadas: libera com a senha do próprio usuário. */
+  const monthKeyView = `${period.year}-${String(period.month).padStart(2, "0")}`;
+  const currentMonthKey = new Date().toISOString().slice(0, 7);
+  const isPastPeriod = monthKeyView < currentMonthKey;
+  const { policy } = useClosingPolicy();
+  const pastUnlock = usePastEditUnlock(monthKeyView);
+  const adminBlockedPast = isPastPeriod && policy.lockPastMonths;
+  const pastLocked =
+    isPastPeriod &&
+    (policy.lockPastMonths || (policy.requirePasswordForPastEdits && !pastUnlock.unlocked));
+  const [askPassword, setAskPassword] = useState(false);
+  const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
+
+  /** Executa a ação somente quando a competência estiver liberada. */
+  function guardPast(action: () => void) {
+    if (!pastLocked) {
+      action();
+      return;
+    }
+    if (adminBlockedPast) {
+      toast.error("Mês bloqueado pelo administrador", {
+        description:
+          policy.notice || "Solicite a liberação em Fechamento mensal para retificar este mês.",
+      });
+      return;
+    }
+    setPendingAction(() => action);
+    setAskPassword(true);
+  }
 
 
 
@@ -391,6 +426,8 @@ function TransactionsPage() {
           }
         />
 
+        <PastMonthsLockNotice monthKey={monthKeyView} />
+
         <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4 sm:gap-4">
           <StatTile
             label="Receitas"
@@ -611,7 +648,7 @@ function TransactionsPage() {
         {selected.length > 0 ? (
           <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-border bg-card p-3 text-sm">
             <span>{selected.length} selecionado(s)</span>
-            <Button variant="destructive" size="sm" onClick={() => setConfirmDelete(selected)}>
+            <Button variant="destructive" size="sm" onClick={() => guardPast(() => setConfirmDelete(selected))}>
               <Trash2 className="mr-2 size-4" />
               Excluir selecionados
             </Button>
@@ -673,6 +710,12 @@ function TransactionsPage() {
                             {row.attachment_url ? (
                               <Paperclip className="size-3.5 shrink-0 text-muted-foreground" />
                             ) : null}
+                            {pastLocked ? (
+                              <Lock
+                                className="size-3.5 shrink-0 text-amber-600"
+                                aria-label="Mês anterior bloqueado"
+                              />
+                            ) : null}
                           </div>
                           <div className="mt-1 flex items-center gap-1.5 text-[11px] text-muted-foreground font-medium uppercase tracking-wider">
                             <span>{formatDate(row.transaction_date)}</span>
@@ -712,10 +755,12 @@ function TransactionsPage() {
                             variant="ghost"
                             size="icon"
                             className="size-8 rounded-lg hover:bg-muted"
-                            onClick={() => {
-                              setEditing(row);
-                              setDialogOpen(true);
-                            }}
+                            onClick={() =>
+                              guardPast(() => {
+                                setEditing(row);
+                                setDialogOpen(true);
+                              })
+                            }
                           >
                             <Pencil className="size-4" />
                           </Button>
@@ -723,7 +768,7 @@ function TransactionsPage() {
                             variant="ghost"
                             size="icon"
                             className="size-8 rounded-lg hover:bg-muted"
-                            onClick={() => setConfirmDelete([row.id])}
+                            onClick={() => guardPast(() => setConfirmDelete([row.id]))}
                           >
                             <Trash2 className="size-4" />
                           </Button>
@@ -878,10 +923,12 @@ function TransactionsPage() {
                             variant="ghost"
                             size="icon"
                             className="size-8 rounded-lg"
-                            onClick={() => {
-                              setEditing(row);
-                              setDialogOpen(true);
-                            }}
+                            onClick={() =>
+                              guardPast(() => {
+                                setEditing(row);
+                                setDialogOpen(true);
+                              })
+                            }
                           >
                             <Pencil className="size-3.5" />
                           </Button>
@@ -889,7 +936,7 @@ function TransactionsPage() {
                             variant="ghost"
                             size="icon"
                             className="size-8 rounded-lg"
-                            onClick={() => handleDuplicate(row)}
+                            onClick={() => guardPast(() => handleDuplicate(row))}
                           >
                             <Copy className="size-3.5" />
                           </Button>
@@ -905,7 +952,7 @@ function TransactionsPage() {
                             variant="ghost"
                             size="icon"
                             className="size-8 rounded-lg hover:text-destructive hover:bg-destructive/10"
-                            onClick={() => setConfirmDelete([row.id])}
+                            onClick={() => guardPast(() => setConfirmDelete([row.id]))}
                           >
                             <Trash2 className="size-3.5" />
                           </Button>
@@ -965,6 +1012,21 @@ function TransactionsPage() {
 
       {dialogOpen ? (
 
+
+        <PasswordConfirmDialog
+          open={askPassword}
+          onOpenChange={(next) => {
+            setAskPassword(next);
+            if (!next) setPendingAction(null);
+          }}
+          description="Confirme sua senha para editar lançamentos de meses anteriores."
+          onConfirmed={() => {
+            pastUnlock.grant();
+            const action = pendingAction;
+            setPendingAction(null);
+            action?.();
+          }}
+        />
 
         <TransactionDialog
           key={editing?.id ?? "new"}
