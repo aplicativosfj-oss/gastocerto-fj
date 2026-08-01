@@ -19,7 +19,7 @@ export function CtaBanner() {
           <div className="grid items-center gap-4 lg:grid-cols-[1.35fr_1fr]">
             <div className="min-w-0">
               <h2 className="section-title">
-                Comece hoje e tenha o destino de cada real registrado e documentado
+                Decisões melhores começam com números claros
               </h2>
               <p className="mt-2 max-w-xl text-[13px] leading-snug text-white/90 sm:text-sm">
                 Conta gratuita, sem cartão de crédito e sem instalar nada. Prefere ver antes?
