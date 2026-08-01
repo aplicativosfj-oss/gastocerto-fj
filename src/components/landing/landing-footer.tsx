@@ -1,7 +1,9 @@
-import { Instagram, Linkedin, Lock, Mail, Youtube } from "lucide-react";
+import { Instagram, Linkedin, Lock, Mail, Youtube, CheckCircle2, Send, Loader2 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 
 import { Logo } from "@/components/logo";
+import { ContactModal } from "@/components/finance/contact-modal";
+import { useState } from "react";
 
 const links = [
   { label: "Recursos", href: "#recursos" },
@@ -20,7 +22,7 @@ const socials = [
   { label: "Instagram", icon: Instagram, href: "#inicio" },
   { label: "LinkedIn", icon: Linkedin, href: "#inicio" },
   { label: "YouTube", icon: Youtube, href: "#inicio" },
-  { label: "E-mail", icon: Mail, href: "#inicio" },
+  { label: "E-mail", icon: Mail, href: "mailto:aplicativosfj@gmail.com" },
 ];
 
 // Tap target ≥44px via invisible overlay, keeps the footer visually short.
@@ -31,24 +33,24 @@ const focusRing =
   "rounded-md outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background";
 
 export function LandingFooter() {
+  const [contactOpen, setContactOpen] = useState(false);
   return (
     <footer className="mt-auto border-t border-border bg-secondary/30">
+      <ContactModal open={contactOpen} onOpenChange={setContactOpen} />
       <div className="section-shell grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 py-2 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:gap-x-5 sm:py-2.5">
         <div className="flex min-w-0 shrink-0 scale-[0.8] items-center justify-self-start sm:scale-90">
           <Logo />
         </div>
 
         <div className="flex shrink-0 items-center gap-0.5 justify-self-end sm:order-last">
-          {socials.map((social) => (
-            <a
-              key={social.label}
-              href={social.href}
-              aria-label={social.label}
-              className={`grid size-6 shrink-0 place-items-center text-foreground transition-colors hover:text-foreground focus-visible:text-foreground sm:size-7 ${tapTarget} ${focusRing}`}
-            >
-              <social.icon className="size-3.5" aria-hidden="true" />
-            </a>
-          ))}
+          <button
+            type="button"
+            onClick={() => setContactOpen(true)}
+            aria-label="Entre em contato via e-mail"
+            className={`grid size-6 shrink-0 place-items-center text-foreground transition-colors hover:text-foreground focus-visible:text-foreground sm:size-7 ${tapTarget} ${focusRing}`}
+          >
+            <Mail className="size-3.5" aria-hidden="true" />
+          </button>
         </div>
 
         <nav
