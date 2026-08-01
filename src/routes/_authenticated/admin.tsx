@@ -38,6 +38,14 @@ import {
 import { ReopenRequestsPanel } from "@/components/admin/reopen-requests-panel";
 import { AiSettingsPanel } from "@/components/admin/ai-settings-panel";
 import { TrialGrantPanel } from "@/components/admin/trial-grant-panel";
+import { TrialLicensesPanel } from "@/components/admin/trial-licenses-panel";
+import { BlockedIpsPanel } from "@/components/admin/blocked-ips-panel";
+import {
+  adminCancelSubscription,
+  adminDeleteUser,
+  adminSetUserPassword,
+  adminUpdateUser,
+} from "@/lib/admin-users.functions";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/use-auth";
@@ -217,6 +225,7 @@ function AdminContent({ isAdmin }: { isAdmin: boolean }) {
             {isAdmin ? <TabsTrigger value="licenses">Licenças</TabsTrigger> : null}
             {isAdmin ? <TabsTrigger value="payments">Pagamentos</TabsTrigger> : null}
             {isAdmin ? <TabsTrigger value="ai">IA &amp; testes</TabsTrigger> : null}
+            {isAdmin ? <TabsTrigger value="security">Segurança</TabsTrigger> : null}
             <TabsTrigger value="reopen">Liberações</TabsTrigger>
             <TabsTrigger value="logs">Logs</TabsTrigger>
           </TabsList>
@@ -330,6 +339,13 @@ function AdminContent({ isAdmin }: { isAdmin: boolean }) {
             <TabsContent value="ai" className="mt-4 space-y-4">
               <AiSettingsPanel />
               <TrialGrantPanel />
+              <TrialLicensesPanel />
+            </TabsContent>
+          ) : null}
+
+          {isAdmin ? (
+            <TabsContent value="security" className="mt-4 space-y-4">
+              <BlockedIpsPanel />
             </TabsContent>
           ) : null}
 
@@ -547,6 +563,134 @@ function ManageUserDialog({
                   )}
                 </Button>
               </form>
+            </section>
+
+            <section>
+              <Label className="text-xs uppercase text-muted-foreground">Dados cadastrais</Label>
+              <form
+                className="mt-2 grid gap-2 sm:grid-cols-2"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  const form = new FormData(event.currentTarget);
+                  void run(
+                    "profile",
+                    () =>
+                      adminUpdateUser({
+                        data: {
+                          targetUserId: profile.user_id,
+                          fullName: String(form.get("full_name") ?? ""),
+                          contactEmail: String(form.get("contact_email") ?? ""),
+                          phone: String(form.get("phone") ?? ""),
+                          cpf: String(form.get("cpf") ?? ""),
+                          loginEmail: String(form.get("login_email") ?? ""),
+                        },
+                      }),
+                    "Dados atualizados",
+                  );
+                }}
+              >
+                <Input name="full_name" defaultValue={profile.full_name ?? ""} placeholder="Nome completo" />
+                <Input name="cpf" defaultValue={profile.cpf ?? ""} placeholder="CPF" />
+                <Input
+                  name="contact_email"
+                  type="email"
+                  defaultValue={profile.contact_email ?? ""}
+                  placeholder="E-mail de contato"
+                />
+                <Input name="phone" defaultValue={profile.phone ?? ""} placeholder="Telefone" />
+                <Input
+                  name="login_email"
+                  type="email"
+                  placeholder="Novo e-mail de acesso (opcional)"
+                  className="sm:col-span-2"
+                />
+                <Button type="submit" variant="outline" disabled={pending !== null} className="sm:col-span-2">
+                  {pending === "profile" ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
+                  Salvar dados cadastrais
+                </Button>
+              </form>
+            </section>
+
+            <section>
+              <Label htmlFor="admin-password" className="text-xs uppercase text-muted-foreground">
+                Definir senha livre (mín. 8 caracteres)
+              </Label>
+              <form
+                className="mt-2 flex gap-2"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  const password = String(new FormData(event.currentTarget).get("password") ?? "");
+                  if (password.length < 8) {
+                    toast.error("A senha precisa ter ao menos 8 caracteres");
+                    return;
+                  }
+                  void run(
+                    "password",
+                    () =>
+                      adminSetUserPassword({
+                        data: { targetUserId: profile.user_id, password },
+                      }),
+                    "Senha atualizada",
+                  );
+                }}
+              >
+                <Input id="admin-password" name="password" type="text" placeholder="Nova senha" />
+                <Button type="submit" variant="outline" disabled={pending !== null}>
+                  {pending === "password" ? (
+                    <Loader2 className="size-4 animate-spin" />
+                  ) : (
+                    <KeyRound className="size-4" />
+                  )}
+                </Button>
+              </form>
+            </section>
+
+            <section className="rounded-xl border border-destructive/40 bg-destructive/5 p-3">
+              <Label className="text-xs uppercase text-destructive">Ações críticas</Label>
+              <div className="mt-2 flex flex-wrap gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={pending !== null}
+                  onClick={() => {
+                    if (!window.confirm("Cancelar a assinatura e voltar este usuário ao plano gratuito?")) return;
+                    void run(
+                      "cancel",
+                      () => adminCancelSubscription({ data: { targetUserId: profile.user_id } }),
+                      "Assinatura cancelada",
+                    );
+                  }}
+                >
+                  {pending === "cancel" ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
+                  Cancelar assinatura
+                </Button>
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  disabled={pending !== null || isSelf}
+                  onClick={() => {
+                    const typed = window.prompt(
+                      'Excluir a conta e TODOS os dados deste usuário? Digite EXCLUIR para confirmar.',
+                    );
+                    if (typed !== "EXCLUIR") return;
+                    void run(
+                      "delete",
+                      () =>
+                        adminDeleteUser({
+                          data: { targetUserId: profile.user_id, confirmation: "EXCLUIR" },
+                        }),
+                      "Conta excluída",
+                    ).then(onClose);
+                  }}
+                >
+                  {pending === "delete" ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
+                  Excluir conta
+                </Button>
+              </div>
+              <p className="mt-2 text-xs text-muted-foreground">
+                O cancelamento revoga licenças ativas. A exclusão é definitiva e fica registrada nos
+                logs administrativos.
+              </p>
             </section>
 
             <section>
