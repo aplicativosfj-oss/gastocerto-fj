@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Check, Loader2, Pencil, Plus, Power, ToggleLeft, ToggleRight } from "lucide-react";
+import { Loader2, Pencil, Plus } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -29,6 +29,7 @@ import { CategoryAutofixCard } from "@/components/finance/category-autofix-card"
 import { MetaChip, PageHeader } from "@/components/finance/page-header";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
+import { ConfirmDialog } from "@/components/finance/confirm-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { CATEGORY_ICON_KEYS, categoryIcon } from "@/lib/category-icons";
 import { formatCurrency } from "@/lib/format";
@@ -88,6 +89,8 @@ function CategoriesPage() {
   const [draft, setDraft] = useState<(Draft & { description?: string | null }) | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [pending, setPending] = useState<{ id: string; name: string; next: boolean } | null>(null);
+  const [toggling, setToggling] = useState(false);
 
   const usage = useMemo(() => {
     const map = new Map<string, number>();
@@ -149,7 +152,8 @@ function CategoriesPage() {
     }
   }
 
-  async function toggleActive(id: string, active: boolean) {
+  /** Grava o novo estado sem avisos: usado pelo fluxo confirmado e pelo desfazer. */
+  async function applyActive(id: string, active: boolean) {
     const { error: updateError } = await supabase
       .from("categories")
       .update({ active })
@@ -157,10 +161,35 @@ function CategoriesPage() {
     if (updateError) {
       console.error("[categorias] falha ao alterar", updateError.message);
       toast.error("Não foi possível alterar a categoria.");
-      return;
+      return false;
     }
     await refresh();
-    toast.success(active ? "Categoria reativada." : "Categoria desativada.");
+    return true;
+  }
+
+  /** Confirma, aplica e oferece desfazer imediato por 8 segundos. */
+  async function confirmToggle() {
+    if (!pending) return;
+    const { id, name, next } = pending;
+    setToggling(true);
+    const ok = await applyActive(id, next);
+    setToggling(false);
+    setPending(null);
+    if (!ok) return;
+    toast.success(next ? `"${name}" foi reativada.` : `"${name}" foi desativada.`, {
+      duration: 8000,
+      description: next
+        ? "Ela volta a aparecer nos lançamentos."
+        : "Nada foi excluído: seus lançamentos antigos continuam intactos.",
+      action: {
+        label: "Desfazer",
+        onClick: () => {
+          void applyActive(id, !next).then((reverted) => {
+            if (reverted) toast.info(`"${name}" restaurada ao estado anterior.`);
+          });
+        },
+      },
+    });
   }
 
   async function updateOrder(id: string, order: number) {
@@ -270,12 +299,13 @@ function CategoriesPage() {
                     </div>
                   </div>
                   
-                  <div className="flex flex-col items-end gap-2 shrink-0">
-                    <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex shrink-0 flex-col items-end gap-2">
+                    <div className="flex gap-0.5 transition-opacity lg:opacity-0 lg:group-hover:opacity-100 lg:group-focus-within:opacity-100">
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="size-8 rounded-lg"
+                        aria-label={`Editar categoria ${category.name}`}
+                        className="size-9 rounded-lg"
                         onClick={() => {
                           setError(null);
                           setDraft({
@@ -293,16 +323,35 @@ function CategoriesPage() {
                         <Pencil className="size-3.5" />
                       </Button>
                     </div>
-                    
-                    <div className="flex items-center gap-2" title={isActive ? "Desativar" : "Ativar"}>
-                      <Switch 
-                        checked={isActive}
-                        onCheckedChange={(checked) => toggleActive(category.id, checked)}
+
+                    <div className="flex items-center gap-2">
+                      <label
+                        htmlFor={`category-active-${category.id}`}
                         className={cn(
-                          "scale-75 transition-all duration-500",
-                          !isActive && "opacity-60"
+                          "cursor-pointer select-none text-[10px] font-bold uppercase tracking-wider transition-colors",
+                          isActive ? "text-success" : "text-muted-foreground",
+                        )}
+                      >
+                        {isActive ? "Ativa" : "Inativa"}
+                      </label>
+                      <Switch
+                        id={`category-active-${category.id}`}
+                        checked={isActive}
+                        aria-label={`${isActive ? "Desativar" : "Ativar"} a categoria ${category.name}`}
+                        aria-describedby={`category-active-hint-${category.id}`}
+                        onCheckedChange={(checked) =>
+                          setPending({ id: category.id, name: category.name, next: checked })
+                        }
+                        className={cn(
+                          "transition-all duration-500 focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                          !isActive && "opacity-70",
                         )}
                       />
+                      <span id={`category-active-hint-${category.id}`} className="sr-only">
+                        {isActive
+                          ? "Categoria ativa e disponível nos lançamentos. Desativar não exclui nada."
+                          : "Categoria desativada. Ative para voltar a usá-la nos lançamentos."}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -476,6 +525,21 @@ function CategoriesPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <ConfirmDialog
+        open={pending !== null}
+        onOpenChange={(open) => !open && setPending(null)}
+        title={pending?.next ? "Ativar categoria?" : "Desativar categoria?"}
+        description={
+          pending?.next
+            ? `"${pending.name}" volta a aparecer na lista de lançamentos.`
+            : `"${pending?.name}" deixa de aparecer em novos lançamentos. Nada é excluído e você pode reativar quando quiser.`
+        }
+        confirmLabel={pending?.next ? "Ativar" : "Desativar"}
+        tone={pending?.next ? "default" : "destructive"}
+        loading={toggling}
+        onConfirm={confirmToggle}
+      />
     </AppShell>
   );
 }

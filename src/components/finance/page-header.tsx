@@ -41,8 +41,8 @@ export function PageHeader({
         aria-hidden="true"
         className="pointer-events-none absolute -right-16 -top-20 size-48 rounded-full bg-[radial-gradient(circle,color-mix(in_oklab,var(--brand)_18%,transparent),transparent_70%)]"
       />
-      <div className="relative grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start">
-        <div className="grid grid-cols-[auto_minmax(0,1fr)] items-start gap-3">
+      <div className="relative grid gap-3 lg:grid-cols-[minmax(16rem,1fr)_auto] lg:items-start">
+        <div className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)] items-start gap-3">
           {Icon ? (
             <span className="grid size-10 shrink-0 place-items-center rounded-xl border border-brand/25 bg-brand/10 text-brand sm:size-11">
               <Icon className="size-5" aria-hidden="true" />
@@ -50,15 +50,15 @@ export function PageHeader({
           ) : null}
           <div className="min-w-0">
             {eyebrow ? (
-              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-brand sm:text-[11px]">
+              <p className="truncate text-[10px] font-semibold uppercase tracking-[0.18em] text-brand sm:text-[11px]">
                 {eyebrow}
               </p>
             ) : null}
-            <h1 className="font-display text-lg font-bold leading-tight tracking-tight sm:text-2xl">
+            <h1 className="font-display text-lg font-bold leading-tight tracking-tight text-balance sm:text-2xl">
               {title}
             </h1>
             {description ? (
-              <p className="mt-1 text-[12.5px] leading-relaxed text-muted-foreground sm:text-sm">
+              <p className="mt-1 text-[12.5px] leading-relaxed text-pretty text-muted-foreground sm:text-sm">
                 {description}
               </p>
             ) : null}
@@ -66,7 +66,9 @@ export function PageHeader({
           </div>
         </div>
         {actions ? (
-          <div className="flex flex-wrap items-center gap-2 lg:justify-end">{actions}</div>
+          <div className="-mx-0.5 flex min-w-0 max-w-full items-center gap-2 overflow-x-auto px-0.5 pb-0.5 [scrollbar-width:none] lg:flex-wrap lg:overflow-visible lg:pb-0 lg:justify-end [&::-webkit-scrollbar]:hidden [&>*]:shrink-0">
+            {actions}
+          </div>
         ) : null}
       </div>
     </header>

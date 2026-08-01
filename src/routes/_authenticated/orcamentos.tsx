@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { AppShell } from "@/components/app-shell";
 import { PageHeader } from "@/components/finance/page-header";
 import { PeriodPicker } from "@/components/finance/period-picker";
+import { MonthPresets, loadPeriod } from "@/components/finance/month-presets";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -49,7 +50,9 @@ export const Route = createFileRoute("/_authenticated/orcamentos")({
 
 function BudgetsPage() {
   const today = new Date();
-  const [period, setPeriod] = useState({ year: today.getFullYear(), month: today.getMonth() + 1 });
+  const [period, setPeriod] = useState(
+    () => loadPeriod("orcamentos") ?? { year: today.getFullYear(), month: today.getMonth() + 1 },
+  );
   const range = monthRange(period.year, period.month);
   const { data: budgets, isLoading } = useBudgets(period.year, period.month);
   const { data: transactions } = useTransactions(range);
@@ -152,6 +155,9 @@ function BudgetsPage() {
             </>
           }
         />
+
+        <MonthPresets scope="orcamentos" value={period} onChange={setPeriod} />
+
 
         {isLoading ? (
           <div className="space-y-3">

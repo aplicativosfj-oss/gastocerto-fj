@@ -19,6 +19,8 @@ import { AppShell } from "@/components/app-shell";
 import { FeatureGate } from "@/components/finance/feature-gate";
 import { FuelDialog } from "@/components/finance/fuel-dialog";
 import { PageHeader } from "@/components/finance/page-header";
+import { FilterPresets } from "@/components/finance/filter-presets";
+import { EMPTY_FILTERS } from "@/lib/filter-presets";
 import { StatTile } from "@/components/finance/stat-tile";
 import { ReceiptViewer } from "@/components/finance/receipt-viewer";
 import { VehicleDialog } from "@/components/finance/vehicle-dialog";
@@ -406,6 +408,30 @@ function VehiclesPage() {
             aria-label="Data final"
           />
         </section>
+
+        <FilterPresets
+          scope="veiculos"
+          values={{
+            ...EMPTY_FILTERS,
+            from,
+            to,
+            vehicle: vehicleFilter,
+            type: fuelFilter,
+          }}
+          presetKeys={["month", "prevMonth", "last30", "last7"]}
+          onApply={(patch) => {
+            if (patch.from !== undefined) setFrom(patch.from);
+            if (patch.to !== undefined) setTo(patch.to);
+            if (patch.vehicle !== undefined) setVehicleFilter(patch.vehicle);
+          }}
+          onClear={() => {
+            setFrom("");
+            setTo("");
+            setVehicleFilter("all");
+            setFuelFilter("all");
+          }}
+        />
+
 
         <section className="grid gap-3 grid-cols-2 lg:grid-cols-4">
           <Metric

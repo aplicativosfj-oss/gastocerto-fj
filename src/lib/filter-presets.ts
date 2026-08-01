@@ -58,6 +58,16 @@ export const FILTER_PRESETS: FilterPreset[] = [
     },
   },
   {
+    key: "prevMonth",
+    label: "Mês anterior",
+    values: () => {
+      const now = new Date();
+      const first = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      const last = new Date(now.getFullYear(), now.getMonth(), 0);
+      return { from: iso(first), to: iso(last), type: "all", status: "all" };
+    },
+  },
+  {
     key: "last30",
     label: "Últimos 30 dias",
     values: () => ({ from: shiftDays(-30), to: iso(new Date()), type: "all" }),
