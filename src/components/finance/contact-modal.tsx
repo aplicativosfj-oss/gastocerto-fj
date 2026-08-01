@@ -24,6 +24,7 @@ export function ContactModal({
   const { data: profile } = useProfile();
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const [subject, setSubject] = useState("Suporte GastoCerto");
   const [message, setMessage] = useState(
@@ -34,19 +35,39 @@ export function ContactModal({
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setError(null);
+
+    if (!subject.trim() || !message.trim()) {
+      setError("Por favor, preencha todos os campos.");
+      return;
+    }
+
     setSending(true);
 
-    // Simula envio de e-mail (em produção integraria com serviço de e-mail)
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    try {
+      // Simula envio de e-mail (em produção integraria com serviço de e-mail)
+      await new Promise((resolve, reject) => {
+        setTimeout(() => {
+          // 5% de chance de erro simulado para testar UI
+          if (Math.random() > 0.95) reject(new Error("Falha na conexão com o servidor."));
+          else resolve(true);
+        }, 1200);
+      });
 
-    setSending(false);
-    setSent(true);
-    toast.success("Mensagem enviada com sucesso!");
-    
-    setTimeout(() => {
-      onOpenChange(false);
-      setSent(false);
-    }, 2000);
+      setSent(true);
+      toast.success("Mensagem enviada com sucesso!");
+      
+      setTimeout(() => {
+        onOpenChange(false);
+        setSent(false);
+      }, 2500);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Erro ao enviar mensagem.";
+      setError(msg);
+      toast.error(msg);
+    } finally {
+      setSending(false);
+    }
   }
 
   return (
@@ -72,6 +93,11 @@ export function ContactModal({
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4 pt-2">
+            {error && (
+              <div className="rounded-md bg-destructive/10 p-2.5 text-xs text-destructive animate-in fade-in slide-in-from-top-1">
+                {error}
+              </div>
+            )}
             <div className="space-y-1.5">
               <Label htmlFor="contact-dest">Para</Label>
               <Input

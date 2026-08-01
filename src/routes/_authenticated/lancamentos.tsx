@@ -460,6 +460,58 @@ function TransactionsPage() {
     URL.revokeObjectURL(url);
   }
 
+  async function exportPeriodPdf() {
+    try {
+      const [{ default: JsPDF }, { default: autoTable }] = await Promise.all([
+        import("jspdf"),
+        import("jspdf-autotable"),
+      ]);
+
+      const doc = new JsPDF({ unit: "pt", format: "a4" });
+      const monthLabel = MONTH_NAMES[period.month - 1];
+      const typeLabel = TYPE_LABELS[currentTypeFilter] ?? "Lançamentos";
+
+      doc.setFontSize(16);
+      doc.text(`GastoCerto — ${typeLabel}`, 40, 42);
+      doc.setFontSize(10);
+      doc.text(`${monthLabel} de ${period.year} · Resumo do período`, 40, 58);
+
+      autoTable(doc, {
+        startY: 75,
+        head: [["Receitas", "Despesas", "Saldo"]],
+        body: [[
+          formatCurrency(incomeTotal),
+          formatCurrency(expenseTotal),
+          formatCurrency(total)
+        ]],
+        styles: { fontSize: 10, cellPadding: 6 },
+        headStyles: { fillColor: [15, 42, 69], textColor: 255 },
+      });
+
+      const finalY = (doc as any).lastAutoTable.finalY;
+
+      autoTable(doc, {
+        startY: finalY + 20,
+        head: [["Data", "Descrição", "Categoria", "Valor", "Status"]],
+        body: filtered.map(row => [
+          formatDate(row.transaction_date),
+          row.description,
+          row.category_id ? (categoryNames.get(row.category_id) ?? "—") : "—",
+          `${row.transaction_type === "income" ? "+" : "-"}${formatCurrency(Number(row.amount))}`,
+          labelFor(TRANSACTION_STATUS, row.status)
+        ]),
+        styles: { fontSize: 8, cellPadding: 4 },
+        headStyles: { fillColor: [71, 85, 105], textColor: 255 },
+        columnStyles: { 3: { halign: "right" } }
+      });
+
+      doc.save(`extrato-${period.year}-${String(period.month).padStart(2, "0")}.pdf`);
+      toast.success("PDF do período gerado com sucesso.");
+    } catch (error) {
+      toast.error("Não foi possível gerar o PDF do período.");
+    }
+  }
+
   const activeFilters = [
     search.trim() !== "",
     merchantFilter.trim() !== "",

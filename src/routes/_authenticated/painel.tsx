@@ -47,6 +47,7 @@ import { InsightsPanel } from "@/components/finance/insights-panel";
 import { PastMonthsLockNotice } from "@/components/finance/past-months-lock-notice";
 import { VehicleEmblem } from "@/components/finance/vehicle-emblem";
 import { usePeriodStore } from "@/lib/period-store";
+import { InteractiveCalendar } from "@/components/finance/interactive-calendar";
 
 
 import { Badge } from "@/components/ui/badge";
@@ -307,12 +308,32 @@ function DashboardPage() {
     const expense = rows
       .filter((row) => row.transaction_type === "expense")
       .reduce((sum, row) => sum + Number(row.amount), 0);
+    const income = rows
+      .filter((row) => row.transaction_type === "income")
+      .reduce((sum, row) => sum + Number(row.amount), 0);
+      
     setDetail({
       label: `Movimentos de ${formatDate(iso)}`,
       value: formatCurrency(expense),
       hint: `${rows.length} lançamento(s) no dia`,
-      formula: "Soma das despesas lançadas exatamente nesta data.",
+      formula: "Soma das movimentações financeiras registradas nesta data específica.",
       rows,
+      extra: [
+        { label: "Total Receitas", value: formatCurrency(income) },
+        { label: "Total Despesas", value: formatCurrency(expense) },
+        { label: "Resultado do dia", value: formatCurrency(income - expense) }
+      ],
+      onAction: () => {
+        // Redireciona para lançamentos já filtrado por este dia
+        navigate({
+          to: "/lancamentos",
+          search: { 
+            ano: period.year, 
+            mes: period.month, 
+            tipo: "all"
+          } as any
+        });
+      }
     });
   };
 
@@ -380,7 +401,7 @@ function DashboardPage() {
               Olá, {firstName}!
             </h1>
             <p className="page-subtitle mt-1">
-              {MONTH_NAMES[period.month - 1]} de {period.year} · Clique nos gráficos para ver detalhes profissionais
+              {MONTH_NAMES[period.month - 1]} de {period.year} · Clique nos dias do calendário ou nas categorias para detalhes profissionais
             </p>
           </div>
           <div className="col-span-2 flex flex-wrap items-center gap-2">
