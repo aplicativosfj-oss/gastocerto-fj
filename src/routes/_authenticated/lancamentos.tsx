@@ -576,7 +576,16 @@ function TransactionsPage() {
                       </div>
                     </TableCell>
                   </TableRow>
+                  {expanded.includes(row.id) ? (
+                    <TableRow>
+                      <TableCell colSpan={8} className="bg-muted/10">
+                        <InlineNotes transaction={row} />
+                      </TableCell>
+                    </TableRow>
+                  ) : null}
+                  </Fragment>
                 ))}
+
               </TableBody>
             </Table>
           )}
