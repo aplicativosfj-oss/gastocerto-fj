@@ -175,6 +175,17 @@ export function PaymentsAuditPanel({ globalSearch = "" }: { globalSearch?: strin
                     ) : (
                       <ResendButton paymentId={charge.id} />
                     )}
+                    {["pending", "in_process"].includes(charge.status) ? (
+                      <Button
+                        size="sm"
+                        className="h-6 px-2 text-[10px]"
+                        disabled={approve.isPending}
+                        onClick={() => approve.mutate(charge.id)}
+                      >
+                        Confirmar pagamento
+                      </Button>
+                    ) : null}
+
                   </div>
                 </div>
 
