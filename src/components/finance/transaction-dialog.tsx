@@ -326,16 +326,25 @@ export function TransactionDialog({
 
     const itemsCheck = validatePurchaseItems(items, value);
     
-    // Alerta de inconsistência de data/competência
-    const today = new Date();
+    // Alerta de inconsistência de data/competência e data incoerente
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const selectedDate = new Date(date);
-    const isPast = selectedDate < new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    const isFuture = selectedDate > today;
     
-    if (!editing && (isPast || isFuture)) {
+    const isPast = selectedDate < todayStart;
+    const isFuture = selectedDate > now;
+    const isDifferentDay = selectedDate.getDate() !== now.getDate() || 
+                          selectedDate.getMonth() !== now.getMonth() ||
+                          selectedDate.getFullYear() !== now.getFullYear();
+    
+    if (!editing && isDifferentDay) {
       const typeLabel = kind === "income" ? "receita" : "gasto";
-      const impactMsg = isPast ? "afetará o saldo de meses anteriores" : "ficará pendente no saldo futuro";
-      if (!confirm(`Atenção: Você está lançando uma ${typeLabel} para ${formatDate(date)}. Isso ${impactMsg}. Deseja continuar?`)) {
+      let msg = `Você selecionou a data ${formatDate(date)}, que é diferente de hoje.`;
+      
+      if (isPast) msg += ` Isso afetará o saldo de meses anteriores.`;
+      if (isFuture) msg += ` Isso ficará pendente no saldo futuro.`;
+      
+      if (!confirm(`${msg} Confirmar lançamento para este dia?`)) {
         return;
       }
     }
@@ -354,17 +363,6 @@ export function TransactionDialog({
     if (Object.keys(nextErrors).length > 0) return;
 
     const total = installments ? Number(installments) : null;
-
-    // Validação de data incoerente
-    const today = new Date();
-    const selectedDate = new Date(date);
-    const isDifferentDay = selectedDate.getDate() !== today.getDate() || 
-                          selectedDate.getMonth() !== today.getMonth() ||
-                          selectedDate.getFullYear() !== today.getFullYear();
-
-    if (isDifferentDay && !editing && !confirm(`Você selecionou a data ${formatDate(date)}, que é diferente de hoje. Confirmar lançamento para este dia?`)) {
-      return;
-    }
 
     try {
       const saved = await save.mutateAsync({
