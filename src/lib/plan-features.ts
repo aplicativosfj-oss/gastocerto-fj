@@ -106,6 +106,8 @@ export type PlanAccess = {
   tier: PlanTier;
   planSlug: string;
   isAdmin: boolean;
+  /** Verdadeiro quando o plano atual inclui o Consultor de IA. */
+  aiIncluded: boolean;
   trialActive: boolean;
   trialDaysLeft: number;
   trialEndsAt: string | null;
