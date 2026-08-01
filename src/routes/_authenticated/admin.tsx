@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { KeyRound, Loader2, Search, ShieldCheck, UserCog } from "lucide-react";
+import { KeyRound, Loader2, Search, ShieldCheck, UserCog, Users, Zap, Database, TrendingUp } from "lucide-react";
+import { StatTile } from "@/components/finance/stat-tile";
+
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -219,11 +221,12 @@ function AdminContent({ isAdmin }: { isAdmin: boolean }) {
 
         {isAdmin ? (
           <div className="grid gap-3 auto-cards-sm">
-            <StatCard label="Usuários" value={overview.data?.totalUsers} />
-            <StatCard label="Contas ativas" value={overview.data?.activeUsers} />
-            <StatCard label="Novos (30 dias)" value={overview.data?.newUsers30d} />
-            <StatCard label="Lançamentos" value={overview.data?.totalTransactions} />
+            <StatTile tone="brand" label="Usuários" value={String(overview.data?.totalUsers ?? 0)} icon={Users} />
+            <StatTile tone="success" label="Contas ativas" value={String(overview.data?.activeUsers ?? 0)} icon={ShieldCheck} />
+            <StatTile tone="warning" label="Novos (30 dias)" value={String(overview.data?.newUsers30d ?? 0)} icon={TrendingUp} />
+            <StatTile tone="neutral" label="Lançamentos" value={String(overview.data?.totalTransactions ?? 0)} icon={Database} />
             <div className="flex flex-col gap-2 rounded-xl border border-dashed border-border p-3">
+
               <Button 
                 variant="outline" 
                 size="sm" 
@@ -457,16 +460,6 @@ function AdminContent({ isAdmin }: { isAdmin: boolean }) {
   );
 }
 
-function StatCard({ label, value }: { label: string; value?: number }) {
-  return (
-    <div className="rounded-xl border border-border bg-card p-4">
-      <p className="text-xs text-muted-foreground">{label}</p>
-      <p className="mt-1 font-display text-xl font-semibold">
-        {value === undefined ? "—" : value.toLocaleString("pt-BR")}
-      </p>
-    </div>
-  );
-}
 
 function ManageUserDialog({
   profile,

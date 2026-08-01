@@ -30,6 +30,7 @@ import { FilterField, FilterPanel } from "@/components/finance/filter-panel";
 import { FilterPresets } from "@/components/finance/filter-presets";
 import { MetaChip, PageHeader } from "@/components/finance/page-header";
 import { StatTile } from "@/components/finance/stat-tile";
+
 import { PeriodPdfPreview } from "@/components/finance/period-pdf-preview";
 import { PeriodPicker } from "@/components/finance/period-picker";
 import { InlineNotes } from "@/components/finance/inline-notes";
@@ -567,21 +568,26 @@ function TransactionsPage() {
     <AppShell>
       <div className="mx-auto max-w-7xl space-y-3 sm:space-y-4">
         <section className="grid grid-cols-3 gap-2">
-          <div className="flex flex-col rounded-2xl border border-income-border bg-income-surface p-3 text-center">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-income">Receitas</p>
-            <p className="mt-0.5 text-sm font-bold tabular-nums text-income">{formatCurrency(incomeTotal)}</p>
-          </div>
-          <div className="flex flex-col rounded-2xl border border-expense-border bg-expense-surface p-3 text-center">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-expense">Despesas</p>
-            <p className="mt-0.5 text-sm font-bold tabular-nums text-expense">{formatCurrency(expenseTotal)}</p>
-          </div>
-          <div className="flex flex-col rounded-2xl border border-brand/20 bg-brand/5 p-3 text-center">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-brand/85">Saldo</p>
-            <p className={cn("mt-0.5 text-sm font-bold tabular-nums", total >= 0 ? "text-income" : "text-expense")}>
-              {formatCurrency(total)}
-            </p>
-          </div>
+          <StatTile
+            tone="success"
+            label="Receitas"
+            value={formatCurrency(incomeTotal)}
+            className="sm:py-3"
+          />
+          <StatTile
+            tone="expense"
+            label="Despesas"
+            value={formatCurrency(expenseTotal)}
+            className="sm:py-3"
+          />
+          <StatTile
+            tone={total >= 0 ? "brand" : "expense"}
+            label="Saldo"
+            value={formatCurrency(total)}
+            className="sm:py-3"
+          />
         </section>
+
 
 
         <PageHeader

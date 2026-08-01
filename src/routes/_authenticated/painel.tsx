@@ -52,6 +52,8 @@ import { PastMonthsLockNotice } from "@/components/finance/past-months-lock-noti
 import { VehicleEmblem } from "@/components/finance/vehicle-emblem";
 import { usePeriodStore } from "@/lib/period-store";
 import { InteractiveCalendar } from "@/components/finance/interactive-calendar";
+import { StatTile } from "@/components/finance/stat-tile";
+
 
 
 import { Badge } from "@/components/ui/badge";
@@ -484,8 +486,8 @@ function DashboardPage() {
               <InteractiveCalendar onDayClick={openDayDetail} />
               
               <div className="grid gap-3 auto-cards-sm">
-                <StatCard
-                  tile="var(--acc-4)"
+                <StatTile
+                  tone="brand"
                   label={
                     metrics.isCurrentMonth
                       ? `Gasto hoje · ${formatDate(isoDate(today))}`
@@ -501,15 +503,16 @@ function DashboardPage() {
                             detailRows.todayExpenses.length > 1 ? "s" : ""
                           } só de hoje`
                   }
-                  icon={<Zap className="size-4" />}
+                  icon={Zap}
                   onClick={() => openDayDetail(today.getDate())}
                 />
 
-                <StatCard
-                  tile="var(--acc-3)"
+
+                <StatTile
+                  tone="warning"
                   label="Gasto nos 7 dias"
                   value={formatCurrency(metrics.week)}
-                  icon={<CalendarClock className="size-4" />}
+                  icon={CalendarClock}
                   onClick={() =>
                     setDetail({
                       label: "Gasto nos últimos 7 dias",
@@ -520,12 +523,13 @@ function DashboardPage() {
                     })
                   }
                 />
+
                 
-                <StatCard
-                  tile="var(--acc-5)"
+                <StatTile
+                  tone="expense"
                   label="Gasto no mês"
                   value={formatCurrency(metrics.totalExpense)}
-                  icon={<TrendingDown className="size-4" />}
+                  icon={TrendingDown}
                   onClick={() =>
                     setDetail({
                       label: "Gasto no mês",
@@ -540,11 +544,12 @@ function DashboardPage() {
                   }
                 />
 
-                <StatCard
-                  tile="var(--acc-2)"
+
+                <StatTile
+                  tone="success"
                   label="Receita total"
                   value={formatCurrency(metrics.totalIncome)}
-                  icon={<TrendingUp className="size-4" />}
+                  icon={TrendingUp}
                   onClick={() =>
                     setDetail({
                       label: "Receita total",
@@ -558,25 +563,28 @@ function DashboardPage() {
                   }
                 />
 
-                <StatCard
-                  tile="var(--acc-1)"
+
+                <StatTile
+                  tone="neutral"
                   label="Saldo disponível"
                   value={formatCurrency(metrics.balance)}
-                  icon={<Wallet className="size-4" />}
+                  icon={Wallet}
                 />
+
               </div>
             </div>
 
             <div className="space-y-4">
               {metrics.limit > 0 && (
-                <StatCard
-                  tile="var(--acc-6)"
+                <StatTile
+                  tone="neutral"
                   label="Orçamento geral"
                   value={formatCurrency(metrics.limit)}
                   progress={metrics.usedPercent}
-                  icon={<Wallet className="size-4" />}
+                  icon={Wallet}
                   hint={`Você já usou ${metrics.usedPercent.toFixed(1)}% do seu limite definido.`}
                 />
+
               )}
               
               <RecurringAlerts />
@@ -587,8 +595,8 @@ function DashboardPage() {
         {/* Bloco de métricas secundárias */}
         {!loadingTransactions && (
           <div className="grid gap-3 auto-cards-sm mt-4">
-            <StatCard
-              tile="var(--acc-1)"
+            <StatTile
+              tone="neutral"
               label="Média diária"
               value={formatCurrency(metrics.dailyAverage)}
               onClick={() =>
@@ -604,8 +612,9 @@ function DashboardPage() {
                 })
               }
             />
-            <StatCard
-              tile="var(--acc-6)"
+
+            <StatTile
+              tone="warning"
               label="Projeção do mês"
               value={formatCurrency(metrics.projection)}
               hint="Com base no ritmo atual"
@@ -622,6 +631,7 @@ function DashboardPage() {
                 })
               }
             />
+
           </div>
         )}
       
@@ -1045,61 +1055,6 @@ function DashboardPage() {
 
     
 
-function StatCard({
-  label,
-  value,
-  icon,
-  hint,
-  progress,
-  tile = "var(--acc-1)",
-  onClick,
-}: {
-  label: string;
-  value: string;
-  icon?: React.ReactNode;
-  hint?: string;
-  progress?: number;
-  tile?: string;
-  onClick?: () => void;
-}) {
-  const Wrapper = onClick ? "button" : "div";
-  return (
-    <Wrapper
-      type={onClick ? "button" : undefined}
-      onClick={onClick}
-      aria-label={onClick ? `Ver detalhes de ${label}` : undefined}
-      className={`accent-tile rounded-2xl p-3 text-left ${
-        onClick
-          ? "cursor-pointer transition hover:-translate-y-0.5 hover:shadow-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          : ""
-      }`}
-      style={{ "--tile": tile } as React.CSSProperties}
-    >
-      <div className="flex items-center gap-2" style={{ color: tile }}>
-        {icon}
-        <span className="text-xs font-medium uppercase tracking-wide">{label}</span>
-      </div>
-      <p className="mt-1.5 text-lg font-bold tabular-nums">{value}</p>
-      
-      {progress !== undefined && (
-        <div className="mt-2 space-y-1.5">
-          <Progress value={Math.min(100, progress)} className="h-1" />
-          <div className="flex justify-between text-[10px] text-muted-foreground uppercase tracking-wider font-medium">
-            <span>Uso</span>
-            <span>{progress.toFixed(0)}%</span>
-          </div>
-        </div>
-      )}
-
-      {hint ? <p className="mt-1 text-xs text-muted-foreground">{hint}</p> : null}
-      {onClick ? (
-        <p className="mt-1 text-[10px] uppercase tracking-wide text-muted-foreground">
-          toque para detalhar
-        </p>
-      ) : null}
-    </Wrapper>
-  );
-}
 
 
 function ChartCard({

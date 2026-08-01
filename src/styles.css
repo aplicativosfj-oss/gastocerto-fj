@@ -104,12 +104,14 @@
   --warning: oklch(0.58 0.13 74);
   --warning-foreground: oklch(0.99 0.004 250);
   /* Despesa: vermelho tijolo sóbrio (croma contido, alto contraste no claro). */
-  --expense: oklch(0.475 0.105 27);
-  --expense-surface: oklch(0.976 0.009 30);
-  --expense-border: oklch(0.9 0.024 28);
-  --income: oklch(0.47 0.105 155);
-  --income-surface: oklch(0.972 0.014 155);
-  --income-border: oklch(0.895 0.032 155);
+  /* Despesa: coral sóbrio (tons da imagem 3). */
+  --expense: oklch(0.62 0.16 25);
+  --expense-surface: oklch(0.24 0.04 25);
+  --expense-border: oklch(0.35 0.06 25);
+  --income: oklch(0.68 0.14 145);
+  --income-surface: oklch(0.24 0.04 150);
+  --income-border: oklch(0.35 0.06 150);
+
   --border: oklch(0.915 0.011 252);
   --input: oklch(0.915 0.011 252);
   --ring: oklch(0.55 0.16 258);
@@ -159,12 +161,13 @@
   --warning: oklch(0.82 0.14 78);
   --warning-foreground: oklch(0.17 0.035 258);
   /* No escuro, terracota claro: legível sem vibrar nem desbotar. */
-  --expense: oklch(0.775 0.07 32);
-  --expense-surface: oklch(0.265 0.026 28);
-  --expense-border: oklch(0.375 0.035 28);
-  --income: oklch(0.82 0.095 158);
-  --income-surface: oklch(0.28 0.04 158);
-  --income-border: oklch(0.42 0.055 158);
+  --expense: oklch(0.62 0.16 25);
+  --expense-surface: oklch(0.24 0.04 25);
+  --expense-border: oklch(0.35 0.06 25);
+  --income: oklch(0.68 0.14 145);
+  --income-surface: oklch(0.24 0.04 150);
+  --income-border: oklch(0.35 0.06 150);
+
   --border: oklch(1 0 0 / 12%);
   --input: oklch(1 0 0 / 16%);
   --ring: oklch(0.68 0.13 255);
