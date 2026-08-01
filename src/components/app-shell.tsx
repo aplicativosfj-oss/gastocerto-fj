@@ -321,6 +321,14 @@ function MobileTabBar({
             <div className="grid gap-1.5 border-t border-border p-3">
               <div className="flex items-center gap-1.5">
                 <ThemeToggle />
+                <Link
+                  to="/lancamentos"
+                  onClick={() => onOpenChange(false)}
+                  className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-md bg-brand px-3 text-[13px] font-semibold text-brand-foreground"
+                >
+                  <Plus className="size-4" aria-hidden="true" />
+                  Novo lançamento
+                </Link>
               </div>
               <Button variant="outline" className="justify-center gap-2" onClick={onSignOut}>
                 <LogOut className="size-4" />
