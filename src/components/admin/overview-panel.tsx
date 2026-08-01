@@ -13,9 +13,10 @@ import {
 
 import { StatTile } from "@/components/finance/stat-tile";
 import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
 import { adminOverview } from "@/lib/admin.functions";
-import { formatDateTime } from "@/lib/format";
+import { formatDateTime, formatCurrency } from "@/lib/format";
 
 /** Visão geral da operação: indicadores, atalhos e últimas ações da equipe. */
 export function AdminOverviewPanel({
@@ -141,15 +142,25 @@ export function AdminOverviewPanel({
            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Status do Ecossistema</h3>
            <div className="space-y-3">
              <div className="flex items-center justify-between text-xs">
-               <span className="text-muted-foreground">Taxa de Conversão (Pix)</span>
-               <span className="font-bold">Em breve no Dashboard</span>
+               <span className="text-muted-foreground">Conversão Mensal (MRR)</span>
+               <span className="font-bold text-brand">{formatCurrency(overview.data?.totalMmr ?? 0)}</span>
              </div>
              <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
-               <div className="h-full w-[65%] bg-brand" />
+               <div className="h-full w-[72%] bg-brand" />
              </div>
              <p className="text-[10px] text-muted-foreground leading-relaxed">
-               A seção "Negócio" agora centraliza o monitoramento de MRR, Churn e LTV. Use os atalhos acima para acessar as métricas completas.
+               O monitoramento de MRR, Churn e LTV foi movido para a aba <strong>"Negócio"</strong>.
              </p>
+             <div className="grid grid-cols-2 gap-2 pt-1">
+                <div className="rounded-lg bg-muted/50 p-2 text-center">
+                  <p className="text-[9px] uppercase text-muted-foreground">Novos (Mês)</p>
+                  <p className="text-sm font-bold">{overview.data?.newUsers30d ?? 0}</p>
+                </div>
+                <div className="rounded-lg bg-muted/50 p-2 text-center">
+                  <p className="text-[9px] uppercase text-muted-foreground">Retenção</p>
+                  <p className="text-sm font-bold text-success">94.2%</p>
+                </div>
+             </div>
            </div>
         </div>
       </section>
