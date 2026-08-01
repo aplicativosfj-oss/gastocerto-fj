@@ -542,63 +542,71 @@ function VehiclesPage() {
                     <TableHead className="w-20 text-right font-bold text-[10px] uppercase tracking-wider text-muted-foreground">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
-              <TableBody>
-                {filtered.map((entry) => (
-                  <TableRow key={entry.id}>
-                    <TableCell className="whitespace-nowrap tabular-nums">
-                      {formatDate(entry.entry_date)}
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell">
-                      {vehicleNames.get(entry.vehicle_id) ?? "—"}
-                    </TableCell>
-                    <TableCell className="text-right tabular-nums">{entry.odometer}</TableCell>
-                    <TableCell className="text-right tabular-nums">{entry.liters}</TableCell>
-                    <TableCell className="hidden sm:table-cell text-right tabular-nums">
-                      {formatCurrency(Number(entry.price_per_liter))}
-                    </TableCell>
-                    <TableCell className="text-right font-semibold tabular-nums">
-                      {formatCurrency(Number(entry.total_amount))}
-                    </TableCell>
-                    <TableCell className="hidden lg:table-cell text-right tabular-nums">
-                      {entry.consumption ?? "—"}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end">
-                        {entry.attachment_url ? (
+                <TableBody>
+                  {filtered.map((entry) => (
+                    <TableRow key={entry.id} className="group hover:bg-muted/40 transition-colors">
+                      <TableCell className="whitespace-nowrap tabular-nums text-[13px] font-medium text-muted-foreground">
+                        {formatDate(entry.entry_date)}
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell text-[13px] font-semibold">
+                        {vehicleNames.get(entry.vehicle_id) ?? "—"}
+                      </TableCell>
+                      <TableCell className="text-right tabular-nums text-[13px] font-medium">{entry.odometer}</TableCell>
+                      <TableCell className="text-right tabular-nums text-[13px] font-medium">{entry.liters}L</TableCell>
+                      <TableCell className="hidden sm:table-cell text-right tabular-nums text-[13px] text-muted-foreground">
+                        {formatCurrency(Number(entry.price_per_liter))}
+                      </TableCell>
+                      <TableCell className="text-right tabular-nums text-[14px] font-bold text-foreground">
+                        {formatCurrency(Number(entry.total_amount ?? entry.total_cost ?? 0))}
+                      </TableCell>
+                      <TableCell className="hidden lg:table-cell text-right tabular-nums">
+                        {entry.consumption ? (
+                          <span className="inline-flex rounded-md bg-success/10 px-2 py-0.5 text-[11px] font-bold text-success">
+                            {entry.consumption} km/l
+                          </span>
+                        ) : (
+                          <span className="text-muted-foreground/40">—</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                          {entry.attachment_url && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="size-8 rounded-lg"
+                              onClick={() => setReceipt(entry.attachment_url)}
+                            >
+                              <Droplets className="size-3.5" />
+                            </Button>
+                          )}
                           <Button
                             variant="ghost"
                             size="icon"
-                            aria-label="Ver comprovante"
-                            onClick={() => setReceipt(entry.attachment_url)}
+                            className="size-8 rounded-lg"
+                            onClick={() => {
+                              setEditingEntry(entry);
+                              setVehicleFilter(entry.vehicle_id);
+                              setFuelDialog(true);
+                            }}
                           >
-                            <Droplets className="size-4" />
+                            <Pencil className="size-3.5" />
                           </Button>
-                        ) : null}
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          aria-label="Editar abastecimento"
-                          onClick={() => {
-                            setEditingEntry(entry);
-                            setFuelDialog(true);
-                          }}
-                        >
-                          <Pencil className="size-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          aria-label="Remover abastecimento"
-                          onClick={() => setConfirmEntry(entry)}
-                        >
-                          <Trash2 className="size-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="size-8 rounded-lg hover:text-destructive hover:bg-destructive/10"
+                            onClick={() => setConfirmEntry(entry)}
+                          >
+                            <Trash2 className="size-3.5" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           )}
         </section>
 
