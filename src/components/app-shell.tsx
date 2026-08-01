@@ -19,7 +19,6 @@ import { useState, type ReactNode } from "react";
 
 import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { ContrastToggle } from "@/components/contrast-toggle";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { usePlanRealtimeSync } from "@/hooks/use-plan";
@@ -202,7 +201,6 @@ export function AppShell({ children }: { children: ReactNode }) {
                 ) : null}
               </Link>
               <ThemeToggle />
-              <ContrastToggle />
               <Link to="/perfil" aria-label="Meu perfil">
                 <Avatar className="size-7 sm:size-8">
                   {avatarUrl ? <AvatarImage src={avatarUrl} alt="Foto de perfil" /> : null}
@@ -313,7 +311,6 @@ function MobileTabBar({
             <div className="grid gap-1.5 border-t border-border p-3">
               <div className="flex items-center gap-1.5">
                 <ThemeToggle />
-                <ContrastToggle />
               </div>
               <Button variant="outline" className="justify-center gap-2" onClick={onSignOut}>
                 <LogOut className="size-4" />

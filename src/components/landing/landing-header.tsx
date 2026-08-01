@@ -5,7 +5,6 @@ import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { ContrastToggle } from "@/components/contrast-toggle";
 import { cn } from "@/lib/utils";
 import { handleAnchorClick } from "@/lib/scroll";
 
@@ -97,7 +96,6 @@ export function LandingHeader() {
 
         <div className="flex items-center gap-2">
           <ThemeToggle className={cn("hidden sm:inline-flex", !scrolled && "text-white hover:bg-white/10 hover:text-white")} />
-          <ContrastToggle className={cn("hidden sm:inline-flex", !scrolled && "text-white hover:bg-white/10 hover:text-white")} />
           <Button
             variant="ghost"
             className={cn("hidden sm:inline-flex", !scrolled && "text-white hover:bg-white/10 hover:text-white")}
@@ -153,7 +151,6 @@ export function LandingHeader() {
                 </a>
               </Button>
               <ThemeToggle />
-              <ContrastToggle />
             </div>
           </nav>
         </div>
