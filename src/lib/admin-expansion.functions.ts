@@ -19,14 +19,6 @@ async function assertRole(context: { supabase: any; userId: string }, role: stri
   if (error || !data) throw new Error(`Acesso restrito a usuários com papel ${role}`);
 }
 
-async function assertAdmin(context: { supabase: any; userId: string }) {
-  const { data, error } = await context.supabase.rpc("has_role", {
-    _user_id: context.userId,
-    _role: "admin",
-  });
-  if (error || !data) throw new Error("Acesso restrito a administradores");
-}
-
 export const adminGetSupportTickets = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
