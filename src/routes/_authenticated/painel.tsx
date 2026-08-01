@@ -395,7 +395,7 @@ function DashboardPage() {
                     ...prev,
                     ano: new Date().getFullYear(),
                     mes: new Date().getMonth() + 1,
-                  }),
+                  }) as any,
                   replace: true,
                 });
               }}

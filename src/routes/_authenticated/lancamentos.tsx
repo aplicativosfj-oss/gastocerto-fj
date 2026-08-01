@@ -189,7 +189,7 @@ function TransactionsPage() {
         ano: new Date().getFullYear(),
         mes: new Date().getMonth() + 1,
         tipo: "all",
-      }),
+      }) as any,
       replace: true,
     });
     // Forçar reset de estados locais se necessário
@@ -208,7 +208,7 @@ function TransactionsPage() {
       search: (prev: any) => ({
         ...prev,
         tipo: next,
-      }),
+      }) as any,
       replace: true,
     });
   };
