@@ -7,7 +7,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, CalendarDays, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, CalendarDays, Check, X } from "lucide-react";
 import { MONTH_NAMES } from "@/lib/finance";
 import { cn } from "@/lib/utils";
 
