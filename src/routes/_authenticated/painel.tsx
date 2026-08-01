@@ -620,9 +620,8 @@ function DashboardPage() {
               }
             />
           </div>
-            </div>
-          </div>
-        )}
+        </div>
+      )}
       
       {!loadingTransactions && (
         <div className="space-y-4 mt-4">
