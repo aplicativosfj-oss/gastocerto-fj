@@ -169,9 +169,9 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-secondary/20 lg:flex">
       <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-border bg-background lg:flex">
-        <div className="flex h-20 items-center border-b border-border px-6">
+        <div className="flex h-20 items-center border-b border-border px-4">
           <Link to="/painel" aria-label="Ir para o painel" className="transition-transform hover:scale-[1.02]">
-            <Logo className="scale-110 origin-left" />
+            <Logo />
           </Link>
         </div>
         <nav className="flex-1 space-y-1 overflow-y-auto p-3">
@@ -198,7 +198,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-3 py-2 sm:px-4 sm:py-3">
             <div className="flex min-w-0 items-center gap-2">
               <Link to="/painel" className="min-w-0 lg:hidden">
-                <Logo compact className="scale-110" />
+                <Logo compact />
               </Link>
               <p className="hidden min-w-0 truncate text-sm font-semibold lg:block">
                 {activeGroup ? activeGroup.label : "Painel"}
