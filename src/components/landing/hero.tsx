@@ -49,11 +49,22 @@ export function Hero() {
         decoding="async"
         className="absolute inset-0 -z-20 hidden size-full object-cover object-right opacity-80 sm:block"
       />
-      {/* phone background: layered brand mesh */}
+      {/* phone background: imagem vertical de tendência + véu para contraste */}
+      <img
+        src={heroMobileBg}
+        alt=""
+        aria-hidden="true"
+        width={768}
+        height={1344}
+        fetchPriority="high"
+        decoding="async"
+        className="absolute inset-0 -z-20 size-full object-cover object-center sm:hidden"
+      />
       <div
         aria-hidden="true"
-        className="absolute inset-0 -z-20 sm:hidden bg-[radial-gradient(120%_85%_at_15%_0%,oklch(0.34_0.11_259)_0%,oklch(0.2_0.05_258)_48%,oklch(0.145_0.028_258)_100%)]"
+        className="absolute inset-0 -z-10 sm:hidden bg-[linear-gradient(180deg,oklch(0.145_0.028_258/0.82)_0%,oklch(0.145_0.028_258/0.62)_45%,oklch(0.145_0.028_258/0.92)_100%)]"
       />
+
       <div
         aria-hidden="true"
         className="absolute inset-0 -z-10 hidden sm:block bg-[linear-gradient(100deg,oklch(0.16_0.03_258)_18%,oklch(0.16_0.03_258/0.88)_46%,oklch(0.16_0.03_258/0.35)_100%)]"
