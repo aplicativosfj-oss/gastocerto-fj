@@ -21,11 +21,11 @@ export function CtaBanner() {
               <h2 className="section-title">
                 Comece hoje e tenha o destino de cada real registrado e documentado
               </h2>
-              <p className="mt-2 max-w-xl text-[13px] leading-snug text-white/80 sm:text-sm">
+              <p className="mt-2 max-w-xl text-[13px] leading-snug text-white/90 sm:text-sm">
                 Conta gratuita, sem cartão de crédito e sem instalar nada. Prefere ver antes?
                 Abra a demonstração com dados de exemplo.
               </p>
-              <p className="mt-2 inline-flex items-center gap-2 text-[11px] text-white/75">
+              <p className="mt-2 inline-flex items-center gap-2 text-[11px] text-white/90">
                 <ShieldCheck className="size-3.5 shrink-0 text-success" aria-hidden="true" />
                 Seus dados são só seus: exporte ou apague quando quiser.
               </p>
@@ -50,7 +50,7 @@ export function CtaBanner() {
               </Button>
               <Button
                 variant="ghost"
-                className="col-span-2 h-9 w-full text-white/80 hover:bg-white/10 hover:text-white lg:col-span-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
+                className="col-span-2 h-9 w-full text-white/90 hover:bg-white/10 hover:text-white lg:col-span-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
                 asChild
               >
                 <Link to="/auth" search={{ mode: "login" }}>

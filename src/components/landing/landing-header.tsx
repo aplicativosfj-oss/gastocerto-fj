@@ -84,7 +84,7 @@ export function LandingHeader() {
                   isActive && "after:scale-x-100",
                   scrolled
                     ? cn("text-muted-foreground hover:bg-accent hover:text-foreground focus-visible:ring-ring", isActive && "text-foreground")
-                    : cn("text-white/75 hover:bg-white/10 hover:text-white focus-visible:ring-white/70", isActive && "text-white"),
+                    : cn("text-white/90 hover:bg-white/10 hover:text-white focus-visible:ring-white/70", isActive && "text-white"),
                 )}
 
               >

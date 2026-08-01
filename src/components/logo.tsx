@@ -39,7 +39,7 @@ export function Logo({
         <span
           className={cn(
             "mt-1 text-[8.5px] font-semibold uppercase tracking-[0.16em]",
-            onDark ? "text-white/70" : "text-muted-foreground",
+            onDark ? "text-white/90" : "text-muted-foreground",
           )}
         >
           Controle hoje, tranquilidade sempre
