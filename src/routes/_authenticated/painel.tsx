@@ -33,6 +33,7 @@ import { AppShell } from "@/components/app-shell";
 import { TransactionDialog } from "@/components/finance/transaction-dialog";
 import { ExpenseCardsDialog } from "@/components/finance/expense-cards-dialog";
 import { RecurringAlerts } from "@/components/finance/recurring-alerts";
+import { MetricDetailDialog, type MetricDetail } from "@/components/finance/metric-detail-dialog";
 import { QuickCategoryMenu, type QuickPick } from "@/components/finance/quick-category-menu";
 import { PeriodPicker } from "@/components/finance/period-picker";
 
@@ -81,6 +82,7 @@ function DashboardPage() {
   const [cardsOpen, setCardsOpen] = useState(false);
   const [dialogKind, setDialogKind] = useState<"expense" | "income">("expense");
   const [preset, setPreset] = useState<QuickPick>({ categoryId: null, subCategoryId: null });
+  const [detail, setDetail] = useState<MetricDetail | null>(null);
 
   const { data: profile, isLoading } = useProfile();
   const { data: categories } = useCategories();
@@ -142,6 +144,22 @@ function DashboardPage() {
       incomes,
     };
   }, [transactions, previousTransactions, budgets, period, range.days, today]);
+
+  /** Listas usadas no detalhamento ao clicar em cada card. */
+  const detailRows = useMemo(() => {
+    const rows = transactions ?? [];
+    const expenses = rows.filter((row) => row.transaction_type === "expense");
+    const todayIso = isoDate(today);
+    const weekStart = isoDate(new Date(today.getTime() - 6 * 86_400_000));
+    return {
+      all: rows,
+      expenses,
+      incomes: rows.filter((row) => row.transaction_type === "income"),
+      todayExpenses: expenses.filter((row) => row.transaction_date === todayIso),
+      weekExpenses: expenses.filter((row) => row.transaction_date >= weekStart),
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [transactions]);
 
   const byDay = useMemo(() => {
     const map = new Map<number, { day: number; gasto: number; receita: number }>();
@@ -277,23 +295,118 @@ function DashboardPage() {
         ) : (
           <>
             <section className="grid gap-3 auto-cards-sm">
-              <StatCard tile="var(--acc-4)" label="Gasto hoje" value={formatCurrency(metrics.today)} icon={<TrendingDown className="size-4" />} />
-              <StatCard tile="var(--acc-3)" label="Gasto nos 7 dias" value={formatCurrency(metrics.week)} />
-              <StatCard tile="var(--acc-5)" label="Gasto no mês" value={formatCurrency(metrics.totalExpense)} />
-              <StatCard tile="var(--acc-2)" label="Recebido no mês" value={formatCurrency(metrics.totalIncome)} icon={<TrendingUp className="size-4" />} />
+              <StatCard
+                tile="var(--acc-4)"
+                label="Gasto hoje"
+                value={formatCurrency(metrics.today)}
+                icon={<TrendingDown className="size-4" />}
+                onClick={() =>
+                  setDetail({
+                    label: "Gasto hoje",
+                    value: formatCurrency(metrics.today),
+                    formula: "Soma das despesas com data de hoje.",
+                    rows: detailRows.todayExpenses,
+                  })
+                }
+              />
+              <StatCard
+                tile="var(--acc-3)"
+                label="Gasto nos 7 dias"
+                value={formatCurrency(metrics.week)}
+                onClick={() =>
+                  setDetail({
+                    label: "Gasto nos últimos 7 dias",
+                    value: formatCurrency(metrics.week),
+                    formula: "Soma das despesas dos últimos 7 dias dentro do período.",
+                    rows: detailRows.weekExpenses,
+                  })
+                }
+              />
+              <StatCard
+                tile="var(--acc-5)"
+                label="Gasto no mês"
+                value={formatCurrency(metrics.totalExpense)}
+                onClick={() =>
+                  setDetail({
+                    label: "Gasto no mês",
+                    value: formatCurrency(metrics.totalExpense),
+                    formula: "Soma de todas as despesas do período selecionado.",
+                    rows: detailRows.expenses,
+                    extra: [
+                      { label: "Lançamentos", value: String(detailRows.expenses.length) },
+                      { label: "Média diária", value: formatCurrency(metrics.dailyAverage) },
+                    ],
+                  })
+                }
+              />
+              <StatCard
+                tile="var(--acc-2)"
+                label="Recebido no mês"
+                value={formatCurrency(metrics.totalIncome)}
+                icon={<TrendingUp className="size-4" />}
+                onClick={() =>
+                  setDetail({
+                    label: "Recebido no mês",
+                    value: formatCurrency(metrics.totalIncome),
+                    formula: "Soma de todas as receitas do período selecionado.",
+                    rows: detailRows.incomes,
+                  })
+                }
+              />
               <StatCard
                 tile={metrics.balance >= 0 ? "var(--acc-2)" : "var(--acc-4)"}
                 label="Saldo do mês"
                 value={formatCurrency(metrics.balance)}
                 icon={<Wallet className="size-4" />}
                 hint={metrics.balance >= 0 ? "Positivo" : "Negativo"}
+                onClick={() =>
+                  setDetail({
+                    label: "Saldo do mês",
+                    value: formatCurrency(metrics.balance),
+                    hint: metrics.balance >= 0 ? "Sobrou dinheiro no período." : "As despesas passaram das receitas.",
+                    formula: "Receitas do período menos as despesas do período.",
+                    rows: detailRows.all,
+                    extra: [
+                      { label: "Receitas", value: formatCurrency(metrics.totalIncome) },
+                      { label: "Despesas", value: formatCurrency(metrics.totalExpense) },
+                    ],
+                  })
+                }
               />
-              <StatCard tile="var(--acc-1)" label="Média diária" value={formatCurrency(metrics.dailyAverage)} />
+              <StatCard
+                tile="var(--acc-1)"
+                label="Média diária"
+                value={formatCurrency(metrics.dailyAverage)}
+                onClick={() =>
+                  setDetail({
+                    label: "Média diária de gastos",
+                    value: formatCurrency(metrics.dailyAverage),
+                    formula: "Gasto do mês dividido pelos dias já decorridos do período.",
+                    rows: detailRows.expenses,
+                    extra: [
+                      { label: "Gasto no mês", value: formatCurrency(metrics.totalExpense) },
+                      { label: "Projeção do mês", value: formatCurrency(metrics.projection) },
+                    ],
+                  })
+                }
+              />
               <StatCard
                 tile="var(--acc-6)"
                 label="Projeção do mês"
                 value={formatCurrency(metrics.projection)}
                 hint="Com base no ritmo atual"
+                onClick={() =>
+                  setDetail({
+                    label: "Projeção do mês",
+                    value: formatCurrency(metrics.projection),
+                    formula: "Média diária multiplicada pelo total de dias do mês.",
+                    rows: detailRows.expenses,
+                    extra: [
+                      { label: "Média diária", value: formatCurrency(metrics.dailyAverage) },
+                      { label: "Gasto até agora", value: formatCurrency(metrics.totalExpense) },
+                    ],
+                  })
+                }
               />
               <StatCard
                 tile={metrics.diffPercent >= 0 ? "var(--acc-4)" : "var(--acc-2)"}
@@ -304,6 +417,21 @@ function DashboardPage() {
                     : "—"
                 }
                 hint={formatCurrency(metrics.previousExpense)}
+                onClick={() =>
+                  setDetail({
+                    label: "Comparado ao mês anterior",
+                    value:
+                      metrics.previousExpense > 0
+                        ? `${metrics.diffPercent >= 0 ? "+" : ""}${metrics.diffPercent.toFixed(1)}%`
+                        : "—",
+                    formula: "Variação entre o gasto deste período e o do período anterior.",
+                    rows: detailRows.expenses,
+                    extra: [
+                      { label: "Gasto deste mês", value: formatCurrency(metrics.totalExpense) },
+                      { label: "Mês anterior", value: formatCurrency(metrics.previousExpense) },
+                    ],
+                  })
+                }
               />
             </section>
 
@@ -607,6 +735,14 @@ function DashboardPage() {
         )}
       </div>
 
+      <MetricDetailDialog
+        detail={detail}
+        categories={categories ?? []}
+        onOpenChange={(next) => {
+          if (!next) setDetail(null);
+        }}
+      />
+
       <ExpenseCardsDialog
         open={cardsOpen}
         onOpenChange={setCardsOpen}
@@ -640,16 +776,26 @@ function StatCard({
   icon,
   hint,
   tile = "var(--acc-1)",
+  onClick,
 }: {
   label: string;
   value: string;
   icon?: React.ReactNode;
   hint?: string;
   tile?: string;
+  onClick?: () => void;
 }) {
+  const Wrapper = onClick ? "button" : "div";
   return (
-    <div
-      className="accent-tile rounded-2xl p-3"
+    <Wrapper
+      type={onClick ? "button" : undefined}
+      onClick={onClick}
+      aria-label={onClick ? `Ver detalhes de ${label}` : undefined}
+      className={`accent-tile rounded-2xl p-3 text-left ${
+        onClick
+          ? "cursor-pointer transition hover:-translate-y-0.5 hover:shadow-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          : ""
+      }`}
       style={{ "--tile": tile } as React.CSSProperties}
     >
       <div className="flex items-center gap-2" style={{ color: tile }}>
@@ -658,7 +804,12 @@ function StatCard({
       </div>
       <p className="mt-1.5 text-lg font-bold tabular-nums">{value}</p>
       {hint ? <p className="mt-1 text-xs text-muted-foreground">{hint}</p> : null}
-    </div>
+      {onClick ? (
+        <p className="mt-1 text-[10px] uppercase tracking-wide text-muted-foreground">
+          toque para detalhar
+        </p>
+      ) : null}
+    </Wrapper>
   );
 }
 
