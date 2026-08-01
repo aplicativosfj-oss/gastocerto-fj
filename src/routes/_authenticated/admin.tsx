@@ -16,6 +16,7 @@ import {
   TrendingUp,
   Users,
   Wallet,
+  Settings,
 } from "lucide-react";
 import { Suspense, lazy, useMemo, useState } from "react";
 
@@ -75,6 +76,9 @@ const ReopenRequestsPanel = lazy(() =>
 const AuditLogsPanel = lazy(() =>
   import("@/components/admin/audit-logs-panel").then((m) => ({ default: m.AuditLogsPanel })),
 );
+const IntegrationsPanel = lazy(() =>
+  import("@/components/admin/integrations-panel").then((m) => ({ default: m.IntegrationsPanel })),
+);
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
@@ -112,6 +116,7 @@ const SECTIONS: AdminSection[] = [
   { id: "announcements", label: "Avisos globais", hint: "Comunicados na plataforma", icon: BellRing, adminOnly: true },
   { id: "categories", label: "Catálogo", hint: "Categorias da plataforma", icon: Tags, adminOnly: true },
   { id: "security", label: "Segurança", hint: "Códigos de acesso e IPs bloqueados", icon: Lock, adminOnly: true },
+  { id: "integrations", label: "Integrações", hint: "Mercado Pago, IA e APIs", icon: Settings, adminOnly: true },
 
   { id: "closing", label: "Fechamento", hint: "Política e liberações de meses", icon: Lock },
   { id: "audit", label: "Auditoria", hint: "Códigos, permissões e exportação", icon: FileClock },
@@ -199,6 +204,7 @@ function AdminConsole({ isAdmin }: { isAdmin: boolean }) {
             <BlockedIpsPanel />
           </div>
         ) : null}
+        {current === "integrations" ? <IntegrationsPanel /> : null}
         {current === "logs" ? <LogsTable globalSearch={search} /> : null}
       </Suspense>
     </AdminConsoleShell>
