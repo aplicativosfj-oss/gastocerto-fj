@@ -8,6 +8,8 @@
  * - `paid`   → assinatura ativa (licença paga ou plano com preço).
  */
 
+import { planIncludesAi } from "./ai-entitlement";
+
 export type PlanTier = "free" | "trial" | "paid";
 
 export type FeatureKey =
