@@ -40,6 +40,7 @@ import { Route as AuthenticatedVeiculosRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedVeiculosAuditoriaRouteImport } from './routes/_authenticated/veiculos-auditoria'
 import { Route as AuthenticatedVeiculosConfiguracoesRouteImport } from './routes/_authenticated/veiculos-configuracoes'
 import { Route as AuthenticatedVeiculosRelatorioRouteImport } from './routes/_authenticated/veiculos-relatorio'
+import { Route as CompartilhadoTokenRouteImport } from './routes/compartilhado.$token'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -203,6 +204,11 @@ const AuthenticatedVeiculosRelatorioRoute =
     path: '/veiculos-relatorio',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const CompartilhadoTokenRoute = CompartilhadoTokenRouteImport.update({
+  id: '/compartilhado/$token',
+  path: '/compartilhado/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -235,6 +241,7 @@ export interface FileRoutesByFullPath {
   '/veiculos-auditoria': typeof AuthenticatedVeiculosAuditoriaRoute
   '/veiculos-configuracoes': typeof AuthenticatedVeiculosConfiguracoesRoute
   '/veiculos-relatorio': typeof AuthenticatedVeiculosRelatorioRoute
+  '/compartilhado/$token': typeof CompartilhadoTokenRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -267,6 +274,7 @@ export interface FileRoutesByTo {
   '/veiculos-auditoria': typeof AuthenticatedVeiculosAuditoriaRoute
   '/veiculos-configuracoes': typeof AuthenticatedVeiculosConfiguracoesRoute
   '/veiculos-relatorio': typeof AuthenticatedVeiculosRelatorioRoute
+  '/compartilhado/$token': typeof CompartilhadoTokenRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -301,6 +309,7 @@ export interface FileRoutesById {
   '/_authenticated/veiculos-auditoria': typeof AuthenticatedVeiculosAuditoriaRoute
   '/_authenticated/veiculos-configuracoes': typeof AuthenticatedVeiculosConfiguracoesRoute
   '/_authenticated/veiculos-relatorio': typeof AuthenticatedVeiculosRelatorioRoute
+  '/compartilhado/$token': typeof CompartilhadoTokenRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -335,6 +344,7 @@ export interface FileRouteTypes {
     | '/veiculos-auditoria'
     | '/veiculos-configuracoes'
     | '/veiculos-relatorio'
+    | '/compartilhado/$token'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -367,6 +377,7 @@ export interface FileRouteTypes {
     | '/veiculos-auditoria'
     | '/veiculos-configuracoes'
     | '/veiculos-relatorio'
+    | '/compartilhado/$token'
   id:
     | '__root__'
     | '/'
@@ -400,6 +411,7 @@ export interface FileRouteTypes {
     | '/_authenticated/veiculos-auditoria'
     | '/_authenticated/veiculos-configuracoes'
     | '/_authenticated/veiculos-relatorio'
+    | '/compartilhado/$token'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -410,6 +422,7 @@ export interface RootRouteChildren {
   PrivacidadeRoute: typeof PrivacidadeRoute
   RedefinirSenhaRoute: typeof RedefinirSenhaRoute
   TermosRoute: typeof TermosRoute
+  CompartilhadoTokenRoute: typeof CompartilhadoTokenRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -631,6 +644,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedVeiculosRelatorioRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/compartilhado/$token': {
+      id: '/compartilhado/$token'
+      path: '/compartilhado/$token'
+      fullPath: '/compartilhado/$token'
+      preLoaderRoute: typeof CompartilhadoTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -700,6 +720,7 @@ const rootRouteChildren: RootRouteChildren = {
   PrivacidadeRoute: PrivacidadeRoute,
   RedefinirSenhaRoute: RedefinirSenhaRoute,
   TermosRoute: TermosRoute,
+  CompartilhadoTokenRoute: CompartilhadoTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -56,6 +56,7 @@ import {
 } from "@/components/ui/table";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { PdfExportSettingsDialog } from "@/components/finance/pdf-export-settings-dialog";
+import { ShareLinkDialog } from "@/components/finance/share-link-dialog";
 import { exportTransactionPdf } from "@/lib/transaction-detail-export";
 import { fetchNoteHistory } from "@/lib/transaction-notes";
 
@@ -297,6 +298,7 @@ function TransactionsPage() {
               CSV
             </Button>
             <PdfExportSettingsDialog />
+            <ShareLinkDialog year={period.year} month={period.month} />
 
             <Button variant="secondary" onClick={() => setCardsOpen(true)}>
               <Zap className="mr-2 size-4" aria-hidden />
