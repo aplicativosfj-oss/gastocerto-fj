@@ -1055,61 +1055,6 @@ function DashboardPage() {
 
     
 
-function StatCard({
-  label,
-  value,
-  icon,
-  hint,
-  progress,
-  tile = "var(--acc-1)",
-  onClick,
-}: {
-  label: string;
-  value: string;
-  icon?: React.ReactNode;
-  hint?: string;
-  progress?: number;
-  tile?: string;
-  onClick?: () => void;
-}) {
-  const Wrapper = onClick ? "button" : "div";
-  return (
-    <Wrapper
-      type={onClick ? "button" : undefined}
-      onClick={onClick}
-      aria-label={onClick ? `Ver detalhes de ${label}` : undefined}
-      className={`accent-tile rounded-2xl p-3 text-left ${
-        onClick
-          ? "cursor-pointer transition hover:-translate-y-0.5 hover:shadow-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          : ""
-      }`}
-      style={{ "--tile": tile } as React.CSSProperties}
-    >
-      <div className="flex items-center gap-2" style={{ color: tile }}>
-        {icon}
-        <span className="text-xs font-medium uppercase tracking-wide">{label}</span>
-      </div>
-      <p className="mt-1.5 text-lg font-bold tabular-nums">{value}</p>
-      
-      {progress !== undefined && (
-        <div className="mt-2 space-y-1.5">
-          <Progress value={Math.min(100, progress)} className="h-1" />
-          <div className="flex justify-between text-[10px] text-muted-foreground uppercase tracking-wider font-medium">
-            <span>Uso</span>
-            <span>{progress.toFixed(0)}%</span>
-          </div>
-        </div>
-      )}
-
-      {hint ? <p className="mt-1 text-xs text-muted-foreground">{hint}</p> : null}
-      {onClick ? (
-        <p className="mt-1 text-[10px] uppercase tracking-wide text-muted-foreground">
-          toque para detalhar
-        </p>
-      ) : null}
-    </Wrapper>
-  );
-}
 
 
 function ChartCard({
