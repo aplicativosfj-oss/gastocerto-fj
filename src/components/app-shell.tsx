@@ -73,6 +73,7 @@ export const navGroups: NavGroup[] = [
       { key: "vehicles.audit", label: "Auditoria", to: "/veiculos-auditoria" },
     ],
   },
+  { key: "gas", label: "Botijão de gás", to: "/gas", icon: Flame },
   {
     key: "planning",
     label: "Planejamento",
