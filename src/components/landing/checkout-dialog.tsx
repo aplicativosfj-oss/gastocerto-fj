@@ -441,72 +441,67 @@ export function CheckoutDialog({
                 {confirm.isPending || create.isPending ? (
                   <Loader2 className="mr-2 size-4 animate-spin" aria-hidden="true" />
                 ) : (
-                  <QrCode className="mr-2 size-4" aria-hidden="true" />
+                  <Landmark className="mr-2 size-4" aria-hidden="true" />
                 )}
-                Confirmar e gerar Pix
+                Confirmar e ver o pagamento
               </Button>
             </div>
           </form>
         ) : null}
 
-        {step === "pix" && charge ? (
+        {step === "manual" && order ? (
           <div className="space-y-3">
             <div className="flex items-center justify-between gap-2 rounded-xl border border-border bg-secondary/30 p-3 text-sm">
-
               <span>
-                {charge.planName} · {cycle === "annual" ? "anual" : "mensal"}
+                {order.planName} · {cycle === "annual" ? "anual" : "mensal"}
               </span>
-              <span className="tabular font-bold">{formatCurrency(charge.amount)}</span>
+              <span className="tabular font-bold">{formatCurrency(order.amount)}</span>
             </div>
 
-            {charge.qrCodeBase64 ? (
-              <img
-                src={`data:image/png;base64,${charge.qrCodeBase64}`}
-                alt="QR Code Pix para pagamento"
-                width={280}
-                height={280}
-                className="mx-auto size-56 rounded-xl border border-border bg-white p-2"
-              />
-            ) : null}
-
-            {charge.qrCode ? (
+            {manual?.pixKey ? (
               <div>
-                <Label htmlFor="pix-code">Pix copia e cola</Label>
+                <Label htmlFor="pix-key">
+                  Chave Pix ({manual.pixKeyType}) — {manual.holder || "GastoCerto"}
+                </Label>
                 <div className="mt-1.5 flex gap-2">
-                  <Input id="pix-code" readOnly value={charge.qrCode} className="font-mono text-xs" />
+                  <Input id="pix-key" readOnly value={manual.pixKey} className="font-mono text-xs" />
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() => copy(charge.qrCode as string, "Código Pix")}
+                    onClick={() => copy(manual.pixKey, "Chave Pix")}
                   >
                     <Copy className="size-4" aria-hidden="true" />
-                    <span className="sr-only">Copiar código Pix</span>
+                    <span className="sr-only">Copiar chave Pix</span>
                   </Button>
                 </div>
+                {manual.bank ? (
+                  <p className="mt-1 text-[11px] text-muted-foreground">Instituição: {manual.bank}</p>
+                ) : null}
               </div>
-            ) : null}
+            ) : (
+              <p className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-3 text-xs text-muted-foreground">
+                Os dados de pagamento estão sendo atualizados. Guarde o link do pedido abaixo e fale
+                com o suporte para receber a chave Pix.
+              </p>
+            )}
+
+            <p className="rounded-xl border border-border bg-card p-3 text-xs text-muted-foreground">
+              {manual?.instructions}
+              {manual?.whatsapp ? ` Envie o comprovante para ${manual.whatsapp}.` : ""}
+            </p>
 
             <p
               aria-live="polite"
               className="flex items-center justify-center gap-2 rounded-xl border border-border bg-card p-3 text-sm text-muted-foreground"
             >
               <Loader2 className="size-4 animate-spin" aria-hidden="true" />
-              {CHECKOUT_STATUS_LABEL[status] ?? status} — confirmamos automaticamente em segundos.
+              {CHECKOUT_STATUS_LABEL[status] ?? status} — a chave aparece aqui assim que o pagamento
+              for confirmado.
             </p>
 
             <div className="space-y-1 text-center">
-              {charge.ticketUrl ? (
-                <a
-                  href={charge.ticketUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="block text-xs font-medium text-primary underline underline-offset-2"
-                >
-                  Abrir comprovante no Mercado Pago
-                </a>
-              ) : null}
               <a
-                href={`/pedido/${charge.paymentId}`}
+                href={`/pedido/${order.paymentId}`}
                 target="_blank"
                 rel="noreferrer"
                 className="block text-xs font-medium text-primary underline underline-offset-2"
@@ -514,9 +509,9 @@ export function CheckoutDialog({
                 Acompanhar meu pedido em uma página própria
               </a>
             </div>
-
           </div>
         ) : null}
+
 
         {step === "done" && licenseKey ? (
           <div className="space-y-3 text-center">
