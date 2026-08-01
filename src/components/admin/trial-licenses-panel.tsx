@@ -105,6 +105,15 @@ export function TrialLicensesPanel() {
         </div>
       </header>
 
+      <div className="mt-3 rounded-lg bg-primary/5 border border-primary/20 p-3">
+        <h3 className="text-[11px] font-bold uppercase tracking-wider text-primary mb-1">Diferença entre Teste e Licença:</h3>
+        <ul className="text-[11px] text-muted-foreground space-y-1 list-disc pl-4">
+          <li><strong>Teste (Cortesia):</strong> Aplicado direto ao perfil do usuário. <strong>Com IA liberada.</strong></li>
+          <li><strong>Código para Doar:</strong> Você gera chaves para enviar por e-mail/rede social. <strong>Sem IA.</strong></li>
+          <li>A validade do código só começa quando o cliente ativa a chave no painel dele.</li>
+        </ul>
+      </div>
+
       <div className="mt-3 flex flex-wrap items-center gap-2 rounded-xl border border-dashed border-border bg-muted/40 p-2.5">
         <p className="text-xs text-muted-foreground">
           Códigos de <strong>15 dias</strong> ativos e disponíveis:{" "}
