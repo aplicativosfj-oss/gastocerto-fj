@@ -8,6 +8,7 @@ import {
   Flame,
   LayoutDashboard,
   LogOut,
+  Plus,
   Menu,
   PiggyBank,
   ShieldCheck,
@@ -19,7 +20,6 @@ import { useState, type ReactNode } from "react";
 
 import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { ContrastToggle } from "@/components/contrast-toggle";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { usePlanRealtimeSync } from "@/hooks/use-plan";
@@ -201,8 +201,16 @@ export function AppShell({ children }: { children: ReactNode }) {
                   </span>
                 ) : null}
               </Link>
+              <Link
+                to="/lancamentos"
+                aria-label="Novo lançamento"
+                title="Novo lançamento"
+                className="inline-flex h-8 items-center gap-1.5 rounded-md bg-brand px-2.5 text-[12px] font-semibold text-brand-foreground transition-opacity hover:opacity-90 sm:h-9 sm:px-3"
+              >
+                <Plus className="size-4" aria-hidden="true" />
+                <span className="hidden sm:inline">Lançar</span>
+              </Link>
               <ThemeToggle />
-              <ContrastToggle />
               <Link to="/perfil" aria-label="Meu perfil">
                 <Avatar className="size-7 sm:size-8">
                   {avatarUrl ? <AvatarImage src={avatarUrl} alt="Foto de perfil" /> : null}
@@ -313,7 +321,14 @@ function MobileTabBar({
             <div className="grid gap-1.5 border-t border-border p-3">
               <div className="flex items-center gap-1.5">
                 <ThemeToggle />
-                <ContrastToggle />
+                <Link
+                  to="/lancamentos"
+                  onClick={() => onOpenChange(false)}
+                  className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-md bg-brand px-3 text-[13px] font-semibold text-brand-foreground"
+                >
+                  <Plus className="size-4" aria-hidden="true" />
+                  Novo lançamento
+                </Link>
               </div>
               <Button variant="outline" className="justify-center gap-2" onClick={onSignOut}>
                 <LogOut className="size-4" />

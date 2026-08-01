@@ -5,7 +5,6 @@ import { DemoDashboard } from "@/components/demo/demo-dashboard";
 import { LandingFooter } from "@/components/landing/landing-footer";
 import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { ContrastToggle } from "@/components/contrast-toggle";
 import { Button } from "@/components/ui/button";
 
 const title = "Demonstração — GastoCerto";
@@ -43,7 +42,6 @@ function DemoPage() {
           </Link>
           <div className="flex items-center gap-2">
             <ThemeToggle className="hidden sm:inline-flex" />
-            <ContrastToggle className="hidden sm:inline-flex" />
             <Button variant="ghost" className="hidden sm:inline-flex" asChild>
               <Link to="/auth" search={{ mode: "login" }}>
                 Entrar
