@@ -30,9 +30,19 @@ export function formatPercent(value: number, fractionDigits = 0): string {
   })}%`;
 }
 
+/** Converte "AAAA-MM-DD" em Date local (evita deslocar o dia por fuso). */
+function toLocalDate(value: Date | string): Date {
+  if (typeof value !== "string") return value;
+  const dateOnly = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  if (dateOnly) {
+    return new Date(Number(dateOnly[1]), Number(dateOnly[2]) - 1, Number(dateOnly[3]));
+  }
+  return new Date(value);
+}
+
 /** Formata data no padrão DD/MM/AAAA. */
 export function formatDate(value: Date | string): string {
-  const date = typeof value === "string" ? new Date(value) : value;
+  const date = toLocalDate(value);
   if (Number.isNaN(date.getTime())) return "";
   return new Intl.DateTimeFormat("pt-BR", {
     day: "2-digit",
