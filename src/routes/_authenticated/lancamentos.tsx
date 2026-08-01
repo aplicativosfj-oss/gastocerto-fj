@@ -505,7 +505,15 @@ function TransactionsPage() {
               <TableBody>
                 {rows.map((row) => (
                   <Fragment key={row.id}>
-                  <TableRow>
+                    <TableRow
+                      className="cursor-pointer hover:bg-muted/50"
+                      onClick={(e) => {
+                        const target = e.target as HTMLElement;
+                        if (target.closest("button") || target.closest('[role="checkbox"]')) return;
+                        setDetails(row);
+                      }}
+                    >
+
 
 
                     <TableCell>

@@ -5,6 +5,7 @@ import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxi
 
 import { AppShell } from "@/components/app-shell";
 import { TransactionDialog } from "@/components/finance/transaction-dialog";
+import { TransactionDetailsDialog } from "@/components/finance/transaction-details-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import {
@@ -19,7 +20,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { useCategories } from "@/lib/queries";
-import { useTransactions } from "@/lib/transactions";
+import { useTransactions, type Transaction } from "@/lib/transactions";
+
 
 export const Route = createFileRoute("/_authenticated/diario")({
   head: () => ({
