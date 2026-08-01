@@ -142,13 +142,26 @@ export function InsightsPanel({ year, month }: InsightsPanelProps) {
                 <CartesianGrid {...gridProps} />
                 <XAxis dataKey="label" {...axisProps} />
                 <YAxis {...axisProps} width={44} />
-                <Tooltip {...tooltipProps} formatter={(value: number) => formatCurrency(value)} />
+                <Tooltip
+                  {...tooltipProps}
+                  formatter={(value: number, name, item) => {
+                    const point = item?.payload as (typeof series)[number] | undefined;
+                    const base = point?.income ?? 0;
+                    const share = name === "Despesas" ? ` · ${pct(value, base)} da receita` : "";
+                    return [`${formatCurrency(value)}${share}`, name as string];
+                  }}
+                />
                 <Legend {...legendProps} />
                 <Bar dataKey="income" name="Receitas" fill={CHART_TOKENS.income} radius={barRadius} />
                 <Bar dataKey="expense" name="Despesas" fill={CHART_TOKENS.expense} radius={barRadius} />
               </BarChart>
             </ResponsiveContainer>
           </div>
+          <p className="mt-2 text-[11px] text-muted-foreground">
+            No período, as despesas representam{" "}
+            <span className="font-medium text-foreground">{pct(totalExpense, totalIncome)}</span> das
+            receitas acumuladas.
+          </p>
         </div>
 
         <div className="rounded-2xl border border-border bg-card p-4">
@@ -162,7 +175,16 @@ export function InsightsPanel({ year, month }: InsightsPanelProps) {
                 <CartesianGrid {...gridProps} />
                 <XAxis dataKey="label" {...axisProps} />
                 <YAxis {...axisProps} width={40} unit="%" />
-                <Tooltip {...tooltipProps} formatter={(value: number) => `${value}%`} />
+                <Tooltip
+                  {...tooltipProps}
+                  formatter={(value: number, name, item) => {
+                    const point = item?.payload as (typeof series)[number] | undefined;
+                    return [
+                      `${value}% (${formatCurrency(point?.result ?? 0)})`,
+                      name as string,
+                    ];
+                  }}
+                />
                 <Line
                   type="monotone"
                   dataKey="savingsRate"
@@ -174,6 +196,11 @@ export function InsightsPanel({ year, month }: InsightsPanelProps) {
               </LineChart>
             </ResponsiveContainer>
           </div>
+          <p className="mt-2 text-[11px] text-muted-foreground">
+            Média do período:{" "}
+            <span className="font-medium text-foreground">{averageSavings}%</span> da receita sobrando
+            por mês.
+          </p>
         </div>
 
         <div className="rounded-2xl border border-border bg-card p-4">
@@ -192,7 +219,17 @@ export function InsightsPanel({ year, month }: InsightsPanelProps) {
                   <CartesianGrid {...gridProps} />
                   <XAxis type="number" {...axisProps} />
                   <YAxis type="category" dataKey="name" {...axisProps} width={96} />
-                  <Tooltip {...tooltipProps} formatter={(value: number) => formatCurrency(value)} />
+                  <Tooltip
+                    {...tooltipProps}
+                    formatter={(value: number, name, item) => {
+                      const point = item?.payload as (typeof trendData)[number] | undefined;
+                      const percent =
+                        point?.percent == null
+                          ? "novo gasto"
+                          : `${point.percent > 0 ? "+" : ""}${point.percent}%`;
+                      return [`${formatCurrency(value)} · ${percent}`, name as string];
+                    }}
+                  />
                   <Bar dataKey="variacao" name="Variação" radius={barRadius}>
                     {trendData.map((entry) => (
                       <Cell
@@ -205,6 +242,25 @@ export function InsightsPanel({ year, month }: InsightsPanelProps) {
               </ResponsiveContainer>
             )}
           </div>
+          {trendData.length > 0 ? (
+            <ul className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
+              {trendData.slice(0, 4).map((entry) => (
+                <li key={entry.name}>
+                  {entry.name}:{" "}
+                  <span
+                    className={
+                      entry.variacao >= 0 ? "font-medium text-destructive" : "font-medium text-emerald-600"
+                    }
+                  >
+                    {entry.percent == null
+                      ? "novo"
+                      : `${entry.percent > 0 ? "+" : ""}${entry.percent}%`}
+                  </span>{" "}
+                  · {pct(entry.current, monthExpense)} do mês
+                </li>
+              ))}
+            </ul>
+          ) : null}
         </div>
 
         <div className="rounded-2xl border border-border bg-card p-4">
@@ -218,13 +274,28 @@ export function InsightsPanel({ year, month }: InsightsPanelProps) {
                 <CartesianGrid {...gridProps} />
                 <XAxis dataKey="label" {...axisProps} />
                 <YAxis {...axisProps} width={44} />
-                <Tooltip {...tooltipProps} formatter={(value: number) => formatCurrency(value)} />
+                <Tooltip
+                  {...tooltipProps}
+                  formatter={(value: number, name) => [
+                    `${formatCurrency(value)} · ${pct(value, weekdayTotal)} do mês`,
+                    name as string,
+                  ]}
+                />
                 <Bar dataKey="gasto" name="Gasto" fill={CHART_TOKENS.neutral} radius={barRadius} />
               </BarChart>
             </ResponsiveContainer>
           </div>
+          <p className="mt-2 text-[11px] text-muted-foreground">
+            Dia mais pesado:{" "}
+            <span className="font-medium text-foreground">
+              {topWeekday.label} ({pct(topWeekday.gasto, weekdayTotal)})
+            </span>{" "}
+            · essenciais {pct(essentials.essential, monthExpense)} · não essenciais{" "}
+            {pct(essentials.nonEssential, monthExpense)}
+          </p>
         </div>
       </div>
+
 
       <div className="rounded-2xl border border-border bg-card p-4">
         <h2 className="flex items-center gap-2 text-sm font-semibold">
