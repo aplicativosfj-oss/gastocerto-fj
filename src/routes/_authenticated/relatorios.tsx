@@ -30,6 +30,8 @@ import { toast } from "sonner";
 import { AppShell } from "@/components/app-shell";
 import { FeatureGate } from "@/components/finance/feature-gate";
 import { FilterField, FilterPanel } from "@/components/finance/filter-panel";
+import { FilterPresets } from "@/components/finance/filter-presets";
+import { EMPTY_FILTERS } from "@/lib/filter-presets";
 import { MetaChip, PageHeader } from "@/components/finance/page-header";
 import { Panel } from "@/components/finance/panel";
 import { StatTile } from "@/components/finance/stat-tile";
@@ -333,6 +335,27 @@ function ReportsPage() {
               </Button>
             </>
           }
+        />
+
+        <FilterPresets
+          scope="relatorios"
+          values={{
+            ...EMPTY_FILTERS,
+            from: start,
+            to: end,
+            type: typeFilter,
+            category: categoryFilter,
+            search: recipientFilter,
+          }}
+          presetKeys={["month", "prevMonth", "last30", "last7", "expenses"]}
+          onApply={(patch) => {
+            if (patch.from !== undefined) setStart(patch.from);
+            if (patch.to !== undefined) setEnd(patch.to);
+            if (patch.type !== undefined) setTypeFilter(patch.type);
+            if (patch.category !== undefined) setCategoryFilter(patch.category);
+            if (patch.search !== undefined) setRecipientFilter(patch.search);
+          }}
+          onClear={clearFilters}
         />
 
         <FilterPanel
