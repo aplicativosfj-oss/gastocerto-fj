@@ -22,22 +22,30 @@ import { MercadoPagoPanel } from "@/components/admin/mercadopago-panel";
 export function IntegrationsPanel() {
   const getSettings = useServerFn(adminGetIntegrationSettings);
   
+  const testConnection = useServerFn(adminTestMercadoPago);
+  const logAction = useServerFn(adminLogIntegrationAction);
+  const adjustGemini = useServerFn(adminAdjustGeminiLimits);
+  
   const { data, isLoading } = useQuery({
     queryKey: ["admin", "integrations"],
     queryFn: () => getSettings(),
   });
 
   const testWebhook = useMutation({
-    mutationFn: async () => {
-      const { adminTestMercadoPago } = await import("@/lib/admin-integrations.functions");
-      return adminTestMercadoPago();
-    },
+    mutationFn: () => testConnection(),
     onSuccess: (result) =>
       result.ok
-        ? toast.success("Conexão com Mercado Pago validada!", { description: result.message })
-        : toast.error("Credencial recusada", { description: result.message }),
+        ? toast.success("Conexão validada!", { description: result.message })
+        : toast.error("Falha na conexão", { 
+            description: result.message,
+            action: (result as any).instructions ? {
+              label: "Ver Ajuda",
+              onClick: () => toast.info("Instruções", { description: (result as any).instructions })
+            } : undefined
+          }),
     onError: (error: Error) => toast.error(error.message),
   });
+
 
   if (isLoading) return <div className="flex justify-center p-8"><RefreshCw className="animate-spin" /></div>;
 
@@ -85,7 +93,10 @@ export function IntegrationsPanel() {
                 size="sm" 
                 variant="outline" 
                 className="w-full text-xs h-8"
-                onClick={() => window.open("https://www.mercadopago.com.br/developers/panel", "_blank")}
+                onClick={async () => {
+                  await logAction({ data: { integration: "mercadopago", action: "open_dashboard" } });
+                  window.open("https://www.mercadopago.com.br/developers/panel", "_blank");
+                }}
               >
                 <ExternalLink className="mr-2 size-3" /> Dashboard
               </Button>
@@ -122,13 +133,12 @@ export function IntegrationsPanel() {
                 variant="outline" 
                 className="w-full text-xs h-8"
                 onClick={async () => {
-                  const { adminReconcilePayments } = await import("@/lib/admin-integrations.functions");
-                  const toastId = toast.loading("Ajustando limites de IA...");
+                  const toastId = toast.loading("Sincronizando limites...");
                   try {
-                    await adminReconcilePayments({ data: { hours: 24 } });
-                    toast.success("Limites atualizados com sucesso!", { id: toastId });
+                    await adjustGemini();
+                    toast.success("Limites atualizados!", { id: toastId });
                   } catch (err: any) {
-                    toast.error("Erro ao ajustar limites", { id: toastId, description: err.message });
+                    toast.error("Erro no ajuste", { id: toastId, description: err.message });
                   }
                 }}
               >
@@ -197,7 +207,8 @@ export function IntegrationsPanel() {
                 size="sm" 
                 variant="outline" 
                 className="w-full text-xs h-8"
-                onClick={() => {
+                onClick={async () => {
+                  await logAction({ data: { integration: "email", action: "open_dns_settings" } });
                   window.open("https://resend.com/domains", "_blank");
                 }}
               >
