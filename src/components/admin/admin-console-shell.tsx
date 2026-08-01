@@ -1,8 +1,11 @@
 import type { LucideIcon } from "lucide-react";
-import { ShieldCheck } from "lucide-react";
+import { Search, ShieldCheck, Sun, Moon, LogOut } from "lucide-react";
 
 import consoleBg from "@/assets/admin-console-bg.jpg";
 import { cn } from "@/lib/utils";
+import { useTheme } from "@/components/theme-provider";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 export type AdminSection = {
   id: string;
@@ -22,6 +25,8 @@ export function AdminConsoleShell({
   onSelect,
   operatorName,
   role,
+  searchTerm,
+  onSearchChange,
   children,
 }: {
   sections: AdminSection[];
@@ -29,9 +34,16 @@ export function AdminConsoleShell({
   onSelect: (id: string) => void;
   operatorName: string;
   role: string;
+  searchTerm: string;
+  onSearchChange: (val: string) => void;
   children: React.ReactNode;
 }) {
+  const { theme, toggleTheme } = useTheme();
   const current = sections.find((section) => section.id === active);
+
+  function handleLogout() {
+    window.location.href = "/painel";
+  }
 
   return (
     <div className="relative min-h-dvh">
@@ -54,18 +66,50 @@ export function AdminConsoleShell({
         <header className="overflow-hidden rounded-2xl border border-border/70 bg-card/70 backdrop-blur">
           <div className="relative p-4 sm:p-6">
             <div className="absolute inset-0 -z-10 bg-[linear-gradient(100deg,color-mix(in_oklab,var(--brand)_16%,transparent),transparent_55%)]" />
-            <div className="flex flex-wrap items-center gap-3">
-              <span className="grid size-12 place-items-center rounded-xl border border-border/70 bg-background/70">
-                <ShieldCheck className="size-6 text-brand" />
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand">
-                  Central de controle da plataforma
-                </p>
-                <h1 className="truncate text-xl font-bold sm:text-2xl">GastoCerto — Administração</h1>
-                <p className="mt-0.5 text-xs text-muted-foreground">
-                  {operatorName} · {role} · {current?.hint ?? "Gestão completa da operação"}
-                </p>
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+              <div className="flex items-center gap-3">
+                <span className="grid size-12 place-items-center rounded-xl border border-border/70 bg-background/70 shadow-sm">
+                  <ShieldCheck className="size-6 text-brand" />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand">
+                    Central de controle
+                  </p>
+                  <h1 className="truncate text-xl font-bold sm:text-2xl">GastoCerto — Administração</h1>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    {operatorName} · {role}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex flex-1 items-center gap-2 sm:ml-auto">
+                <div className="relative flex-1 sm:max-w-md">
+                  <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    placeholder="Busca global (usuários, chaves, logs...)"
+                    value={searchTerm}
+                    onChange={(e) => onSearchChange(e.target.value)}
+                    className="h-10 pl-9 bg-background/50 border-border/50"
+                  />
+                </div>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="size-10 bg-background/50"
+                  onClick={toggleTheme}
+                  title="Alternar tema claro/escuro"
+                >
+                  {theme === "dark" ? <Sun className="size-5" /> : <Moon className="size-5" />}
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="size-10 bg-background/50 text-muted-foreground hover:text-foreground"
+                  onClick={handleLogout}
+                  title="Voltar ao painel do cliente"
+                >
+                  <LogOut className="size-5" />
+                </Button>
               </div>
             </div>
           </div>
