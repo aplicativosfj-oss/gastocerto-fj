@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import heroBg from "@/assets/hero-desk-night.jpg";
+import { Benefits } from "@/components/landing/benefits";
 import { CompactOverview } from "@/components/landing/compact-overview";
 import { CtaBanner } from "@/components/landing/cta-banner";
 import { Hero } from "@/components/landing/hero";
@@ -57,6 +58,7 @@ function LandingPage() {
       <LandingHeader />
       <main id="conteudo" tabIndex={-1} className="flex-1 outline-none">
         <Hero />
+        <Benefits />
         <CompactOverview />
         <Pricing />
         <CtaBanner />

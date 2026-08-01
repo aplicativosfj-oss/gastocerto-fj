@@ -1,22 +1,31 @@
 import { createFileRoute } from "@tanstack/react-router";
 import {
+  ArrowLeftRight,
   ChevronDown,
   ChevronRight,
+  Clock,
   Copy,
   Download,
   FileDown,
-
+  Filter,
   Paperclip,
   Pencil,
   Plus,
+  Receipt,
   Search,
   Trash2,
+  TrendingDown,
+  TrendingUp,
+  Wallet,
   Zap,
 } from "lucide-react";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
+import { FilterField, FilterPanel } from "@/components/finance/filter-panel";
+import { MetaChip, PageHeader } from "@/components/finance/page-header";
+import { StatTile } from "@/components/finance/stat-tile";
 import { PeriodPicker } from "@/components/finance/period-picker";
 import { InlineNotes } from "@/components/finance/inline-notes";
 import { TransactionDetailsDialog } from "@/components/finance/transaction-details-dialog";
@@ -204,6 +213,33 @@ function TransactionsPage() {
     0,
   );
 
+  /** Totais por natureza para os cartões de resumo do período filtrado. */
+  const periodTotals = useMemo(() => {
+    let income = 0;
+    let expense = 0;
+    let incomeCount = 0;
+    let expenseCount = 0;
+    let open = 0;
+    let openCount = 0;
+    for (const row of filtered) {
+      const value = Number(row.amount || 0);
+      if (row.transaction_type === "income") {
+        income += value;
+        incomeCount += 1;
+      } else {
+        expense += value;
+        expenseCount += 1;
+      }
+      if (row.status === "pending" || row.status === "overdue") {
+        open += value;
+        openCount += 1;
+      }
+    }
+    return { income, expense, incomeCount, expenseCount, open, openCount };
+  }, [filtered]);
+
+
+
   /** Exporta o PDF do lançamento direto da lista, sem abrir o diálogo. */
   async function handleRowPdf(row: Transaction) {
     try {
@@ -281,100 +317,166 @@ function TransactionsPage() {
     URL.revokeObjectURL(url);
   }
 
+  const activeFilters = [
+    search.trim() !== "",
+    merchantFilter.trim() !== "",
+    fromDate !== "",
+    toDate !== "",
+    categoryFilter !== "all",
+    statusFilter !== "all",
+    typeFilter !== "all",
+    vehicleFilter !== "all",
+  ].filter(Boolean).length;
+
+  function clearFilters() {
+    setSearch("");
+    setMerchantFilter("");
+    setFromDate("");
+    setToDate("");
+    setCategoryFilter("all");
+    setStatusFilter("all");
+    setTypeFilter("all");
+    setVehicleFilter("all");
+  }
+
   return (
     <AppShell>
-      <div className="space-y-4">
-        <header className="flex flex-wrap items-center justify-between gap-3">
-          <div className="min-w-0">
-            <h1 className="text-2xl font-bold tracking-tight">Transações</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {filtered.length} lançamento(s) · saldo do filtro {formatCurrency(total)}
-            </p>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <PeriodPicker year={period.year} month={period.month} onChange={setPeriod} />
-            <Button variant="outline" onClick={exportCsv} disabled={filtered.length === 0}>
-              <Download className="mr-2 size-4" />
-              CSV
-            </Button>
-            <PdfExportSettingsDialog />
-            <ShareLinkDialog year={period.year} month={period.month} />
+      <div className="space-y-3 sm:space-y-4">
+        <PageHeader
+          icon={ArrowLeftRight}
+          eyebrow="Movimentações"
+          title="Lançamentos"
+          description="Registre, filtre e audite cada entrada e saída do período selecionado."
+          meta={
+            <>
+              <MetaChip icon={Receipt}>{filtered.length} lançamento(s)</MetaChip>
+              <MetaChip icon={Wallet} tone={total >= 0 ? "success" : "destructive"}>
+                Saldo {formatCurrency(total)}
+              </MetaChip>
+              {activeFilters ? (
+                <MetaChip icon={Filter} tone="brand">
+                  {activeFilters} filtro(s)
+                </MetaChip>
+              ) : null}
+            </>
+          }
+          actions={
+            <>
+              <PeriodPicker year={period.year} month={period.month} onChange={setPeriod} />
+              <Button
+                onClick={() => {
+                  setEditing(null);
+                  setDialogOpen(true);
+                }}
+              >
+                <Plus className="mr-2 size-4" />
+                Novo
+              </Button>
+              <Button variant="secondary" onClick={() => setCardsOpen(true)}>
+                <Zap className="mr-2 size-4" aria-hidden />
+                Gasto rápido
+              </Button>
+              <Button variant="outline" onClick={exportCsv} disabled={filtered.length === 0}>
+                <Download className="mr-2 size-4" />
+                CSV
+              </Button>
+              <PdfExportSettingsDialog />
+              <ShareLinkDialog year={period.year} month={period.month} />
+            </>
+          }
+        />
 
-            <Button variant="secondary" onClick={() => setCardsOpen(true)}>
-              <Zap className="mr-2 size-4" aria-hidden />
-              Gasto rápido
-            </Button>
-            <Button
-              onClick={() => {
-                setEditing(null);
-                setDialogOpen(true);
-              }}
-            >
-              <Plus className="mr-2 size-4" />
-              Novo
-            </Button>
-          </div>
-        </header>
+        <div className="grid gap-2.5 sm:gap-3 auto-cards-sm">
+          <StatTile
+            label="Entradas"
+            value={formatCurrency(periodTotals.income)}
+            tone="success"
+            icon={TrendingUp}
+            hint={`${periodTotals.incomeCount} recebimento(s)`}
+          />
+          <StatTile
+            label="Saídas"
+            value={formatCurrency(periodTotals.expense)}
+            tone="expense"
+            icon={TrendingDown}
+            hint={`${periodTotals.expenseCount} gasto(s)`}
+            progress={
+              periodTotals.income ? (periodTotals.expense / periodTotals.income) * 100 : undefined
+            }
+          />
+          <StatTile
+            label="Saldo do filtro"
+            value={formatCurrency(total)}
+            tone={total >= 0 ? "brand" : "warning"}
+            icon={Wallet}
+            hint={total >= 0 ? "Sobra no período" : "Período no vermelho"}
+          />
+          <StatTile
+            label="Pendentes e atrasados"
+            value={formatCurrency(periodTotals.open)}
+            tone={periodTotals.openCount ? "warning" : "neutral"}
+            icon={Clock}
+            hint={`${periodTotals.openCount} lançamento(s) a resolver`}
+          />
+        </div>
 
-        <section className="grid gap-3 rounded-2xl border border-border bg-card p-4 auto-cards-sm">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              value={search}
-              onChange={(event) => {
-                setSearch(event.target.value);
-                setPage(1);
-              }}
-              placeholder="Pesquisar"
-              aria-label="Pesquisar lançamentos"
-              className="pl-9"
-            />
-          </div>
+        <FilterPanel
+          description="Busca, categoria, status, período e veículo"
+          activeCount={activeFilters}
+          onClear={clearFilters}
+        >
+          <FilterField label="Pesquisar" htmlFor="filtro-busca">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                id="filtro-busca"
+                value={search}
+                onChange={(event) => {
+                  setSearch(event.target.value);
+                  setPage(1);
+                }}
+                placeholder="Descrição, anotação…"
+                className="pl-9"
+              />
+            </div>
+          </FilterField>
 
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <FilterField label="Categoria">
             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger aria-label="Filtrar por categoria" className="pl-9">
+              <SelectTrigger aria-label="Filtrar por categoria">
                 <SelectValue placeholder="Filtrar categoria" />
               </SelectTrigger>
               <SelectContent>
-                <div className="p-2">
-                  <Input 
-                    placeholder="Buscar categoria..." 
-                    className="h-8 text-xs"
-                    onClick={(e) => e.stopPropagation()}
-                    onKeyDown={(e) => e.stopPropagation()}
-                    onChange={(e) => {
-                      // Implement client-side filtering logic for the items below if needed
-                      // but standard SelectContent doesn't easily support this without a custom component
-                    }}
-                  />
-                </div>
                 <SelectItem value="all">Todas as categorias</SelectItem>
-                {(categories ?? []).sort((a,b) => a.name.localeCompare(b.name)).map((category) => (
-                  <SelectItem key={category.id} value={category.id}>
-                    {category.name}
+                {(categories ?? [])
+                  .slice()
+                  .sort((a, b) => a.name.localeCompare(b.name))
+                  .map((category) => (
+                    <SelectItem key={category.id} value={category.id}>
+                      {category.name}
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
+          </FilterField>
+
+          <FilterField label="Status">
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger aria-label="Filtrar por status">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os status</SelectItem>
+                {TRANSACTION_STATUS.map((item) => (
+                  <SelectItem key={item.value} value={item.value}>
+                    {item.label}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-          </div>
+          </FilterField>
 
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger aria-label="Filtrar por status">
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos os status</SelectItem>
-              {TRANSACTION_STATUS.map((item) => (
-                <SelectItem key={item.value} value={item.value}>
-                  {item.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <div className="grid grid-cols-2 gap-3">
+          <FilterField label="Tipo">
             <Select value={typeFilter} onValueChange={setTypeFilter}>
               <SelectTrigger aria-label="Filtrar por tipo">
                 <SelectValue />
@@ -385,6 +487,9 @@ function TransactionsPage() {
                 <SelectItem value="income">Entradas (recebimentos)</SelectItem>
               </SelectContent>
             </Select>
+          </FilterField>
+
+          <FilterField label="Ordenar">
             <Select value={sort} onValueChange={setSort}>
               <SelectTrigger aria-label="Ordenar">
                 <SelectValue />
@@ -396,70 +501,52 @@ function TransactionsPage() {
                 <SelectItem value="amount_asc">Menor valor</SelectItem>
               </SelectContent>
             </Select>
-          </div>
+          </FilterField>
 
-          <Select value={vehicleFilter} onValueChange={setVehicleFilter}>
-            <SelectTrigger aria-label="Filtrar por veículo">
-              <SelectValue placeholder="Veículo" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos os veículos</SelectItem>
-              {(vehicles ?? []).map((vehicle) => (
-                <SelectItem key={vehicle.id} value={vehicle.id}>
-                  {vehicle.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <FilterField label="Veículo">
+            <Select value={vehicleFilter} onValueChange={setVehicleFilter}>
+              <SelectTrigger aria-label="Filtrar por veículo">
+                <SelectValue placeholder="Veículo" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os veículos</SelectItem>
+                {(vehicles ?? []).map((vehicle) => (
+                  <SelectItem key={vehicle.id} value={vehicle.id}>
+                    {vehicle.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </FilterField>
 
-          <Input
-            value={merchantFilter}
-            onChange={(event) => setMerchantFilter(event.target.value)}
-            placeholder="Estabelecimento"
-            aria-label="Filtrar por estabelecimento"
-          />
+          <FilterField label="Estabelecimento" htmlFor="filtro-estabelecimento">
+            <Input
+              id="filtro-estabelecimento"
+              value={merchantFilter}
+              onChange={(event) => setMerchantFilter(event.target.value)}
+              placeholder="Ex.: Posto Central"
+            />
+          </FilterField>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-[11px] text-muted-foreground" htmlFor="filtro-de">
-                De
-              </label>
+          <div className="grid grid-cols-2 gap-2.5">
+            <FilterField label="De" htmlFor="filtro-de">
               <Input
                 id="filtro-de"
                 type="date"
                 value={fromDate}
                 onChange={(event) => setFromDate(event.target.value)}
               />
-            </div>
-            <div>
-              <label className="text-[11px] text-muted-foreground" htmlFor="filtro-ate">
-                Até
-              </label>
+            </FilterField>
+            <FilterField label="Até" htmlFor="filtro-ate">
               <Input
                 id="filtro-ate"
                 type="date"
                 value={toDate}
                 onChange={(event) => setToDate(event.target.value)}
               />
-            </div>
+            </FilterField>
           </div>
-
-          {search || merchantFilter || fromDate || toDate ? (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="justify-self-start"
-              onClick={() => {
-                setSearch("");
-                setMerchantFilter("");
-                setFromDate("");
-                setToDate("");
-              }}
-            >
-              Limpar busca e datas
-            </Button>
-          ) : null}
-        </section>
+        </FilterPanel>
 
 
 
@@ -473,7 +560,134 @@ function TransactionsPage() {
           </div>
         ) : null}
 
-        <section className="overflow-x-auto rounded-2xl border border-border bg-card">
+        {/* Mobile: cartões densos, com cor por natureza e ações essenciais. */}
+        <section className="space-y-2 sm:hidden" aria-label="Lançamentos do período">
+          {isLoading ? (
+            Array.from({ length: 5 }).map((_, index) => (
+              <Skeleton key={index} className="h-20 rounded-2xl" />
+            ))
+          ) : rows.length === 0 ? (
+            <div className="rounded-2xl border border-border bg-card p-8 text-center">
+              <p className="text-sm text-muted-foreground">Nenhum lançamento encontrado.</p>
+              <Button
+                className="mt-3"
+                size="sm"
+                onClick={() => {
+                  setEditing(null);
+                  setDialogOpen(true);
+                }}
+              >
+                <Plus className="mr-2 size-4" />
+                Adicionar lançamento
+              </Button>
+            </div>
+          ) : (
+            rows.map((row) => {
+              const income = row.transaction_type === "income";
+              return (
+                <article
+                  key={row.id}
+                  className="overflow-hidden rounded-2xl border border-border bg-card shadow-soft"
+                >
+                  <div className="flex items-stretch">
+                    <span
+                      aria-hidden="true"
+                      className={income ? "w-1 shrink-0 bg-success" : "w-1 shrink-0 bg-destructive"}
+                    />
+                    <div className="min-w-0 flex-1 p-3">
+                      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2">
+                        <button
+                          type="button"
+                          className="min-w-0 text-left"
+                          onClick={() => setDetails(row)}
+                        >
+                          <p className="flex items-center gap-1.5 truncate text-[13.5px] font-semibold leading-tight">
+                            <span className="truncate">{row.description}</span>
+                            {row.attachment_url ? (
+                              <Paperclip
+                                className="size-3.5 shrink-0 text-muted-foreground"
+                                aria-label="Possui comprovante"
+                              />
+                            ) : null}
+                          </p>
+                          <p className="mt-0.5 truncate text-[11px] text-muted-foreground">
+                            {formatDate(row.transaction_date)}
+                            {row.category_id
+                              ? ` · ${categoryNames.get(row.category_id) ?? "Sem categoria"}`
+                              : ""}
+                          </p>
+                        </button>
+                        <p
+                          className={
+                            income
+                              ? "shrink-0 text-right font-display text-[15px] font-bold tabular text-success"
+                              : "shrink-0 text-right font-display text-[15px] font-bold tabular text-destructive"
+                          }
+                        >
+                          {income ? "+" : "−"}
+                          {formatCurrency(Number(row.amount))}
+                        </p>
+                      </div>
+                      <div className="mt-2 flex items-center justify-between gap-2">
+                        <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+                          <Badge
+                            variant={
+                              row.status === "overdue"
+                                ? "destructive"
+                                : row.status === "pending"
+                                  ? "secondary"
+                                  : "outline"
+                            }
+                            className="h-5 px-1.5 text-[10px]"
+                          >
+                            {labelFor(TRANSACTION_STATUS, row.status)}
+                          </Badge>
+                          <span className="rounded-full border border-border bg-secondary px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
+                            {labelFor(PAYMENT_METHODS, row.payment_method)}
+                          </span>
+                        </div>
+                        <div className="flex shrink-0 items-center gap-0.5">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="size-8"
+                            aria-label="Editar"
+                            onClick={() => {
+                              setEditing(row);
+                              setDialogOpen(true);
+                            }}
+                          >
+                            <Pencil className="size-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="size-8"
+                            aria-label="Baixar PDF do lançamento"
+                            onClick={() => handleRowPdf(row)}
+                          >
+                            <FileDown className="size-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="size-8"
+                            aria-label="Excluir"
+                            onClick={() => setConfirmDelete([row.id])}
+                          >
+                            <Trash2 className="size-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </article>
+              );
+            })
+          )}
+        </section>
+
+        <section className="hidden overflow-x-auto rounded-2xl border border-border bg-card shadow-soft sm:block">
           {isLoading ? (
             <div className="space-y-2 p-4">
               {Array.from({ length: 6 }).map((_, index) => (
