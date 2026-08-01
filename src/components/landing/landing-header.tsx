@@ -150,20 +150,29 @@ export function LandingHeader({ hideActions }: { hideActions?: boolean }) {
                 {item.label}
               </a>
             ))}
-            <div className="mt-3 flex items-center gap-2">
-              <Button variant="outline" className="flex-1" asChild>
-                <Link to="/auth" search={{ mode: "login" }}>Entrar</Link>
-              </Button>
-              <Button className="flex-1" asChild>
-                <a
-                  href="#planos"
-                  onClick={(event) => handleAnchorClick(event, "#planos", () => setOpen(false))}
-                >
-                  Começar
-                </a>
-              </Button>
-              <ThemeToggle />
+            <div className="mt-3 grid gap-2">
+              <div className="flex items-center gap-2">
+                <Button variant="outline" className="flex-1" asChild>
+                  <Link to="/auth" search={{ mode: "login" }}>Entrar</Link>
+                </Button>
+                <Button className="flex-1" asChild>
+                  <a
+                    href="#planos"
+                    onClick={(event) => handleAnchorClick(event, "#planos", () => setOpen(false))}
+                  >
+                    Começar
+                  </a>
+                </Button>
+                <ThemeToggle />
+              </div>
+              <CodeAccessDialog>
+                <Button variant="ghost" className="w-full justify-center">
+                  <KeyRound className="size-4" aria-hidden />
+                  Tenho um código
+                </Button>
+              </CodeAccessDialog>
             </div>
+
           </nav>
         </div>
       )}
