@@ -109,18 +109,11 @@ function AdminPage() {
     );
   }
 
+  // Se NÃO for staff (admin ou suporte), forçamos o redirecionamento imediato para o painel do cliente.
+  // Isso resolve a "anomalia" onde um admin poderia cair em visualização de cliente se as rotas se confundissem.
   if (!isStaff) {
-    return (
-      <AppShell>
-        <div className="rounded-xl border border-dashed border-border p-10 text-center">
-          <ShieldCheck className="mx-auto size-8 text-muted-foreground" />
-          <h1 className="page-title">Acesso restrito</h1>
-          <p className="page-subtitle mt-1">
-            Esta área é exclusiva da equipe administrativa.
-          </p>
-        </div>
-      </AppShell>
-    );
+    window.location.href = "/painel";
+    return null;
   }
 
   return <AdminContent isAdmin={isAdmin} />;

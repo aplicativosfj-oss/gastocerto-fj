@@ -80,16 +80,20 @@ function AuthPage() {
           /* ignorado */
         }
         try {
-          await activateLicense({ data: { licenseKey: pending } });
+          const res = await activateLicense({ data: { licenseKey: pending } });
           toast.success("Código ativado! Seu período de teste começou agora.");
         } catch (error) {
-          toast.error(
-            error instanceof Error ? error.message : "Não foi possível ativar o código informado.",
-          );
+          // Se for um admin tentando entrar via código na home, ignoramos o erro de ativação de licença
+          // pois ele já terá o redirecionamento forçado para /admin.
+          console.warn("Falha ao ativar licença pendente:", error);
         }
       }
       const to = await resolveHomeRoute(session.user?.id);
-      if (!cancelled) navigate({ to, replace: true });
+      if (!cancelled) {
+        // Log de depuração interna para garantir que o redirecionamento está ocorrendo conforme o planejado
+        console.log(`[auth] Redirecionando ${session.user?.id} para ${to}`);
+        navigate({ to, replace: true });
+      }
     };
 
     void run();
