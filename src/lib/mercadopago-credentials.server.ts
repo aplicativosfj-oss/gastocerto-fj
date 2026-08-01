@@ -15,6 +15,8 @@ const CACHE_TTL_MS = 60_000;
 export type MercadoPagoCredentials = {
   publicKey: string | null;
   accessToken: string | null;
+  clientId: string | null;
+  clientSecret: string | null;
   source: "database" | "environment" | "none";
   environment: string;
   rotatedAt: string | null;
@@ -42,6 +44,8 @@ function fromEnvironment(): MercadoPagoCredentials {
   return {
     publicKey,
     accessToken,
+    clientId: process.env["MERCADOPAGO_CLIENT_ID"] ?? null,
+    clientSecret: process.env["MERCADOPAGO_CLIENT_SECRET"] ?? null,
     source: accessToken ? "environment" : "none",
     environment: accessToken?.startsWith("TEST-") ? "sandbox" : "production",
     rotatedAt: null,
@@ -58,7 +62,7 @@ export async function loadMercadoPagoCredentials(): Promise<MercadoPagoCredentia
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data } = await supabaseAdmin
       .from("integration_credentials")
-      .select("public_key, access_token, environment, active, rotated_at, updated_at")
+      .select("public_key, access_token, client_id, client_secret, environment, active, rotated_at, updated_at")
       .eq("provider", PROVIDER)
       .maybeSingle();
 
@@ -66,6 +70,8 @@ export async function loadMercadoPagoCredentials(): Promise<MercadoPagoCredentia
       resolved = {
         publicKey: (data.public_key as string | null) ?? resolved.publicKey,
         accessToken: data.access_token as string,
+        clientId: (data.client_id as string | null) ?? resolved.clientId,
+        clientSecret: (data.client_secret as string | null) ?? resolved.clientSecret,
         source: "database",
         environment: (data.environment as string) ?? "production",
         rotatedAt: (data.rotated_at as string | null) ?? null,
@@ -98,6 +104,9 @@ export async function describeMercadoPagoCredentials() {
     environment: credentials.environment,
     publicKeyMask: maskCredential(credentials.publicKey),
     accessTokenMask: maskCredential(credentials.accessToken),
+    clientIdMask: maskCredential(credentials.clientId),
+    clientSecretMask: maskCredential(credentials.clientSecret),
+    oauthConfigured: Boolean(credentials.clientId && credentials.clientSecret),
     rotatedAt: credentials.rotatedAt,
     updatedAt: credentials.updatedAt,
     webhookUrl: "https://gastocerto-fj.lovable.app/api/public/mercadopago/webhook",
@@ -108,12 +117,17 @@ export async function describeMercadoPagoCredentials() {
 export async function saveMercadoPagoCredentials(input: {
   publicKey: string;
   accessToken: string;
+  clientId?: string | null;
+  clientSecret?: string | null;
   updatedBy: string;
 }) {
   const publicKey = input.publicKey.trim();
   const accessToken = input.accessToken.trim();
+  const clientId = input.clientId?.trim() || null;
+  const clientSecret = input.clientSecret?.trim() || null;
   if (accessToken.length < 20) throw new Error("Access token inválido.");
   if (publicKey.length < 20) throw new Error("Public key inválida.");
+  if (clientSecret && !clientId) throw new Error("Informe também o Client ID.");
 
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { error } = await supabaseAdmin.from("integration_credentials").upsert(
@@ -121,6 +135,8 @@ export async function saveMercadoPagoCredentials(input: {
       provider: PROVIDER,
       public_key: publicKey,
       access_token: accessToken,
+      ...(clientId ? { client_id: clientId } : {}),
+      ...(clientSecret ? { client_secret: clientSecret } : {}),
       environment: accessToken.startsWith("TEST-") ? "sandbox" : "production",
       active: true,
       rotated_at: new Date().toISOString(),

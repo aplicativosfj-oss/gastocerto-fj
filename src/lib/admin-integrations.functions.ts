@@ -42,6 +42,8 @@ export const adminSaveMercadoPagoCredentials = createServerFn({ method: "POST" }
       .object({
         publicKey: z.string().trim().min(20).max(200),
         accessToken: z.string().trim().min(20).max(300),
+        clientId: z.string().trim().max(120).optional(),
+        clientSecret: z.string().trim().max(200).optional(),
       })
       .parse(input),
   )
@@ -55,6 +57,8 @@ export const adminSaveMercadoPagoCredentials = createServerFn({ method: "POST" }
     const summary = await saveMercadoPagoCredentials({
       publicKey: data.publicKey,
       accessToken: data.accessToken,
+      clientId: data.clientId ?? null,
+      clientSecret: data.clientSecret ?? null,
       updatedBy: context.userId,
     });
 

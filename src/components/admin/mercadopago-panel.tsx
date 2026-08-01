@@ -32,6 +32,8 @@ export function MercadoPagoPanel() {
 
   const [publicKey, setPublicKey] = useState("");
   const [accessToken, setAccessToken] = useState("");
+  const [clientId, setClientId] = useState("");
+  const [clientSecret, setClientSecret] = useState("");
 
   const { data, isLoading } = useQuery({
     queryKey: ["admin", "integrations"],
@@ -40,10 +42,20 @@ export function MercadoPagoPanel() {
   const mp = data?.mercadopago;
 
   const save = useMutation({
-    mutationFn: () => saveCredentials({ data: { publicKey, accessToken } }),
+    mutationFn: () =>
+      saveCredentials({
+        data: {
+          publicKey,
+          accessToken,
+          ...(clientId.trim() ? { clientId: clientId.trim() } : {}),
+          ...(clientSecret.trim() ? { clientSecret: clientSecret.trim() } : {}),
+        },
+      }),
     onSuccess: (result) => {
       setPublicKey("");
       setAccessToken("");
+      setClientId("");
+      setClientSecret("");
       queryClient.invalidateQueries({ queryKey: ["admin", "integrations"] });
       toast.success("Credenciais rotacionadas", {
         description: `Ambiente ${result.environment} • token ${result.accessTokenMask} já ativo no servidor.`,
@@ -128,6 +140,8 @@ export function MercadoPagoPanel() {
         <div className="grid gap-2 rounded-xl border border-border bg-muted/20 p-3 text-xs sm:grid-cols-2">
           <Info label="Public key" value={mp?.publicKeyMask ?? "—"} />
           <Info label="Access token" value={mp?.accessTokenMask ?? "—"} />
+          <Info label="Client ID" value={mp?.clientIdMask ?? "—"} />
+          <Info label="Client secret" value={mp?.clientSecretMask ?? "—"} />
           <Info label="Origem" value={mp?.source === "database" ? "Rotação pelo painel" : "Variável de ambiente"} />
           <Info label="Ambiente" value={mp?.environment === "sandbox" ? "Teste" : "Produção"} />
           <Info label="Última rotação" value={mp?.rotatedAt ? formatDateTime(mp.rotatedAt) : "—"} />
@@ -163,6 +177,38 @@ export function MercadoPagoPanel() {
               value={accessToken}
               onChange={(event) => setAccessToken(event.target.value)}
               placeholder="APP_USR-..."
+              autoComplete="new-password"
+              spellCheck={false}
+              className="h-9 font-mono text-xs"
+            />
+          </div>
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="space-y-1.5">
+            <Label htmlFor="mp-client-id" className="text-xs">
+              Client ID (opcional)
+            </Label>
+            <Input
+              id="mp-client-id"
+              value={clientId}
+              onChange={(event) => setClientId(event.target.value)}
+              placeholder="3186086737"
+              autoComplete="off"
+              spellCheck={false}
+              className="h-9 font-mono text-xs"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="mp-client-secret" className="text-xs">
+              Client secret (opcional)
+            </Label>
+            <Input
+              id="mp-client-secret"
+              type="password"
+              value={clientSecret}
+              onChange={(event) => setClientSecret(event.target.value)}
+              placeholder="••••••••"
               autoComplete="new-password"
               spellCheck={false}
               className="h-9 font-mono text-xs"

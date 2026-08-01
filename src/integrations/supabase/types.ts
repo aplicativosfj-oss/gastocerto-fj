@@ -1059,6 +1059,8 @@ export type Database = {
         Row: {
           access_token: string | null
           active: boolean
+          client_id: string | null
+          client_secret: string | null
           created_at: string
           environment: string
           id: string
@@ -1071,6 +1073,8 @@ export type Database = {
         Insert: {
           access_token?: string | null
           active?: boolean
+          client_id?: string | null
+          client_secret?: string | null
           created_at?: string
           environment?: string
           id?: string
@@ -1083,6 +1087,8 @@ export type Database = {
         Update: {
           access_token?: string | null
           active?: boolean
+          client_id?: string | null
+          client_secret?: string | null
           created_at?: string
           environment?: string
           id?: string
