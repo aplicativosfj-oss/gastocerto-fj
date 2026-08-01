@@ -88,7 +88,11 @@ type MetricDetail = {
   description: string;
   rows: [string, string][];
   extra?: ReactNode;
+  chartData?: any[];
+  chartKey?: string;
+  chartColor?: string;
 };
+
 
 /** Card de indicador clicável — abre o detalhamento completo do número. */
 function MetricCard({
