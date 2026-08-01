@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Loader2, Upload, User } from "lucide-react";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 import { AppShell } from "@/components/app-shell";
 import { PageHeader } from "@/components/finance/page-header";

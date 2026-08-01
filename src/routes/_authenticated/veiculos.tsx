@@ -18,6 +18,7 @@ import { AppShell } from "@/components/app-shell";
 import { FeatureGate } from "@/components/finance/feature-gate";
 import { FuelDialog } from "@/components/finance/fuel-dialog";
 import { PageHeader } from "@/components/finance/page-header";
+import { StatTile } from "@/components/finance/stat-tile";
 import { ReceiptViewer } from "@/components/finance/receipt-viewer";
 import { VehicleDialog } from "@/components/finance/vehicle-dialog";
 import {
@@ -94,13 +95,16 @@ export const Route = createFileRoute("/_authenticated/veiculos")({
   component: VehiclesPage,
 });
 
-function Metric({ label, value, hint }: { label: string; value: string; hint?: string }) {
+function Metric({ label, value, hint, icon, tone }: { label: string; value: string; hint?: string; icon?: any; tone?: any }) {
   return (
-    <div className="rounded-2xl border border-border bg-card p-4">
-      <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</p>
-      <p className="mt-1 text-xl font-semibold tabular-nums">{value}</p>
-      {hint ? <p className="mt-1 text-xs text-muted-foreground">{hint}</p> : null}
-    </div>
+    <StatTile 
+      label={label}
+      value={value}
+      hint={hint}
+      icon={icon}
+      tone={tone}
+      className="sm:p-3.5"
+    />
   );
 }
 
@@ -278,30 +282,33 @@ function VehiclesPage() {
             </Button>
           </section>
         ) : (
-          <section className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 lg:gap-3">
+          <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {(vehicles ?? []).map((vehicle) => (
               <article
                 key={vehicle.id}
-                className="rounded-2xl border border-border bg-card p-3 shadow-sm transition-all hover:shadow-md sm:p-4"
+                className="interactive-card group relative overflow-hidden rounded-xl border border-border bg-card p-4 shadow-soft transition-all"
               >
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex min-w-0 items-start gap-2.5">
-                    <VehicleEmblem vehicleType={vehicle.vehicle_type} className="size-9 shrink-0 sm:size-10" />
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex min-w-0 items-start gap-3">
+                    <div className="shrink-0 transition-transform group-hover:scale-105">
+                      <VehicleEmblem vehicleType={vehicle.vehicle_type} className="size-11 sm:size-12" />
+                    </div>
                     <div className="min-w-0">
-                      <h2 className="truncate text-sm font-semibold sm:text-base">{vehicle.name}</h2>
-                      <p className="mt-0.5 truncate text-[10px] text-muted-foreground sm:text-xs">
+                      <h2 className="truncate text-[15px] font-bold tracking-tight text-foreground sm:text-[16px]">
+                        {vehicle.name}
+                      </h2>
+                      <p className="mt-0.5 truncate text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
                         {[vehicle.brand, vehicle.model, vehicle.year].filter(Boolean).join(" · ") ||
                           labelFor(VEHICLE_TYPES, vehicle.vehicle_type)}
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex shrink-0">
+                  <div className="flex shrink-0 gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="size-8"
-                      aria-label={`Editar ${vehicle.name}`}
+                      className="size-8 rounded-lg"
                       onClick={() => {
                         setEditingVehicle(vehicle);
                         setVehicleDialog(true);
@@ -312,32 +319,45 @@ function VehiclesPage() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="size-8 text-muted-foreground hover:text-destructive"
-                      aria-label={`Remover ${vehicle.name}`}
+                      className="size-8 rounded-lg hover:text-destructive hover:bg-destructive/10"
                       onClick={() => setConfirmVehicle(vehicle)}
                     >
                       <Trash2 className="size-3.5" />
                     </Button>
                   </div>
                 </div>
-                <div className="mt-2.5 flex flex-wrap gap-1.5 text-[10px]">
-                  <Badge variant="secondary" className="px-1.5 py-0">{labelFor(FUEL_TYPES, vehicle.fuel_type)}</Badge>
-                  {vehicle.plate ? <Badge variant="outline" className="px-1.5 py-0">{vehicle.plate}</Badge> : null}
-                  {vehicle.tank_capacity ? (
-                    <Badge variant="outline" className="px-1.5 py-0">{vehicle.tank_capacity} L</Badge>
-                  ) : null}
+                
+                <div className="mt-4 flex flex-wrap gap-1.5">
+                  <Badge variant="secondary" className="bg-muted/60 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md">
+                    {labelFor(FUEL_TYPES, vehicle.fuel_type)}
+                  </Badge>
+                  {vehicle.plate && (
+                    <Badge variant="outline" className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 border-border/60 rounded-md">
+                      {vehicle.plate}
+                    </Badge>
+                  )}
+                  {vehicle.tank_capacity && (
+                    <Badge variant="outline" className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 border-border/60 rounded-md">
+                      {vehicle.tank_capacity}L
+                    </Badge>
+                  )}
                 </div>
-                <Button
-                  variant="link"
-                  className="mt-2 h-auto p-0 text-[11px] font-semibold text-brand"
-                  onClick={() => {
-                    setEditingEntry(null);
-                    setVehicleFilter(vehicle.id);
-                    setFuelDialog(true);
-                  }}
-                >
-                  Registrar abastecimento
-                </Button>
+
+                <div className="mt-5 border-t border-border/50 pt-3">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-full justify-center text-[11px] font-bold uppercase tracking-[0.1em] text-brand hover:bg-brand/5"
+                    onClick={() => {
+                      setEditingEntry(null);
+                      setVehicleFilter(vehicle.id);
+                      setFuelDialog(true);
+                    }}
+                  >
+                    <Plus className="mr-1.5 size-3" />
+                    Abastecer
+                  </Button>
+                </div>
               </article>
             ))}
           </section>
@@ -386,30 +406,34 @@ function VehiclesPage() {
           />
         </section>
 
-        <section className="grid gap-3 auto-cards-sm">
+        <section className="grid gap-3 grid-cols-2 lg:grid-cols-4">
           <Metric
             label="Gasto no filtro"
             value={formatCurrency(summary.total)}
-            hint={`${summary.entries} abastecimento(s)`}
+            hint={`${summary.entries} abastecimentos`}
+            icon={Fuel}
+            tone="brand"
           />
           <Metric
             label="Consumo médio"
             value={summary.averageConsumption ? `${summary.averageConsumption} km/l` : "—"}
-            hint={`${summary.liters} litros abastecidos`}
+            hint={`${summary.liters} litros totais`}
+            icon={Droplets}
+            tone="success"
           />
           <Metric
             label="Custo por km"
             value={summary.costPerKm ? formatCurrency(summary.costPerKm) : "—"}
-            hint={`${summary.distance} km percorridos`}
+            hint={`${summary.distance} km rodados`}
+            icon={Car}
+            tone="neutral"
           />
           <Metric
-            label="Preço médio do litro"
+            label="Preço médio"
             value={summary.averagePrice ? formatCurrency(summary.averagePrice) : "—"}
-            hint={
-              summary.best?.consumption
-                ? `Melhor média: ${summary.best.consumption} km/l`
-                : "Registre dois abastecimentos para calcular"
-            }
+            hint={summary.best?.consumption ? `Recorde: ${summary.best.consumption} km/l` : "—"}
+            icon={TriangleAlert}
+            tone="warning"
           />
         </section>
 

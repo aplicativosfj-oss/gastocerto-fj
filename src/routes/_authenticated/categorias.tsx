@@ -97,8 +97,12 @@ function CategoriesPage() {
   }, [transactions]);
 
   const visible = (categories ?? [])
-    .filter((category) => category.type === tab)
+    .filter((category) => category.type === tab && category.active !== false)
     .sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
+
+  const inactive = (categories ?? [])
+    .filter((category) => category.type === tab && category.active === false)
+    .sort((a, b) => a.name.localeCompare(b.name));
 
   async function handleSave() {
     if (!draft) return;
@@ -221,88 +225,110 @@ function CategoriesPage() {
             <p className="text-sm text-muted-foreground">Nenhuma categoria por aqui ainda.</p>
           </div>
         ) : (
-          <div className="grid gap-3 auto-cards-sm">
-            {visible.map((category) => (
-              <div
-                key={category.id}
-                className={cn(
-                  "group relative flex items-start justify-between gap-3 rounded-2xl border p-4 transition-all duration-300",
-                  category.active === false
-                    ? "border-border/50 bg-muted/30 grayscale-[0.4] opacity-70"
-                    : "border-border bg-card shadow-sm hover:border-brand/30 hover:shadow-md",
-                )}
-              >
-                {!category.active && (
-                  <div className="absolute inset-0 z-10 flex items-center justify-center rounded-2xl bg-background/5 backdrop-blur-[0.5px]">
-                    <Badge variant="outline" className="bg-background/80 text-[10px] font-bold uppercase tracking-wider">
-                      Desativada
-                    </Badge>
+          <div className="space-y-6">
+            <div className="grid gap-3 auto-cards-sm">
+              {visible.map((category) => (
+                <div
+                  key={category.id}
+                  className="interactive-card group relative flex items-start justify-between gap-3 rounded-xl border border-border bg-card p-4 shadow-soft transition-all"
+                >
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2.5">
+                      <span
+                        className="grid size-9 shrink-0 place-items-center rounded-xl transition-transform group-hover:scale-110"
+                        style={{
+                          backgroundColor: `${category.color ?? "#94a3b8"}15`,
+                          color: category.color ?? "#94a3b8",
+                        }}
+                      >
+                        {(() => {
+                          const Icon = categoryIcon(category.icon);
+                          return <Icon className="size-4.5" />;
+                        })()}
+                      </span>
+                      <div className="min-w-0">
+                        <span className="block truncate text-[14px] font-bold tracking-tight text-foreground">
+                          {category.name}
+                        </span>
+                        <p className="mt-0.5 text-[11px] font-medium text-muted-foreground/80 uppercase tracking-wider">
+                          Gasto: {formatCurrency(usage.get(category.id) ?? 0)}
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                )}
-                <div className="min-w-0">
-                  <div className="flex min-w-0 items-center gap-2">
-                    <span
-                      className={cn(
-                        "grid size-8 shrink-0 place-items-center rounded-lg transition-transform group-hover:scale-110",
-                        category.active === false ? "bg-muted" : ""
-                      )}
-                      style={category.active !== false ? {
-                        backgroundColor: `${category.color ?? "#94a3b8"}22`,
-                        color: category.color ?? "#94a3b8",
-                      } : {}}
+                  <div className="flex shrink-0 gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="size-8 rounded-lg"
+                      onClick={() => {
+                        setError(null);
+                        setDraft({
+                          id: category.id,
+                          name: category.name,
+                          type: category.type as "expense" | "income",
+                          color: category.color ?? COLORS[0],
+                          icon: category.icon ?? "circle-ellipsis",
+                          display_order: category.display_order ?? 0,
+                          parent_id: category.parent_id,
+                          description: category.description
+                        });
+                      }}
                     >
-                      {(() => {
-                        const Icon = categoryIcon(category.icon);
-                        return <Icon className="size-4" />;
-                      })()}
-                    </span>
-                    <span className={cn(
-                      "truncate font-medium transition-colors",
-                      category.active === false ? "text-muted-foreground" : "text-foreground"
-                    )}>
-                      {category.name}
-                    </span>
+                      <Pencil className="size-3.5" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="size-8 rounded-lg hover:text-destructive hover:bg-destructive/10"
+                      onClick={() => toggleActive(category.id, false)}
+                    >
+                      <Power className="size-3.5" />
+                    </Button>
                   </div>
-                  <p className="mt-1 text-xs text-muted-foreground/80">
-                    Este mês: {formatCurrency(usage.get(category.id) ?? 0)}
-                  </p>
                 </div>
-                <div className="relative z-20 flex shrink-0 gap-1">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="size-8"
-                    aria-label={`Editar ${category.name}`}
-                    onClick={() => {
-                      setError(null);
-                      setDraft({
-                        id: category.id,
-                        name: category.name,
-                        type: category.type as "expense" | "income",
-                        color: category.color ?? COLORS[0],
-                        icon: category.icon ?? "circle-ellipsis",
-                        display_order: category.display_order ?? 0,
-                        parent_id: category.parent_id
-                      });
-                    }}
-                  >
-                    <Pencil className="size-3.5" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className={cn(
-                      "size-8",
-                      category.active === false ? "text-success hover:bg-success/10" : "text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                    )}
-                    aria-label={category.active === false ? `Reativar ${category.name}` : `Desativar ${category.name}`}
-                    onClick={() => toggleActive(category.id, category.active === false)}
-                  >
-                    <Power className="size-3.5" />
-                  </Button>
+              ))}
+            </div>
+
+            {inactive.length > 0 && (
+              <div className="space-y-3 pt-4">
+                <div className="flex items-center gap-2 px-1">
+                  <div className="h-px flex-1 bg-border/60" />
+                  <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60">
+                    Desativadas ({inactive.length})
+                  </span>
+                  <div className="h-px flex-1 bg-border/60" />
+                </div>
+                <div className="grid gap-3 auto-cards-sm">
+                  {inactive.map((category) => (
+                    <div
+                      key={category.id}
+                      className="group flex items-center justify-between gap-3 rounded-xl border border-dashed border-border/60 bg-muted/20 p-3 opacity-60 grayscale transition-all hover:opacity-100 hover:grayscale-0"
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-muted text-muted-foreground">
+                          {(() => {
+                            const Icon = categoryIcon(category.icon);
+                            return <Icon className="size-3.5" />;
+                          })()}
+                        </span>
+                        <span className="truncate text-[13px] font-semibold text-muted-foreground">
+                          {category.name}
+                        </span>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 px-2 text-[10px] font-bold uppercase tracking-wider text-success hover:bg-success/10"
+                        onClick={() => toggleActive(category.id, true)}
+                      >
+                        Reativar
+                      </Button>
+                    </div>
+                  ))}
                 </div>
               </div>
-            ))}
+            )}
           </div>
         )}
       </div>
