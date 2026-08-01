@@ -325,6 +325,21 @@ export function TransactionDialog({
         "Este mês já foi fechado. Solicite a liberação ao administrador em Fechamento mensal.";
 
     const itemsCheck = validatePurchaseItems(items, value);
+    
+    // Alerta de inconsistência de data/competência
+    const today = new Date();
+    const selectedDate = new Date(date);
+    const isPast = selectedDate < new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const isFuture = selectedDate > today;
+    
+    if (!editing && (isPast || isFuture)) {
+      const typeLabel = kind === "income" ? "receita" : "gasto";
+      const impactMsg = isPast ? "afetará o saldo de meses anteriores" : "ficará pendente no saldo futuro";
+      if (!confirm(`Atenção: Você está lançando uma ${typeLabel} para ${formatDate(date)}. Isso ${impactMsg}. Deseja continuar?`)) {
+        return;
+      }
+    }
+
     if (itemsCheck.issues.length > 0) {
       nextErrors.items = "Corrija os itens destacados da compra.";
     } else if (itemsCheck.totalMismatch) {
