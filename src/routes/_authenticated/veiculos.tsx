@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 import { AppShell } from "@/components/app-shell";
 import { FeatureGate } from "@/components/finance/feature-gate";
@@ -482,7 +483,7 @@ function VehiclesPage() {
                       <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
                         <div 
                           className={cn("h-full rounded-full transition-all", alert ? "bg-destructive" : "bg-success")}
-                          style={{ width: `${Math.min(100, (stats.averageConsumption / target) * 100)}%` }}
+                          style={{ width: `${Math.min(100, (Number(stats.averageConsumption ?? 0) / target) * 100)}%` }}
                         />
                       </div>
                     </div>
