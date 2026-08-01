@@ -168,15 +168,20 @@ function DashboardPage() {
     const expenses = rows.filter((row) => row.transaction_type === "expense");
     const todayIso = isoDate(today);
     const weekStart = isoDate(new Date(today.getTime() - 6 * 86_400_000));
+    const sameMonth =
+      period.year === today.getFullYear() && period.month === today.getMonth() + 1;
     return {
       all: rows,
       expenses,
       incomes: rows.filter((row) => row.transaction_type === "income"),
-      todayExpenses: expenses.filter((row) => row.transaction_date === todayIso),
-      weekExpenses: expenses.filter((row) => row.transaction_date >= weekStart),
+      todayExpenses: sameMonth
+        ? expenses.filter((row) => row.transaction_date === todayIso)
+        : [],
+      weekExpenses: sameMonth ? expenses.filter((row) => row.transaction_date >= weekStart) : [],
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [transactions]);
+  }, [transactions, period.year, period.month]);
+
 
   const byDay = useMemo(() => {
     const map = new Map<number, { day: number; gasto: number; receita: number }>();
