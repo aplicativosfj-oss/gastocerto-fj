@@ -2,10 +2,9 @@ import { Link } from "@tanstack/react-router";
 import { Suspense, lazy } from "react";
 import {
   ArrowRight,
-  ChevronDown,
   Flame,
   Fuel,
-  PlayCircle,
+  KeyRound,
   ShieldCheck,
   TrendingDown,
   Wallet,
@@ -13,10 +12,10 @@ import {
 
 import heroBg from "@/assets/hero-desk-night.jpg";
 import { Button } from "@/components/ui/button";
-import { DemoDialog } from "@/components/landing/demo-dialog";
+import { CodeAccessDialog } from "@/components/landing/code-access-dialog";
 import { GridPattern, RingChart, Sparkline } from "@/components/landing/decor";
 import { formatCurrency } from "@/lib/format";
-import { handleAnchorClick } from "@/lib/scroll";
+
 
 const DashboardPreview = lazy(() =>
   import("@/components/landing/dashboard-preview").then((m) => ({ default: m.DashboardPreview })),
