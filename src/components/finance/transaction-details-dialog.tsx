@@ -226,10 +226,51 @@ export function TransactionDetailsDialog({
             )}
           </div>
 
+          <div className="rounded-lg border border-border/60 bg-muted/20 p-2.5">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-6 w-full justify-between px-1 text-[11px] font-medium uppercase tracking-wide text-muted-foreground"
+              onClick={() => setHistoryOpen((value) => !value)}
+            >
+              <span className="flex items-center gap-1.5">
+                <History className="size-3.5" /> Histórico de alterações
+              </span>
+              <span>{history?.length ?? 0}</span>
+            </Button>
+            {historyOpen ? (
+              (history ?? []).length === 0 ? (
+                <p className="mt-1.5 text-xs text-muted-foreground">
+                  Nenhuma alteração registrada até agora.
+                </p>
+              ) : (
+                <ul className="mt-1.5 space-y-1.5">
+                  {(history ?? []).map((entry) => (
+                    <li key={entry.id} className="rounded-md bg-background/60 px-2 py-1.5 text-xs">
+                      <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                        {formatDateTime(entry.changed_at)} ·{" "}
+                        {NOTE_FIELD_LABEL[entry.field] ?? entry.field}
+                      </p>
+                      <p className="mt-0.5 line-through text-muted-foreground">
+                        {entry.old_value || "(vazio)"}
+                      </p>
+                      <p className="font-medium">{entry.new_value || "(vazio)"}</p>
+                    </li>
+                  ))}
+                </ul>
+              )
+            ) : null}
+          </div>
+
           <DialogFooter className="gap-2 sm:justify-end">
             <Button size="sm" variant="ghost" onClick={() => onOpenChange(false)}>
               Fechar
             </Button>
+            <Button size="sm" variant="outline" onClick={handleExport}>
+              <FileDown className="mr-2 size-3.5" /> PDF
+            </Button>
+
             {onEdit ? (
               <Button
                 size="sm"
