@@ -86,8 +86,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "GastoCerto — Controle de gastos pessoais" },
-      { name: "description", content: "Controle total dos seus gastos pessoais." },
+      { title: "GastoCerto — Controle hoje, tranquilidade sempre" },
+      { name: "description", content: "A plataforma completa para gestão de finanças pessoais. Controle hoje, tranquilidade sempre." },
       { name: "author", content: "GastoCerto" },
       { name: "theme-color", content: "#0d1b3e" },
       { name: "application-name", content: "GastoCerto" },
