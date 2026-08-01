@@ -373,6 +373,29 @@ function GasPage() {
         </div>
       </header>
 
+      <section className="mt-6 flex flex-wrap items-center gap-3 rounded-2xl border border-border bg-card p-3">
+        <span className="text-sm font-medium">Intervalo do gráfico:</span>
+        <div className="flex gap-2">
+          {[
+            { label: "Todo histórico", value: "all" },
+            { label: "30 dias", value: "30" },
+            { label: "60 dias", value: "60" },
+            { label: "90 dias", value: "90" },
+          ].map((range) => (
+            <Button
+              key={range.value}
+              size="sm"
+              variant={chartRange === range.value ? "secondary" : "ghost"}
+              className="h-8 text-xs"
+              onClick={() => setChartRange(range.value)}
+            >
+              {range.label}
+            </Button>
+          ))}
+        </div>
+      </section>
+
+
       {isLoading ? (
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {Array.from({ length: 4 }).map((_, index) => (
