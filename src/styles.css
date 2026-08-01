@@ -158,6 +158,13 @@
   --success-foreground: oklch(0.17 0.035 258);
   --warning: oklch(0.82 0.14 78);
   --warning-foreground: oklch(0.17 0.035 258);
+  /* No escuro, coral suave em vez de vermelho puro (evita ofuscar). */
+  --expense: oklch(0.78 0.095 25);
+  --expense-surface: oklch(0.29 0.045 22);
+  --expense-border: oklch(0.42 0.06 22);
+  --income: oklch(0.82 0.095 158);
+  --income-surface: oklch(0.28 0.04 158);
+  --income-border: oklch(0.42 0.055 158);
   --border: oklch(1 0 0 / 12%);
   --input: oklch(1 0 0 / 16%);
   --ring: oklch(0.68 0.13 255);
