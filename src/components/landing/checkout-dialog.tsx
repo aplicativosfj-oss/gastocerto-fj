@@ -277,9 +277,10 @@ export function CheckoutDialog({
             className="space-y-3"
             onSubmit={(event) => {
               event.preventDefault();
-              create.mutate();
+              verify.mutate();
             }}
           >
+
             <div className="rounded-xl border border-border bg-secondary/30 p-3 text-sm">
               <span className="font-semibold">{plan.name}</span> ·{" "}
               {cycle === "annual" ? "cobrança anual" : "cobrança mensal"} ·{" "}
