@@ -1027,7 +1027,6 @@ function DashboardPage() {
           if (y && m && (y !== period.year || m !== period.month)) setPeriod({ year: y, month: m });
         }}
       />
-      />
     </AppShell>
   );
 }
