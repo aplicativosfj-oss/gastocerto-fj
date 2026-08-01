@@ -29,6 +29,7 @@ import {
   COMMITMENT_STATUS,
   COMMITMENT_TYPES,
   isOpenAccountType,
+  useGenerateCommitmentInstallments,
   useSaveCommitment,
   type Commitment,
 } from "@/lib/commitments";
@@ -47,6 +48,7 @@ export function CommitmentDialog({
   onOpenChange: (open: boolean) => void;
 }) {
   const save = useSaveCommitment();
+  const generate = useGenerateCommitmentInstallments();
   const { data: categories } = useCategories();
 
   const [name, setName] = useState("");
@@ -193,7 +195,7 @@ export function CommitmentDialog({
     }
 
     try {
-      await save.mutateAsync({
+      const savedId = await save.mutateAsync({
         id: commitment?.id,
         values: {
           name: name.trim().slice(0, 120),
@@ -218,6 +220,37 @@ export function CommitmentDialog({
       });
       toast.success(commitment ? "Compromisso atualizado." : "Compromisso cadastrado.");
       onOpenChange(false);
+
+      // Cria automaticamente as parcelas futuras (lançamentos pendentes).
+      const installmentsTotal = installments ? Number(installments) : 0;
+      if (!isOpenAccount && installmentsTotal > 0 && savedId) {
+        try {
+          const created = await generate.mutateAsync({
+            id: savedId,
+            name: name.trim().slice(0, 120),
+            commitment_type: type,
+            category_id: categoryId === "none" ? null : categoryId,
+            account_id: null,
+            payment_method: paymentMethod,
+            total_amount: totalValue,
+            installments_total: installmentsTotal,
+            installment_amount: installmentAmount ? toCents(parseAmount(installmentAmount)) : null,
+            installments_paid: term ? term.paid : 0,
+            start_date: startDate,
+            due_day: dueDay ? Math.min(Math.max(Number(dueDay), 1), 31) : null,
+            next_due_date: nextDue || term?.firstOpen || null,
+            end_date: endDate || term?.computedEnd || null,
+            is_open_account: false,
+            status,
+          } as Commitment);
+          if (created > 0) {
+            toast.success(`${created} parcela(s) futura(s) lançada(s) automaticamente.`);
+          }
+        } catch (genError) {
+          console.error("[compromissos] falha ao gerar parcelas", genError);
+          toast.error("Compromisso salvo, mas não foi possível gerar as parcelas futuras.");
+        }
+      }
     } catch (saveError) {
       toast.error("Não foi possível salvar.", {
         description: saveError instanceof Error ? saveError.message : undefined,
