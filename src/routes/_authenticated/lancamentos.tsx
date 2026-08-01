@@ -154,7 +154,7 @@ function TransactionsPage() {
   const search_ = Route.useSearch();
   const navigate = Route.useNavigate();
 
-  const { year: storedYear, month: storedMonth, setPeriod: setStoredPeriod } = usePeriodStore();
+  const { year: storedYear, month: storedMonth, typeFilter, setPeriod: setStoredPeriod, setTypeFilter, reset } = usePeriodStore();
   
   const period = useMemo(() => ({
     year: search_.ano ?? storedYear ?? today.getFullYear(),
@@ -520,11 +520,22 @@ function TransactionsPage() {
             </div>
 
             <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 [scrollbar-width:none] lg:overflow-visible lg:pb-0 [&::-webkit-scrollbar]:hidden [&>*]:shrink-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="h-9 rounded-lg px-3 text-xs font-medium text-muted-foreground hover:text-foreground hidden sm:flex"
+                onClick={handleReset}
+              >
+                <RefreshCw className="mr-1.5 size-3" />
+                Redefinir
+              </Button>
               <PeriodPicker
                 year={period.year}
                 month={period.month}
                 onChange={updatePeriod}
               />
+            </div>
               <span aria-hidden className="mx-0.5 hidden h-6 w-px bg-border lg:block" />
               <Button
                 variant="outline"
