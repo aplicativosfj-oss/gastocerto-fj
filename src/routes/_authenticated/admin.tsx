@@ -6,7 +6,8 @@ import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
 import { EmblemShield } from "@/components/ui/panel-emblems";
-import { LicensesPanel, PaymentsPanel } from "@/components/admin/licenses-panel";
+import { LicensesPanel } from "@/components/admin/licenses-panel";
+import { SalesPanel } from "@/components/admin/sales-panel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
