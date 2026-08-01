@@ -274,3 +274,57 @@ export function monthlyCommitmentImpact(
   impact.items.sort((a, b) => a.installment.dueDate.localeCompare(b.installment.dueDate));
   return impact;
 }
+
+/** Diferença em meses entre duas datas ISO (ignora o dia). */
+export function monthsBetween(fromIso: string, toIso: string) {
+  const a = parseIso(fromIso);
+  const b = parseIso(toIso);
+  return (b.getFullYear() - a.getFullYear()) * 12 + (b.getMonth() - a.getMonth());
+}
+
+export type NextDueRecalc = {
+  next_due_date: string;
+  due_day: number;
+  installments_paid: number;
+  remainingCount: number | null;
+  end_date: string | null;
+  installmentAmount: number;
+  remainingAmount: number;
+};
+
+/**
+ * Edição rápida do próximo vencimento: recalcula quantas parcelas já foram
+ * pagas, quantas faltam, o valor restante e a data de término do compromisso.
+ */
+export function recalcFromNextDue(commitment: Commitment, nextDueIso: string): NextDueRecalc {
+  const total = commitment.installments_total ?? 0;
+  const dueDay = parseIso(nextDueIso).getDate();
+
+  const candidate = addMonths(commitment.start_date, 0, dueDay);
+  const first = candidate >= commitment.start_date ? candidate : addMonths(commitment.start_date, 1, dueDay);
+
+  const elapsed = Math.max(0, monthsBetween(first, nextDueIso));
+  const paid = total > 0 ? Math.min(elapsed, total) : elapsed;
+  const remainingCount = total > 0 ? Math.max(total - paid, 0) : null;
+
+  const declared = toCents(Number(commitment.installment_amount ?? 0));
+  const installmentAmount =
+    declared > 0 ? declared : total > 0 ? toCents(Number(commitment.total_amount ?? 0) / total) : 0;
+
+  const end_date =
+    remainingCount == null
+      ? (commitment.end_date ?? null)
+      : remainingCount > 0
+        ? addMonths(nextDueIso, remainingCount - 1, dueDay)
+        : nextDueIso;
+
+  return {
+    next_due_date: nextDueIso,
+    due_day: dueDay,
+    installments_paid: paid,
+    remainingCount,
+    end_date,
+    installmentAmount,
+    remainingAmount: toCents(installmentAmount * (remainingCount ?? 0)),
+  };
+}

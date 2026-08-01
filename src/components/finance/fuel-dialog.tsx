@@ -28,6 +28,7 @@ import { diffValues, useLogFuelAudit } from "@/lib/fuel-audit";
 import { formatCurrency } from "@/lib/format";
 import { useCategories } from "@/lib/queries";
 import { useAccounts } from "@/lib/transactions";
+import { maskAmountInput, maskDecimalInput } from "@/lib/money-input";
 import { sanitizeText } from "@/lib/validation";
 import {
   FUEL_TYPES,
@@ -283,7 +284,7 @@ export function FuelDialog({
               id="fuel-odometer"
               inputMode="decimal"
               value={odometer}
-              onChange={(event) => setOdometer(event.target.value)}
+              onChange={(event) => setOdometer(maskDecimalInput(event.target.value, 1))}
               className="mt-1.5 tabular-nums"
               placeholder="Ex.: 58230"
             />
@@ -298,7 +299,7 @@ export function FuelDialog({
               id="fuel-liters"
               inputMode="decimal"
               value={liters}
-              onChange={(event) => setLiters(event.target.value)}
+              onChange={(event) => setLiters(maskDecimalInput(event.target.value, 3))}
               className="mt-1.5 tabular-nums"
               placeholder="0,00"
             />
@@ -311,7 +312,7 @@ export function FuelDialog({
               id="fuel-price"
               inputMode="decimal"
               value={pricePerLiter}
-              onChange={(event) => setPricePerLiter(event.target.value)}
+              onChange={(event) => setPricePerLiter(maskDecimalInput(event.target.value, 3))}
               className="mt-1.5 tabular-nums"
               placeholder="0,000"
             />
@@ -332,7 +333,7 @@ export function FuelDialog({
               }
               onChange={(event) => {
                 setTotalTouched(true);
-                setTotal(event.target.value);
+                setTotal(maskAmountInput(event.target.value));
               }}
               className="mt-1.5 tabular-nums"
               placeholder="Calculado automaticamente"

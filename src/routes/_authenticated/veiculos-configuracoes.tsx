@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { parseAmount } from "@/lib/finance";
+import { MoneyInput } from "@/components/ui/money-input";
 import { diffValues, useLogFuelAudit } from "@/lib/fuel-audit";
 import { useSaveVehicleSettings, useVehicles, type Vehicle } from "@/lib/vehicles";
 
@@ -189,12 +190,11 @@ function VehicleSettingsCard({ vehicle }: { vehicle: Vehicle }) {
         </div>
         <div className="sm:col-span-2">
           <Label htmlFor={`budget-${vehicle.id}`}>Teto mensal de combustível (R$)</Label>
-          <Input
+          <MoneyInput
             id={`budget-${vehicle.id}`}
-            inputMode="decimal"
             value={budget}
-            onChange={(event) => setBudget(event.target.value)}
-            className="mt-1.5 tabular-nums"
+            onValueChange={setBudget}
+            className="mt-1.5"
             placeholder="Opcional"
           />
         </div>

@@ -15,6 +15,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { MoneyInput } from "@/components/ui/money-input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -368,11 +369,10 @@ function NewLicenseDialog({
               </div>
               <div>
                 <Label htmlFor="license-amount">Valor (R$)</Label>
-                <Input
+                <MoneyInput
                   id="license-amount"
-                  inputMode="decimal"
                   value={amount}
-                  onChange={(event) => setAmount(event.target.value)}
+                  onValueChange={setAmount}
                 />
               </div>
             </div>

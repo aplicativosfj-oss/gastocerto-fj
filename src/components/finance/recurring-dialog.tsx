@@ -22,6 +22,8 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { PAYMENT_METHODS, isoDate, labelFor, parseAmount, toCents } from "@/lib/finance";
+import { MoneyInput } from "@/components/ui/money-input";
+import { amountToInput } from "@/lib/money-input";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { useCategories } from "@/lib/queries";
 import {
@@ -83,7 +85,7 @@ export function RecurringDialog({
   const { data: accounts } = useAccounts();
 
   const [description, setDescription] = useState(rule?.description ?? "");
-  const [amount, setAmount] = useState(rule ? String(rule.amount).replace(".", ",") : "");
+  const [amount, setAmount] = useState(amountToInput(rule?.amount));
   const [type, setType] = useState<"expense" | "income">(
     (rule?.transaction_type as "expense" | "income") ?? preset?.type ?? "expense",
   );
@@ -224,12 +226,11 @@ export function RecurringDialog({
 
           <div>
             <Label htmlFor="rec-amount">Valor (R$)</Label>
-            <Input
+            <MoneyInput
               id="rec-amount"
-              inputMode="decimal"
               value={amount}
-              onChange={(event) => setAmount(event.target.value)}
-              className="mt-1.5 tabular-nums"
+              onValueChange={setAmount}
+              className="mt-1.5"
               placeholder="0,00"
             />
             {errors.amount ? <p className="mt-1 text-xs text-destructive">{errors.amount}</p> : null}

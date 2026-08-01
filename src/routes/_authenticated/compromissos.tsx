@@ -19,6 +19,7 @@ import { CommitmentDialog } from "@/components/finance/commitment-dialog";
 import { CommitmentEntriesDialog } from "@/components/finance/commitment-entries-dialog";
 import { CommitmentScheduleDialog } from "@/components/finance/commitment-schedule-dialog";
 import { Badge } from "@/components/ui/badge";
+import { NextDueQuickEdit } from "@/components/finance/next-due-quick-edit";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
@@ -83,6 +84,7 @@ function CompromissosPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [entryTarget, setEntryTarget] = useState<string | null>(null);
   const [scheduleTarget, setScheduleTarget] = useState<string | null>(null);
+  const [dueTarget, setDueTarget] = useState<Commitment | null>(null);
 
   const { data: preferences } = useNotificationPreferences();
   const syncNotifications = useSyncNotifications();
@@ -277,6 +279,7 @@ function CompromissosPage() {
                 entries={entries ?? []}
                 daysBefore={daysBefore}
                 onSchedule={() => setScheduleTarget(item.commitment.id)}
+                onQuickDue={() => setDueTarget(item.commitment)}
                 onEdit={() => {
                   setEditing(item.commitment);
                   setDialogOpen(true);
@@ -297,6 +300,16 @@ function CompromissosPage() {
       </div>
 
       <CommitmentDialog commitment={editing} open={dialogOpen} onOpenChange={setDialogOpen} />
+      {dueTarget ? (
+        <NextDueQuickEdit
+          key={dueTarget.id}
+          commitment={dueTarget}
+          open
+          onOpenChange={(next) => {
+            if (!next) setDueTarget(null);
+          }}
+        />
+      ) : null}
       <CommitmentScheduleDialog
         summary={scheduleTargetSummary}
         daysBefore={daysBefore}
@@ -470,6 +483,7 @@ function CommitmentCard({
   onEdit,
   onEntries,
   onSchedule,
+  onQuickDue,
   onDelete,
 }: {
   summary: CommitmentSummary;
@@ -478,6 +492,7 @@ function CommitmentCard({
   onEdit: () => void;
   onEntries: () => void;
   onSchedule: () => void;
+  onQuickDue: () => void;
   onDelete: () => void;
 }) {
   const { commitment } = summary;
@@ -582,6 +597,14 @@ function CommitmentCard({
           ? ` · parcela ${formatCurrency(Number(commitment.installment_amount))}`
           : ""}
       </p>
+
+      <button
+        type="button"
+        onClick={onQuickDue}
+        className="mt-2 w-full rounded-lg border border-dashed border-border px-2 py-1.5 text-left text-[11px] text-muted-foreground transition hover:border-primary hover:text-foreground"
+      >
+        Ajustar próximo vencimento e recalcular parcelas
+      </button>
 
       <div className="mt-2 grid gap-1.5 sm:grid-cols-2">
         <Button variant="outline" size="sm" className="h-8" onClick={onEntries}>

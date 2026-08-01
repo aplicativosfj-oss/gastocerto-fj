@@ -262,3 +262,70 @@ export function summarizeAll(
 ): CommitmentSummary[] {
   return commitments.map((commitment) => summarizeCommitment(commitment, entries, reference));
 }
+
+/** Marca usada para reconhecer as parcelas geradas automaticamente. */
+export function commitmentTag(commitmentId: string) {
+  return `compromisso:${commitmentId}`;
+}
+
+/** Data mínima permitida pelo sistema para lançamentos. */
+const MIN_TRANSACTION_DATE = "2026-07-01";
+
+/**
+ * Cria automaticamente as parcelas futuras (lançamentos pendentes) do
+ * compromisso, sem duplicar as que já existem, para o usuário não precisar
+ * lançar cada parcela manualmente.
+ */
+export function useGenerateCommitmentInstallments() {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (commitment: Commitment): Promise<number> => {
+      if (!user) throw new Error("Sessão expirada");
+      const { buildSchedule } = await import("@/lib/commitment-schedule");
+      const schedule = buildSchedule(commitment, []);
+      if (!schedule) return 0;
+
+      const tag = commitmentTag(commitment.id);
+      const { data: existing, error: existingError } = await supabase
+        .from("transactions")
+        .select("id, due_date, installment_number")
+        .ilike("notes", `%${tag}%`);
+      if (existingError) throw existingError;
+
+      const taken = new Set(
+        (existing ?? []).map((row) => `${row.installment_number ?? 0}:${row.due_date ?? ""}`),
+      );
+
+      const paidUntil = commitment.installments_paid ?? 0;
+      const rows = schedule.installments
+        .filter((item) => item.number > paidUntil)
+        .filter((item) => item.dueDate >= MIN_TRANSACTION_DATE)
+        .filter((item) => !taken.has(`${item.number}:${item.dueDate}`))
+        .map((item) => ({
+          user_id: user.id,
+          description: `${commitment.name} — parcela ${item.number}/${schedule.installments.length}`,
+          amount: item.amount,
+          transaction_type: "expense" as const,
+          category_id: commitment.category_id,
+          account_id: commitment.account_id,
+          payment_method: commitment.payment_method,
+          transaction_date: item.dueDate,
+          due_date: item.dueDate,
+          status: "pending" as const,
+          installment_number: item.number,
+          total_installments: schedule.installments.length,
+          notes: tag,
+        }));
+
+      if (rows.length === 0) return 0;
+      const { error } = await supabase.from("transactions").insert(rows);
+      if (error) throw error;
+      return rows.length;
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["transactions"] });
+    },
+  });
+}
