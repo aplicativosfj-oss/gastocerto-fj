@@ -620,7 +620,6 @@ function DashboardPage() {
               }
             />
           </div>
-        )}
 
 
             <section className="rounded-2xl border border-border bg-card p-4">
