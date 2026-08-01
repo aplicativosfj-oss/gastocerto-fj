@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -250,6 +250,7 @@ export function TransactionDialog({
   /** Política global do administrador para competências passadas. */
   const { policy } = useClosingPolicy();
   const { user } = useAuth();
+  const formRef = useRef<HTMLFormElement>(null);
   const [passwordOpen, setPasswordOpen] = useState(false);
   const [identityConfirmed, setIdentityConfirmed] = useState(false);
   const adminBlockedPast = policy.lockPastMonths && isPastMonth;
@@ -517,6 +518,7 @@ export function TransactionDialog({
         </DialogHeader>
 
         <form
+          ref={formRef}
           onSubmit={handleSubmit}
           onKeyDown={handleFormKeyDown}
           className="space-y-4"
