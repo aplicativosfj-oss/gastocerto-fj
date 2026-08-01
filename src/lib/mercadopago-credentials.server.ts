@@ -162,11 +162,19 @@ export async function testMercadoPagoCredentials() {
   const text = await response.text();
   if (!response.ok) {
     console.error(`[mercadopago] teste de credencial falhou [${response.status}]: ${text}`);
+    let errorMessage = "Credencial recusada pelo Mercado Pago.";
+    try {
+      const errorJson = JSON.parse(text);
+      errorMessage = errorJson.message || errorJson.error || errorMessage;
+    } catch {
+      errorMessage = text.slice(0, 100);
+    }
+    
     return {
       ok: false,
       status: response.status,
       latencyMs: Date.now() - started,
-      message: `Mercado Pago recusou a credencial [${response.status}]: ${text.slice(0, 200)}`,
+      message: errorMessage,
       pixEnabled: false,
     };
   }
