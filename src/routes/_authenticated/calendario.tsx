@@ -296,6 +296,71 @@ function CalendarPage() {
           </div>
         </header>
 
+        <section className="rounded-xl border border-border bg-card p-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs font-medium text-muted-foreground">Filtros:</span>
+            {KIND_FILTERS.map((filter) => {
+              const on = active.includes(filter.key);
+              return (
+                <button
+                  key={filter.key}
+                  type="button"
+                  aria-pressed={on}
+                  onClick={() => toggleKind(filter.key)}
+                  className={[
+                    "rounded-full border px-3 py-1 text-xs font-medium transition-colors",
+                    on
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "border-border text-muted-foreground hover:bg-secondary/60",
+                  ].join(" ")}
+                >
+                  {filter.label}
+                </button>
+              );
+            })}
+            {active.length > 0 ? (
+              <Button size="sm" variant="ghost" onClick={() => setActive([])}>
+                Limpar
+              </Button>
+            ) : null}
+          </div>
+
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <span className="text-xs font-medium text-muted-foreground">Período:</span>
+            {HORIZONS.map((option) => (
+              <button
+                key={option.key}
+                type="button"
+                aria-pressed={horizon === option.key}
+                onClick={() => setHorizon(option.key)}
+                className={[
+                  "rounded-full border px-3 py-1 text-xs font-medium transition-colors",
+                  horizon === option.key
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-border text-muted-foreground hover:bg-secondary/60",
+                ].join(" ")}
+              >
+                {option.label}
+              </button>
+            ))}
+            <span className="text-xs text-muted-foreground">
+              {agenda.length} item(s) no período · saídas{" "}
+              {formatCurrency(
+                agenda.reduce(
+                  (sum, entry) =>
+                    sum +
+                    (entry.item.transaction_type === "expense"
+                      ? Number(entry.item.amount || 0)
+                      : 0),
+                  0,
+                ),
+              )}
+            </span>
+          </div>
+        </section>
+
+
+
         <div className="grid gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
           <section className="rounded-xl border border-border bg-card p-4">
             {isLoading ? (
