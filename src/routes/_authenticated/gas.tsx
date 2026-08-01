@@ -189,15 +189,20 @@ function buildDetails(summary: GasSummary): Record<string, MetricDetail> {
         summary.averageDays != null
           ? `~${nf(summary.averageWeeks)} semanas · ~${nf(summary.averageMonths)} mês(es)`
           : "Registre a próxima troca para calcular",
-      description: "Média dos intervalos entre uma compra e a troca seguinte.",
+      description: "Intervalo médio entre uma compra e a troca seguinte. Se for curto, você pode estar consumindo muito ou o botijão veio com menos gás.",
       rows: [
         ["Ciclos usados no cálculo", String(summary.closed.length)],
         ["Menor duração", nf(summary.shortestDays, " dias")],
         ["Maior duração", nf(summary.longestDays, " dias")],
-        ["Em semanas", nf(summary.averageWeeks, " semanas")],
-        ["Em meses", nf(summary.averageMonths, " mês(es)")],
       ],
+      chartData: summary.closed.map((cycle) => ({
+        label: formatDate(cycle.startDate).slice(0, 5),
+        dias: cycle.days ?? 0,
+      })),
+      chartKey: "dias",
+      chartColor: DURATION_COLOR,
       extra: lastCycles.length ? (
+
         <div className="mt-1 space-y-1.5">
           <p className="text-xs uppercase text-muted-foreground">Últimos ciclos encerrados</p>
           {lastCycles.map((cycle) => (
