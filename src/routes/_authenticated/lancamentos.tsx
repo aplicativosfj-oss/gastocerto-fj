@@ -38,6 +38,7 @@ import { usePastEditUnlock } from "@/lib/past-edit-unlock";
 import { useClosingPolicy } from "@/lib/use-closing-policy";
 import { ExpenseCardsDialog } from "@/components/finance/expense-cards-dialog";
 import { cn } from "@/lib/utils";
+import { usePeriodStore } from "@/lib/period-store";
 
 
 import {
@@ -153,10 +154,24 @@ function TransactionsPage() {
   const search_ = Route.useSearch();
   const navigate = Route.useNavigate();
 
+  const { year: storedYear, month: storedMonth, setPeriod: setStoredPeriod } = usePeriodStore();
+  
   const period = useMemo(() => ({
-    year: search_.ano ?? today.getFullYear(),
-    month: search_.mes ?? today.getMonth() + 1,
-  }), [search_.ano, search_.mes, today]);
+    year: search_.ano ?? storedYear ?? today.getFullYear(),
+    month: search_.mes ?? storedMonth ?? today.getMonth() + 1,
+  }), [search_.ano, search_.mes, storedYear, storedMonth, today]);
+
+  const updatePeriod = (next: { year: number; month: number }) => {
+    setStoredPeriod(next);
+    navigate({
+      search: (prev: any) => ({
+        ...prev,
+        ano: next.year,
+        mes: next.month,
+      }),
+      replace: true,
+    });
+  };
 
   const [vehicleFilter, setVehicleFilter] = useState(search_.veiculo ?? "all");
   const { data: vehicles } = useVehicles(true);
@@ -508,16 +523,7 @@ function TransactionsPage() {
               <PeriodPicker
                 year={period.year}
                 month={period.month}
-                onChange={(next) => {
-                  navigate({
-                    search: (prev: any) => ({
-                      ...prev,
-                      ano: next.year,
-                      mes: next.month,
-                    }),
-                    replace: true,
-                  });
-                }}
+                onChange={updatePeriod}
               />
               <span aria-hidden className="mx-0.5 hidden h-6 w-px bg-border lg:block" />
               <Button
