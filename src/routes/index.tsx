@@ -9,9 +9,9 @@ import { LandingHeader } from "@/components/landing/landing-header";
 import { PageBackground } from "@/components/landing/page-background";
 import { Pricing } from "@/components/landing/pricing";
 
-const title = "GastoCerto — Onde cada real vai parar, você sabe";
+const title = "GastoCerto — Controle hoje, tranquilidade sempre";
 const description =
-  "Combustível, gás, mercado, contas e assinaturas em um painel só. Lance em 10 segundos, receba alertas antes do vencimento e feche o mês no azul.";
+  "A plataforma completa para gestão de finanças pessoais. Controle combustível, gás, mercado e contas em um só lugar com o GastoCerto.";
 
 const ogImage = "https://pagina-limpa-controle.lovable.app/og-gastocerto.jpg";
 

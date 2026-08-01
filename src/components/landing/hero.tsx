@@ -49,11 +49,11 @@ export function Hero() {
         <div>
           <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/80 backdrop-blur sm:text-[11px]">
             <ShieldCheck className="size-3.5 text-success" aria-hidden="true" />
-            Plataforma de gestão financeira pessoal
+            Controle hoje, tranquilidade sempre.
           </span>
 
           <h1 className="font-display mt-2.5 text-[1.6rem] font-extrabold leading-[1.05] tracking-[-0.03em] text-white sm:text-[2.4rem] lg:text-[2.75rem] xl:text-[3.1rem]">
-            Controle completo das suas finanças pessoais
+            Seu dinheiro sob controle, sua vida com tranquilidade.
           </h1>
 
           <p className="mt-2 max-w-lg text-[13px] leading-snug text-white/70 sm:text-[15px] sm:leading-relaxed">
