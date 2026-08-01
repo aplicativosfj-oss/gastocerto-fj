@@ -69,6 +69,7 @@ export type AiEntitlementReason =
   | "admin"
   | "paid_license"
   | "paid_plan"
+  | "plan_without_ai"
   | "trial_active"
   | "trial_expired"
   | "trial_plan"
