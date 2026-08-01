@@ -200,26 +200,31 @@ export function AppShell({ children }: { children: ReactNode }) {
             </div>
 
             <div className="flex shrink-0 items-center gap-1 sm:gap-2">
-              <Link to="/calendario" aria-label="Notificações" className="relative">
-                <span className="inline-flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground sm:size-9">
-                  <Bell className="size-[18px]" />
-                </span>
-                {unreadCount > 0 ? (
-                  <span className="absolute -right-0.5 -top-0.5 flex size-4 items-center justify-center rounded-full bg-destructive text-[10px] font-semibold text-destructive-foreground">
-                    {unreadCount > 9 ? "9+" : unreadCount}
-                  </span>
-                ) : null}
-              </Link>
-              <Link
-                to="/lancamentos"
-                aria-label="Novo lançamento"
-                title="Novo lançamento"
-                className="inline-flex h-8 items-center gap-1.5 rounded-md bg-brand px-2.5 text-[12px] font-semibold text-brand-foreground transition-opacity hover:opacity-90 sm:h-9 sm:px-3"
-              >
-                <Plus className="size-4" aria-hidden="true" />
-                <span className="hidden sm:inline">Lançar</span>
-              </Link>
+              {!isAdminArea ? (
+                <>
+                  <Link to="/calendario" aria-label="Notificações" className="relative">
+                    <span className="inline-flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground sm:size-9">
+                      <Bell className="size-[18px]" />
+                    </span>
+                    {unreadCount > 0 ? (
+                      <span className="absolute -right-0.5 -top-0.5 flex size-4 items-center justify-center rounded-full bg-destructive text-[10px] font-semibold text-destructive-foreground">
+                        {unreadCount > 9 ? "9+" : unreadCount}
+                      </span>
+                    ) : null}
+                  </Link>
+                  <Link
+                    to="/lancamentos"
+                    aria-label="Novo lançamento"
+                    title="Novo lançamento"
+                    className="inline-flex h-8 items-center gap-1.5 rounded-md bg-brand px-2.5 text-[12px] font-semibold text-brand-foreground transition-opacity hover:opacity-90 sm:h-9 sm:px-3"
+                  >
+                    <Plus className="size-4" aria-hidden="true" />
+                    <span className="hidden sm:inline">Lançar</span>
+                  </Link>
+                </>
+              ) : null}
               <ThemeToggle />
+
               <Link to="/perfil" aria-label="Meu perfil">
                 <Avatar className="size-7 sm:size-8">
                   {avatarUrl ? <AvatarImage src={avatarUrl} alt="Foto de perfil" /> : null}
