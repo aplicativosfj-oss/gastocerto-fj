@@ -76,17 +76,77 @@ function CalendarPage() {
     return map;
   }, [categories]);
 
+  /** Classifica um lançamento nos grupos filtráveis do calendário. */
+  const kindsOf = useMemo(() => {
+    return (item: {
+      tags?: string[] | null;
+      installment_number?: number | null;
+      total_installments?: number | null;
+      category_id?: string | null;
+      due_date?: string | null;
+      status?: string | null;
+      description?: string | null;
+    }): CalendarKind[] => {
+      const tags = (item.tags ?? []).map((tag) => String(tag).toLowerCase());
+      const category = (
+        item.category_id ? (categoryName.get(item.category_id) ?? "") : ""
+      ).toLowerCase();
+      const text = `${item.description ?? ""}`.toLowerCase();
+      const kinds: CalendarKind[] = [];
+
+      if (tags.some((tag) => tag.startsWith("commitment:"))) kinds.push("commitments");
+      if (Number(item.total_installments ?? 0) > 1 || Number(item.installment_number ?? 0) > 0) {
+        kinds.push("installments");
+      }
+      if (
+        tags.some((tag) => tag.startsWith("dependente:")) ||
+        category.includes("mesada") ||
+        category.includes("filho")
+      ) {
+        kinds.push("allowance");
+      }
+      if (category.includes("imposto de renda") || text.includes("imposto de renda")) {
+        kinds.push("tax");
+      }
+      if (item.due_date && item.status !== "paid" && item.status !== "received") {
+        kinds.push("due");
+      }
+      if (kinds.length === 0) kinds.push("others");
+      return kinds;
+    };
+  }, [categoryName]);
+
+  const filtered = useMemo(() => {
+    const list = transactions ?? [];
+    if (active.length === 0) return list;
+    return list.filter((item) => kindsOf(item).some((kind) => active.includes(kind)));
+  }, [transactions, active, kindsOf]);
+
   /** Agrupa lançamentos por data-alvo (vencimento quando existir). */
   const byDay = useMemo(() => {
     const map = new Map<string, typeof transactions>();
-    for (const item of transactions ?? []) {
+    for (const item of filtered) {
       const key = item.due_date ?? item.transaction_date;
       const list = map.get(key) ?? [];
       list.push(item);
       map.set(key, list);
     }
     return map;
-  }, [transactions]);
+  }, [filtered]);
+
+  /** Agenda do período escolhido (mês inteiro ou próximos N dias). */
+  const agenda = useMemo(() => {
+    const todayIso = isoDate(new Date());
+    const limitIso =
+      horizon === "month"
+        ? null
+        : isoDate(new Date(Date.now() + Number(horizon) * 86_400_000));
+    return filtered
+      .map((item) => ({ item, day: item.due_date ?? item.transaction_date }))
+      .filter(({ day }) => (limitIso ? day >= todayIso && day <= limitIso : true))
+      .sort((a, b) => a.day.localeCompare(b.day));
+  }, [filtered, horizon]);
+
 
   const budgetAlerts = useMemo(() => {
     const spentByCategory = new Map<string, number>();
