@@ -220,19 +220,21 @@ export function AppShell({ children }: { children: ReactNode }) {
             </div>
           </div>
 
-          {subTabs.length > 1 ? (
-            <div className="border-t border-border bg-background/80">
-              <nav
-                aria-label="Seções da área"
-                className="mx-auto flex w-full max-w-6xl gap-1 overflow-x-auto px-3 py-1 sm:px-4 sm:py-1.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-              >
-                {subTabs.map((tab) => (
+          {/* Faixa sempre presente e com altura fixa: alternar seção nunca
+              muda a altura do header nem "redimensiona" a janela ativa. */}
+          <div className="border-t border-border bg-background/80">
+            <nav
+              aria-label="Seções da área"
+              className="subnav-strip mx-auto flex w-full max-w-6xl items-center gap-1 overflow-x-auto px-3 sm:px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            >
+              {subTabs.length > 1 ? (
+                subTabs.map((tab) => (
                   <Link
                     key={tab.to}
                     to={tab.to as never}
                     aria-current={pathname === tab.to ? "page" : undefined}
                     className={cn(
-                      "shrink-0 rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors sm:px-3 sm:py-1.5 sm:text-xs",
+                      "shrink-0 rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors sm:px-3 sm:text-xs",
                       pathname === tab.to
                         ? "bg-brand text-brand-foreground"
                         : "text-muted-foreground hover:bg-secondary hover:text-foreground",
@@ -240,13 +242,17 @@ export function AppShell({ children }: { children: ReactNode }) {
                   >
                     {tab.label}
                   </Link>
-                ))}
-              </nav>
-            </div>
-          ) : null}
+                ))
+              ) : (
+                <span className="truncate text-[11px] font-medium text-muted-foreground">
+                  {activeGroup?.label ?? "Painel"}
+                </span>
+              )}
+            </nav>
+          </div>
         </header>
 
-        <main className="mx-auto w-full min-w-0 max-w-6xl flex-1 px-3 py-2.5 pb-[calc(4.75rem+env(safe-area-inset-bottom))] sm:px-4 sm:py-4 lg:pb-6">
+        <main className="app-main mx-auto w-full min-w-0 max-w-6xl flex-1 px-3 py-2.5 pb-[calc(4.75rem+env(safe-area-inset-bottom))] sm:px-4 sm:py-4 lg:pb-6">
           {children}
         </main>
         <footer className="hidden border-t border-border px-4 py-2 text-center text-[11px] text-muted-foreground lg:block">
