@@ -982,7 +982,58 @@ function DashboardPage() {
           </div>
         )}
       </div>
+
+      <MetricDetailDialog
+        detail={detail}
+        categories={categories ?? []}
+        onOpenChange={(open) => {
+          if (!open) {
+            setDetail(null);
+            setDetailDate(null);
+          }
+        }}
+        onEditTransaction={(transaction) => {
+          setDetail(null);
+          setEditingTx(transaction);
+          setDialogKind(transaction.transaction_type === "income" ? "income" : "expense");
+          setPreset({ categoryId: null, subCategoryId: null });
+          setDialogOpen(true);
+        }}
+        {...(detailDate
+          ? {
+              onAddTransaction: () => {
+                setDetail(null);
+                setEditingTx(null);
+                setDialogKind("expense");
+                setPreset({ categoryId: null, subCategoryId: null });
+                setDialogOpen(true);
+              },
+              addLabel: `Lançar em ${formatDate(detailDate)}`,
+            }
+          : {})}
+      />
+
+      <TransactionDialog
+        open={dialogOpen}
+        onOpenChange={(open) => {
+          setDialogOpen(open);
+          if (!open) {
+            setEditingTx(null);
+            setDetailDate(null);
+          }
+        }}
+        kind={dialogKind}
+        transaction={editingTx}
+        {...(detailDate && !editingTx ? { defaultDate: detailDate } : {})}
+        presetCategoryId={preset.categoryId}
+        presetSubCategoryId={preset.subCategoryId}
+      />
+
+      <ExpenseCardsDialog open={cardsOpen} onOpenChange={setCardsOpen} />
+      <DependentExpenseDialog open={dependentOpen} onOpenChange={setDependentOpen} />
+      <TaxQuickDialog open={taxOpen} onOpenChange={setTaxOpen} />
     </AppShell>
+
   );
 }
 
