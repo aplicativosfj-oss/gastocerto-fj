@@ -8,6 +8,7 @@ import {
   Flame,
   LayoutDashboard,
   LogOut,
+  Plus,
   Menu,
   PiggyBank,
   ShieldCheck,
