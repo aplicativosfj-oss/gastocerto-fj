@@ -42,6 +42,7 @@ import { Route as AuthenticatedVeiculosAuditoriaRouteImport } from './routes/_au
 import { Route as AuthenticatedVeiculosConfiguracoesRouteImport } from './routes/_authenticated/veiculos-configuracoes'
 import { Route as AuthenticatedVeiculosRelatorioRouteImport } from './routes/_authenticated/veiculos-relatorio'
 import { Route as CompartilhadoTokenRouteImport } from './routes/compartilhado.$token'
+import { Route as ApiPublicMercadopagoWebhookRouteImport } from './routes/api/public/mercadopago/webhook'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -216,6 +217,12 @@ const CompartilhadoTokenRoute = CompartilhadoTokenRouteImport.update({
   path: '/compartilhado/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicMercadopagoWebhookRoute =
+  ApiPublicMercadopagoWebhookRouteImport.update({
+    id: '/api/public/mercadopago/webhook',
+    path: '/api/public/mercadopago/webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -250,6 +257,7 @@ export interface FileRoutesByFullPath {
   '/veiculos-configuracoes': typeof AuthenticatedVeiculosConfiguracoesRoute
   '/veiculos-relatorio': typeof AuthenticatedVeiculosRelatorioRoute
   '/compartilhado/$token': typeof CompartilhadoTokenRoute
+  '/api/public/mercadopago/webhook': typeof ApiPublicMercadopagoWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -284,6 +292,7 @@ export interface FileRoutesByTo {
   '/veiculos-configuracoes': typeof AuthenticatedVeiculosConfiguracoesRoute
   '/veiculos-relatorio': typeof AuthenticatedVeiculosRelatorioRoute
   '/compartilhado/$token': typeof CompartilhadoTokenRoute
+  '/api/public/mercadopago/webhook': typeof ApiPublicMercadopagoWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -320,6 +329,7 @@ export interface FileRoutesById {
   '/_authenticated/veiculos-configuracoes': typeof AuthenticatedVeiculosConfiguracoesRoute
   '/_authenticated/veiculos-relatorio': typeof AuthenticatedVeiculosRelatorioRoute
   '/compartilhado/$token': typeof CompartilhadoTokenRoute
+  '/api/public/mercadopago/webhook': typeof ApiPublicMercadopagoWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -356,6 +366,7 @@ export interface FileRouteTypes {
     | '/veiculos-configuracoes'
     | '/veiculos-relatorio'
     | '/compartilhado/$token'
+    | '/api/public/mercadopago/webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -390,6 +401,7 @@ export interface FileRouteTypes {
     | '/veiculos-configuracoes'
     | '/veiculos-relatorio'
     | '/compartilhado/$token'
+    | '/api/public/mercadopago/webhook'
   id:
     | '__root__'
     | '/'
@@ -425,6 +437,7 @@ export interface FileRouteTypes {
     | '/_authenticated/veiculos-configuracoes'
     | '/_authenticated/veiculos-relatorio'
     | '/compartilhado/$token'
+    | '/api/public/mercadopago/webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -436,6 +449,7 @@ export interface RootRouteChildren {
   RedefinirSenhaRoute: typeof RedefinirSenhaRoute
   TermosRoute: typeof TermosRoute
   CompartilhadoTokenRoute: typeof CompartilhadoTokenRoute
+  ApiPublicMercadopagoWebhookRoute: typeof ApiPublicMercadopagoWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -671,6 +685,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CompartilhadoTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/mercadopago/webhook': {
+      id: '/api/public/mercadopago/webhook'
+      path: '/api/public/mercadopago/webhook'
+      fullPath: '/api/public/mercadopago/webhook'
+      preLoaderRoute: typeof ApiPublicMercadopagoWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -743,6 +764,7 @@ const rootRouteChildren: RootRouteChildren = {
   RedefinirSenhaRoute: RedefinirSenhaRoute,
   TermosRoute: TermosRoute,
   CompartilhadoTokenRoute: CompartilhadoTokenRoute,
+  ApiPublicMercadopagoWebhookRoute: ApiPublicMercadopagoWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
