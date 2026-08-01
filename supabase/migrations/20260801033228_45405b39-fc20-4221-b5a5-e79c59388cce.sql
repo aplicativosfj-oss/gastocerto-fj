@@ -1,0 +1,1 @@
+REVOKE ALL ON FUNCTION public.enforce_transaction_period() FROM PUBLIC, anon, authenticated;
