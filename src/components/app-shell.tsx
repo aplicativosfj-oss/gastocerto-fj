@@ -18,7 +18,6 @@ import {
 import { useState, type ReactNode } from "react";
 
 import { Logo } from "@/components/logo";
-import { NavLabelsDialog } from "@/components/nav-labels-dialog";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { ContrastToggle } from "@/components/contrast-toggle";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -26,7 +25,6 @@ import { Button } from "@/components/ui/button";
 import { usePlanRealtimeSync } from "@/hooks/use-plan";
 import { supabase } from "@/integrations/supabase/client";
 import { useAvatarUrl, useProfile, useRoles } from "@/lib/queries";
-import { sortBySavedOrder, useNavLabels } from "@/lib/nav-labels";
 import { useNotifications } from "@/lib/notifications";
 import { cn } from "@/lib/utils";
 
@@ -119,29 +117,17 @@ export function AppShell({ children }: { children: ReactNode }) {
   usePlanRealtimeSync();
   const unreadCount = (notifications ?? []).filter((item) => !item.read_at).length;
   const isStaff = (roles ?? []).some((role) => role === "admin" || role === "support");
-  const { labelFor, order } = useNavLabels();
   const baseItems: NavGroup[] = isStaff
     ? [
         ...navGroups,
         { key: "admin", label: "Administração", to: "/admin", icon: ShieldCheck },
       ]
     : [...navGroups];
-  const items: NavGroup[] = sortBySavedOrder(baseItems, order["root"]).map((group) => ({
-    ...group,
-    label: labelFor(group.key, group.label),
-    children: sortBySavedOrder(group.children ?? [], order[group.key]).map((child) => ({
-      ...child,
-      label: labelFor(child.key, child.label),
-    })),
-  })).map((group) => ({
+  const items: NavGroup[] = baseItems.map((group) => ({
     ...group,
     children: group.children && group.children.length > 0 ? group.children : undefined,
   }));
-  const labelGroups = baseItems.map((group) => ({
-    key: group.key,
-    fallback: group.label,
-    children: group.children?.map((child) => ({ key: child.key, fallback: child.label })),
-  }));
+
 
 
 
@@ -180,7 +166,6 @@ export function AppShell({ children }: { children: ReactNode }) {
           ))}
         </nav>
         <div className="space-y-1 border-t border-border p-3">
-          <NavLabelsDialog groups={labelGroups} />
           <Button
             variant="ghost"
             className="w-full justify-start gap-2 text-muted-foreground"
@@ -267,7 +252,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         open={open}
         onOpenChange={setOpen}
         onSignOut={handleSignOut}
-        labelGroups={labelGroups}
+        
       />
     </div>
   );
@@ -281,14 +266,12 @@ function MobileTabBar({
   open,
   onOpenChange,
   onSignOut,
-  labelGroups,
 }: {
   items: NavGroup[];
   activeGroup?: string;
   open: boolean;
   onOpenChange: (value: boolean) => void;
   onSignOut: () => void;
-  labelGroups: Array<{ key: string; fallback: string; children?: Array<{ key: string; fallback: string }> }>;
 }) {
   const primary = MOBILE_PRIMARY.map((to) => items.find((item) => item.to === to)).filter(
     (item): item is NavGroup => Boolean(item),
@@ -331,9 +314,6 @@ function MobileTabBar({
               <div className="flex items-center gap-1.5">
                 <ThemeToggle />
                 <ContrastToggle />
-                <div className="min-w-0 flex-1">
-                  <NavLabelsDialog groups={labelGroups} />
-                </div>
               </div>
               <Button variant="outline" className="justify-center gap-2" onClick={onSignOut}>
                 <LogOut className="size-4" />

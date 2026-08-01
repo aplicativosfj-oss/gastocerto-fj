@@ -1,11 +1,13 @@
-import logoAsset from "@/assets/logo-horizontal.png.asset.json";
+import markAsset from "@/assets/gastocerto-mark.png.asset.json";
 import { cn } from "@/lib/utils";
 
 export function BrandMark({ className }: { className?: string }) {
   return (
-    <div className={cn("relative flex items-center justify-center overflow-hidden rounded-xl bg-white p-1 shadow-md ring-1 ring-black/5", className)}>
-      <img src={logoAsset.url} alt="GastoCerto Logo Mark" className="h-full w-full object-contain transition-transform hover:scale-105" />
-    </div>
+    <img
+      src={markAsset.url}
+      alt="GastoCerto"
+      className={cn("shrink-0 object-contain", className)}
+    />
   );
 }
 
@@ -19,16 +21,30 @@ export function Logo({
   onDark?: boolean;
 }) {
   if (compact) {
-    return <BrandMark className={cn("size-10 shrink-0 shadow-lg", className)} />;
+    return <BrandMark className={cn("size-9", className)} />;
   }
 
   return (
-    <div className={cn("relative h-11 transition-transform hover:scale-[1.02]", className)}>
-      <img 
-        src={logoAsset.url} 
-        alt="GastoCerto Logo" 
-        className={cn("h-full w-auto object-contain", onDark && "brightness-0 invert")} 
-      />
-    </div>
+    <span className={cn("inline-flex items-center gap-2.5", className)}>
+      <BrandMark className="size-11" />
+      <span className="flex min-w-0 flex-col leading-none">
+        <span
+          className={cn(
+            "font-display text-[1.35rem] font-extrabold tracking-tight",
+            onDark ? "text-white" : "text-[oklch(0.28_0.06_255)] dark:text-white",
+          )}
+        >
+          Gasto<span className="text-[oklch(0.58_0.14_150)]">Certo</span>
+        </span>
+        <span
+          className={cn(
+            "mt-1 text-[8.5px] font-semibold uppercase tracking-[0.16em]",
+            onDark ? "text-white/70" : "text-muted-foreground",
+          )}
+        >
+          Controle hoje, tranquilidade sempre
+        </span>
+      </span>
+    </span>
   );
 }
