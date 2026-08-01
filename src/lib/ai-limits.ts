@@ -38,6 +38,7 @@ export const DEFAULT_AI_LIMITS: AiLimits = {
   monthlyCreditAllowance: 50,
   lowCreditRatio: 0.2,
   economyMode: false,
+  geminiMonthlyCreditLimit: 50,
 };
 
 export const AiLimitsSchema = z.object({

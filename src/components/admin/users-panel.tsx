@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { KeyRound, Loader2, Search, UserCog } from "lucide-react";
+import { Download, FileText, KeyRound, Loader2, Search, UserCog } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -107,6 +107,60 @@ export function UsersPanel({ isAdmin, globalSearch = "" }: { isAdmin: boolean; g
     });
   }, [profiles.data, search, statusFilter]);
 
+  async function exportCsv() {
+    const headers = ["Nome", "CPF", "E-mail Contato", "Status", "Cadastro", "Papéis"];
+    const rows = filtered.map(p => [
+      p.full_name || "—",
+      p.cpf || "—",
+      p.contact_email || "—",
+      STATUS_LABELS[p.status] || p.status,
+      formatDateTime(p.created_at),
+      (rolesByUser.data?.get(p.user_id) ?? ["user"]).join(", ")
+    ]);
+    const csvContent = "\ufeff" + [headers, ...rows].map(e => e.map(v => `"${String(v).replace(/"/g, '""')}"`).join(";")).join("\n");
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `usuarios-${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    toast.success("CSV exportado com sucesso");
+  }
+
+  async function exportPdf() {
+    const [{ default: jsPDF }, { default: autoTable }] = await Promise.all([
+      import("jspdf"),
+      import("jspdf-autotable"),
+    ]);
+    const doc = new jsPDF({ orientation: "landscape" });
+    doc.setFontSize(16);
+    doc.text("GastoCerto — Relatório de Usuários", 14, 15);
+    doc.setFontSize(9);
+    doc.text(`Gerado em: ${new Date().toLocaleString("pt-BR")} · Filtro: ${statusFilter === "all" ? "Todos" : STATUS_LABELS[statusFilter]}`, 14, 22);
+
+    autoTable(doc, {
+      startY: 28,
+      head: [["Nome", "CPF", "E-mail", "Status", "Cadastro", "Papéis"]],
+      body: filtered.map(p => [
+        p.full_name || "—",
+        p.cpf ? maskCpf(p.cpf) : "—",
+        p.contact_email || "—",
+        STATUS_LABELS[p.status] || p.status,
+        formatDateTime(p.created_at),
+        (rolesByUser.data?.get(p.user_id) ?? ["user"]).join(", ")
+      ]),
+      theme: "striped",
+      styles: { fontSize: 8 },
+      headStyles: { fillColor: [16, 185, 129] }
+    });
+
+    doc.save(`usuarios-${new Date().toISOString().split('T')[0]}.pdf`);
+    toast.success("PDF exportado com sucesso");
+  }
+
   async function refreshAll() {
     await queryClient.invalidateQueries({ queryKey: ["admin"] });
   }
@@ -134,6 +188,16 @@ export function UsersPanel({ isAdmin, globalSearch = "" }: { isAdmin: boolean; g
             <SelectItem value="canceled">Cancelados</SelectItem>
           </SelectContent>
         </Select>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={exportCsv} disabled={filtered.length === 0} className="h-10">
+            <Download className="size-4 mr-2" />
+            CSV
+          </Button>
+          <Button variant="outline" size="sm" onClick={exportPdf} disabled={filtered.length === 0} className="h-10">
+            <FileText className="size-4 mr-2" />
+            PDF
+          </Button>
+        </div>
       </div>
 
       <div className="overflow-x-auto rounded-xl border border-border bg-card">
