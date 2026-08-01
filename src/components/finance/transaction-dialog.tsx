@@ -80,7 +80,7 @@ type Kind = "expense" | "income";
 export function TransactionDialog({
   open,
   onOpenChange,
-  kind = "expense",
+  kind: initialKind = "expense",
   transaction,
   defaultDate,
   onSaved,
@@ -99,6 +99,11 @@ export function TransactionDialog({
   /** Subcategoria já escolhida no menu rápido. */
   presetSubCategoryId?: string | null;
 }) {
+  const [kind, setKind] = useState<Kind>(initialKind);
+
+  useEffect(() => {
+    if (open && initialKind) setKind(initialKind);
+  }, [open, initialKind]);
 
   const editing = Boolean(transaction);
   const { data: categories } = useCategories();
@@ -114,6 +119,13 @@ export function TransactionDialog({
     () => (categories ?? []).filter((category) => category.type === kind),
     [categories, kind],
   );
+
+  const selectedCat = useMemo(() => {
+    const id = (transaction as any)?.sub_category_id || transaction?.category_id || "";
+    // Note: this only works for editing mode or when values are set.
+    // We'll define a dynamic selectedCat based on categoryId/subCategoryId state below.
+    return null; 
+  }, [transaction]);
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [advanced, setAdvanced] = useState(false);
@@ -146,6 +158,11 @@ export function TransactionDialog({
   const [subCategoryId, setSubCategoryId] = useState((transaction as any)?.sub_category_id ?? "");
   const saveFeedback = useSaveCategoryFeedback();
   const [revenueSuggestion, setRevenueSuggestion] = useState<{ message: string; date: string } | null>(null);
+
+  const selectedCat = useMemo(
+    () => (categories ?? []).find((c) => c.id === (subCategoryId || categoryId)),
+    [categories, subCategoryId, categoryId],
+  );
 
   useEffect(() => {
     async function checkRevenue() {
