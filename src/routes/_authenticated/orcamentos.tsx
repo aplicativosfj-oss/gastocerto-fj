@@ -156,6 +156,9 @@ function BudgetsPage() {
           }
         />
 
+        <MonthPresets scope="orcamentos" value={period} onChange={setPeriod} />
+
+
         {isLoading ? (
           <div className="space-y-3">
             {Array.from({ length: 3 }).map((_, index) => (

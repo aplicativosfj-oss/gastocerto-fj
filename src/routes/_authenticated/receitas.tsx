@@ -114,6 +114,9 @@ function IncomePage() {
           }
         />
 
+        <MonthPresets scope="receitas" value={period} onChange={setPeriod} />
+
+
         <section className="auto-cards-sm">
           <Card label="Total recebido" value={formatCurrency(totalIncome)} />
           <Card
