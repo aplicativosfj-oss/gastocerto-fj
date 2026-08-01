@@ -94,8 +94,10 @@ export function LandingHeader({ hideActions }: { hideActions?: boolean }) {
           })}
         </nav>
 
-        {!hideActions && (
-          <div className="flex items-center gap-1.5 sm:gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          {!hideActions && (
+            <>
+
             <ThemeToggle className={cn("hidden sm:inline-flex", !scrolled && "text-white hover:bg-white/10 hover:text-white")} />
             <CodeAccessDialog>
               <Button
