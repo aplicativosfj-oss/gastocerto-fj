@@ -342,82 +342,89 @@ function TransactionsPage() {
 
   return (
     <AppShell>
-      <div className="space-y-3 sm:space-y-4">
+      <div className="mx-auto max-w-6xl space-y-3 sm:space-y-4">
         <PageHeader
           icon={ArrowLeftRight}
           eyebrow="Movimentações"
           title="Lançamentos"
           description="Registre, filtre e audite cada entrada e saída do período selecionado."
+          className="lg:p-4"
           meta={
-            <>
-              <MetaChip icon={Receipt}>{filtered.length} lançamento(s)</MetaChip>
+            <div className="flex flex-wrap items-center gap-1.5">
+              <MetaChip icon={Receipt}>{filtered.length} itens</MetaChip>
               <MetaChip icon={Wallet} tone={total >= 0 ? "success" : "destructive"}>
                 Saldo {formatCurrency(total)}
               </MetaChip>
               {activeFilters ? (
                 <MetaChip icon={Filter} tone="brand">
-                  {activeFilters} filtro(s)
+                  {activeFilters} filtros
                 </MetaChip>
               ) : null}
-            </>
+            </div>
           }
           actions={
-            <>
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
               <PeriodPicker year={period.year} month={period.month} onChange={setPeriod} />
               <Button
+                size="sm"
+                className="h-9 px-3 sm:h-10 sm:px-4"
                 onClick={() => {
                   setEditing(null);
                   setDialogOpen(true);
                 }}
               >
-                <Plus className="mr-2 size-4" />
+                <Plus className="mr-1.5 size-4" />
                 Novo
               </Button>
-              <Button variant="secondary" onClick={() => setCardsOpen(true)}>
-                <Zap className="mr-2 size-4" aria-hidden />
+              <Button variant="secondary" size="sm" className="h-9 px-3 sm:h-10 sm:px-4" onClick={() => setCardsOpen(true)}>
+                <Zap className="mr-1.5 size-4" aria-hidden />
                 Gasto rápido
               </Button>
-              <Button variant="outline" onClick={exportCsv} disabled={filtered.length === 0}>
-                <Download className="mr-2 size-4" />
+              <Button variant="outline" size="sm" className="h-9 px-3 sm:h-10 sm:px-4" onClick={exportCsv} disabled={filtered.length === 0}>
+                <Download className="mr-1.5 size-4" />
                 CSV
               </Button>
               <PdfExportSettingsDialog />
               <ShareLinkDialog year={period.year} month={period.month} />
-            </>
+            </div>
           }
         />
 
-        <div className="grid gap-2.5 sm:gap-3 auto-cards-sm">
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4 lg:gap-3">
           <StatTile
             label="Entradas"
             value={formatCurrency(periodTotals.income)}
             tone="success"
             icon={TrendingUp}
-            hint={`${periodTotals.incomeCount} recebimento(s)`}
+            hint={`${periodTotals.incomeCount} recebimentos`}
+            className="sm:p-3"
           />
           <StatTile
             label="Saídas"
             value={formatCurrency(periodTotals.expense)}
             tone="expense"
             icon={TrendingDown}
-            hint={`${periodTotals.expenseCount} gasto(s)`}
+            hint={`${periodTotals.expenseCount} gastos`}
+            className="sm:p-3"
             progress={
               periodTotals.income ? (periodTotals.expense / periodTotals.income) * 100 : undefined
             }
           />
           <StatTile
-            label="Saldo do filtro"
+            label="Saldo"
             value={formatCurrency(total)}
             tone={total >= 0 ? "brand" : "warning"}
             icon={Wallet}
-            hint={total >= 0 ? "Sobra no período" : "Período no vermelho"}
+            hint={total >= 0 ? "Sobra no período" : "Déficit no período"}
+            className="sm:p-3"
           />
           <StatTile
-            label="Pendentes e atrasados"
+            label="Abertos"
             value={formatCurrency(periodTotals.open)}
             tone={periodTotals.openCount ? "warning" : "neutral"}
             icon={Clock}
-            hint={`${periodTotals.openCount} lançamento(s) a resolver`}
+            hint={`${periodTotals.openCount} pendências`}
+            className="sm:p-3"
           />
         </div>
 

@@ -199,55 +199,62 @@ function VehiclesPage() {
   return (
     <AppShell>
       <FeatureGate feature="vehicles">
-      <div className="space-y-4">
+      <div className="mx-auto max-w-6xl space-y-4">
         <PageHeader
           icon={Fuel}
           eyebrow="Frota e combustível"
           title="Veículos e combustível"
           description="Consumo médio, custo por km e histórico completo dos abastecimentos."
+          className="lg:p-4"
           actions={
-            <>
-              <Button variant="outline" asChild>
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+              <Button variant="outline" size="sm" className="h-9 px-3 sm:h-10 sm:px-4" asChild>
                 <Link to="/veiculos-configuracoes">
-                  <Settings2 className="mr-2 size-4" />
-                  Metas e alertas
+                  <Settings2 className="mr-1.5 size-4" />
+                  Metas
                 </Link>
               </Button>
-              <Button variant="outline" asChild>
+              <Button variant="outline" size="sm" className="h-9 px-3 sm:h-10 sm:px-4" asChild>
                 <Link to="/veiculos-auditoria">
-                  <History className="mr-2 size-4" />
-                  Auditoria
+                  <History className="mr-1.5 size-4" />
+                  Logs
                 </Link>
               </Button>
               <Button
                 variant="outline"
+                size="sm"
+                className="h-9 px-3 sm:h-10 sm:px-4"
                 disabled={perVehicle.length === 0}
                 onClick={exportFuelCsv}
               >
-                <Download className="mr-2 size-4" />
+                <Download className="mr-1.5 size-4" />
                 CSV
               </Button>
               <Button
                 variant="outline"
+                size="sm"
+                className="h-9 px-3 sm:h-10 sm:px-4"
                 onClick={() => {
                   setEditingVehicle(null);
                   setVehicleDialog(true);
                 }}
               >
-                <Car className="mr-2 size-4" />
+                <Car className="mr-1.5 size-4" />
                 Novo veículo
               </Button>
               <Button
+                size="sm"
+                className="h-9 px-3 sm:h-10 sm:px-4"
                 disabled={(vehicles ?? []).length === 0}
                 onClick={() => {
                   setEditingEntry(null);
                   setFuelDialog(true);
                 }}
               >
-                <Plus className="mr-2 size-4" />
-                Novo gasto do veículo
+                <Plus className="mr-1.5 size-4" />
+                Lançar gasto
               </Button>
-            </>
+            </div>
           }
         />
 
@@ -271,18 +278,18 @@ function VehiclesPage() {
             </Button>
           </section>
         ) : (
-          <section className="grid gap-3 auto-cards-sm">
+          <section className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 lg:gap-3">
             {(vehicles ?? []).map((vehicle) => (
               <article
                 key={vehicle.id}
-                className="rounded-2xl border border-border bg-card p-4"
+                className="rounded-2xl border border-border bg-card p-3 shadow-sm transition-all hover:shadow-md sm:p-4"
               >
                 <div className="flex items-start justify-between gap-2">
-                  <div className="flex min-w-0 items-start gap-3">
-                    <VehicleEmblem vehicleType={vehicle.vehicle_type} className="size-10" />
+                  <div className="flex min-w-0 items-start gap-2.5">
+                    <VehicleEmblem vehicleType={vehicle.vehicle_type} className="size-9 shrink-0 sm:size-10" />
                     <div className="min-w-0">
-                      <h2 className="truncate font-semibold">{vehicle.name}</h2>
-                      <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                      <h2 className="truncate text-sm font-semibold sm:text-base">{vehicle.name}</h2>
+                      <p className="mt-0.5 truncate text-[10px] text-muted-foreground sm:text-xs">
                         {[vehicle.brand, vehicle.model, vehicle.year].filter(Boolean).join(" · ") ||
                           labelFor(VEHICLE_TYPES, vehicle.vehicle_type)}
                       </p>
@@ -293,34 +300,36 @@ function VehiclesPage() {
                     <Button
                       variant="ghost"
                       size="icon"
+                      className="size-8"
                       aria-label={`Editar ${vehicle.name}`}
                       onClick={() => {
                         setEditingVehicle(vehicle);
                         setVehicleDialog(true);
                       }}
                     >
-                      <Pencil className="size-4" />
+                      <Pencil className="size-3.5" />
                     </Button>
                     <Button
                       variant="ghost"
                       size="icon"
+                      className="size-8 text-muted-foreground hover:text-destructive"
                       aria-label={`Remover ${vehicle.name}`}
                       onClick={() => setConfirmVehicle(vehicle)}
                     >
-                      <Trash2 className="size-4" />
+                      <Trash2 className="size-3.5" />
                     </Button>
                   </div>
                 </div>
-                <div className="mt-3 flex flex-wrap gap-2 text-xs">
-                  <Badge variant="secondary">{labelFor(FUEL_TYPES, vehicle.fuel_type)}</Badge>
-                  {vehicle.plate ? <Badge variant="outline">{vehicle.plate}</Badge> : null}
+                <div className="mt-2.5 flex flex-wrap gap-1.5 text-[10px]">
+                  <Badge variant="secondary" className="px-1.5 py-0">{labelFor(FUEL_TYPES, vehicle.fuel_type)}</Badge>
+                  {vehicle.plate ? <Badge variant="outline" className="px-1.5 py-0">{vehicle.plate}</Badge> : null}
                   {vehicle.tank_capacity ? (
-                    <Badge variant="outline">{vehicle.tank_capacity} L</Badge>
+                    <Badge variant="outline" className="px-1.5 py-0">{vehicle.tank_capacity} L</Badge>
                   ) : null}
                 </div>
                 <Button
                   variant="link"
-                  className="mt-2 h-auto p-0 text-xs"
+                  className="mt-2 h-auto p-0 text-[11px] font-semibold text-brand"
                   onClick={() => {
                     setEditingEntry(null);
                     setVehicleFilter(vehicle.id);
