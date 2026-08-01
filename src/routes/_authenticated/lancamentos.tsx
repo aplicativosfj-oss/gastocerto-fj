@@ -766,148 +766,135 @@ function TransactionsPage() {
                 {rows.map((row) => (
                   <Fragment key={row.id}>
                     <TableRow
-                      className="cursor-pointer hover:bg-muted/50"
+                      className="group cursor-pointer hover:bg-muted/40 transition-colors"
                       onClick={(e) => {
                         const target = e.target as HTMLElement;
                         if (target.closest("button") || target.closest('[role="checkbox"]')) return;
                         setDetails(row);
                       }}
                     >
-
-
-
-                    <TableCell>
-                      <Checkbox
-                        aria-label={`Selecionar ${row.description}`}
-                        checked={selected.includes(row.id)}
-                        onCheckedChange={(checked) =>
-                          setSelected((current) =>
-                            checked
-                              ? [...current, row.id]
-                              : current.filter((id) => id !== row.id),
-                          )
-                        }
-                      />
-                    </TableCell>
-                    <TableCell className="whitespace-nowrap tabular-nums">
-                      {formatDate(row.transaction_date)}
-                    </TableCell>
-                    <TableCell className="max-w-[220px] font-medium">
-                      <div className="flex items-center gap-1">
-                        <button
-                          type="button"
-                          aria-label={
-                            expanded.includes(row.id) ? "Recolher anotações" : "Expandir anotações"
-                          }
-                          className="shrink-0 rounded p-0.5 text-muted-foreground hover:text-foreground"
-                          onClick={() =>
-                            setExpanded((current) =>
-                              current.includes(row.id)
-                                ? current.filter((id) => id !== row.id)
-                                : [...current, row.id],
+                      <TableCell className="text-center">
+                        <Checkbox
+                          aria-label={`Selecionar ${row.description}`}
+                          checked={selected.includes(row.id)}
+                          onCheckedChange={(checked) =>
+                            setSelected((current) =>
+                              checked
+                                ? [...current, row.id]
+                                : current.filter((id) => id !== row.id),
                             )
                           }
+                          className="rounded"
+                        />
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap tabular-nums text-[13px] text-muted-foreground">
+                        {formatDate(row.transaction_date)}
+                      </TableCell>
+                      <TableCell className="max-w-[280px]">
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            className="shrink-0 rounded p-1 text-muted-foreground/60 hover:bg-muted hover:text-foreground transition-all"
+                            onClick={() =>
+                              setExpanded((current) =>
+                                current.includes(row.id)
+                                  ? current.filter((id) => id !== row.id)
+                                  : [...current, row.id],
+                              )
+                            }
+                          >
+                            {expanded.includes(row.id) ? (
+                              <ChevronDown className="size-3.5" />
+                            ) : (
+                              <ChevronRight className="size-3.5" />
+                            )}
+                          </button>
+                          <button
+                            type="button"
+                            className="flex min-w-0 flex-1 items-center gap-1.5 truncate text-left text-[14px] font-semibold tracking-tight hover:text-brand transition-colors"
+                            onClick={() => setDetails(row)}
+                          >
+                            <span className="truncate">{row.description}</span>
+                            {row.attachment_url ? (
+                              <Paperclip className="size-3.5 shrink-0 text-muted-foreground/60" />
+                            ) : null}
+                          </button>
+                        </div>
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell text-[13px] text-muted-foreground font-medium">
+                        {row.category_id ? (categoryNames.get(row.category_id) ?? "—") : "—"}
+                      </TableCell>
+                      <TableCell className="hidden lg:table-cell">
+                        <span className="inline-flex rounded-md bg-muted/60 px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
+                          {labelFor(PAYMENT_METHODS, row.payment_method)}
+                        </span>
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell">
+                        <Badge
+                          variant={row.status === "overdue" ? "destructive" : row.status === "pending" ? "secondary" : "outline"}
+                          className="h-5 px-2 text-[10px] font-bold uppercase tracking-wide rounded-md"
                         >
-                          {expanded.includes(row.id) ? (
-                            <ChevronDown className="size-4" />
-                          ) : (
-                            <ChevronRight className="size-4" />
-                          )}
-                        </button>
-                        <button
-                          type="button"
-                          className="flex w-full items-center gap-1.5 truncate text-left hover:underline"
-                          onClick={() => setDetails(row)}
-                        >
-                          <span className="truncate">{row.description}</span>
-                          {row.attachment_url ? (
-                            <Paperclip
-                              className="size-3.5 shrink-0 text-muted-foreground"
-                              aria-label="Possui comprovante"
-                            />
-                          ) : null}
-                        </button>
-                      </div>
-                    </TableCell>
-
-
-                    <TableCell className="hidden md:table-cell text-[13px] text-muted-foreground font-medium">
-                      {row.category_id ? (categoryNames.get(row.category_id) ?? "—") : "—"}
-                    </TableCell>
-                    <TableCell className="hidden lg:table-cell">
-                      <span className="inline-flex rounded-md bg-muted/60 px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
-                        {labelFor(PAYMENT_METHODS, row.payment_method)}
-                      </span>
-                    </TableCell>
-                    <TableCell className="hidden sm:table-cell">
-                      <Badge
-                        variant={row.status === "overdue" ? "destructive" : row.status === "pending" ? "secondary" : "outline"}
-                        className="h-5 px-2 text-[10px] font-bold uppercase tracking-wide rounded-md"
+                          {labelFor(TRANSACTION_STATUS, row.status)}
+                        </Badge>
+                      </TableCell>
+                      <TableCell
+                        className={cn(
+                          "text-right font-display text-[15px] font-bold tabular-nums tracking-tight",
+                          row.transaction_type === "income" ? "text-success" : "text-foreground"
+                        )}
                       >
-                        {labelFor(TRANSACTION_STATUS, row.status)}
-                      </Badge>
-                    </TableCell>
-                    <TableCell
-                      className={cn(
-                        "text-right font-display text-[15px] font-bold tabular-nums tracking-tight",
-                        row.transaction_type === "income" ? "text-success" : "text-foreground"
-                      )}
-                    >
-                      {row.transaction_type === "income" ? "+" : "−"}
-                      {formatCurrency(Number(row.amount))}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="size-8 rounded-lg"
-                          onClick={() => {
-                            setEditing(row);
-                            setDialogOpen(true);
-                          }}
-                        >
-                          <Pencil className="size-3.5" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="size-8 rounded-lg"
-                          onClick={() => handleDuplicate(row)}
-                        >
-                          <Copy className="size-3.5" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="size-8 rounded-lg"
-                          onClick={() => handleRowPdf(row)}
-                        >
-                          <FileDown className="size-3.5" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="size-8 rounded-lg hover:text-destructive hover:bg-destructive/10"
-                          onClick={() => setConfirmDelete([row.id])}
-                        >
-                          <Trash2 className="size-3.5" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                          <Trash2 className="size-4" />
-                        </Button>
-
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                  {expanded.includes(row.id) ? (
-                    <TableRow>
-                      <TableCell colSpan={8} className="bg-muted/10">
-                        <InlineNotes transaction={row} />
+                        {row.transaction_type === "income" ? "+" : "−"}
+                        {formatCurrency(Number(row.amount))}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="size-8 rounded-lg"
+                            onClick={() => {
+                              setEditing(row);
+                              setDialogOpen(true);
+                            }}
+                          >
+                            <Pencil className="size-3.5" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="size-8 rounded-lg"
+                            onClick={() => handleDuplicate(row)}
+                          >
+                            <Copy className="size-3.5" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="size-8 rounded-lg"
+                            onClick={() => handleRowPdf(row)}
+                          >
+                            <FileDown className="size-3.5" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="size-8 rounded-lg hover:text-destructive hover:bg-destructive/10"
+                            onClick={() => setConfirmDelete([row.id])}
+                          >
+                            <Trash2 className="size-3.5" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
-                  ) : null}
+                    {expanded.includes(row.id) && (
+                      <TableRow className="bg-muted/5 hover:bg-muted/5">
+                        <TableCell colSpan={8} className="py-0 px-0">
+                          <div className="border-t border-border/50 p-4">
+                            <InlineNotes transaction={row} />
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    )}
                   </Fragment>
                 ))}
 
