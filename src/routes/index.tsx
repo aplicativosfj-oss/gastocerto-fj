@@ -61,8 +61,8 @@ function LandingPage() {
         <Hero />
         <div className="hidden sm:block">
           <Benefits />
+          <CompactOverview />
         </div>
-        <CompactOverview />
         <Pricing />
         <div className="hidden sm:block">
           <CtaBanner />
