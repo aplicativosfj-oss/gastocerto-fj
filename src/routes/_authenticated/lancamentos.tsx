@@ -297,6 +297,7 @@ function TransactionsPage() {
               CSV
             </Button>
             <PdfExportSettingsDialog />
+            <ShareLinkDialog year={period.year} month={period.month} />
 
             <Button variant="secondary" onClick={() => setCardsOpen(true)}>
               <Zap className="mr-2 size-4" aria-hidden />
