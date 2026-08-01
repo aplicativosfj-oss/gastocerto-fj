@@ -299,12 +299,13 @@ function CategoriesPage() {
                     </div>
                   </div>
                   
-                  <div className="flex flex-col items-end gap-2 shrink-0">
-                    <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex shrink-0 flex-col items-end gap-2">
+                    <div className="flex gap-0.5 transition-opacity lg:opacity-0 lg:group-hover:opacity-100 lg:group-focus-within:opacity-100">
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="size-8 rounded-lg"
+                        aria-label={`Editar categoria ${category.name}`}
+                        className="size-9 rounded-lg"
                         onClick={() => {
                           setError(null);
                           setDraft({
@@ -322,16 +323,35 @@ function CategoriesPage() {
                         <Pencil className="size-3.5" />
                       </Button>
                     </div>
-                    
-                    <div className="flex items-center gap-2" title={isActive ? "Desativar" : "Ativar"}>
-                      <Switch 
-                        checked={isActive}
-                        onCheckedChange={(checked) => toggleActive(category.id, checked)}
+
+                    <div className="flex items-center gap-2">
+                      <label
+                        htmlFor={`category-active-${category.id}`}
                         className={cn(
-                          "scale-75 transition-all duration-500",
-                          !isActive && "opacity-60"
+                          "cursor-pointer select-none text-[10px] font-bold uppercase tracking-wider transition-colors",
+                          isActive ? "text-success" : "text-muted-foreground",
+                        )}
+                      >
+                        {isActive ? "Ativa" : "Inativa"}
+                      </label>
+                      <Switch
+                        id={`category-active-${category.id}`}
+                        checked={isActive}
+                        aria-label={`${isActive ? "Desativar" : "Ativar"} a categoria ${category.name}`}
+                        aria-describedby={`category-active-hint-${category.id}`}
+                        onCheckedChange={(checked) =>
+                          setPending({ id: category.id, name: category.name, next: checked })
+                        }
+                        className={cn(
+                          "transition-all duration-500 focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                          !isActive && "opacity-70",
                         )}
                       />
+                      <span id={`category-active-hint-${category.id}`} className="sr-only">
+                        {isActive
+                          ? "Categoria ativa e disponível nos lançamentos. Desativar não exclui nada."
+                          : "Categoria desativada. Ative para voltar a usá-la nos lançamentos."}
+                      </span>
                     </div>
                   </div>
                 </div>
