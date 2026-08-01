@@ -330,7 +330,7 @@ export function CompactOverview() {
                     <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-brand">
                       {group.group}
                     </p>
-                    <p className="truncate text-[11px] text-muted-foreground">{group.caption}</p>
+                    <p className="hidden truncate text-[11px] text-muted-foreground sm:block">{group.caption}</p>
                   </div>
                   <div className="mt-2 grid gap-1.5 sm:grid-cols-2">
                     {group.items.map((item, itemIndex) => (
