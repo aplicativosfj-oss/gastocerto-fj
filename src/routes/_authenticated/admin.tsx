@@ -48,6 +48,8 @@ import {
 } from "@/lib/admin-users.functions";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import { fixNexxusTransaction } from "@/lib/admin-fixes.functions";
+
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -216,7 +218,25 @@ function AdminContent({ isAdmin }: { isAdmin: boolean }) {
             <StatCard label="Contas ativas" value={overview.data?.activeUsers} />
             <StatCard label="Novos (30 dias)" value={overview.data?.newUsers30d} />
             <StatCard label="Lançamentos" value={overview.data?.totalTransactions} />
+            <div className="flex items-center justify-center rounded-xl border border-dashed border-border p-3">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={async () => {
+                  try {
+                    const res = await fixNexxusTransaction({ data: { userId: '6f34802b-e8a0-49c3-bfae-b689da7f993a' } });
+                    if (res.count > 0) toast.success("Lançamento Nexxus corrigido!");
+                    else toast.info("Lançamento não encontrado ou já corrigido.");
+                  } catch (e) {
+                    toast.error("Erro ao corrigir lançamento.");
+                  }
+                }}
+              >
+                Corrigir Lançamento Nexxus
+              </Button>
+            </div>
           </div>
+
         ) : null}
 
         <Tabs defaultValue="users">
