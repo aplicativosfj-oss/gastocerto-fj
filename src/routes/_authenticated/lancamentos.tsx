@@ -115,6 +115,34 @@ export const Route = createFileRoute("/_authenticated/lancamentos")({
 
 const PAGE_SIZE = 15;
 
+/** Recortes da tela: despesas e receitas ganham espaços próprios. */
+const VIEWS = [
+  {
+    key: "expense",
+    tab: "Despesas",
+    title: "Despesas",
+    newLabel: "Nova despesa",
+    icon: TrendingDown,
+    description: "Somente saídas do período: filtre, audite e corrija cada gasto.",
+  },
+  {
+    key: "income",
+    tab: "Receitas",
+    title: "Receitas",
+    newLabel: "Nova receita",
+    icon: TrendingUp,
+    description: "Somente entradas do período, com status de recebimento.",
+  },
+  {
+    key: "all",
+    tab: "Tudo",
+    title: "Extrato completo",
+    newLabel: "Novo lançamento",
+    icon: ArrowLeftRight,
+    description: "Entradas e saídas juntas, em ordem cronológica.",
+  },
+] as const;
+
 function TransactionsPage() {
   const today = new Date();
   const search_ = Route.useSearch();
@@ -159,9 +187,10 @@ function TransactionsPage() {
     (policy.lockPastMonths || (policy.requirePasswordForPastEdits && !pastUnlock.unlocked));
   const [askPassword, setAskPassword] = useState(false);
   const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
+  const [pendingLabel, setPendingLabel] = useState<string | null>(null);
 
   /** Executa a ação somente quando a competência estiver liberada. */
-  function guardPast(action: () => void) {
+  function guardPast(action: () => void, label?: string) {
     if (!pastLocked) {
       action();
       return;
@@ -174,6 +203,7 @@ function TransactionsPage() {
       return;
     }
     setPendingAction(() => action);
+    setPendingLabel(label ?? "Editar lançamentos deste mês");
     setAskPassword(true);
   }
 
@@ -685,7 +715,7 @@ function TransactionsPage() {
         {selected.length > 0 ? (
           <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-border bg-card p-3 text-sm">
             <span>{selected.length} selecionado(s)</span>
-            <Button variant="destructive" size="sm" onClick={() => guardPast(() => setConfirmDelete(selected))}>
+            <Button variant="destructive" size="sm" onClick={() => guardPast(() => setConfirmDelete(selected), `Excluir ${selected.length} lançamentos selecionados`)}>
               <Trash2 className="mr-2 size-4" />
               Excluir selecionados
             </Button>
@@ -796,7 +826,7 @@ function TransactionsPage() {
                               guardPast(() => {
                                 setEditing(row);
                                 setDialogOpen(true);
-                              })
+                              }, `Editar "${row.description}"`)
                             }
                           >
                             <Pencil className="size-4" />
@@ -805,7 +835,7 @@ function TransactionsPage() {
                             variant="ghost"
                             size="icon"
                             className="size-8 rounded-lg hover:bg-muted"
-                            onClick={() => guardPast(() => setConfirmDelete([row.id]))}
+                            onClick={() => guardPast(() => setConfirmDelete([row.id]), `Excluir "${row.description}"`)}
                           >
                             <Trash2 className="size-4" />
                           </Button>
@@ -964,7 +994,7 @@ function TransactionsPage() {
                               guardPast(() => {
                                 setEditing(row);
                                 setDialogOpen(true);
-                              })
+                              }, `Editar "${row.description}"`)
                             }
                           >
                             <Pencil className="size-3.5" />
@@ -973,7 +1003,7 @@ function TransactionsPage() {
                             variant="ghost"
                             size="icon"
                             className="size-8 rounded-lg"
-                            onClick={() => guardPast(() => handleDuplicate(row))}
+                            onClick={() => guardPast(() => handleDuplicate(row), `Duplicar "${row.description}"`)}
                           >
                             <Copy className="size-3.5" />
                           </Button>
@@ -989,7 +1019,7 @@ function TransactionsPage() {
                             variant="ghost"
                             size="icon"
                             className="size-8 rounded-lg hover:text-destructive hover:bg-destructive/10"
-                            onClick={() => guardPast(() => setConfirmDelete([row.id]))}
+                            onClick={() => guardPast(() => setConfirmDelete([row.id]), `Excluir "${row.description}"`)}
                           >
                             <Trash2 className="size-3.5" />
                           </Button>
@@ -1051,9 +1081,13 @@ function TransactionsPage() {
         open={askPassword}
         onOpenChange={(next) => {
           setAskPassword(next);
-          if (!next) setPendingAction(null);
+          if (!next) {
+            setPendingAction(null);
+            setPendingLabel(null);
+          }
         }}
-        description="Confirme sua senha para editar lançamentos de meses anteriores."
+        lockedMonths={[monthKeyView]}
+        actionLabel={pendingLabel}
         onConfirmed={() => {
           pastUnlock.grant();
           const action = pendingAction;
