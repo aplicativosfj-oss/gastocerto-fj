@@ -237,7 +237,7 @@ export function AdminAccessPanel() {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
-                          <LogsDialog codeId={code.id} label={code.label} />
+                          <LogsDialog codeId={code.id} label={code.label || "Sem nome"} />
                           {isActive && (
                             <Button 
                               variant="ghost" 
@@ -315,12 +315,13 @@ function LogsDialog({ codeId, label }: { codeId: string; label: string }) {
                   <div className="grid grid-cols-2 gap-2 text-xs">
                     <div className="flex items-center gap-1.5 text-muted-foreground">
                       <Hash className="size-3" />
-                      IP: log.ip_address || "Indisponível"
+                      IP: {(log.ip_address as string) || "Indisponível"}
                     </div>
                     <div className="flex items-center gap-1.5 text-muted-foreground truncate">
                       <User className="size-3 shrink-0" />
                       {(log.user_agent as string)?.split(" ")[0] || "Navegador"}
                     </div>
+
 
                   </div>
                 </div>
