@@ -11,6 +11,7 @@ import {
   Menu,
   PiggyBank,
   ShieldCheck,
+  RefreshCcw,
   User2,
   X,
 } from "lucide-react";
@@ -100,6 +101,7 @@ export const navGroups: NavGroup[] = [
       { key: "analytics.advisor", label: "Consultor de IA", to: "/consultor" },
     ],
   },
+  { key: "analytics.reconciliation", label: "Reconciliação", to: "/reconciliacao" },
   { key: "profile", label: "Meu perfil", to: "/perfil", icon: User2 },
 ];
 
