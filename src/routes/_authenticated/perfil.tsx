@@ -49,7 +49,10 @@ function ProfilePage() {
 
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [pending, setPending] = useState<File | null>(null);
+  const [accountOpen, setAccountOpen] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
