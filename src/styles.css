@@ -468,6 +468,29 @@
   html {
     scroll-behavior: smooth;
     scroll-padding-top: 5rem;
+    overflow-x: clip;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* Nada de rolagem lateral nem tela "pulando" de largura. */
+  body {
+    overflow-x: clip;
+    min-width: 0;
+  }
+
+  img,
+  svg,
+  video,
+  canvas,
+  table {
+    max-width: 100%;
+  }
+
+  /* Toques confortáveis no celular sem inflar o layout. */
+  @media (max-width: 639px) {
+    .chart-frame {
+      height: clamp(138px, 40vw, 190px);
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
