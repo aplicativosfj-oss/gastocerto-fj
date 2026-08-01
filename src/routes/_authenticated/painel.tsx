@@ -580,7 +580,6 @@ function DashboardPage() {
               <RecurringAlerts />
             </div>
           </div>
-          </div>
         )}
 
         {/* Bloco de métricas secundárias */}
@@ -982,7 +981,6 @@ function DashboardPage() {
             </section>
           </div>
         )}
-      </div>
 
       <MetricDetailDialog
         detail={detail}
@@ -1031,7 +1029,6 @@ function DashboardPage() {
           if (y && m && (y !== period.year || m !== period.month)) setPeriod({ year: y, month: m });
         }}
       />
-    </AppShell>
   );
 }
 
