@@ -50,6 +50,7 @@ import { SupportTicketsPanel } from "@/components/admin/support-tickets-panel";
 import { AnnouncementsPanel } from "@/components/admin/announcements-panel";
 import { PlanConfigsPanel } from "@/components/admin/plan-configs-panel";
 import { BusinessDashboard } from "@/components/admin/business-dashboard";
+import { ClientCodesPanel } from "@/components/admin/client-codes-panel";
 
 import {
   adminCancelSubscription,
@@ -268,6 +269,7 @@ function AdminContent({ isAdmin }: { isAdmin: boolean }) {
             {isAdmin ? <TabsTrigger value="announcements">Avisos</TabsTrigger> : null}
             {isAdmin ? <TabsTrigger value="plans">Planos</TabsTrigger> : null}
             {isAdmin ? <TabsTrigger value="licenses">Licenças</TabsTrigger> : null}
+            {isAdmin ? <TabsTrigger value="client-codes">Códigos de clientes</TabsTrigger> : null}
             {isAdmin ? <TabsTrigger value="payments">Vendas</TabsTrigger> : null}
             {isAdmin ? <TabsTrigger value="ai">IA &amp; testes</TabsTrigger> : null}
             {isAdmin ? <TabsTrigger value="security">Segurança</TabsTrigger> : null}
@@ -292,6 +294,9 @@ function AdminContent({ isAdmin }: { isAdmin: boolean }) {
               </TabsContent>
               <TabsContent value="licenses" className="mt-4">
                 <LicensesPanel />
+              </TabsContent>
+              <TabsContent value="client-codes" className="mt-4">
+                <ClientCodesPanel />
               </TabsContent>
               <TabsContent value="payments" className="mt-4">
                 <SalesPanel />

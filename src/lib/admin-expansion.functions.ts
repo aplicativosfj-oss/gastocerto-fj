@@ -73,6 +73,18 @@ export const adminUpdatePlanConfig = createServerFn({ method: "POST" })
       } as any)
       .eq("id", data.id);
     if (error) throw error;
+
+    await context.supabase.from("admin_logs").insert({
+      actor_id: context.userId,
+      action: "plan_config_updated",
+      details: {
+        plan_config_id: data.id,
+        monthly_price: data.monthlyPrice,
+        annual_price: data.annualPrice,
+        limits: data.limits,
+      },
+    });
+
     return { ok: true };
   });
 
@@ -106,6 +118,13 @@ export const adminCreateAnnouncement = createServerFn({ method: "POST" })
         created_by: context.userId
       } as any);
     if (error) throw error;
+
+    await context.supabase.from("admin_logs").insert({
+      actor_id: context.userId,
+      action: "announcement_created",
+      details: { title: data.title, type: data.type, active: data.active },
+    });
+
     return { ok: true };
   });
 
