@@ -782,10 +782,13 @@ function DashboardPage() {
               </ChartCard>
             </section>
 
+            <InsightsPanel year={period.year} month={period.month} />
+
             <CardMonthSummary
               transactions={transactions ?? []}
               categories={categories ?? []}
               monthLabel={`${MONTH_NAMES[period.month - 1]}/${period.year}`}
+
             />
 
             <section className="auto-cards-lg">
