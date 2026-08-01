@@ -274,9 +274,13 @@ export function ExpenseCardsDialog({
             transaction_date: date,
             status: "paid",
             payment_date: date,
+            ...(phoneMode
+              ? { notes: phoneSummary, due_date: validUntil || null, tags: ["celular"] }
+              : {}),
           },
         });
       }
+
       rememberCategory(selected.id);
       toast.success(
         kind === "installments"
