@@ -4,8 +4,9 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
 
-import authSide from "@/assets/auth-side.jpg";
+import authHero from "@/assets/auth-hero.jpg";
 import { PENDING_LICENSE_KEY } from "@/components/landing/code-access-dialog";
+import { CodeAccessInline } from "@/components/landing/code-access-inline";
 import { activateLicense } from "@/lib/licenses.functions";
 import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
