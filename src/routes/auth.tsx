@@ -5,6 +5,8 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 import authSide from "@/assets/auth-side.jpg";
+import { PENDING_LICENSE_KEY } from "@/components/landing/code-access-dialog";
+import { activateLicense } from "@/lib/licenses.functions";
 import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -59,13 +61,42 @@ function AuthPage() {
   useEffect(() => {
     if (loading || !session) return;
     let cancelled = false;
-    void resolveHomeRoute(session.user?.id).then((to) => {
+
+    // Código de teste informado na home: ativa a licença na conta recém-logada.
+    const pending = (() => {
+      try {
+        return sessionStorage.getItem(PENDING_LICENSE_KEY);
+      } catch {
+        return null;
+      }
+    })();
+
+    const run = async () => {
+      if (pending) {
+        try {
+          sessionStorage.removeItem(PENDING_LICENSE_KEY);
+        } catch {
+          /* ignorado */
+        }
+        try {
+          await activateLicense({ data: { licenseKey: pending } });
+          toast.success("Código ativado! Seu período de teste começou agora.");
+        } catch (error) {
+          toast.error(
+            error instanceof Error ? error.message : "Não foi possível ativar o código informado.",
+          );
+        }
+      }
+      const to = await resolveHomeRoute(session.user?.id);
       if (!cancelled) navigate({ to, replace: true });
-    });
+    };
+
+    void run();
     return () => {
       cancelled = true;
     };
   }, [loading, session, navigate]);
+
 
   return (
     <main className="grid min-h-dvh lg:grid-cols-[1.05fr_minmax(0,26rem)]">

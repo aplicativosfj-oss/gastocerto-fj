@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { CalendarDays, ChevronRight, History, NotebookPen, Pencil } from "lucide-react";
+import { CalendarDays, ChevronRight, History, NotebookPen, Pencil, Plus } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -165,13 +165,19 @@ export function MetricDetailDialog({
   categories,
   onOpenChange,
   onEditTransaction,
+  onAddTransaction,
+  addLabel = "Novo lançamento",
 }: {
   detail: MetricDetail | null;
   categories: Category[];
   onOpenChange: (open: boolean) => void;
   /** Abre a tela de edição com os campos já preenchidos. */
   onEditTransaction?: (transaction: Transaction) => void;
+  /** Cria um lançamento já vinculado ao contexto do detalhe (ex.: dia clicado). */
+  onAddTransaction?: () => void;
+  addLabel?: string;
 }) {
+
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const listRef = useRef<HTMLUListElement>(null);
 
@@ -224,6 +230,14 @@ export function MetricDetailDialog({
               <DialogTitle>{detail.label}</DialogTitle>
               <DialogDescription>{detail.formula}</DialogDescription>
             </DialogHeader>
+
+            {onAddTransaction ? (
+              <Button size="sm" className="self-start" onClick={onAddTransaction}>
+                <Plus className="mr-1.5 size-4" aria-hidden />
+                {addLabel}
+              </Button>
+            ) : null}
+
 
             <div className="rounded-2xl border border-border bg-muted/40 p-4 text-center">
               <p className="text-3xl font-bold tabular-nums">{detail.value}</p>

@@ -1,7 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
+import { assertWriteAllowed } from "@/lib/plan.functions";
 import type { Tables, TablesInsert, TablesUpdate } from "@/integrations/supabase/types";
 
 export type Transaction = Tables<"transactions">;
@@ -114,10 +116,12 @@ export function useRefreshFinance() {
 export function useSaveTransaction() {
   const { user } = useAuth();
   const refresh = useRefreshFinance();
+  const guard = useServerFn(assertWriteAllowed);
 
   return useMutation({
     mutationFn: async (input: { id?: string; values: Omit<TablesInsert<"transactions">, "user_id"> }) => {
       if (!user) throw new Error("Sessão expirada");
+      await guard({ data: undefined });
       if (input.id) {
         const { data, error } = await supabase
           .from("transactions")
@@ -142,8 +146,10 @@ export function useSaveTransaction() {
 
 export function useDeleteTransaction() {
   const refresh = useRefreshFinance();
+  const guard = useServerFn(assertWriteAllowed);
   return useMutation({
     mutationFn: async (ids: string[]) => {
+      await guard({ data: undefined });
       const { error } = await supabase
         .from("transactions")
         .update({ deleted_at: new Date().toISOString() })
@@ -153,6 +159,7 @@ export function useDeleteTransaction() {
     onSuccess: refresh,
   });
 }
+
 
 export function useRestoreTransaction() {
   const refresh = useRefreshFinance();

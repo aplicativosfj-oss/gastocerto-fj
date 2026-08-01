@@ -1,8 +1,9 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Menu, X } from "lucide-react";
+import { KeyRound, Menu, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { CodeAccessDialog } from "@/components/landing/code-access-dialog";
 import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { cn } from "@/lib/utils";
@@ -10,11 +11,10 @@ import { handleAnchorClick } from "@/lib/scroll";
 
 const navItems = [
   { label: "Início", href: "#inicio" },
-  { label: "Explorar", href: "#explorar" },
   { label: "Recursos", href: "#recursos" },
   { label: "Planos", href: "#planos" },
-  { label: "FAQ", href: "#faq" },
 ];
+
 
 export function LandingHeader({ hideActions }: { hideActions?: boolean }) {
   const [scrolled, setScrolled] = useState(false);
@@ -97,13 +97,15 @@ export function LandingHeader({ hideActions }: { hideActions?: boolean }) {
         {!hideActions && (
           <div className="flex items-center gap-2">
             <ThemeToggle className={cn("hidden sm:inline-flex", !scrolled && "text-white hover:bg-white/10 hover:text-white")} />
-            <Button
-              variant="ghost"
-              className={cn("hidden sm:inline-flex", !scrolled && "text-white hover:bg-white/10 hover:text-white")}
-              asChild
-            >
-              <Link to="/demonstracao">Ver demonstração</Link>
-            </Button>
+            <CodeAccessDialog>
+              <Button
+                variant="ghost"
+                className={cn("hidden sm:inline-flex", !scrolled && "text-white hover:bg-white/10 hover:text-white")}
+              >
+                <KeyRound className="size-4" aria-hidden />
+                Tenho um código
+              </Button>
+            </CodeAccessDialog>
             <Button
               variant="ghost"
               className={cn("hidden sm:inline-flex", !scrolled && "text-white hover:bg-white/10 hover:text-white")}
@@ -114,6 +116,7 @@ export function LandingHeader({ hideActions }: { hideActions?: boolean }) {
             <Button className="hidden shadow-soft sm:inline-flex" asChild>
               <Link to="/auth" search={{ mode: "signup" }}>Criar conta gratuita</Link>
             </Button>
+
             <Button
               variant="outline"
               size="icon"
@@ -147,20 +150,29 @@ export function LandingHeader({ hideActions }: { hideActions?: boolean }) {
                 {item.label}
               </a>
             ))}
-            <div className="mt-3 flex items-center gap-2">
-              <Button variant="outline" className="flex-1" asChild>
-                <Link to="/auth" search={{ mode: "login" }}>Entrar</Link>
-              </Button>
-              <Button className="flex-1" asChild>
-                <a
-                  href="#planos"
-                  onClick={(event) => handleAnchorClick(event, "#planos", () => setOpen(false))}
-                >
-                  Começar
-                </a>
-              </Button>
-              <ThemeToggle />
+            <div className="mt-3 grid gap-2">
+              <div className="flex items-center gap-2">
+                <Button variant="outline" className="flex-1" asChild>
+                  <Link to="/auth" search={{ mode: "login" }}>Entrar</Link>
+                </Button>
+                <Button className="flex-1" asChild>
+                  <a
+                    href="#planos"
+                    onClick={(event) => handleAnchorClick(event, "#planos", () => setOpen(false))}
+                  >
+                    Começar
+                  </a>
+                </Button>
+                <ThemeToggle />
+              </div>
+              <CodeAccessDialog>
+                <Button variant="ghost" className="w-full justify-center">
+                  <KeyRound className="size-4" aria-hidden />
+                  Tenho um código
+                </Button>
+              </CodeAccessDialog>
             </div>
+
           </nav>
         </div>
       )}

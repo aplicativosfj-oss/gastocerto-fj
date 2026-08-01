@@ -108,6 +108,8 @@ function DashboardPage() {
   const [preset, setPreset] = useState<QuickPick>({ categoryId: null, subCategoryId: null });
   const [detail, setDetail] = useState<MetricDetail | null>(null);
   const [editingTx, setEditingTx] = useState<Transaction | null>(null);
+  /** Dia selecionado no calendário — permite lançar direto pelo modal do dia. */
+  const [detailDate, setDetailDate] = useState<string | null>(null);
   const [dependentOpen, setDependentOpen] = useState(false);
   const [taxOpen, setTaxOpen] = useState(false);
 
@@ -315,7 +317,8 @@ function DashboardPage() {
     const income = rows
       .filter((row) => row.transaction_type === "income")
       .reduce((sum, row) => sum + Number(row.amount), 0);
-      
+
+    setDetailDate(iso);
     setDetail({
       label: `Movimentos de ${formatDate(iso)}`,
       value: formatCurrency(expense),
@@ -979,7 +982,58 @@ function DashboardPage() {
           </div>
         )}
       </div>
+
+      <MetricDetailDialog
+        detail={detail}
+        categories={categories ?? []}
+        onOpenChange={(open) => {
+          if (!open) {
+            setDetail(null);
+            setDetailDate(null);
+          }
+        }}
+        onEditTransaction={(transaction) => {
+          setDetail(null);
+          setEditingTx(transaction);
+          setDialogKind(transaction.transaction_type === "income" ? "income" : "expense");
+          setPreset({ categoryId: null, subCategoryId: null });
+          setDialogOpen(true);
+        }}
+        {...(detailDate
+          ? {
+              onAddTransaction: () => {
+                setDetail(null);
+                setEditingTx(null);
+                setDialogKind("expense");
+                setPreset({ categoryId: null, subCategoryId: null });
+                setDialogOpen(true);
+              },
+              addLabel: `Lançar em ${formatDate(detailDate)}`,
+            }
+          : {})}
+      />
+
+      <TransactionDialog
+        open={dialogOpen}
+        onOpenChange={(open) => {
+          setDialogOpen(open);
+          if (!open) {
+            setEditingTx(null);
+            setDetailDate(null);
+          }
+        }}
+        kind={dialogKind}
+        transaction={editingTx}
+        {...(detailDate && !editingTx ? { defaultDate: detailDate } : {})}
+        presetCategoryId={preset.categoryId}
+        presetSubCategoryId={preset.subCategoryId}
+      />
+
+      <ExpenseCardsDialog open={cardsOpen} onOpenChange={setCardsOpen} />
+      <DependentExpenseDialog open={dependentOpen} onOpenChange={setDependentOpen} />
+      <TaxQuickDialog open={taxOpen} onOpenChange={setTaxOpen} />
     </AppShell>
+
   );
 }
 

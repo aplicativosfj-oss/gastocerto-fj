@@ -130,10 +130,20 @@ export type PlanAccess = {
   courtesyTrial: boolean;
   trialDaysLeft: number;
   trialEndsAt: string | null;
+  /**
+   * Conta somente-leitura: o período de teste/licença venceu e não há plano
+   * pago. Nenhum lançamento pode ser criado, editado ou excluído até a compra.
+   */
+  readOnly: boolean;
+  readOnlyReason: string | null;
   features: FeatureKey[];
   locked: FeatureKey[];
   freeTransactionLimit: number | null;
 };
+
+export const READ_ONLY_MESSAGE =
+  "Seu período de teste venceu. A conta está em modo somente leitura: você continua consultando os dados, mas para inserir ou editar lançamentos é necessário ativar uma nova licença ou assinar um plano.";
+
 
 export function resolvePlanAccess(input: PlanAccessInput): PlanAccess {
   const now = input.now ?? new Date();
@@ -176,6 +186,10 @@ export function resolvePlanAccess(input: PlanAccessInput): PlanAccess {
           ? ALL_FEATURES
           : ALL_FEATURES.filter((feature) => feature !== "ai_advisor");
 
+  // Vencimento do teste/licença: a conta fica somente leitura até a compra.
+  const trialExpired = Boolean(trialEnd && !trialValid);
+  const readOnly = !paid && trialExpired;
+
   return {
     tier,
     planSlug,
@@ -185,11 +199,20 @@ export function resolvePlanAccess(input: PlanAccessInput): PlanAccess {
     courtesyTrial,
     trialDaysLeft,
     trialEndsAt: trialEnd ? trialEnd.toISOString() : null,
+    readOnly,
+    readOnlyReason: readOnly ? READ_ONLY_MESSAGE : null,
     features,
     locked: ALL_FEATURES.filter((feature) => !features.includes(feature)),
     freeTransactionLimit: tier === "free" ? FREE_MONTHLY_TRANSACTION_LIMIT : null,
   };
 }
+
+/** Verdadeiro quando a conta pode criar/editar/excluir dados. */
+export function canWrite(access: PlanAccess | null | undefined): boolean {
+  if (!access) return true;
+  return !access.readOnly;
+}
+
 
 export function hasFeature(access: PlanAccess | null | undefined, feature: FeatureKey): boolean {
   if (!access) return false;

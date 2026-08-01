@@ -30,6 +30,7 @@ import { FilterField, FilterPanel } from "@/components/finance/filter-panel";
 import { FilterPresets } from "@/components/finance/filter-presets";
 import { MetaChip, PageHeader } from "@/components/finance/page-header";
 import { StatTile } from "@/components/finance/stat-tile";
+import { PeriodPdfPreview } from "@/components/finance/period-pdf-preview";
 import { PeriodPicker } from "@/components/finance/period-picker";
 import { InlineNotes } from "@/components/finance/inline-notes";
 import { TransactionDetailsDialog } from "@/components/finance/transaction-details-dialog";
@@ -511,6 +512,35 @@ function TransactionsPage() {
       toast.error("Não foi possível gerar o PDF do período.");
     }
   }
+  /** Resumo exibido na prévia antes de gerar o PDF do período. */
+  const pdfSummary = useMemo(() => {
+    const expenses = filtered.filter((row) => row.transaction_type === "expense");
+    const byCategory = new Map<string, number>();
+    for (const row of expenses) {
+      const name = row.category_id ? (categoryNames.get(row.category_id) ?? "Sem categoria") : "Sem categoria";
+      byCategory.set(name, (byCategory.get(name) ?? 0) + Number(row.amount));
+    }
+    const totalExpense = expenses.reduce((sum, row) => sum + Number(row.amount), 0);
+    const topCategories = [...byCategory.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([name, amount]) => ({
+        name,
+        amount,
+        share: totalExpense > 0 ? (amount / totalExpense) * 100 : 0,
+      }));
+
+    return {
+      periodLabel: `${MONTH_NAMES[period.month - 1]} de ${period.year}`,
+      typeLabel: TYPE_LABELS[currentTypeFilter] ?? "Lançamentos",
+      count: filtered.length,
+      income: incomeTotal,
+      expense: expenseTotal,
+      balance: total,
+      topCategories,
+    };
+  }, [filtered, categoryNames, period, currentTypeFilter, incomeTotal, expenseTotal, total]);
+
 
   const activeFilters = [
     search.trim() !== "",
@@ -583,16 +613,18 @@ function TransactionsPage() {
                 <Download className="mr-2 size-4" />
                 CSV
               </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-9 px-3"
-                onClick={() => window.print()}
-                title="Imprimir relatório"
-              >
-                <Printer className="mr-2 size-4" />
-                PDF
-              </Button>
+              <PeriodPdfPreview summary={pdfSummary} onDownload={exportPeriodPdf}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-9 px-3"
+                  title="Conferir resumo e gerar PDF"
+                >
+                  <Printer className="mr-2 size-4" />
+                  PDF
+                </Button>
+              </PeriodPdfPreview>
+
               <Button
                 size="sm"
                 className="h-9 px-3"

@@ -20,7 +20,8 @@ interface PeriodPickerProps {
 
 export function PeriodPicker({ year, month, onChange, className }: PeriodPickerProps) {
   const [open, setOpen] = useState(false);
-  const years = Array.from({ length: 7 }, (_, index) => new Date().getFullYear() - 3 + index);
+  const today = new Date();
+  const years = Array.from({ length: 7 }, (_, index) => today.getFullYear() - 3 + index);
 
   function shift(delta: number) {
     const date = new Date(year, month - 1 + delta, 1);
@@ -56,9 +57,9 @@ export function PeriodPicker({ year, month, onChange, className }: PeriodPickerP
             </span>
           </Button>
         </SheetTrigger>
-        <SheetContent 
-          side="bottom" 
-          className="rounded-t-3xl px-4 pb-8 pt-6 sm:max-w-md sm:mx-auto focus-visible:outline-none"
+        <SheetContent
+          side="bottom"
+          className="rounded-t-3xl border-t border-border bg-background px-0 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-0 sm:mx-auto sm:max-w-md focus-visible:outline-none"
           onOpenAutoFocus={(e) => {
             const currentYearBtn = document.getElementById(`year-btn-${year}`);
             if (currentYearBtn) {
@@ -67,19 +68,36 @@ export function PeriodPicker({ year, month, onChange, className }: PeriodPickerP
             }
           }}
         >
-          <SheetHeader className="mb-6">
-            <SheetTitle className="text-center font-display text-xl font-bold">
+          {/* Cabeçalho com o período selecionado sempre visível */}
+          <SheetHeader className="space-y-0 border-b border-border bg-gradient-to-b from-secondary/60 to-transparent px-4 pb-3 pt-4 text-left">
+            <SheetTitle className="font-display text-[15px] font-semibold">
               Selecionar período
             </SheetTitle>
+            <p className="mt-0.5 text-[12px] text-muted-foreground">
+              Selecionado:{" "}
+              <strong className="text-foreground">
+                {MONTH_NAMES[month - 1]} de {year}
+              </strong>
+            </p>
           </SheetHeader>
 
-          <div className="space-y-6">
-            <div 
-              className="flex items-center justify-between border-b border-border pb-4 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-              role="group"
-              aria-label="Selecionar ano"
-            >
-              <div className="flex gap-2 min-w-max pb-1">
+          <div className="px-4 pt-3">
+            {/* Navegação de ano em linha própria, com setas dedicadas */}
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-8 shrink-0"
+                aria-label="Ano anterior"
+                onClick={() => onChange({ year: year - 1, month })}
+              >
+                <ChevronLeft className="size-4" />
+              </Button>
+              <div
+                className="flex flex-1 gap-1.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                role="group"
+                aria-label="Selecionar ano"
+              >
                 {years.map((y) => (
                   <button
                     key={y}
@@ -87,47 +105,102 @@ export function PeriodPicker({ year, month, onChange, className }: PeriodPickerP
                     onClick={() => onChange({ year: y, month })}
                     aria-pressed={y === year}
                     className={cn(
-                      "rounded-lg px-3 py-1.5 text-sm font-bold transition-all focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 outline-none",
+                      "shrink-0 rounded-lg px-2.5 py-1.5 text-[13px] font-semibold tabular outline-none transition-colors focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2",
                       y === year
                         ? "bg-brand text-brand-foreground shadow-sm"
-                        : "text-muted-foreground hover:bg-muted"
+                        : "text-muted-foreground hover:bg-muted",
                     )}
                   >
                     {y}
                   </button>
                 ))}
               </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-8 shrink-0"
+                aria-label="Próximo ano"
+                onClick={() => onChange({ year: year + 1, month })}
+              >
+                <ChevronRight className="size-4" />
+              </Button>
             </div>
 
-            <div 
-              className="grid grid-cols-3 gap-2 sm:grid-cols-4"
+            <div
+              className="mt-3 grid grid-cols-4 gap-1.5"
               role="grid"
               aria-label="Meses do ano"
             >
               {MONTH_NAMES.map((name, index) => {
                 const m = index + 1;
                 const active = m === month;
+                const isCurrent = year === today.getFullYear() && m === today.getMonth() + 1;
+                const isFuture =
+                  year > today.getFullYear() ||
+                  (year === today.getFullYear() && m > today.getMonth() + 1);
                 return (
                   <button
                     key={name}
                     onClick={() => handleSelect(year, m)}
-                    aria-label={name}
+                    aria-label={`${name} de ${year}`}
                     aria-selected={active}
                     role="gridcell"
                     className={cn(
-                      "flex h-12 items-center justify-center rounded-xl text-sm font-bold transition-all focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 outline-none",
+                      "relative flex h-11 flex-col items-center justify-center rounded-xl border text-[13px] font-semibold outline-none transition-colors focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2",
                       active
-                        ? "bg-brand text-brand-foreground shadow-md scale-95"
-                        : "bg-muted/50 text-foreground hover:bg-muted"
+                        ? "border-brand bg-brand text-brand-foreground shadow-sm"
+                        : cn(
+                            "border-border bg-card hover:bg-muted",
+                            isFuture ? "text-muted-foreground" : "text-foreground",
+                          ),
                     )}
                   >
                     {name.slice(0, 3)}
+                    {isCurrent && !active ? (
+                      <span
+                        aria-hidden
+                        className="absolute bottom-1.5 size-1.5 rounded-full bg-brand"
+                      />
+                    ) : null}
                   </button>
                 );
               })}
             </div>
+
+            {/* Atalhos rápidos */}
+            <div className="mt-3 flex flex-wrap gap-1.5 border-t border-border pt-3">
+              <Button
+                variant="secondary"
+                size="sm"
+                className="h-8 text-[12px]"
+                onClick={() => handleSelect(today.getFullYear(), today.getMonth() + 1)}
+              >
+                Mês atual
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 text-[12px]"
+                onClick={() => {
+                  const previous = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+                  handleSelect(previous.getFullYear(), previous.getMonth() + 1);
+                }}
+              >
+                Mês anterior
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="ml-auto h-8 text-[12px]"
+                onClick={() => setOpen(false)}
+              >
+                <X className="size-3.5" aria-hidden />
+                Fechar
+              </Button>
+            </div>
           </div>
         </SheetContent>
+
       </Sheet>
 
       <Button

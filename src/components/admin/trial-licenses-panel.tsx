@@ -9,6 +9,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Table,
   TableBody,
   TableCell,
@@ -27,8 +34,8 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 /**
- * Geração de licenças de teste (7 dias, sem IA) para o administrador doar.
- * A chave só passa a valer quando o cliente a ativa dentro do app.
+ * Geração de códigos de teste (7, 15 ou 30 dias, sem IA) para o administrador
+ * doar. O código só passa a valer quando o cliente o ativa no site ou no app.
  */
 export function TrialLicensesPanel() {
   const create = useServerFn(adminCreateTrialLicenses);
@@ -36,6 +43,7 @@ export function TrialLicensesPanel() {
   const queryClient = useQueryClient();
 
   const [quantity, setQuantity] = useState("5");
+  const [trialDays, setTrialDays] = useState("15");
   const [notes, setNotes] = useState("");
 
   const licenses = useQuery({
@@ -51,41 +59,81 @@ export function TrialLicensesPanel() {
     [licenses.data],
   );
 
+  /** Códigos de 15 dias ainda não usados (prontos para entregar). */
+  const available15 = useMemo(
+    () =>
+      trials.filter(
+        (row: { status: string; trial_days?: number | null }) =>
+          row.status === "pending" && Number(row.trial_days ?? 7) === 15,
+      ).length,
+    [trials],
+  );
+
   const mutation = useMutation({
-    mutationFn: () =>
+    mutationFn: (input: { quantity: number; days: 7 | 15 | 30 }) =>
       create({
-        data: { quantity: Math.max(1, Math.min(50, Number(quantity) || 1)), notes: notes || undefined },
+        data: {
+          quantity: input.quantity,
+          trialDays: input.days,
+          notes: notes || undefined,
+        },
       }),
     onSuccess: (created) => {
-      toast.success(`${created.length} licença(s) de teste gerada(s).`);
+      toast.success(`${created.length} código(s) de teste gerado(s).`);
       setNotes("");
       void queryClient.invalidateQueries({ queryKey: ["admin", "licenses"] });
     },
-    onError: (error: Error) => toast.error(error.message || "Não foi possível gerar as licenças."),
+    onError: (error: Error) => toast.error(error.message || "Não foi possível gerar os códigos."),
   });
 
   const pendingKeys = trials
     .filter((row: { status: string }) => row.status === "pending")
     .map((row: { license_key: string }) => row.license_key);
 
+
   return (
     <section className="rounded-2xl border border-border bg-card p-4">
       <header className="flex items-center gap-2">
         <Gift className="size-5 text-primary" aria-hidden />
         <div>
-          <h2 className="font-display text-base font-semibold">Licenças de teste para doar</h2>
+          <h2 className="font-display text-base font-semibold">Códigos de teste para doar</h2>
           <p className="text-xs text-muted-foreground">
-            7 dias de acesso com recursos limitados e <strong>sem Consultor de IA</strong>. Entregue
-            a chave ao cliente — ela só começa a contar quando ele ativar no app.
+            Acesso com recursos limitados e <strong>sem Consultor de IA</strong>. Entregue o código
+            ao cliente — a validade só começa a contar quando ele ativar no site ou no app. Ao
+            vencer, a conta fica somente leitura até a compra de um plano.
           </p>
         </div>
       </header>
+
+      <div className="mt-3 flex flex-wrap items-center gap-2 rounded-xl border border-dashed border-border bg-muted/40 p-2.5">
+        <p className="text-xs text-muted-foreground">
+          Códigos de <strong>15 dias</strong> ativos e disponíveis:{" "}
+          <strong className="tabular text-foreground">{available15}</strong>
+        </p>
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          disabled={mutation.isPending}
+          onClick={() => {
+            setQuantity("10");
+            setTrialDays("15");
+            mutation.mutate({ quantity: 10, days: 15 });
+          }}
+        >
+          {mutation.isPending ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
+          Gerar 10 códigos de 15 dias
+        </Button>
+      </div>
 
       <form
         className="mt-4 flex flex-wrap items-end gap-2"
         onSubmit={(event) => {
           event.preventDefault();
-          mutation.mutate();
+          mutation.mutate({
+            quantity: Math.max(1, Math.min(50, Number(quantity) || 1)),
+            days: Number(trialDays) as 7 | 15 | 30,
+          });
         }}
       >
         <div className="w-28">
@@ -97,6 +145,19 @@ export function TrialLicensesPanel() {
             onChange={(event) => setQuantity(event.target.value.replace(/\D/g, ""))}
             className="mt-1.5"
           />
+        </div>
+        <div className="w-36">
+          <Label htmlFor="trial-days">Validade</Label>
+          <Select value={trialDays} onValueChange={setTrialDays}>
+            <SelectTrigger id="trial-days" className="mt-1.5">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="7">7 dias</SelectItem>
+              <SelectItem value="15">15 dias</SelectItem>
+              <SelectItem value="30">30 dias</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
         <div className="min-w-56 flex-1">
           <Label htmlFor="trial-notes">Observação (opcional)</Label>
@@ -110,7 +171,7 @@ export function TrialLicensesPanel() {
         </div>
         <Button type="submit" disabled={mutation.isPending}>
           {mutation.isPending ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
-          Gerar chaves
+          Gerar códigos
         </Button>
         {pendingKeys.length > 0 ? (
           <Button
@@ -118,7 +179,7 @@ export function TrialLicensesPanel() {
             variant="outline"
             onClick={() => {
               void navigator.clipboard.writeText(pendingKeys.join("\n"));
-              toast.success("Chaves pendentes copiadas.");
+              toast.success("Códigos pendentes copiados.");
             }}
           >
             <Copy className="size-4" />
@@ -126,6 +187,7 @@ export function TrialLicensesPanel() {
           </Button>
         ) : null}
       </form>
+
 
       <div className="mt-4 overflow-x-auto rounded-xl border border-border">
         <Table>

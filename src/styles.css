@@ -410,22 +410,21 @@
     scroll-padding-top: 5rem;
     overflow-x: hidden;
     -webkit-text-size-adjust: 100%;
+    /* Um único scroller: gutter reservado sem forçar barra extra. */
     scrollbar-gutter: stable;
-    overflow-y: scroll;
-    /* Prevenção de distorções em mobile */
     min-height: 100%;
-    height: -webkit-fill-available;
   }
 
   body {
     overflow-x: hidden;
+    /* O scroll da página pertence ao html: evita a segunda barra no desktop. */
+    overflow-y: visible;
     min-width: 0;
-    min-height: 100%;
-    min-height: 100vh;
-    min-height: -webkit-fill-available;
+    min-height: 100dvh;
     text-rendering: optimizeLegibility;
     -webkit-tap-highlight-color: transparent;
   }
+
 
 
 

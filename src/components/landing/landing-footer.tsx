@@ -7,11 +7,9 @@ import { useState } from "react";
 
 const links = [
   { label: "Recursos", href: "#recursos" },
-  { label: "Como funciona", href: "#como-funciona" },
   { label: "Planos", href: "#planos" },
-  { label: "Segurança", href: "#seguranca" },
-  { label: "FAQ", href: "#faq" },
 ];
+
 
 const legalLinks = [
   { label: "Termos de uso", to: "/termos" as const },

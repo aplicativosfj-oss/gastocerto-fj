@@ -2,21 +2,21 @@ import { Link } from "@tanstack/react-router";
 import { Suspense, lazy } from "react";
 import {
   ArrowRight,
-  ChevronDown,
   Flame,
   Fuel,
-  PlayCircle,
+  KeyRound,
   ShieldCheck,
   TrendingDown,
   Wallet,
 } from "lucide-react";
 
 import heroBg from "@/assets/hero-desk-night.jpg";
+import heroMobileBg from "@/assets/hero-mobile.jpg";
 import { Button } from "@/components/ui/button";
-import { DemoDialog } from "@/components/landing/demo-dialog";
+import { CodeAccessDialog } from "@/components/landing/code-access-dialog";
 import { GridPattern, RingChart, Sparkline } from "@/components/landing/decor";
 import { formatCurrency } from "@/lib/format";
-import { handleAnchorClick } from "@/lib/scroll";
+
 
 const DashboardPreview = lazy(() =>
   import("@/components/landing/dashboard-preview").then((m) => ({ default: m.DashboardPreview })),
@@ -50,11 +50,22 @@ export function Hero() {
         decoding="async"
         className="absolute inset-0 -z-20 hidden size-full object-cover object-right opacity-80 sm:block"
       />
-      {/* phone background: layered brand mesh */}
+      {/* phone background: imagem vertical de tendência + véu para contraste */}
+      <img
+        src={heroMobileBg}
+        alt=""
+        aria-hidden="true"
+        width={768}
+        height={1344}
+        fetchPriority="high"
+        decoding="async"
+        className="absolute inset-0 -z-20 size-full object-cover object-center sm:hidden"
+      />
       <div
         aria-hidden="true"
-        className="absolute inset-0 -z-20 sm:hidden bg-[radial-gradient(120%_85%_at_15%_0%,oklch(0.34_0.11_259)_0%,oklch(0.2_0.05_258)_48%,oklch(0.145_0.028_258)_100%)]"
+        className="absolute inset-0 -z-10 sm:hidden bg-[linear-gradient(180deg,oklch(0.145_0.028_258/0.82)_0%,oklch(0.145_0.028_258/0.62)_45%,oklch(0.145_0.028_258/0.92)_100%)]"
       />
+
       <div
         aria-hidden="true"
         className="absolute inset-0 -z-10 hidden sm:block bg-[linear-gradient(100deg,oklch(0.16_0.03_258)_18%,oklch(0.16_0.03_258/0.88)_46%,oklch(0.16_0.03_258/0.35)_100%)]"
@@ -102,25 +113,17 @@ export function Hero() {
                 <ArrowRight className="size-4 shrink-0" aria-hidden="true" />
               </Link>
             </Button>
-            <DemoDialog>
+            <CodeAccessDialog>
               <Button
                 variant="outline"
                 className="h-12 w-full justify-center border-white/25 bg-white/10 px-4 text-sm text-white backdrop-blur hover:bg-white/20 hover:text-white sm:h-11 sm:w-auto sm:bg-white/5 sm:px-6 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
               >
-                <PlayCircle className="size-4 shrink-0" aria-hidden="true" />
-                <span className="truncate">Ver funcionando</span>
+                <KeyRound className="size-4 shrink-0" aria-hidden="true" />
+                <span className="truncate">Tenho um código</span>
               </Button>
-            </DemoDialog>
-            <a
-              href="#explorar"
-              onClick={(event) => handleAnchorClick(event, "#explorar")}
-              aria-label="Explorar seções"
-              className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-md text-[13px] font-medium text-white/90 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent sm:h-11 sm:w-auto sm:px-3 sm:text-sm"
-            >
-              <span>Explorar seções</span>
-              <ChevronDown className="size-4 shrink-0" aria-hidden="true" />
-            </a>
+            </CodeAccessDialog>
           </div>
+
 
           {/* phone-only summary card replaces the empty photo space */}
           <div className="mt-6 rounded-2xl border border-white/15 bg-[oklch(0.22_0.035_258/0.72)] p-3.5 shadow-lifted backdrop-blur-md sm:hidden">
