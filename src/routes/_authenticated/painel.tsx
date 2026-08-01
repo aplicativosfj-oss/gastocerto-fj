@@ -348,6 +348,7 @@ function DashboardPage() {
               kind="income"
               label="Nova receita"
               onPick={(pick) => {
+                setEditingTx(null);
                 setDialogKind("income");
                 setPreset(pick);
                 setDialogOpen(true);
@@ -361,6 +362,7 @@ function DashboardPage() {
               kind="expense"
               label="Novo gasto"
               onPick={(pick) => {
+                setEditingTx(null);
                 setDialogKind("expense");
                 setPreset(pick);
                 setDialogOpen(true);
