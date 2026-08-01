@@ -77,12 +77,10 @@ export function summarizeByCard(
 
   for (const row of rows) {
     if (row.transaction_type !== "expense") continue;
-    const accountId = row.account_id;
     const isCardPayment = row.payment_method === "credit_card";
-    if (!accountId || !byId.has(accountId)) {
-      if (!isCardPayment) continue;
-    }
-    const key = accountId && byId.has(accountId) ? accountId : "sem-cartao";
+    const known = Boolean(row.account_id && byId.has(row.account_id));
+    if (!known && !isCardPayment) continue;
+    const key = known ? row.account_id! : "sem-cartao";
     const current =
       map.get(key) ??
       ({
