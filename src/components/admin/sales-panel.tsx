@@ -29,7 +29,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
-import { getPixCheckoutStatus } from "@/lib/checkout.functions";
+import { getCheckoutStatus } from "@/lib/checkout.functions";
 import { adminListLicenses } from "@/lib/licenses.functions";
 import { formatCurrency, formatDateTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -328,7 +328,7 @@ export function SalesPanel({ globalSearch = "" }: { globalSearch?: string }) {
   const sync = async (paymentId: string) => {
     setSyncing(paymentId);
     try {
-      const result = await getPixCheckoutStatus({ data: { paymentId } });
+      const result = await getCheckoutStatus({ data: { paymentId } });
       toast.success(`Situação atualizada: ${STATUS_LABEL[result.status] ?? result.status}`);
       await query.refetch();
     } catch (error) {
