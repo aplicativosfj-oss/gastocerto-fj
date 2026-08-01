@@ -75,7 +75,12 @@ export function useSaveVehicle() {
   const { user } = useAuth();
   const refresh = useRefreshFleet();
   return useMutation({
-    mutationFn: async (input: { id?: string; values: Omit<TablesInsert<"vehicles">, "user_id"> }) => {
+    mutationFn: async (input: {
+      id?: string;
+      values: Omit<TablesInsert<"vehicles">, "user_id">;
+      /** Cota de veículos do plano (`null`/omitido = ilimitado). */
+      limit?: number | null;
+    }) => {
       if (!user) throw new Error("Sessão expirada");
       if (input.id) {
         const { error } = await supabase
@@ -84,6 +89,16 @@ export function useSaveVehicle() {
           .eq("id", input.id);
         if (error) throw error;
         return;
+      }
+      const { count } = await supabase
+        .from("vehicles")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", user.id);
+      const { data: access } = await supabase.rpc("has_role", { _user_id: user.id, _role: "admin" });
+      if (access !== true && input.limit != null && (count ?? 0) >= input.limit) {
+        throw new Error(
+          `Seu plano permite ${input.limit} veículo(s). Faça upgrade para o Premium IA para cadastrar veículos ilimitados.`,
+        );
       }
       const { error } = await supabase.from("vehicles").insert({ ...input.values, user_id: user.id });
       if (error) throw error;

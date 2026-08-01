@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { evaluateAiEntitlement, evaluateAiRateLimit, isAiBalanceLow } from "./ai-entitlement";
 import { DEFAULT_AI_LIMITS, normalizeAiLimits } from "./ai-limits";
-import { resolvePlanAccess, hasFeature, trialDaysForSlug } from "./plan-features";
+import { resolvePlanAccess, hasFeature, trialDaysForSlug, withinLimit } from "./plan-features";
 
 const now = new Date("2026-07-31T12:00:00Z");
 
@@ -73,6 +73,7 @@ describe("planos e recursos", () => {
     expect(hasFeature(access, "ai_advisor")).toBe(false);
     expect(hasFeature(access, "vehicles")).toBe(false);
     expect(access.freeTransactionLimit).toBe(30);
+    expect(access.limits.shareLinks).toBe(0);
   });
 
   it("teste vigente libera tudo e calcula os dias restantes", () => {
@@ -99,10 +100,46 @@ describe("planos e recursos", () => {
     expect(hasFeature(access, "reports_advanced")).toBe(false);
   });
 
-  it("licença paga ativa libera tudo", () => {
+  it("licença paga antiga sem plano identificado libera tudo", () => {
     const access = resolvePlanAccess({ planSlug: "free", hasPaidLicense: true, now });
     expect(access.tier).toBe("paid");
     expect(hasFeature(access, "ai_advisor")).toBe(true);
+  });
+
+  it("Premium é pago, porém sem IA e com cotas", () => {
+    const access = resolvePlanAccess({
+      planSlug: "premium",
+      planTier: "paid",
+      planPrice: 24.9,
+      hasPaidLicense: true,
+      paidPlanSlug: "premium",
+      now,
+    });
+    expect(access.tier).toBe("paid");
+    expect(access.aiIncluded).toBe(false);
+    expect(hasFeature(access, "ai_advisor")).toBe(false);
+    expect(hasFeature(access, "reports_advanced")).toBe(true);
+    expect(access.limits.vehicles).toBe(2);
+    expect(access.limits.shareLinks).toBe(2);
+    expect(access.limits.aiQueries).toBe(0);
+    expect(access.limits.monthlyTransactions).toBeNull();
+    expect(withinLimit(access, "vehicles", 2)).toBe(false);
+    expect(withinLimit(access, "vehicles", 1)).toBe(true);
+  });
+
+  it("Premium IA libera IA e remove as cotas", () => {
+    const access = resolvePlanAccess({
+      planSlug: "premium_ia",
+      planTier: "paid",
+      planPrice: 34.9,
+      hasPaidLicense: true,
+      paidPlanSlug: "premium_ia",
+      now,
+    });
+    expect(access.aiIncluded).toBe(true);
+    expect(access.limits.vehicles).toBeNull();
+    expect(access.limits.aiQueries).toBeGreaterThan(0);
+    expect(withinLimit(access, "vehicles", 99)).toBe(true);
   });
 
   it("mapeia a duração de cada teste", () => {

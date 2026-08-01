@@ -107,6 +107,61 @@ export function trialDaysForSlug(slug: string | null | undefined): number | null
   return found ? found.days : null;
 }
 
+/** Cotas de uso por nível de plano — diferenciam Premium de Premium IA. */
+export type PlanLimits = {
+  /** Lançamentos por mês (`null` = ilimitado). */
+  monthlyTransactions: number | null;
+  /** Veículos cadastrados (`null` = ilimitado). */
+  vehicles: number | null;
+  /** Links compartilhados ativos (`null` = ilimitado). */
+  shareLinks: number | null;
+  /** Metas ativas (`null` = ilimitado). */
+  goals: number | null;
+  /** Meses de histórico consultáveis (`null` = completo). */
+  historyMonths: number | null;
+  /** Consultas de IA por mês (0 = IA bloqueada). */
+  aiQueries: number;
+};
+
+export const FREE_LIMITS: PlanLimits = {
+  monthlyTransactions: FREE_MONTHLY_TRANSACTION_LIMIT,
+  vehicles: 1,
+  shareLinks: 0,
+  goals: 1,
+  historyMonths: 3,
+  aiQueries: 0,
+};
+
+/** Premium: uso amplo, porém com cotas — a IA fica no plano superior. */
+export const PREMIUM_LIMITS: PlanLimits = {
+  monthlyTransactions: null,
+  vehicles: 2,
+  shareLinks: 2,
+  goals: 5,
+  historyMonths: 24,
+  aiQueries: 0,
+};
+
+/** Premium IA: sem cotas + Consultor de IA com créditos mensais. */
+export const PREMIUM_AI_LIMITS: PlanLimits = {
+  monthlyTransactions: null,
+  vehicles: null,
+  shareLinks: null,
+  goals: null,
+  historyMonths: null,
+  aiQueries: 120,
+};
+
+export const TRIAL_LIMITS: PlanLimits = { ...PREMIUM_AI_LIMITS, aiQueries: 20 };
+export const COURTESY_TRIAL_LIMITS: PlanLimits = {
+  ...PREMIUM_LIMITS,
+  vehicles: 1,
+  shareLinks: 0,
+  goals: 2,
+  historyMonths: 6,
+  aiQueries: 0,
+};
+
 export type PlanAccessInput = {
   planSlug?: string | null;
   planTier?: string | null;
@@ -115,6 +170,8 @@ export type PlanAccessInput = {
   /** Slug do plano de teste em vigor (testes de cortesia são limitados e sem IA). */
   trialPlanSlug?: string | null;
   hasPaidLicense?: boolean | null;
+  /** Slug do plano da licença paga vigente (define se a IA está inclusa). */
+  paidPlanSlug?: string | null;
   isAdmin?: boolean | null;
   now?: Date;
 };
@@ -139,6 +196,8 @@ export type PlanAccess = {
   features: FeatureKey[];
   locked: FeatureKey[];
   freeTransactionLimit: number | null;
+  /** Cotas de uso do plano vigente. */
+  limits: PlanLimits;
 };
 
 export const READ_ONLY_MESSAGE =
@@ -170,12 +229,17 @@ export function resolvePlanAccess(input: PlanAccessInput): PlanAccess {
   const courtesyTrial =
     tier === "trial" && (!trialIncludesAi(trialSlug) || !trialIncludesAi(planSlug));
 
-  // A IA integrada acompanha somente o plano Premium IA (ou teste completo,
-  // admin ou licença paga). Testes de cortesia nunca liberam a IA.
+  // Slug efetivo do plano pago: prioriza a licença paga vigente.
+  const paidSlug = String(input.paidPlanSlug ?? "").toLowerCase() || planSlug;
+  // Licença antiga sem plano identificado: mantém tudo liberado por compatibilidade.
+  const legacyPaidLicense =
+    input.hasPaidLicense === true && (!paidSlug || paidSlug === "free");
+
+  // A IA integrada acompanha somente o plano Premium IA (ou teste completo e admin).
   const aiIncluded =
     isAdmin ||
-    input.hasPaidLicense === true ||
-    (tier === "trial" ? !courtesyTrial : planIncludesAi(planSlug));
+    legacyPaidLicense ||
+    (tier === "trial" ? !courtesyTrial : planIncludesAi(paidSlug));
 
   const features =
     tier === "free"
@@ -185,6 +249,19 @@ export function resolvePlanAccess(input: PlanAccessInput): PlanAccess {
         : aiIncluded
           ? ALL_FEATURES
           : ALL_FEATURES.filter((feature) => feature !== "ai_advisor");
+
+  const limits: PlanLimits =
+    isAdmin || legacyPaidLicense
+      ? PREMIUM_AI_LIMITS
+      : tier === "free"
+        ? FREE_LIMITS
+        : tier === "trial"
+          ? courtesyTrial
+            ? COURTESY_TRIAL_LIMITS
+            : TRIAL_LIMITS
+          : aiIncluded
+            ? PREMIUM_AI_LIMITS
+            : PREMIUM_LIMITS;
 
   // Vencimento do teste/licença: a conta fica somente leitura até a compra.
   const trialExpired = Boolean(trialEnd && !trialValid);
@@ -204,8 +281,30 @@ export function resolvePlanAccess(input: PlanAccessInput): PlanAccess {
     features,
     locked: ALL_FEATURES.filter((feature) => !features.includes(feature)),
     freeTransactionLimit: tier === "free" ? FREE_MONTHLY_TRANSACTION_LIMIT : null,
+    limits,
   };
 }
+
+/** Cota do plano para um recurso, ou `null` quando ilimitada. */
+export function limitFor(
+  access: PlanAccess | null | undefined,
+  key: keyof PlanLimits,
+): number | null {
+  if (!access) return null;
+  return access.limits[key];
+}
+
+/** Verdadeiro quando ainda há espaço na cota do plano. */
+export function withinLimit(
+  access: PlanAccess | null | undefined,
+  key: keyof PlanLimits,
+  currentCount: number,
+): boolean {
+  const limit = limitFor(access, key);
+  if (limit === null) return true;
+  return currentCount < limit;
+}
+
 
 /** Verdadeiro quando a conta pode criar/editar/excluir dados. */
 export function canWrite(access: PlanAccess | null | undefined): boolean {

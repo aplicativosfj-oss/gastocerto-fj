@@ -58,6 +58,22 @@ export const createShareLink = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => createSchema.parse(data))
   .handler(async ({ data, context }) => {
+    const { loadPlanAccess } = await import("./plan-access.server");
+    const { withinLimit } = await import("./plan-features");
+    const access = await loadPlanAccess(context.supabase, context.userId);
+    const { count } = await context.supabase
+      .from("share_links")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", context.userId);
+    if (!withinLimit(access, "shareLinks", count ?? 0)) {
+      const limit = access.limits.shareLinks ?? 0;
+      throw new Error(
+        limit === 0
+          ? "Compartilhamento por link está disponível a partir do plano Premium."
+          : `Seu plano permite ${limit} link(s) compartilhado(s). Exclua um link existente ou faça upgrade para o Premium IA (links ilimitados).`,
+      );
+    }
+
     const { hashSharePassword, generateShareToken } = await import("./share-hash.server");
     const { hash, salt } = await hashSharePassword(data.password);
     const token = generateShareToken();
