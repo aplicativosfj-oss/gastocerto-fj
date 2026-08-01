@@ -276,15 +276,26 @@ function AdminContent({ isAdmin }: { isAdmin: boolean }) {
           </TabsList>
 
           {isAdmin ? (
-            <TabsContent value="licenses" className="mt-4">
-              <LicensesPanel />
-            </TabsContent>
-          ) : null}
-
-          {isAdmin ? (
-            <TabsContent value="payments" className="mt-4">
-              <SalesPanel />
-            </TabsContent>
+            <>
+              <TabsContent value="business" className="mt-4">
+                <BusinessDashboard />
+              </TabsContent>
+              <TabsContent value="tickets" className="mt-4">
+                <SupportTicketsPanel />
+              </TabsContent>
+              <TabsContent value="announcements" className="mt-4">
+                <AnnouncementsPanel />
+              </TabsContent>
+              <TabsContent value="plans" className="mt-4">
+                <PlanConfigsPanel />
+              </TabsContent>
+              <TabsContent value="licenses" className="mt-4">
+                <LicensesPanel />
+              </TabsContent>
+              <TabsContent value="payments" className="mt-4">
+                <SalesPanel />
+              </TabsContent>
+            </>
           ) : null}
 
 
