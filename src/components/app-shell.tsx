@@ -201,6 +201,15 @@ export function AppShell({ children }: { children: ReactNode }) {
                   </span>
                 ) : null}
               </Link>
+              <Link
+                to="/lancamentos"
+                aria-label="Novo lançamento"
+                title="Novo lançamento"
+                className="inline-flex h-8 items-center gap-1.5 rounded-md bg-brand px-2.5 text-[12px] font-semibold text-brand-foreground transition-opacity hover:opacity-90 sm:h-9 sm:px-3"
+              >
+                <Plus className="size-4" aria-hidden="true" />
+                <span className="hidden sm:inline">Lançar</span>
+              </Link>
               <ThemeToggle />
               <Link to="/perfil" aria-label="Meu perfil">
                 <Avatar className="size-7 sm:size-8">
