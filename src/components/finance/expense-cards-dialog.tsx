@@ -328,6 +328,30 @@ export function ExpenseCardsDialog({
               aria-label="Buscar categoria"
             />
 
+            {phoneCategory ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setSelected(phoneCategory);
+                  setPhoneMode(true);
+                  setKind("single");
+                }}
+                className="flex w-full items-center gap-3 rounded-xl border border-primary/40 bg-primary/5 p-3 text-left transition hover:-translate-y-0.5 hover:shadow-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                <span className="flex size-9 items-center justify-center rounded-lg bg-primary/15 text-primary">
+                  <Smartphone className="size-4" aria-hidden />
+                </span>
+                <span className="min-w-0">
+                  <span className="block text-sm font-semibold">Crédito / plano de celular</span>
+                  <span className="block text-[11px] text-muted-foreground">
+                    Valor da recarga, gigas contratados e validade
+                  </span>
+                </span>
+              </button>
+            ) : null}
+
+
+
             <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
               {expenseCategories.slice(0, 24).map((category) => {
                 const Icon = categoryIcon(category.icon);
