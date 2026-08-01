@@ -33,6 +33,7 @@ import { Route as AuthenticatedOrcamentosRouteImport } from './routes/_authentic
 import { Route as AuthenticatedPainelRouteImport } from './routes/_authenticated/painel'
 import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated/perfil'
 import { Route as AuthenticatedReceitasRouteImport } from './routes/_authenticated/receitas'
+import { Route as AuthenticatedReconciliacaoRouteImport } from './routes/_authenticated/reconciliacao'
 import { Route as AuthenticatedRecorrenciaRouteImport } from './routes/_authenticated/recorrencia'
 import { Route as AuthenticatedRelatoriosRouteImport } from './routes/_authenticated/relatorios'
 import { Route as AuthenticatedVeiculosRouteImport } from './routes/_authenticated/veiculos'
@@ -162,6 +163,12 @@ const AuthenticatedReceitasRoute = AuthenticatedReceitasRouteImport.update({
   path: '/receitas',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedReconciliacaoRoute =
+  AuthenticatedReconciliacaoRouteImport.update({
+    id: '/reconciliacao',
+    path: '/reconciliacao',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedRecorrenciaRoute =
   AuthenticatedRecorrenciaRouteImport.update({
     id: '/recorrencia',
@@ -221,6 +228,7 @@ export interface FileRoutesByFullPath {
   '/painel': typeof AuthenticatedPainelRoute
   '/perfil': typeof AuthenticatedPerfilRoute
   '/receitas': typeof AuthenticatedReceitasRoute
+  '/reconciliacao': typeof AuthenticatedReconciliacaoRoute
   '/recorrencia': typeof AuthenticatedRecorrenciaRoute
   '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/veiculos': typeof AuthenticatedVeiculosRoute
@@ -252,6 +260,7 @@ export interface FileRoutesByTo {
   '/painel': typeof AuthenticatedPainelRoute
   '/perfil': typeof AuthenticatedPerfilRoute
   '/receitas': typeof AuthenticatedReceitasRoute
+  '/reconciliacao': typeof AuthenticatedReconciliacaoRoute
   '/recorrencia': typeof AuthenticatedRecorrenciaRoute
   '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/veiculos': typeof AuthenticatedVeiculosRoute
@@ -285,6 +294,7 @@ export interface FileRoutesById {
   '/_authenticated/painel': typeof AuthenticatedPainelRoute
   '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
   '/_authenticated/receitas': typeof AuthenticatedReceitasRoute
+  '/_authenticated/reconciliacao': typeof AuthenticatedReconciliacaoRoute
   '/_authenticated/recorrencia': typeof AuthenticatedRecorrenciaRoute
   '/_authenticated/relatorios': typeof AuthenticatedRelatoriosRoute
   '/_authenticated/veiculos': typeof AuthenticatedVeiculosRoute
@@ -318,6 +328,7 @@ export interface FileRouteTypes {
     | '/painel'
     | '/perfil'
     | '/receitas'
+    | '/reconciliacao'
     | '/recorrencia'
     | '/relatorios'
     | '/veiculos'
@@ -349,6 +360,7 @@ export interface FileRouteTypes {
     | '/painel'
     | '/perfil'
     | '/receitas'
+    | '/reconciliacao'
     | '/recorrencia'
     | '/relatorios'
     | '/veiculos'
@@ -381,6 +393,7 @@ export interface FileRouteTypes {
     | '/_authenticated/painel'
     | '/_authenticated/perfil'
     | '/_authenticated/receitas'
+    | '/_authenticated/reconciliacao'
     | '/_authenticated/recorrencia'
     | '/_authenticated/relatorios'
     | '/_authenticated/veiculos'
@@ -569,6 +582,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedReceitasRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/reconciliacao': {
+      id: '/_authenticated/reconciliacao'
+      path: '/reconciliacao'
+      fullPath: '/reconciliacao'
+      preLoaderRoute: typeof AuthenticatedReconciliacaoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/recorrencia': {
       id: '/_authenticated/recorrencia'
       path: '/recorrencia'
@@ -632,6 +652,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedPainelRoute: typeof AuthenticatedPainelRoute
   AuthenticatedPerfilRoute: typeof AuthenticatedPerfilRoute
   AuthenticatedReceitasRoute: typeof AuthenticatedReceitasRoute
+  AuthenticatedReconciliacaoRoute: typeof AuthenticatedReconciliacaoRoute
   AuthenticatedRecorrenciaRoute: typeof AuthenticatedRecorrenciaRoute
   AuthenticatedRelatoriosRoute: typeof AuthenticatedRelatoriosRoute
   AuthenticatedVeiculosRoute: typeof AuthenticatedVeiculosRoute
@@ -658,6 +679,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedPainelRoute: AuthenticatedPainelRoute,
   AuthenticatedPerfilRoute: AuthenticatedPerfilRoute,
   AuthenticatedReceitasRoute: AuthenticatedReceitasRoute,
+  AuthenticatedReconciliacaoRoute: AuthenticatedReconciliacaoRoute,
   AuthenticatedRecorrenciaRoute: AuthenticatedRecorrenciaRoute,
   AuthenticatedRelatoriosRoute: AuthenticatedRelatoriosRoute,
   AuthenticatedVeiculosRoute: AuthenticatedVeiculosRoute,

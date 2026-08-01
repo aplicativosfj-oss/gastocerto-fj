@@ -9,6 +9,11 @@ import { ReceiptField } from "@/components/finance/receipt-field";
 import { Button } from "@/components/ui/button";
 
 import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "@/components/ui/alert";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -134,6 +139,22 @@ export function TransactionDialog({
   const [suggestion, setSuggestion] = useState<{ id: string; name: string; subCategoryId?: string | null } | null>(null);
   const [subCategoryId, setSubCategoryId] = useState((transaction as any)?.sub_category_id ?? "");
   const saveFeedback = useSaveCategoryFeedback();
+  const [revenueSuggestion, setRevenueSuggestion] = useState<{ message: string; date: string } | null>(null);
+
+  useEffect(() => {
+    async function checkRevenue() {
+      if (kind === "income" && date && !editing) {
+        const { suggestRevenueTransfer } = await import("@/lib/reconciliation.functions");
+        const res = await suggestRevenueTransfer({ data: { userId: "temp", date } });
+        if (res.shouldSuggest && res.suggestedDate) {
+          setRevenueSuggestion({ message: res.message, date: res.suggestedDate });
+        } else {
+          setRevenueSuggestion(null);
+        }
+      }
+    }
+    checkRevenue();
+  }, [date, kind, editing]);
 
   const { data: lastTransaction } = useLastTransaction(kind);
 
@@ -319,6 +340,17 @@ export function TransactionDialog({
 
     const total = installments ? Number(installments) : null;
 
+    // Validação de data incoerente
+    const today = new Date();
+    const selectedDate = new Date(date);
+    const isDifferentDay = selectedDate.getDate() !== today.getDate() || 
+                          selectedDate.getMonth() !== today.getMonth() ||
+                          selectedDate.getFullYear() !== today.getFullYear();
+
+    if (isDifferentDay && !editing && !confirm(`Você selecionou a data ${formatDate(date)}, que é diferente de hoje. Confirmar lançamento para este dia?`)) {
+      return;
+    }
+
     try {
       const saved = await save.mutateAsync({
         id: transaction?.id,
@@ -482,6 +514,27 @@ export function TransactionDialog({
                 className="mt-1.5"
                 aria-invalid={Boolean(errors.date)}
               />
+              {revenueSuggestion && (
+                <Alert className="mt-2 py-2 bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800">
+                  <div className="flex flex-col gap-1 w-full">
+                    <p className="text-[11px] text-emerald-700 dark:text-emerald-300 font-medium">
+                      {revenueSuggestion.message}
+                    </p>
+                    <Button 
+                      type="button" 
+                      variant="link" 
+                      className="h-auto p-0 text-[11px] text-emerald-600 underline justify-start"
+                      onClick={() => {
+                        setDate(revenueSuggestion.date);
+                        setRevenueSuggestion(null);
+                        setNotes((n) => n ? `${n} (Transferido para o mês correto)` : "Transferido para o mês correto");
+                      }}
+                    >
+                      Mover para {formatDate(revenueSuggestion.date)}
+                    </Button>
+                  </div>
+                </Alert>
+              )}
               <div className="mt-2 flex flex-wrap gap-2">
                 <Button type="button" variant="outline" size="sm" onClick={() => shiftDate("today")}>
                   Hoje
