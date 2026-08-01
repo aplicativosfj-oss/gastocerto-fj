@@ -47,12 +47,16 @@ export function TransactionDetailsDialog({
 }) {
   const { data: categories } = useCategories();
   const saveTransaction = useSaveTransaction();
+  const refreshHistory = useRefreshNoteHistory();
   const [receiptOpen, setReceiptOpen] = useState(false);
   const [editingNotes, setEditingNotes] = useState(false);
   const [notesDraft, setNotesDraft] = useState("");
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const { data: history } = useNoteHistory(transaction?.id, open);
 
   useEffect(() => {
     setEditingNotes(false);
+    setHistoryOpen(false);
     setNotesDraft(transaction?.notes ?? "");
   }, [transaction?.id, transaction?.notes, open]);
 
@@ -67,12 +71,26 @@ export function TransactionDetailsDialog({
         id: transaction.id,
         values: { notes: notesDraft.trim() || null } as never,
       });
+      await refreshHistory(transaction.id);
       setEditingNotes(false);
       toast.success("Anotações salvas");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Não foi possível salvar as anotações");
     }
   }
+
+  async function handleExport() {
+    if (!transaction) return;
+    try {
+      await exportTransactionPdf(transaction, {
+        categoryName: category?.name,
+        history: history ?? [],
+      });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Não foi possível gerar o PDF");
+    }
+  }
+
 
   return (
     <>
