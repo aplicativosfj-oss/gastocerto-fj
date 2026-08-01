@@ -32,6 +32,7 @@ import { InlineNotes } from "@/components/finance/inline-notes";
 import { TransactionDetailsDialog } from "@/components/finance/transaction-details-dialog";
 import { TransactionDialog } from "@/components/finance/transaction-dialog";
 import { ExpenseCardsDialog } from "@/components/finance/expense-cards-dialog";
+import { cn } from "@/lib/utils";
 
 
 import {
