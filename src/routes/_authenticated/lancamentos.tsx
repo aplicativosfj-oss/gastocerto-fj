@@ -479,8 +479,9 @@ function TransactionsPage() {
               </TableHeader>
               <TableBody>
                 {rows.map((row) => (
-                  <>
-                  <TableRow key={row.id}>
+                  <Fragment key={row.id}>
+                  <TableRow>
+
 
                     <TableCell>
                       <Checkbox
