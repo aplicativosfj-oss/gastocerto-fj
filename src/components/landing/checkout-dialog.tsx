@@ -1,5 +1,5 @@
-import { useMutation } from "@tanstack/react-query";
-import { Check, Copy, Loader2, Mail, QrCode, ShieldCheck, Sparkles } from "lucide-react";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { Check, Copy, Loader2, Landmark, ShieldCheck, Sparkles } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useNavigate } from "@tanstack/react-router";
@@ -18,9 +18,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   confirmCheckoutVerification,
-  getPixCheckoutStatus,
+  getCheckoutStatus,
+  getManualPaymentInstructions,
   requestCheckoutVerification,
-  startPixCheckout,
+  startManualOrder,
 } from "@/lib/checkout.functions";
 
 import {
@@ -35,10 +36,11 @@ import { formatCurrency } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { livePrice, usePublicPlans } from "@/hooks/use-public-plans";
 
-type Step = "plan" | "form" | "code" | "pix" | "done";
+type Step = "plan" | "form" | "code" | "manual" | "done";
 
-type Charge = Awaited<ReturnType<typeof startPixCheckout>>;
+type Order = Awaited<ReturnType<typeof startManualOrder>>;
 type Verification = Awaited<ReturnType<typeof requestCheckoutVerification>>;
+
 
 
 export function CheckoutDialog({
@@ -59,7 +61,7 @@ export function CheckoutDialog({
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [cpf, setCpf] = useState("");
-  const [charge, setCharge] = useState<Charge | null>(null);
+  const [order, setOrder] = useState<Order | null>(null);
   const [status, setStatus] = useState("pending");
   const [licenseKey, setLicenseKey] = useState<string | null>(null);
   const [verification, setVerification] = useState<Verification | null>(null);
@@ -67,6 +69,14 @@ export function CheckoutDialog({
   const pollRef = useRef<number | null>(null);
 
   const { data: livePlans } = usePublicPlans();
+
+  // Dados de Pix/transferência que o administrador mantém no painel.
+  const { data: manual } = useQuery({
+    queryKey: ["manual-payment-instructions"],
+    queryFn: () => getManualPaymentInstructions(),
+    enabled: open,
+    staleTime: 5 * 60 * 1000,
+  });
 
   // Catálogo com os preços vigentes do banco (ajustes do admin valem na hora).
   const catalog = CHECKOUT_PLANS.map((item) => {
@@ -82,19 +92,20 @@ export function CheckoutDialog({
     setStep(initialPlan ? "form" : "plan");
     setPlanSlug(initialPlan ?? "premium_ia");
     setCycle(initialCycle);
-    setCharge(null);
+    setOrder(null);
     setLicenseKey(null);
     setStatus("pending");
     setVerification(null);
     setCode("");
   }, [open, initialPlan, initialCycle]);
 
-  // Rede de segurança: consulta o Mercado Pago a cada 5s enquanto o Pix não é pago.
+  // Enquanto o pedido está aberto, verificamos a cada 15s se o administrador
+  // já confirmou o recebimento e liberou a chave.
   useEffect(() => {
-    if (step !== "pix" || !charge) return;
+    if (step !== "manual" || !order) return;
     const check = async () => {
       try {
-        const result = await getPixCheckoutStatus({ data: { paymentId: charge.paymentId } });
+        const result = await getCheckoutStatus({ data: { paymentId: order.paymentId } });
         setStatus(result.status);
         if (result.status === "approved" && result.licenseKey) {
           setLicenseKey(result.licenseKey);
@@ -105,11 +116,11 @@ export function CheckoutDialog({
       }
     };
     void check();
-    pollRef.current = window.setInterval(check, 5000);
+    pollRef.current = window.setInterval(check, 15000);
     return () => {
       if (pollRef.current) window.clearInterval(pollRef.current);
     };
-  }, [step, charge]);
+  }, [step, order]);
 
   // Etapa 1: envia o código para o e-mail. Nenhum cadastro é criado ainda.
   const verify = useMutation({
@@ -131,17 +142,25 @@ export function CheckoutDialog({
 
   const create = useMutation({
     mutationFn: () =>
-      startPixCheckout({
-        data: { planSlug, cycle, fullName, email, cpf, verificationId: verification?.verificationId ?? "" },
+      startManualOrder({
+        data: {
+          planSlug: planSlug as "premium" | "premium_ia",
+          cycle,
+          fullName,
+          email,
+          cpf,
+          verificationId: verification?.verificationId ?? "",
+        },
       }),
     onSuccess: (result) => {
-      setCharge(result);
+      setOrder(result);
       setStatus(result.status);
-      setStep("pix");
+      setStep("manual");
     },
     onError: (error) =>
-      toast.error(error instanceof Error ? error.message : "Não foi possível gerar o Pix."),
+      toast.error(error instanceof Error ? error.message : "Não foi possível registrar o pedido."),
   });
+
 
   // Etapa 2: confirma o código e só então segue para a cobrança.
   const confirm = useMutation({
@@ -200,9 +219,10 @@ export function CheckoutDialog({
                 ? "Informe seus dados: enviaremos um código para confirmar seu e-mail."
                 : step === "code"
                   ? "Digite o código de 6 dígitos enviado ao seu e-mail."
-                  : step === "pix"
-                    ? "Pague o Pix e a chave de ativação é liberada automaticamente."
+                  : step === "manual"
+                    ? "Faça o pagamento e aguarde a confirmação do administrador."
                     : "Sua chave de ativação está pronta."}
+
           </DialogDescription>
 
         </DialogHeader>
@@ -421,72 +441,67 @@ export function CheckoutDialog({
                 {confirm.isPending || create.isPending ? (
                   <Loader2 className="mr-2 size-4 animate-spin" aria-hidden="true" />
                 ) : (
-                  <QrCode className="mr-2 size-4" aria-hidden="true" />
+                  <Landmark className="mr-2 size-4" aria-hidden="true" />
                 )}
-                Confirmar e gerar Pix
+                Confirmar e ver o pagamento
               </Button>
             </div>
           </form>
         ) : null}
 
-        {step === "pix" && charge ? (
+        {step === "manual" && order ? (
           <div className="space-y-3">
             <div className="flex items-center justify-between gap-2 rounded-xl border border-border bg-secondary/30 p-3 text-sm">
-
               <span>
-                {charge.planName} · {cycle === "annual" ? "anual" : "mensal"}
+                {order.planName} · {cycle === "annual" ? "anual" : "mensal"}
               </span>
-              <span className="tabular font-bold">{formatCurrency(charge.amount)}</span>
+              <span className="tabular font-bold">{formatCurrency(order.amount)}</span>
             </div>
 
-            {charge.qrCodeBase64 ? (
-              <img
-                src={`data:image/png;base64,${charge.qrCodeBase64}`}
-                alt="QR Code Pix para pagamento"
-                width={280}
-                height={280}
-                className="mx-auto size-56 rounded-xl border border-border bg-white p-2"
-              />
-            ) : null}
-
-            {charge.qrCode ? (
+            {manual?.pixKey ? (
               <div>
-                <Label htmlFor="pix-code">Pix copia e cola</Label>
+                <Label htmlFor="pix-key">
+                  Chave Pix ({manual.pixKeyType}) — {manual.holder || "GastoCerto"}
+                </Label>
                 <div className="mt-1.5 flex gap-2">
-                  <Input id="pix-code" readOnly value={charge.qrCode} className="font-mono text-xs" />
+                  <Input id="pix-key" readOnly value={manual.pixKey} className="font-mono text-xs" />
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() => copy(charge.qrCode as string, "Código Pix")}
+                    onClick={() => copy(manual.pixKey, "Chave Pix")}
                   >
                     <Copy className="size-4" aria-hidden="true" />
-                    <span className="sr-only">Copiar código Pix</span>
+                    <span className="sr-only">Copiar chave Pix</span>
                   </Button>
                 </div>
+                {manual.bank ? (
+                  <p className="mt-1 text-[11px] text-muted-foreground">Instituição: {manual.bank}</p>
+                ) : null}
               </div>
-            ) : null}
+            ) : (
+              <p className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-3 text-xs text-muted-foreground">
+                Os dados de pagamento estão sendo atualizados. Guarde o link do pedido abaixo e fale
+                com o suporte para receber a chave Pix.
+              </p>
+            )}
+
+            <p className="rounded-xl border border-border bg-card p-3 text-xs text-muted-foreground">
+              {manual?.instructions}
+              {manual?.whatsapp ? ` Envie o comprovante para ${manual.whatsapp}.` : ""}
+            </p>
 
             <p
               aria-live="polite"
               className="flex items-center justify-center gap-2 rounded-xl border border-border bg-card p-3 text-sm text-muted-foreground"
             >
               <Loader2 className="size-4 animate-spin" aria-hidden="true" />
-              {CHECKOUT_STATUS_LABEL[status] ?? status} — confirmamos automaticamente em segundos.
+              {CHECKOUT_STATUS_LABEL[status] ?? status} — a chave aparece aqui assim que o pagamento
+              for confirmado.
             </p>
 
             <div className="space-y-1 text-center">
-              {charge.ticketUrl ? (
-                <a
-                  href={charge.ticketUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="block text-xs font-medium text-primary underline underline-offset-2"
-                >
-                  Abrir comprovante no Mercado Pago
-                </a>
-              ) : null}
               <a
-                href={`/pedido/${charge.paymentId}`}
+                href={`/pedido/${order.paymentId}`}
                 target="_blank"
                 rel="noreferrer"
                 className="block text-xs font-medium text-primary underline underline-offset-2"
@@ -494,9 +509,9 @@ export function CheckoutDialog({
                 Acompanhar meu pedido em uma página própria
               </a>
             </div>
-
           </div>
         ) : null}
+
 
         {step === "done" && licenseKey ? (
           <div className="space-y-3 text-center">

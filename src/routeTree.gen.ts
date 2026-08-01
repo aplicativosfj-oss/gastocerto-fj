@@ -43,8 +43,6 @@ import { Route as AuthenticatedVeiculosConfiguracoesRouteImport } from './routes
 import { Route as AuthenticatedVeiculosRelatorioRouteImport } from './routes/_authenticated/veiculos-relatorio'
 import { Route as CompartilhadoTokenRouteImport } from './routes/compartilhado.$token'
 import { Route as PedidoIdRouteImport } from './routes/pedido.$id'
-import { Route as ApiPublicMercadopagoReconcileRouteImport } from './routes/api/public/mercadopago/reconcile'
-import { Route as ApiPublicMercadopagoWebhookRouteImport } from './routes/api/public/mercadopago/webhook'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -224,18 +222,6 @@ const PedidoIdRoute = PedidoIdRouteImport.update({
   path: '/pedido/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicMercadopagoReconcileRoute =
-  ApiPublicMercadopagoReconcileRouteImport.update({
-    id: '/api/public/mercadopago/reconcile',
-    path: '/api/public/mercadopago/reconcile',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicMercadopagoWebhookRoute =
-  ApiPublicMercadopagoWebhookRouteImport.update({
-    id: '/api/public/mercadopago/webhook',
-    path: '/api/public/mercadopago/webhook',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -271,8 +257,6 @@ export interface FileRoutesByFullPath {
   '/veiculos-relatorio': typeof AuthenticatedVeiculosRelatorioRoute
   '/compartilhado/$token': typeof CompartilhadoTokenRoute
   '/pedido/$id': typeof PedidoIdRoute
-  '/api/public/mercadopago/reconcile': typeof ApiPublicMercadopagoReconcileRoute
-  '/api/public/mercadopago/webhook': typeof ApiPublicMercadopagoWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -308,8 +292,6 @@ export interface FileRoutesByTo {
   '/veiculos-relatorio': typeof AuthenticatedVeiculosRelatorioRoute
   '/compartilhado/$token': typeof CompartilhadoTokenRoute
   '/pedido/$id': typeof PedidoIdRoute
-  '/api/public/mercadopago/reconcile': typeof ApiPublicMercadopagoReconcileRoute
-  '/api/public/mercadopago/webhook': typeof ApiPublicMercadopagoWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -347,8 +329,6 @@ export interface FileRoutesById {
   '/_authenticated/veiculos-relatorio': typeof AuthenticatedVeiculosRelatorioRoute
   '/compartilhado/$token': typeof CompartilhadoTokenRoute
   '/pedido/$id': typeof PedidoIdRoute
-  '/api/public/mercadopago/reconcile': typeof ApiPublicMercadopagoReconcileRoute
-  '/api/public/mercadopago/webhook': typeof ApiPublicMercadopagoWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -386,8 +366,6 @@ export interface FileRouteTypes {
     | '/veiculos-relatorio'
     | '/compartilhado/$token'
     | '/pedido/$id'
-    | '/api/public/mercadopago/reconcile'
-    | '/api/public/mercadopago/webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -423,8 +401,6 @@ export interface FileRouteTypes {
     | '/veiculos-relatorio'
     | '/compartilhado/$token'
     | '/pedido/$id'
-    | '/api/public/mercadopago/reconcile'
-    | '/api/public/mercadopago/webhook'
   id:
     | '__root__'
     | '/'
@@ -461,8 +437,6 @@ export interface FileRouteTypes {
     | '/_authenticated/veiculos-relatorio'
     | '/compartilhado/$token'
     | '/pedido/$id'
-    | '/api/public/mercadopago/reconcile'
-    | '/api/public/mercadopago/webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -475,8 +449,6 @@ export interface RootRouteChildren {
   TermosRoute: typeof TermosRoute
   CompartilhadoTokenRoute: typeof CompartilhadoTokenRoute
   PedidoIdRoute: typeof PedidoIdRoute
-  ApiPublicMercadopagoReconcileRoute: typeof ApiPublicMercadopagoReconcileRoute
-  ApiPublicMercadopagoWebhookRoute: typeof ApiPublicMercadopagoWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -719,20 +691,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PedidoIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/mercadopago/reconcile': {
-      id: '/api/public/mercadopago/reconcile'
-      path: '/api/public/mercadopago/reconcile'
-      fullPath: '/api/public/mercadopago/reconcile'
-      preLoaderRoute: typeof ApiPublicMercadopagoReconcileRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/mercadopago/webhook': {
-      id: '/api/public/mercadopago/webhook'
-      path: '/api/public/mercadopago/webhook'
-      fullPath: '/api/public/mercadopago/webhook'
-      preLoaderRoute: typeof ApiPublicMercadopagoWebhookRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
@@ -806,8 +764,6 @@ const rootRouteChildren: RootRouteChildren = {
   TermosRoute: TermosRoute,
   CompartilhadoTokenRoute: CompartilhadoTokenRoute,
   PedidoIdRoute: PedidoIdRoute,
-  ApiPublicMercadopagoReconcileRoute: ApiPublicMercadopagoReconcileRoute,
-  ApiPublicMercadopagoWebhookRoute: ApiPublicMercadopagoWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
