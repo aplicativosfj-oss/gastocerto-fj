@@ -266,13 +266,13 @@ function RecurringPage() {
 
         <section className="grid grid-cols-3 gap-2 sm:grid-cols-3">
           <div className="flex flex-col rounded-2xl border border-income-border bg-income-surface p-3 text-center">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-income/85">Receitas</p>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-income">Receitas</p>
             <p className="mt-0.5 text-sm font-bold text-income">
               {formatCurrency(rows.filter(r => r.transaction_type === "income").reduce((s, r) => s + Number(r.amount), 0))}
             </p>
           </div>
           <div className="flex flex-col rounded-2xl border border-expense-border bg-expense-surface p-3 text-center">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-expense/85">Despesas</p>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-expense">Despesas</p>
             <p className="mt-0.5 text-sm font-bold text-expense">
               {formatCurrency(rows.filter(r => r.transaction_type === "expense").reduce((s, r) => s + Number(r.amount), 0))}
             </p>
