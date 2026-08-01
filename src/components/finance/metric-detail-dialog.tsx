@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { CalendarDays, ChevronRight, History, NotebookPen, Pencil } from "lucide-react";
+import { CalendarDays, ChevronRight, History, NotebookPen, Pencil, Plus } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
