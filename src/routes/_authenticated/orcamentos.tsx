@@ -132,26 +132,26 @@ function BudgetsPage() {
   return (
     <AppShell>
       <div className="space-y-4">
-        <header className="flex flex-wrap items-center justify-between gap-3">
-          <div className="min-w-0">
-            <h1 className="text-2xl font-bold tracking-tight">Orçamentos</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Defina quanto pretende gastar e acompanhe em tempo real.
-            </p>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <PeriodPicker year={period.year} month={period.month} onChange={setPeriod} />
-            <Button
-              onClick={() => {
-                setError(null);
-                setOpen(true);
-              }}
-            >
-              <Plus className="mr-2 size-4" />
-              Definir limite
-            </Button>
-          </div>
-        </header>
+        <PageHeader
+          icon={PiggyBank}
+          eyebrow="Planejamento mensal"
+          title="Orçamentos"
+          description="Defina quanto pretende gastar por categoria e acompanhe o consumo em tempo real."
+          actions={
+            <>
+              <PeriodPicker year={period.year} month={period.month} onChange={setPeriod} />
+              <Button
+                onClick={() => {
+                  setError(null);
+                  setOpen(true);
+                }}
+              >
+                <Plus className="mr-2 size-4" />
+                Definir limite
+              </Button>
+            </>
+          }
+        />
 
         {isLoading ? (
           <div className="space-y-3">
