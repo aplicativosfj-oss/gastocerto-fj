@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Loader2, Pencil, Plus, RotateCcw } from "lucide-react";
+import { Loader2, Lock, Pencil, Plus, RotateCcw } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -35,6 +35,7 @@ import { CATEGORY_ICON_KEYS, categoryIcon } from "@/lib/category-icons";
 import { formatCurrency } from "@/lib/format";
 import { monthRange } from "@/lib/finance";
 import { useAllCategories } from "@/lib/queries";
+import { usePlanAccess } from "@/hooks/use-plan";
 import { useRefreshFinance, useSaveCategory, useTransactions } from "@/lib/transactions";
 import { sanitizeText } from "@/lib/validation";
 
@@ -83,6 +84,8 @@ function CategoriesPage() {
   const { data: categories, isLoading } = useAllCategories();
   const { data: transactions } = useTransactions(range);
   const save = useSaveCategory();
+  const planAccess = usePlanAccess();
+  const isAdmin = planAccess.data?.isAdmin === true;
   const refresh = useRefreshFinance();
 
   const [tab, setTab] = useState<"expense" | "income">("expense");
@@ -215,25 +218,36 @@ function CategoriesPage() {
           icon={Plus}
           eyebrow="Configuração"
           title="Categorias"
-          description="Organize seus gastos e receitas do jeito que faz sentido para você."
+          description={
+            isAdmin
+              ? "Catálogo oficial: crie, edite e ative as categorias disponíveis para os clientes."
+              : "Consulte as categorias disponíveis. A criação e a exclusão são feitas pelo administrador."
+          }
           className="lg:p-4"
           actions={
-            <Button
-              onClick={() => {
-                setError(null);
-                setDraft({ 
-                  name: "", 
-                  type: tab, 
-                  color: COLORS[0], 
-                  icon: "circle-ellipsis",
-                  display_order: allCategories.length,
-                  parent_id: null
-                });
-              }}
-            >
-              <Plus className="mr-2 size-4" />
-              Nova categoria
-            </Button>
+            isAdmin ? (
+              <Button
+                onClick={() => {
+                  setError(null);
+                  setDraft({ 
+                    name: "", 
+                    type: tab, 
+                    color: COLORS[0], 
+                    icon: "circle-ellipsis",
+                    display_order: allCategories.length,
+                    parent_id: null
+                  });
+                }}
+              >
+                <Plus className="mr-2 size-4" />
+                Nova categoria
+              </Button>
+            ) : (
+              <Badge variant="secondary" className="gap-1.5">
+                <Lock className="size-3" />
+                Somente leitura
+              </Badge>
+            )
           }
         />
 
@@ -245,6 +259,7 @@ function CategoriesPage() {
         </Tabs>
 
         <CategoryAutofixCard />
+
 
 
         {isLoading ? (
@@ -303,67 +318,76 @@ function CategoriesPage() {
                   </div>
                   
                   <div className="flex shrink-0 flex-col items-end gap-2">
-                    <div className="flex gap-0.5 transition-opacity lg:opacity-0 lg:group-hover:opacity-100 lg:group-focus-within:opacity-100">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        aria-label={`Editar categoria ${category.name}`}
-                        className="size-9 rounded-lg"
-                        onClick={() => {
-                          setError(null);
-                          setDraft({
-                            id: category.id,
-                            name: category.name,
-                            type: category.type as "expense" | "income",
-                            color: category.color ?? COLORS[0],
-                            icon: category.icon ?? "circle-ellipsis",
-                            display_order: category.display_order ?? 0,
-                            parent_id: category.parent_id,
-                            description: category.description
-                          });
-                        }}
-                      >
-                        <Pencil className="size-3.5" />
-                      </Button>
-                    </div>
+                    {isAdmin ? (
+                      <>
+                        <div className="flex gap-0.5 transition-opacity lg:opacity-0 lg:group-hover:opacity-100 lg:group-focus-within:opacity-100">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            aria-label={`Editar categoria ${category.name}`}
+                            className="size-9 rounded-lg"
+                            onClick={() => {
+                              setError(null);
+                              setDraft({
+                                id: category.id,
+                                name: category.name,
+                                type: category.type as "expense" | "income",
+                                color: category.color ?? COLORS[0],
+                                icon: category.icon ?? "circle-ellipsis",
+                                display_order: category.display_order ?? 0,
+                                parent_id: category.parent_id,
+                                description: category.description
+                              });
+                            }}
+                          >
+                            <Pencil className="size-3.5" />
+                          </Button>
+                        </div>
 
-                    <div className="flex items-center gap-2">
-                      <label
-                        htmlFor={`category-active-${category.id}`}
-                        className={cn(
-                          "cursor-pointer select-none text-[10px] font-bold uppercase tracking-wider transition-colors",
-                          isActive ? "text-success" : "text-muted-foreground",
-                        )}
-                      >
-                        {isActive ? "Ativa" : "Inativa"}
-                      </label>
-                      <Switch
-                        id={`category-active-${category.id}`}
-                        checked={isActive}
-                        aria-label={`${isActive ? "Desativar" : "Ativar"} a categoria ${category.name}`}
-                        aria-describedby={`category-active-hint-${category.id}`}
-                        onCheckedChange={(checked) =>
-                          setPending({ id: category.id, name: category.name, next: checked })
-                        }
-                        className={cn(
-                          "transition-all duration-500 focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-                          !isActive && "opacity-70",
-                        )}
-                      />
-                      <span id={`category-active-hint-${category.id}`} className="sr-only">
-                        {isActive
-                          ? "Categoria ativa e disponível nos lançamentos. Desativar não exclui nada."
-                          : "Categoria desativada. Ative para voltar a usá-la nos lançamentos."}
-                      </span>
-                    </div>
+                        <div className="flex items-center gap-2">
+                          <label
+                            htmlFor={`category-active-${category.id}`}
+                            className={cn(
+                              "cursor-pointer select-none text-[10px] font-bold uppercase tracking-wider transition-colors",
+                              isActive ? "text-success" : "text-muted-foreground",
+                            )}
+                          >
+                            {isActive ? "Ativa" : "Inativa"}
+                          </label>
+                          <Switch
+                            id={`category-active-${category.id}`}
+                            checked={isActive}
+                            aria-label={`${isActive ? "Desativar" : "Ativar"} a categoria ${category.name}`}
+                            aria-describedby={`category-active-hint-${category.id}`}
+                            onCheckedChange={(checked) =>
+                              setPending({ id: category.id, name: category.name, next: checked })
+                            }
+                            className={cn(
+                              "transition-all duration-500 focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                              !isActive && "opacity-70",
+                            )}
+                          />
+                          <span id={`category-active-hint-${category.id}`} className="sr-only">
+                            {isActive
+                              ? "Categoria ativa e disponível nos lançamentos. Desativar não exclui nada."
+                              : "Categoria desativada. Ative para voltar a usá-la nos lançamentos."}
+                          </span>
+                        </div>
+                      </>
+                    ) : (
+                      <Badge variant={isActive ? "secondary" : "outline"} className="text-[10px]">
+                        {isActive ? "Disponível" : "Indisponível"}
+                      </Badge>
+                    )}
                   </div>
+
                 </div>
               );
             })}
           </div>
         )}
 
-        {inactiveCategories.length > 0 ? (
+        {isAdmin && inactiveCategories.length > 0 ? (
           <section className="rounded-2xl border border-dashed border-border bg-muted/20 p-4">
             <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
               <div>
