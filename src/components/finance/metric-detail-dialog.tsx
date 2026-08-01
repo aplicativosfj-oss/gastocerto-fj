@@ -231,6 +231,14 @@ export function MetricDetailDialog({
               <DialogDescription>{detail.formula}</DialogDescription>
             </DialogHeader>
 
+            {onAddTransaction ? (
+              <Button size="sm" className="self-start" onClick={onAddTransaction}>
+                <Plus className="mr-1.5 size-4" aria-hidden />
+                {addLabel}
+              </Button>
+            ) : null}
+
+
             <div className="rounded-2xl border border-border bg-muted/40 p-4 text-center">
               <p className="text-3xl font-bold tabular-nums">{detail.value}</p>
               {detail.totalInvoiced && detail.totalInvoiced !== detail.value && (
