@@ -269,6 +269,7 @@ function AdminContent({ isAdmin }: { isAdmin: boolean }) {
             {isAdmin ? <TabsTrigger value="announcements">Avisos</TabsTrigger> : null}
             {isAdmin ? <TabsTrigger value="plans">Planos</TabsTrigger> : null}
             {isAdmin ? <TabsTrigger value="licenses">Licenças</TabsTrigger> : null}
+            {isAdmin ? <TabsTrigger value="client-codes">Códigos de clientes</TabsTrigger> : null}
             {isAdmin ? <TabsTrigger value="payments">Vendas</TabsTrigger> : null}
             {isAdmin ? <TabsTrigger value="ai">IA &amp; testes</TabsTrigger> : null}
             {isAdmin ? <TabsTrigger value="security">Segurança</TabsTrigger> : null}
