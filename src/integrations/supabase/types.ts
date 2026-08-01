@@ -1522,7 +1522,11 @@ export type Database = {
           created_at: string
           expires_at: string | null
           id: string
+          include_amounts: boolean
+          include_categories: boolean
+          include_charts: boolean
           include_notes: boolean
+          include_totals: boolean
           include_transactions: boolean
           label: string | null
           last_viewed_at: string | null
@@ -1540,7 +1544,11 @@ export type Database = {
           created_at?: string
           expires_at?: string | null
           id?: string
+          include_amounts?: boolean
+          include_categories?: boolean
+          include_charts?: boolean
           include_notes?: boolean
+          include_totals?: boolean
           include_transactions?: boolean
           label?: string | null
           last_viewed_at?: string | null
@@ -1558,7 +1566,11 @@ export type Database = {
           created_at?: string
           expires_at?: string | null
           id?: string
+          include_amounts?: boolean
+          include_categories?: boolean
+          include_charts?: boolean
           include_notes?: boolean
+          include_totals?: boolean
           include_transactions?: boolean
           label?: string | null
           last_viewed_at?: string | null
