@@ -196,7 +196,7 @@ function PaymentDetail({ payment, onSync }: { payment: any; onSync: () => Promis
  * Vendas & pagamentos: acompanha a receita do Pix (Mercado Pago), a situação de
  * cada cobrança, o histórico de eventos e a chave de licença entregue.
  */
-export function SalesPanel() {
+export function SalesPanel({ globalSearch = "" }: { globalSearch?: string }) {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
   const [period, setPeriod] = useState<string>("all");
@@ -224,7 +224,7 @@ export function SalesPanel() {
   );
 
   const payments = useMemo(() => {
-    const term = search.trim().toLowerCase();
+    const term = (globalSearch || search).trim().toLowerCase();
     const now = new Date();
     return allRows.filter((row) => {
       if (status !== "all" && row.status !== status) return false;

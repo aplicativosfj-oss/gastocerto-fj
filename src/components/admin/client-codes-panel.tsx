@@ -20,7 +20,7 @@ import { formatDateTime } from "@/lib/format";
 import { remainingTime } from "@/lib/audit-log";
 import { useNow } from "@/lib/use-now";
 
-export function ClientCodesPanel() {
+export function ClientCodesPanel({ globalSearch = "" }: { globalSearch?: string }) {
   const listLicenses = useServerFn(adminListLicenses);
   const [search, setSearch] = useState("");
   const now = useNow(1000);
@@ -33,7 +33,7 @@ export function ClientCodesPanel() {
   });
 
   const rows = useMemo(() => {
-    const term = search.trim().toLowerCase();
+    const term = (globalSearch || search).trim().toLowerCase();
     const licenses = (data?.licenses ?? []) as any[];
     if (!term) return licenses;
     return licenses.filter(

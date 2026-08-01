@@ -56,7 +56,7 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 /** Gestão de contas: busca, situação, papéis, credenciais e suporte. */
-export function UsersPanel({ isAdmin }: { isAdmin: boolean }) {
+export function UsersPanel({ isAdmin, globalSearch = "" }: { isAdmin: boolean; globalSearch?: string }) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
@@ -93,7 +93,7 @@ export function UsersPanel({ isAdmin }: { isAdmin: boolean }) {
   });
 
   const filtered = useMemo(() => {
-    const term = search.trim().toLowerCase();
+    const term = (globalSearch || search).trim().toLowerCase();
     const digits = onlyDigits(search);
     return (profiles.data ?? []).filter((profile) => {
       if (statusFilter !== "all" && profile.status !== statusFilter) return false;

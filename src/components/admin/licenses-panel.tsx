@@ -185,7 +185,7 @@ function LicenseDetailDialog({ license }: { license: any }) {
   );
 }
 
-export function LicensesPanel() {
+export function LicensesPanel({ globalSearch = "" }: { globalSearch?: string }) {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState("all");
@@ -228,10 +228,19 @@ export function LicensesPanel() {
   });
 
   const licenses = useMemo(() => {
-    const rows = data.data?.licenses ?? [];
-    if (statusFilter === "all") return rows;
-    return rows.filter((row: any) => row.status === statusFilter);
-  }, [data.data, statusFilter]);
+    const term = globalSearch.trim().toLowerCase();
+    let rows = (data.data?.licenses ?? []) as any[];
+    if (statusFilter !== "all") {
+      rows = rows.filter((row: any) => row.status === statusFilter);
+    }
+    if (!term) return rows;
+    return rows.filter(
+      (l) =>
+        (l.email ?? "").toLowerCase().includes(term) ||
+        (l.license_key ?? "").toLowerCase().includes(term) ||
+        (l.full_name ?? "").toLowerCase().includes(term),
+    );
+  }, [data.data, statusFilter, globalSearch]);
 
   return (
     <div className="space-y-3">
