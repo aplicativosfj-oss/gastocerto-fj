@@ -1,5 +1,15 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CheckCircle2, Copy, KeyRound, Loader2, Plus, Ban } from "lucide-react";
+import {
+  Ban,
+  CheckCircle2,
+  Copy,
+  Info,
+  KeyRound,
+  Loader2,
+  Plus,
+  Sparkles,
+  SparklesIcon,
+} from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -39,6 +49,7 @@ import {
   adminListLicenses,
   adminSetLicenseStatus,
 } from "@/lib/licenses.functions";
+import { describeLicense } from "@/lib/license-status";
 import { formatCurrency, formatDateTime } from "@/lib/format";
 
 const STATUS_LABEL: Record<string, string> = {
@@ -47,6 +58,130 @@ const STATUS_LABEL: Record<string, string> = {
   expired: "Expirada",
   revoked: "Revogada",
 };
+
+/** Situação detalhada da licença (tipo, validade, recursos e IA). */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function detail(license: any) {
+  return describeLicense({
+    source: license.source,
+    amount: license.amount,
+    planSlug: license.plans?.slug ?? null,
+    status: license.status,
+    billing_cycle: license.billing_cycle,
+    activated_at: license.activated_at,
+    expires_at: license.expires_at,
+    user_id: license.user_id,
+    trialDays: license.plans?.trial_days ?? license.trial_days ?? null,
+  });
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function LicenseDetailDialog({ license }: { license: any }) {
+  const [open, setOpen] = useState(false);
+  const info = detail(license);
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button size="sm" variant="ghost" aria-label="Ver detalhes da licença">
+          <Info className="size-4" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle className="font-mono text-base">{license.license_key}</DialogTitle>
+          <DialogDescription>
+            {license.plans?.name ?? "Plano não informado"} · {info.kindLabel}
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-3 text-sm">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="rounded-lg border border-border p-3">
+              <p className="text-[11px] uppercase text-muted-foreground">Situação</p>
+              <p className="mt-0.5 font-medium">{info.statusLabel}</p>
+            </div>
+            <div className="rounded-lg border border-border p-3">
+              <p className="text-[11px] uppercase text-muted-foreground">Expira em</p>
+              <p className="mt-0.5 font-medium">
+                {info.expiresAt
+                  ? formatDateTime(info.expiresAt)
+                  : "Conta a partir da ativação do cliente"}
+              </p>
+              {info.daysLeft != null ? (
+                <p className="text-xs text-muted-foreground">{info.daysLeft} dia(s) restante(s)</p>
+              ) : null}
+            </div>
+            <div className="rounded-lg border border-border p-3">
+              <p className="text-[11px] uppercase text-muted-foreground">Cliente</p>
+              <p className="mt-0.5 font-medium">{license.full_name ?? license.email ?? "—"}</p>
+              <p className="text-xs text-muted-foreground">
+                {license.user_id ? "Vinculada a uma conta" : "Ainda não vinculada"}
+              </p>
+            </div>
+            <div className="rounded-lg border border-border p-3">
+              <p className="text-[11px] uppercase text-muted-foreground">Valor</p>
+              <p className="mt-0.5 font-medium">{formatCurrency(Number(license.amount ?? 0))}</p>
+              <p className="text-xs text-muted-foreground">
+                {license.billing_cycle === "annual" ? "Ciclo anual" : "Ciclo mensal"}
+              </p>
+            </div>
+          </div>
+
+          <div
+            className={
+              info.aiEnabled
+                ? "flex items-start gap-2 rounded-lg border border-primary/40 bg-primary/5 p-3"
+                : "flex items-start gap-2 rounded-lg border border-border bg-muted/40 p-3"
+            }
+          >
+            <SparklesIcon className="mt-0.5 size-4 shrink-0" aria-hidden />
+            <div>
+              <p className="font-medium">
+                Consultor de IA: {info.aiEnabled ? "habilitado" : "bloqueado"}
+              </p>
+              <p className="text-xs text-muted-foreground">{info.aiNote}</p>
+            </div>
+          </div>
+
+          <div>
+            <p className="text-[11px] uppercase text-muted-foreground">Recursos liberados</p>
+            <div className="mt-1.5 flex flex-wrap gap-1.5">
+              {info.featureLabels.map((label) => (
+                <Badge key={label} variant="secondary">
+                  {label}
+                </Badge>
+              ))}
+            </div>
+          </div>
+
+          {info.lockedLabels.length ? (
+            <div>
+              <p className="text-[11px] uppercase text-muted-foreground">Recursos bloqueados</p>
+              <div className="mt-1.5 flex flex-wrap gap-1.5">
+                {info.lockedLabels.map((label) => (
+                  <Badge key={label} variant="outline">
+                    {label}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          ) : null}
+
+          {license.notes ? (
+            <p className="text-xs text-muted-foreground">{license.notes}</p>
+          ) : null}
+        </div>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setOpen(false)}>
+            Fechar
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 export function LicensesPanel() {
   const queryClient = useQueryClient();
@@ -120,23 +255,24 @@ export function LicensesPanel() {
               <TableHead>Chave</TableHead>
               <TableHead>Cliente</TableHead>
               <TableHead>Plano</TableHead>
-              <TableHead>Ciclo</TableHead>
+              <TableHead>Tipo</TableHead>
               <TableHead>Valor</TableHead>
               <TableHead>Situação</TableHead>
               <TableHead>Validade</TableHead>
+              <TableHead>IA</TableHead>
               <TableHead className="text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {data.isLoading ? (
               <TableRow>
-                <TableCell colSpan={8} className="py-8 text-center">
+                <TableCell colSpan={9} className="py-8 text-center">
                   <Loader2 className="mx-auto size-5 animate-spin text-muted-foreground" />
                 </TableCell>
               </TableRow>
             ) : licenses.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="py-8 text-center text-sm text-muted-foreground">
+                <TableCell colSpan={9} className="py-8 text-center text-sm text-muted-foreground">
                   Nenhuma licença emitida ainda.
                 </TableCell>
               </TableRow>
@@ -161,7 +297,18 @@ export function LicensesPanel() {
                     <div className="text-xs text-muted-foreground">{license.email ?? "—"}</div>
                   </TableCell>
                   <TableCell>{license.plans?.name ?? "—"}</TableCell>
-                  <TableCell>{license.billing_cycle === "annual" ? "Anual" : "Mensal"}</TableCell>
+                  <TableCell>
+                    <div className="text-sm">{detail(license).kindLabel}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {detail(license).effective
+                        ? detail(license).daysLeft != null
+                          ? `Em vigor · ${detail(license).daysLeft} dia(s) restante(s)`
+                          : "Em vigor"
+                        : detail(license).awaitingActivation
+                          ? "Só vale após o cliente ativar a chave"
+                          : detail(license).statusLabel}
+                    </div>
+                  </TableCell>
                   <TableCell>{formatCurrency(Number(license.amount ?? 0))}</TableCell>
                   <TableCell>
                     <Badge
@@ -177,10 +324,25 @@ export function LicensesPanel() {
                     </Badge>
                   </TableCell>
                   <TableCell className="text-muted-foreground">
-                    {license.expires_at ? formatDateTime(license.expires_at) : "—"}
+                    {license.expires_at
+                      ? formatDateTime(license.expires_at)
+                      : detail(license).awaitingActivation
+                        ? "Conta a partir da ativação"
+                        : "—"}
+                  </TableCell>
+                  <TableCell>
+                    {detail(license).aiEnabled ? (
+                      <Badge className="gap-1">
+                        <Sparkles className="size-3" aria-hidden />
+                        Liberada
+                      </Badge>
+                    ) : (
+                      <Badge variant="secondary">Bloqueada</Badge>
+                    )}
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
+                      <LicenseDetailDialog license={license} />
                       {license.status !== "active" ? (
                         <Button
                           size="sm"
