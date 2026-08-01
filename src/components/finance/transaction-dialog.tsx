@@ -253,14 +253,13 @@ export function TransactionDialog({
   const { user } = useAuth();
   const formRef = useRef<HTMLFormElement>(null);
   const [passwordOpen, setPasswordOpen] = useState(false);
-  const [identityConfirmed, setIdentityConfirmed] = useState(false);
+  /** Liberação reaproveitável: vale para toda a competência por alguns minutos. */
+  const pastUnlock = usePastEditUnlock(monthKey);
   const adminBlockedPast = policy.lockPastMonths && isPastMonth;
   const needsPassword =
-    policy.requirePasswordForPastEdits && isPastMonth && !adminBlockedPast && !identityConfirmed;
+    policy.requirePasswordForPastEdits && isPastMonth && !adminBlockedPast && !pastUnlock.unlocked;
 
-  useEffect(() => {
-    if (!open) setIdentityConfirmed(false);
-  }, [open]);
+
 
 
   function shiftDate(kindOfShift: "today" | "yesterday" | "lastMonth") {
