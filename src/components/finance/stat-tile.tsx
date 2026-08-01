@@ -85,7 +85,7 @@ export function StatTile({
       style={{ backgroundImage: `linear-gradient(150deg, ${t.glow}, transparent 60%)` }}
     >
       <div className="flex items-start justify-between gap-2">
-        <p className="min-w-0 text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground sm:text-[11.5px]">
+        <p className="min-w-0 truncate text-[10.5px] font-semibold uppercase tracking-[0.09em] text-muted-foreground sm:text-[11.5px]">
           {label}
         </p>
         {Icon ? (
@@ -95,8 +95,9 @@ export function StatTile({
         ) : null}
       </div>
       <p
+        title={value}
         className={cn(
-          "mt-1.5 font-display text-[17px] font-bold leading-none tabular sm:text-xl",
+          "mt-1.5 truncate font-display text-[clamp(0.95rem,4.1vw,1.3rem)] font-bold leading-tight tabular tracking-tight",
           t.value,
         )}
       >

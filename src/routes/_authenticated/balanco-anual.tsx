@@ -33,7 +33,23 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { EmblemReceipt } from "@/components/ui/panel-emblems";
-import { axisProps, seriesColor, tooltipProps } from "@/lib/chart-theme";
+import {
+  CHART_TOKENS,
+  axisProps,
+  barRadius,
+  gridProps,
+  legendProps,
+  tooltipProps,
+} from "@/lib/chart-theme";
+
+/** Eixo Y compacto: 12500 -> "12,5 mil". */
+function compactAxisValue(value: number) {
+  const abs = Math.abs(value);
+  if (abs >= 1000) {
+    return `${(value / 1000).toLocaleString("pt-BR", { maximumFractionDigits: 1 })} mil`;
+  }
+  return value.toLocaleString("pt-BR", { maximumFractionDigits: 0 });
+}
 import {
   buildAnnualBalance,
   exportAnnualBalanceCsv,
@@ -175,26 +191,46 @@ function AnnualBalancePage() {
               />
             </div>
 
-            <section className="rounded-xl border border-border bg-card p-4">
-              <h2 className="text-base font-semibold text-foreground">Entradas x saídas por mês</h2>
-              <div className="mt-3 h-52 sm:h-60">
+            <section className="rounded-xl border border-border bg-card p-3 sm:p-4">
+              <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+                <h2 className="font-display text-[14px] font-bold tracking-tight sm:text-[15px]">
+                  Entradas x saídas por mês
+                </h2>
+                <p className="text-[11px] text-muted-foreground sm:text-[12px]">
+                  Valores em milhares de reais (mil = R$ 1.000)
+                </p>
+              </div>
+              <div className="mt-2.5 h-56 sm:h-64 lg:h-72">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={chartData}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.25} />
-                    <XAxis dataKey="mes" {...axisProps} />
-                    <YAxis {...axisProps} />
+                  <BarChart data={chartData} margin={{ top: 6, right: 6, left: -6, bottom: 0 }} barGap={2} barCategoryGap="22%">
+                    <CartesianGrid {...gridProps} opacity={0.5} />
+                    <XAxis
+                      dataKey="mes"
+                      {...axisProps}
+                      tick={{ fontSize: 10.5, fill: "var(--muted-foreground)" }}
+                      interval={0}
+                      tickMargin={6}
+                      minTickGap={0}
+                    />
+                    <YAxis
+                      {...axisProps}
+                      tick={{ fontSize: 10.5, fill: "var(--muted-foreground)" }}
+                      width={46}
+                      tickMargin={4}
+                      tickFormatter={compactAxisValue}
+                    />
                     <Tooltip
                       {...tooltipProps}
-                      formatter={(value: number) => formatCurrency(Number(value))}
+                      formatter={(value: number, name) => [formatCurrency(Number(value)), String(name)]}
                     />
-                    <Legend />
-                    <Bar dataKey="entradas" name="Entradas" fill={seriesColor(0)} radius={[4, 4, 0, 0]} />
-                    <Bar dataKey="saidas" name="Saídas" fill={seriesColor(1)} radius={[4, 4, 0, 0]} />
+                    <Legend {...legendProps} />
+                    <Bar dataKey="entradas" name="Entradas" fill={CHART_TOKENS.income} radius={barRadius} maxBarSize={26} />
+                    <Bar dataKey="saidas" name="Saídas" fill={CHART_TOKENS.expense} radius={barRadius} maxBarSize={26} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
 
-              <div className="mt-4 flex flex-wrap gap-2 text-xs">
+              <div className="mt-3 flex flex-wrap gap-1.5 text-[11px]">
                 {balance.bestMonth ? (
                   <Badge variant="secondary" className="gap-1">
                     <TrendingUp className="size-3" /> Melhor mês: {balance.bestMonth.label} (

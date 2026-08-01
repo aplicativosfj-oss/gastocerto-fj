@@ -244,12 +244,11 @@ export function CompactOverview() {
             <h2 className="mt-1 section-title">
               Um sistema para todo o seu controle financeiro
             </h2>
-            <p className="mt-1 max-w-xl text-[13px] leading-relaxed text-muted-foreground">
-              Dezesseis recursos integrados que cobrem o dia a dia, veículos, planejamento e
-              análise — do registro de um gasto ao relatório consolidado do mês.
+            <p className="mt-1 max-w-xl text-[12.5px] leading-snug text-muted-foreground sm:text-[13px] sm:leading-relaxed">
+              Recursos integrados para o dia a dia, veículos, planejamento e análise.
             </p>
           </div>
-          <nav aria-label="Atalhos para seções da página" className="flex min-w-0 flex-wrap items-center gap-1.5 sm:justify-end">
+          <nav aria-label="Atalhos para seções da página" className="hidden min-w-0 flex-wrap items-center gap-1.5 sm:flex sm:justify-end">
             <DemoDialog>
               <button
                 type="button"
@@ -331,13 +330,17 @@ export function CompactOverview() {
                     <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-brand">
                       {group.group}
                     </p>
-                    <p className="truncate text-[11px] text-muted-foreground">{group.caption}</p>
+                    <p className="hidden truncate text-[11px] text-muted-foreground sm:block">{group.caption}</p>
                   </div>
                   <div className="mt-2 grid gap-1.5 sm:grid-cols-2">
-                    {group.items.map((item) => (
+                    {group.items.map((item, itemIndex) => (
                       <div
                         key={item.title}
-                        className="interactive-card group flex min-w-0 gap-2.5 rounded-xl border border-border/70 bg-background/60 p-2.5"
+                        className={
+                          itemIndex > 1
+                            ? "interactive-card group hidden min-w-0 gap-2.5 rounded-xl border border-border/70 bg-background/60 p-2.5 sm:flex"
+                            : "interactive-card group flex min-w-0 gap-2.5 rounded-xl border border-border/70 bg-background/60 p-2.5"
+                        }
                       >
                         <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-brand/10 text-brand transition-colors group-hover:bg-brand group-hover:text-brand-foreground">
                           <item.icon className="size-4" aria-hidden="true" />
