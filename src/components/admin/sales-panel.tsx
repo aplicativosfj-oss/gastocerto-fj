@@ -263,7 +263,27 @@ export function SalesPanel({ globalSearch = "" }: { globalSearch?: string }) {
   const query = useQuery({
     queryKey: ["admin", "licenses"],
     queryFn: () => adminListLicenses(),
+    refetchInterval: 15_000,
+    refetchOnWindowFocus: true,
   });
+
+  // Atualização em tempo real: novos pedidos e confirmações aparecem sem recarregar a página.
+  useEffect(() => {
+    const channel = supabase
+      .channel("admin-sales-realtime")
+      .on("postgres_changes", { event: "*", schema: "public", table: "payments" }, () => {
+        query.refetch();
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "licenses" }, () => {
+        query.refetch();
+      })
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
 
   const licensesById = useMemo(() => {
     const map = new Map<string, any>();
