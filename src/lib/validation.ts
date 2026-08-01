@@ -72,6 +72,12 @@ export const signInSchema = z.object({
   password: z.string().min(1, "Informe sua senha").max(72),
 });
 
+/** Schema específico para login por CPF, garantindo que não misture campos. */
+export const cpfSignInSchema = z.object({
+  cpf: cpfSchema,
+  pin: pinSchema,
+});
+
 /** CPF: aceita com ou sem máscara, valida dígitos verificadores. */
 export const cpfSchema = z
   .string()
