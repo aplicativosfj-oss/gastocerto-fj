@@ -73,8 +73,10 @@ function OrderStatusPage() {
         </div>
 
         <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
-          <h1 className="text-xl font-extrabold tracking-tight">Acompanhamento do pedido</h1>
+          <h1 className="text-xl font-extrabold tracking-tight">Status do Pagamento</h1>
           <p className="mt-1 text-sm text-muted-foreground">
+            Acompanhe o status do seu pagamento e a entrega da chave (Pendente, Pago e Entregue).
+
             Esta página atualiza sozinha a cada 15 segundos até o Pix ser confirmado.
           </p>
 
