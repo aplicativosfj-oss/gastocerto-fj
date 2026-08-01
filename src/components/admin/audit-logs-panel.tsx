@@ -143,6 +143,19 @@ export function AuditLogsPanel({ globalSearch = "" }: { globalSearch?: string })
     doc.save(`auditoria-${from || "inicio"}-${to || "hoje"}.pdf`);
   }
 
+  async function handleClearLogs() {
+    setIsClearing(true);
+    try {
+      await clearLogs();
+      toast.success("Logs de auditoria removidos com sucesso.");
+      refetch();
+    } catch (error: any) {
+      toast.error(error.message || "Erro ao limpar logs.");
+    } finally {
+      setIsClearing(false);
+    }
+  }
+
   return (
     <Card className="border-border/60 shadow-sm">
       <CardHeader className="pb-4">
@@ -169,6 +182,37 @@ export function AuditLogsPanel({ globalSearch = "" }: { globalSearch?: string })
               <FileText className="size-4" />
               PDF
             </Button>
+
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="ghost" size="sm" className="text-destructive hover:bg-destructive/10 hover:text-destructive">
+                  <Trash2 className="size-4" />
+                  Limpar tudo
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle className="flex items-center gap-2">
+                    <AlertTriangle className="size-5 text-destructive" />
+                    Limpar auditoria?
+                  </AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Esta ação é irreversível. Todos os registros de ações administrativas serão
+                    permanentemente removidos, exceto por um log registrando esta própria limpeza.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleClearLogs}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    disabled={isClearing}
+                  >
+                    {isClearing ? "Limpando..." : "Confirmar exclusão"}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </div>
 
