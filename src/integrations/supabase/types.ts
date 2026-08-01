@@ -587,6 +587,54 @@ export type Database = {
           },
         ]
       }
+      dependents: {
+        Row: {
+          active: boolean
+          birth_date: string | null
+          color: string | null
+          created_at: string
+          id: string
+          monthly_allowance: number | null
+          name: string
+          nickname: string | null
+          notes: string | null
+          relation: string
+          school: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          active?: boolean
+          birth_date?: string | null
+          color?: string | null
+          created_at?: string
+          id?: string
+          monthly_allowance?: number | null
+          name: string
+          nickname?: string | null
+          notes?: string | null
+          relation?: string
+          school?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          active?: boolean
+          birth_date?: string | null
+          color?: string | null
+          created_at?: string
+          id?: string
+          monthly_allowance?: number | null
+          name?: string
+          nickname?: string | null
+          notes?: string | null
+          relation?: string
+          school?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       fuel_audit_log: {
         Row: {
           action: string
