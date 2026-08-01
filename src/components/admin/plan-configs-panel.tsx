@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Loader2, Mail, Save, Sparkles, Tag } from "lucide-react";
+import { Loader2, Mail, RefreshCcw, Save, Sparkles, Tag } from "lucide-react";
 import { toast } from "sonner";
 import { formatCurrency } from "@/lib/format";
 import { cn } from "@/lib/utils";
