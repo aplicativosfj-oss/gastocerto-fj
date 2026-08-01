@@ -178,8 +178,7 @@ export const adminOverview = createServerFn({ method: "GET" })
     ]);
 
     // Métricas financeiras básicas
-    const { data: mrrData } = await supabaseAdmin
-      .from("business_metrics_daily")
+    const { data: mrrData } = await (supabaseAdmin.from("business_metrics_daily" as any) as any)
       .select("mrr")
       .order("date", { ascending: false })
       .limit(1)
@@ -190,6 +189,6 @@ export const adminOverview = createServerFn({ method: "GET" })
       activeUsers: active.count ?? 0,
       totalTransactions: transactions.count ?? 0,
       newUsers30d: recent.count ?? 0,
-      totalMmr: Number(mrrData?.mrr || 0),
+      totalMmr: Number((mrrData as any)?.mrr || 0),
     };
   });
