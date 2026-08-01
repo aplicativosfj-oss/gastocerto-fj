@@ -78,25 +78,18 @@ export function GasRefillDialog({
 
     let transactionId = refill?.transaction_id ?? null;
 
-    if (createExpense && !refill) {
-      const category = (categories ?? []).find(
-        (item) => item.type === "expense" && item.name.toLowerCase() === "gás",
-      );
+    // Mantém a despesa sempre consistente: cria na primeira vez e atualiza
+    // valor/data automaticamente quando a troca é editada.
+    if (createExpense) {
       try {
-        const created = await saveTransaction.mutateAsync({
-          values: {
-            description: `Botijão de gás${supplier ? ` — ${supplier}` : ""}`,
-            amount: value,
-            transaction_type: "expense",
-            transaction_date: date,
-            payment_date: date,
-            status: "paid",
-            payment_method: method,
-            category_id: category?.id ?? null,
-            tags: ["gas"],
-          },
+        transactionId = await syncGasExpense({
+          refillDate: date,
+          amount: value,
+          supplier: supplier.trim() || null,
+          paymentMethod: method,
+          sizeKg: Number(size),
+          transactionId,
         });
-        transactionId = created.id;
       } catch (error) {
         console.error("[gas] falha ao lançar despesa", error);
         toast.error(
@@ -104,6 +97,7 @@ export function GasRefillDialog({
         );
       }
     }
+
 
     try {
       await save.mutateAsync({
