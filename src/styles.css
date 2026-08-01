@@ -374,6 +374,11 @@
     scroll-padding-top: 5rem;
     overflow-x: clip;
     -webkit-text-size-adjust: 100%;
+    /* Reserva o espaço da barra de rolagem: a janela nunca muda de largura
+       ao alternar menus, abas ou painéis. */
+    scrollbar-gutter: stable;
+    /* Sempre com rolagem vertical disponível para não "pular" de largura. */
+    overflow-y: scroll;
   }
 
   /* Nada de rolagem lateral nem tela "pulando" de largura. */
@@ -381,6 +386,12 @@
     overflow-x: clip;
     min-width: 0;
   }
+
+  /* Área de conteúdo com altura mínima estável entre navegações. */
+  @utility app-main {
+    min-height: calc(100svh - 8.5rem);
+  }
+
 
   img,
   svg,
