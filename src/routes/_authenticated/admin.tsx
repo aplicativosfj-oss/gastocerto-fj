@@ -111,6 +111,8 @@ const SECTIONS: AdminSection[] = [
   { id: "tickets", label: "Suporte", hint: "Fila de atendimento", icon: LifeBuoy, adminOnly: true },
   { id: "announcements", label: "Avisos globais", hint: "Comunicados na plataforma", icon: BellRing, adminOnly: true },
   { id: "categories", label: "Catálogo", hint: "Categorias da plataforma", icon: Tags, adminOnly: true },
+  { id: "security", label: "Segurança", hint: "Códigos de acesso e IPs bloqueados", icon: Lock, adminOnly: true },
+
   { id: "closing", label: "Fechamento", hint: "Política e liberações de meses", icon: Lock },
   { id: "audit", label: "Auditoria", hint: "Códigos, permissões e exportação", icon: FileClock },
   { id: "logs", label: "Logs administrativos", hint: "Trilha completa de ações", icon: ScrollText },
