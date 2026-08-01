@@ -165,7 +165,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="min-h-screen bg-secondary/20 lg:flex">
       <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-border bg-background lg:flex">
         <div className="flex h-20 items-center border-b border-border px-4">
-          <Link to="/painel" aria-label="Ir para o painel" className="transition-transform hover:scale-[1.02]">
+          <Link to={isAdminArea ? "/admin" : "/painel"} aria-label="Ir para o painel" className="transition-transform hover:scale-[1.02]">
             <Logo />
           </Link>
         </div>
