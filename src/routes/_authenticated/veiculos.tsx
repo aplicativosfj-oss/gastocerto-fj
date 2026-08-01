@@ -509,7 +509,10 @@ function VehiclesPage() {
 
 
 
-        <section className="overflow-x-auto rounded-2xl border border-border bg-card">
+        <section className="overflow-hidden rounded-xl border border-border bg-card shadow-soft">
+          <div className="bg-muted/30 border-b border-border/50 px-4 py-3">
+            <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60">Histórico de abastecimentos</h3>
+          </div>
           {loadingEntries ? (
             <div className="space-y-2 p-4">
               {Array.from({ length: 5 }).map((_, index) => (
@@ -517,24 +520,28 @@ function VehiclesPage() {
               ))}
             </div>
           ) : filtered.length === 0 ? (
-            <div className="p-10 text-center text-sm text-muted-foreground">
-              <Droplets className="mx-auto mb-2 size-6" />
-              Nenhum abastecimento no período selecionado.
+            <div className="flex flex-col items-center justify-center p-20 text-center">
+              <div className="flex size-14 items-center justify-center rounded-full bg-muted text-muted-foreground/40">
+                <Droplets className="size-7" />
+              </div>
+              <p className="mt-5 text-sm font-semibold">Nenhum abastecimento encontrado</p>
+              <p className="mt-1 text-xs text-muted-foreground">Tente ajustar os filtros ou registre um novo gasto.</p>
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Data</TableHead>
-                  <TableHead className="hidden md:table-cell">Veículo</TableHead>
-                  <TableHead className="text-right">Odômetro</TableHead>
-                  <TableHead className="text-right">Litros</TableHead>
-                  <TableHead className="hidden sm:table-cell text-right">R$/L</TableHead>
-                  <TableHead className="text-right">Total</TableHead>
-                  <TableHead className="hidden lg:table-cell text-right">km/l</TableHead>
-                  <TableHead className="w-24 text-right">Ações</TableHead>
-                </TableRow>
-              </TableHeader>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader className="bg-muted/20">
+                  <TableRow className="hover:bg-transparent">
+                    <TableHead className="font-bold text-[10px] uppercase tracking-wider text-muted-foreground">Data</TableHead>
+                    <TableHead className="hidden font-bold text-[10px] uppercase tracking-wider text-muted-foreground md:table-cell">Veículo</TableHead>
+                    <TableHead className="text-right font-bold text-[10px] uppercase tracking-wider text-muted-foreground">Odômetro</TableHead>
+                    <TableHead className="text-right font-bold text-[10px] uppercase tracking-wider text-muted-foreground">Litros</TableHead>
+                    <TableHead className="hidden sm:table-cell text-right font-bold text-[10px] uppercase tracking-wider text-muted-foreground">R$/L</TableHead>
+                    <TableHead className="text-right font-bold text-[10px] uppercase tracking-wider text-muted-foreground">Total</TableHead>
+                    <TableHead className="hidden lg:table-cell text-right font-bold text-[10px] uppercase tracking-wider text-muted-foreground">km/l</TableHead>
+                    <TableHead className="w-20 text-right font-bold text-[10px] uppercase tracking-wider text-muted-foreground">Ações</TableHead>
+                  </TableRow>
+                </TableHeader>
               <TableBody>
                 {filtered.map((entry) => (
                   <TableRow key={entry.id}>
