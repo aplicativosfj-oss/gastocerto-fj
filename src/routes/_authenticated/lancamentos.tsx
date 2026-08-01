@@ -30,6 +30,7 @@ import { FilterField, FilterPanel } from "@/components/finance/filter-panel";
 import { FilterPresets } from "@/components/finance/filter-presets";
 import { MetaChip, PageHeader } from "@/components/finance/page-header";
 import { StatTile } from "@/components/finance/stat-tile";
+import { PeriodPdfPreview } from "@/components/finance/period-pdf-preview";
 import { PeriodPicker } from "@/components/finance/period-picker";
 import { InlineNotes } from "@/components/finance/inline-notes";
 import { TransactionDetailsDialog } from "@/components/finance/transaction-details-dialog";
