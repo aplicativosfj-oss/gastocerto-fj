@@ -221,7 +221,7 @@ function CategoriesPage() {
               <Skeleton key={index} className="h-24 rounded-2xl" />
             ))}
           </div>
-        ) : visible.length === 0 ? (
+        ) : allCategories.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border p-10 text-center">
             <p className="text-sm text-muted-foreground">Nenhuma categoria por aqui ainda.</p>
           </div>
