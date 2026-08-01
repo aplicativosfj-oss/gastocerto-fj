@@ -15,44 +15,44 @@ const plans = [
     name: "Gratuito",
     monthly: 0,
     yearly: 0,
-    description: "Para começar a organizar hoje mesmo.",
+    description: "Para conhecer o sistema sem pagar nada.",
     highlighted: false,
     cta: "Criar conta grátis",
     features: [
-      "Lançamentos de despesas e receitas",
-      "Categorias personalizadas",
-      "Painel e balancete do mês",
-      "Ideal para conhecer o sistema",
-    ],
-  },
-  {
-    slug: "trial",
-    name: "Teste grátis",
-    monthly: 0,
-    yearly: 0,
-    description: "7, 15 ou 30 dias com absolutamente tudo liberado.",
-    highlighted: false,
-    cta: "Começar meu teste",
-    features: [
-      "Todos os recursos liberados",
-      "Consultor de IA incluído",
-      "Combustível, metas e compromissos",
+      "Até 30 lançamentos por mês",
+      "Categorias, painel e balancete do mês",
+      "Inclui 7 dias de teste com tudo liberado",
       "Sem cartão de crédito",
     ],
   },
   {
     slug: "premium",
     name: "Premium",
-    monthly: 19.9,
-    yearly: 15.9,
+    monthly: 24.9,
+    yearly: 19.9,
     description: "Controle total, previsões e relatórios.",
-    highlighted: true,
+    highlighted: false,
     cta: "Assinar o Premium",
     features: [
       "Lançamentos e veículos ilimitados",
-      "Orçamentos, metas e alertas",
+      "Orçamentos, metas e compromissos",
       "Combustível com custo por km",
       "Exportação em CSV e PDF",
+    ],
+  },
+  {
+    slug: "premium_ia",
+    name: "Premium IA",
+    monthly: 39.9,
+    yearly: 33.2,
+    description: "Tudo do Premium + Consultor de IA integrado.",
+    highlighted: true,
+    cta: "Assinar o Premium IA",
+    features: [
+      "Tudo do plano Premium",
+      "Consultor de IA que analisa seus gastos",
+      "Créditos mensais de IA inclusos",
+      "Recibos e auditoria de cada análise",
     ],
   },
 ];
@@ -60,6 +60,7 @@ const plans = [
 const premium = plans[plans.length - 1];
 const savingsPercent = Math.round((1 - premium.yearly / premium.monthly) * 100);
 const savingsPerYear = premium.monthly * 12 - premium.yearly * 12;
+
 
 export function Pricing() {
   const [cycle, setCycle] = useState<Cycle>("yearly");
