@@ -41,6 +41,7 @@ import { labelFor } from "@/lib/finance";
 import { formatCurrency } from "@/lib/format";
 import { useCategories } from "@/lib/queries";
 import { useAccounts } from "@/lib/transactions";
+import { VehicleEmblem } from "@/components/finance/vehicle-emblem";
 import { VEHICLE_TYPES, useDeleteVehicle, useVehicles, type Vehicle } from "@/lib/vehicles";
 
 export const Route = createFileRoute("/_authenticated/cadastros")({
@@ -184,12 +185,15 @@ function RegistrationsPage() {
               ) : (
                 (vehicles ?? []).map((vehicle) => (
                   <li key={vehicle.id} className="flex items-center justify-between gap-2 py-2">
-                    <div className="min-w-0">
+                    <div className="flex min-w-0 items-center gap-2.5">
+                      <VehicleEmblem vehicleType={vehicle.vehicle_type} className="size-8 shrink-0" />
+                      <div className="min-w-0">
                       <p className="truncate text-sm font-medium">{vehicle.name}</p>
                       <p className="text-xs text-muted-foreground">
                         {labelFor(VEHICLE_TYPES, vehicle.vehicle_type)}
                         {vehicle.plate ? ` · ${vehicle.plate}` : ""}
                       </p>
+                      </div>
                     </div>
                     <div className="flex shrink-0">
                       <Button
