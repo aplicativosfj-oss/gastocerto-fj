@@ -475,6 +475,8 @@ function DashboardPage() {
 
         </header>
 
+        <GlobalAnnouncementsBanner />
+
         {loadingTransactions ? (
           <div className="grid gap-3 auto-cards-sm opacity-50 transition-opacity duration-300">
             {Array.from({ length: 8 }).map((_, index) => (
