@@ -162,12 +162,27 @@ export async function testMercadoPagoCredentials() {
   const text = await response.text();
   if (!response.ok) {
     console.error(`[mercadopago] teste de credencial falhou [${response.status}]: ${text}`);
-    let errorMessage = "Credencial recusada pelo Mercado Pago.";
+    let errorMessage = `Mercado Pago recusou a credencial [${response.status}]`;
+    let instructions = "Verifique se o token copiado está completo e sem espaços.";
+    
     try {
       const errorJson = JSON.parse(text);
-      errorMessage = errorJson.message || errorJson.error || errorMessage;
+      const mpCode = errorJson.message || errorJson.error;
+      
+      if (mpCode === "invalid_token") {
+        errorMessage = "Token Inválido";
+        instructions = "O Access Token expirou ou não pertence a esta conta. Gere um novo no Painel do Desenvolvedor.";
+      } else if (mpCode === "unauthorized") {
+        errorMessage = "Não Autorizado";
+        instructions = "A conta não tem permissão para usar esta API. Verifique se é uma conta de Vendedor.";
+      } else if (response.status === 403) {
+        errorMessage = "Acesso Negado";
+        instructions = "O Mercado Pago bloqueou a requisição. Verifique se o IP do servidor não está restrito.";
+      }
+      
+      errorMessage = `${errorMessage}: ${mpCode || text.slice(0, 50)}`;
     } catch {
-      errorMessage = text.slice(0, 100);
+      errorMessage = `${errorMessage}: ${text.slice(0, 100)}`;
     }
     
     return {
@@ -175,6 +190,7 @@ export async function testMercadoPagoCredentials() {
       status: response.status,
       latencyMs: Date.now() - started,
       message: errorMessage,
+      instructions,
       pixEnabled: false,
     };
   }

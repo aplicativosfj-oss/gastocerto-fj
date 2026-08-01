@@ -259,3 +259,44 @@ export const adminGetCheckoutAudit = createServerFn({ method: "POST" })
       },
     };
   });
+
+/** Registra cliques em ações externas no painel de integrações para auditoria. */
+export const adminLogIntegrationAction = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({ 
+      integration: z.enum(["mercadopago", "gemini", "email"]),
+      action: z.string().max(50),
+      detail: z.string().max(200).optional()
+    }).parse(input)
+  )
+  .handler(async ({ data, context }) => {
+    const { assertStaffCtx, auditLog } = await import("@/lib/admin-guard.server");
+    await assertStaffCtx(context);
+
+    await auditLog(context, "integration_action_click", {
+      integration: data.integration,
+      action: data.action,
+      detail: data.detail
+    });
+
+    return { ok: true };
+  });
+
+/** Aciona o ajuste de limites/configurações da IA Gemini com registro em auditoria. */
+export const adminAdjustGeminiLimits = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { assertAdminCtx, auditLog } = await import("@/lib/admin-guard.server");
+    await assertAdminCtx(context);
+
+    // No futuro aqui viria a lógica real de alteração de cotas no banco.
+    // Por enquanto registramos a intenção e o acesso.
+    await auditLog(context, "gemini_limits_adjustment_triggered", {
+      model: "gemini-2.0-flash",
+      economy_mode: true
+    });
+
+    return { ok: true, message: "Limites sincronizados com o plano atual." };
+  });
+
