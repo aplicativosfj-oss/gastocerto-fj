@@ -38,7 +38,7 @@ export function IntegrationsPanel() {
               </div>
               <Badge variant="success" className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20">Ativo</Badge>
             </div>
-            <CardTitle className="text-lg mt-3">Mercado Pago</Badge>
+            <CardTitle className="text-lg mt-3">Mercado Pago</CardTitle>
             <CardDescription className="text-xs">Checkout Transparente & Pix</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
