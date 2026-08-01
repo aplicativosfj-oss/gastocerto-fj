@@ -84,6 +84,7 @@ function CompromissosPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [entryTarget, setEntryTarget] = useState<string | null>(null);
   const [scheduleTarget, setScheduleTarget] = useState<string | null>(null);
+  const [dueTarget, setDueTarget] = useState<Commitment | null>(null);
 
   const { data: preferences } = useNotificationPreferences();
   const syncNotifications = useSyncNotifications();
