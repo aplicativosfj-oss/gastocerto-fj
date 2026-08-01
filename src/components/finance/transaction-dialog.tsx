@@ -243,6 +243,20 @@ export function TransactionDialog({
   const isBeforeStart = Boolean(date) && date < MIN_TRANSACTION_DATE;
   const isLockedMonth = lockedKeys.has(monthKey);
 
+  /** Política global do administrador para competências passadas. */
+  const { policy } = useClosingPolicy();
+  const { user } = useAuth();
+  const [passwordOpen, setPasswordOpen] = useState(false);
+  const [identityConfirmed, setIdentityConfirmed] = useState(false);
+  const adminBlockedPast = policy.lockPastMonths && isPastMonth;
+  const needsPassword =
+    policy.requirePasswordForPastEdits && isPastMonth && !adminBlockedPast && !identityConfirmed;
+
+  useEffect(() => {
+    if (!open) setIdentityConfirmed(false);
+  }, [open]);
+
+
   function shiftDate(kindOfShift: "today" | "yesterday" | "lastMonth") {
     const base = new Date();
     if (kindOfShift === "yesterday") base.setDate(base.getDate() - 1);
