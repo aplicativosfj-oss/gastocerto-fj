@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { ArrowLeft, Check, Delete, SlidersHorizontal } from "lucide-react";
+import { ArrowLeft, Check, Delete, Eye, SlidersHorizontal } from "lucide-react";
 import { toast } from "sonner";
 
 import { readRecentCategories, rememberCategory } from "@/components/finance/category-picker";
@@ -73,6 +73,7 @@ export function ExpenseCardsDialog({
   const [installmentsPaid, setInstallmentsPaid] = useState("0");
   const [firstDue, setFirstDue] = useState(isoDate(new Date()));
   const [endDate, setEndDate] = useState("");
+  const [confirming, setConfirming] = useState(false);
 
   const expenseCategories = useMemo(() => {
     const all = (categories ?? []).filter(
@@ -102,6 +103,7 @@ export function ExpenseCardsDialog({
     setInstallmentsPaid("0");
     setFirstDue(isoDate(new Date()));
     setEndDate("");
+    setConfirming(false);
   }
 
   function press(key: (typeof KEYS)[number]) {
@@ -539,19 +541,120 @@ export function ExpenseCardsDialog({
                 type="button"
                 className="flex-1"
                 disabled={save.isPending || cents <= 0}
-                onClick={handleSave}
+                onClick={() => {
+                  if (kind === "installments" && total <= 0) {
+                    toast.error("Informe a quantidade de parcelas.");
+                    return;
+                  }
+                  setConfirming(true);
+                }}
               >
-                <Check className="size-4" aria-hidden />
-                {kind === "installments"
-                  ? `Salvar ${total || 0} parcelas`
-                  : kind === "recurring"
-                    ? "Criar recorrência"
-                    : "Salvar gasto"}
+                <Eye className="size-4" aria-hidden />
+                Revisar e confirmar
               </Button>
             </div>
           </div>
         )}
       </DialogContent>
+
+      <Dialog open={confirming} onOpenChange={setConfirming}>
+        <DialogContent className="max-h-[88vh] overflow-y-auto sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Confirmar lançamento</DialogTitle>
+            <DialogDescription>
+              Revise o impacto no saldo do mês e o valor restante antes de salvar.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="rounded-2xl border border-border bg-muted/40 p-4 text-center">
+            <p className="text-3xl font-bold tabular-nums">{formatCurrency(cents / 100)}</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {selected?.name}
+              {" · "}
+              {kind === "installments"
+                ? `${total} parcela(s) de ${formatCurrency(impact.monthlyValue)}`
+                : kind === "recurring"
+                  ? "todo mês"
+                  : "pagamento único"}
+            </p>
+          </div>
+
+          <dl className="grid grid-cols-2 gap-2 text-xs">
+            <div className="rounded-xl border border-border bg-card p-2.5">
+              <dt className="text-[10px] uppercase text-muted-foreground">Peso neste mês</dt>
+              <dd className="font-semibold tabular-nums text-destructive">
+                {formatCurrency(impact.newInMonth)}
+              </dd>
+            </div>
+            <div className="rounded-xl border border-border bg-card p-2.5">
+              <dt className="text-[10px] uppercase text-muted-foreground">Saldo do mês fica</dt>
+              <dd className="font-semibold tabular-nums">{formatCurrency(impact.balanceAfter)}</dd>
+            </div>
+            <div className="rounded-xl border border-border bg-card p-2.5">
+              <dt className="text-[10px] uppercase text-muted-foreground">Saldo atual</dt>
+              <dd className="font-semibold tabular-nums">{formatCurrency(impact.balanceBefore)}</dd>
+            </div>
+            <div className="rounded-xl border border-border bg-card p-2.5">
+              <dt className="text-[10px] uppercase text-muted-foreground">
+                {kind === "installments" ? "Falta pagar" : kind === "recurring" ? "Por mês" : "Data"}
+              </dt>
+              <dd className="font-semibold tabular-nums">
+                {kind === "single"
+                  ? formatDate(`${date}T12:00:00`)
+                  : formatCurrency(impact.remaining)}
+              </dd>
+            </div>
+          </dl>
+
+          {kind === "installments" && plan.length > 0 ? (
+            <div className="rounded-xl border border-border p-3">
+              <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                Parcelas que serão criadas
+              </p>
+              <ul className="mt-2 max-h-40 space-y-1 overflow-y-auto text-xs">
+                {plan.map((item) => (
+                  <li key={item.number} className="flex items-center justify-between gap-2">
+                    <span>
+                      {item.number}/{total} · {formatDate(`${item.dueDate}T12:00:00`)}
+                      {item.paid ? " (já paga)" : ""}
+                    </span>
+                    <span className="font-semibold tabular-nums">
+                      {formatCurrency(item.amount)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-2 text-[11px] text-muted-foreground">
+                Termina em {computedEnd ? formatDate(`${computedEnd}T12:00:00`) : "—"}.
+              </p>
+            </div>
+          ) : null}
+
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="ghost"
+              className="flex-1"
+              onClick={() => setConfirming(false)}
+            >
+              <ArrowLeft className="size-4" aria-hidden />
+              Voltar e ajustar
+            </Button>
+            <Button
+              type="button"
+              className="flex-1"
+              disabled={save.isPending || saveRecurring.isPending}
+              onClick={async () => {
+                await handleSave();
+                setConfirming(false);
+              }}
+            >
+              <Check className="size-4" aria-hidden />
+              Confirmar e salvar
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Dialog>
   );
 }

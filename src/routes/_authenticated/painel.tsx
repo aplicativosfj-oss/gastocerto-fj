@@ -4,10 +4,12 @@ import {
   ArrowRight,
   CalendarClock,
   Car,
+  Landmark,
   Loader2,
   Plus,
   TrendingDown,
   TrendingUp,
+  Users,
   Wallet,
   Zap,
 
@@ -32,6 +34,8 @@ import {
 import { AppShell } from "@/components/app-shell";
 import { TransactionDialog } from "@/components/finance/transaction-dialog";
 import { ExpenseCardsDialog } from "@/components/finance/expense-cards-dialog";
+import { DependentExpenseDialog } from "@/components/finance/dependent-expense-dialog";
+import { TaxQuickDialog } from "@/components/finance/tax-quick-dialog";
 import { RecurringAlerts } from "@/components/finance/recurring-alerts";
 import { MetricDetailDialog, type MetricDetail } from "@/components/finance/metric-detail-dialog";
 import { QuickCategoryMenu, type QuickPick } from "@/components/finance/quick-category-menu";
@@ -83,6 +87,8 @@ function DashboardPage() {
   const [dialogKind, setDialogKind] = useState<"expense" | "income">("expense");
   const [preset, setPreset] = useState<QuickPick>({ categoryId: null, subCategoryId: null });
   const [detail, setDetail] = useState<MetricDetail | null>(null);
+  const [dependentOpen, setDependentOpen] = useState(false);
+  const [taxOpen, setTaxOpen] = useState(false);
 
   const { data: profile, isLoading } = useProfile();
   const { data: categories } = useCategories();
@@ -281,6 +287,14 @@ function DashboardPage() {
             <Button onClick={() => navigate({ to: "/veiculos" })}>
               <Car className="mr-2 size-4" />
               Novo gasto do veículo
+            </Button>
+            <Button variant="outline" onClick={() => setDependentOpen(true)}>
+              <Users className="mr-2 size-4" aria-hidden />
+              Gasto com filhos
+            </Button>
+            <Button variant="outline" onClick={() => setTaxOpen(true)}>
+              <Landmark className="mr-2 size-4" aria-hidden />
+              Imposto de Renda
             </Button>
           </div>
 
@@ -742,6 +756,10 @@ function DashboardPage() {
           if (!next) setDetail(null);
         }}
       />
+
+      <DependentExpenseDialog open={dependentOpen} onOpenChange={setDependentOpen} />
+
+      <TaxQuickDialog open={taxOpen} onOpenChange={setTaxOpen} />
 
       <ExpenseCardsDialog
         open={cardsOpen}
