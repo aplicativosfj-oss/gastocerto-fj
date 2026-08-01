@@ -22,6 +22,7 @@ import {
   cpfSignInSchema,
   cpfSignUpSchema,
   forgotPasswordSchema,
+  emailSignInSchema,
   friendlyAuthError,
   signInSchema,
 } from "@/lib/validation";
@@ -680,7 +681,7 @@ function AdminSignInForm({ onBack }: { onBack: () => void }) {
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
-    const parsed = signInSchema.safeParse({
+    const parsed = emailSignInSchema.safeParse({
       email: String(form.get("email") ?? ""),
       password: String(form.get("password") ?? ""),
     });

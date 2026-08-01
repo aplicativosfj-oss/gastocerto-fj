@@ -1,5 +1,4 @@
 import { z } from "zod";
-
 import { isValidCpf, onlyDigits } from "@/lib/cpf";
 
 /** Remove caracteres de controle e espaços extras. */
@@ -107,6 +106,11 @@ export const cpfSignInSchema = z.object({
   pin: pinSchema,
 });
 
+export const emailSignInSchema = z.object({
+  email: emailSchema,
+  password: z.string().min(1, "Informe sua senha"),
+});
+
 export const cpfSignUpSchema = z
   .object({
     fullName: fullNameSchema,
@@ -131,7 +135,6 @@ export const cpfSignUpSchema = z
   });
 
 export const forgotPasswordSchema = z.object({ email: emailSchema });
-
 
 export const newPasswordSchema = z
   .object({
@@ -174,9 +177,5 @@ export function friendlyAuthError(message?: string): string {
   if (raw.includes("user already registered")) return "Já existe uma conta com este CPF ou e-mail.";
   if (raw.includes("pwned") || raw.includes("compromised"))
     return "Esta senha já apareceu em vazamentos. Escolha outra.";
-  if (raw.includes("rate limit") || raw.includes("too many"))
-    return "Muitas tentativas. Aguarde alguns minutos e tente novamente.";
-  if (raw.includes("same password"))
-    return "A nova senha precisa ser diferente da anterior.";
-  return "Não foi possível concluir a operação. Tente novamente.";
+  return message ?? "Erro ao processar solicitação.";
 }

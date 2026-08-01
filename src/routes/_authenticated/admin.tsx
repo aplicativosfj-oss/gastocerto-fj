@@ -46,6 +46,10 @@ import { BlockedIpsPanel } from "@/components/admin/blocked-ips-panel";
 import { ClosingPolicyPanel } from "@/components/admin/closing-policy-panel";
 import { CategoriesCatalogPanel } from "@/components/admin/categories-panel";
 import { AdminAccessPanel } from "@/components/admin/admin-access-panel";
+import { SupportTicketsPanel } from "@/components/admin/support-tickets-panel";
+import { AnnouncementsPanel } from "@/components/admin/announcements-panel";
+import { PlanConfigsPanel } from "@/components/admin/plan-configs-panel";
+import { BusinessDashboard } from "@/components/admin/business-dashboard";
 
 import {
   adminCancelSubscription,
@@ -256,10 +260,14 @@ function AdminContent({ isAdmin }: { isAdmin: boolean }) {
         ) : null}
 
         <Tabs defaultValue="users">
-          <TabsList>
+          <TabsList className="flex flex-wrap h-auto">
             <TabsTrigger value="users">Usuários</TabsTrigger>
+            {isAdmin ? <TabsTrigger value="business">Negócio</TabsTrigger> : null}
+            {isAdmin ? <TabsTrigger value="tickets">Suporte</TabsTrigger> : null}
+            {isAdmin ? <TabsTrigger value="announcements">Avisos</TabsTrigger> : null}
+            {isAdmin ? <TabsTrigger value="plans">Planos</TabsTrigger> : null}
             {isAdmin ? <TabsTrigger value="licenses">Licenças</TabsTrigger> : null}
-            {isAdmin ? <TabsTrigger value="payments">Vendas &amp; pagamentos</TabsTrigger> : null}
+            {isAdmin ? <TabsTrigger value="payments">Vendas</TabsTrigger> : null}
             {isAdmin ? <TabsTrigger value="ai">IA &amp; testes</TabsTrigger> : null}
             {isAdmin ? <TabsTrigger value="security">Segurança</TabsTrigger> : null}
             {isAdmin ? <TabsTrigger value="categories">Categorias</TabsTrigger> : null}
@@ -268,15 +276,26 @@ function AdminContent({ isAdmin }: { isAdmin: boolean }) {
           </TabsList>
 
           {isAdmin ? (
-            <TabsContent value="licenses" className="mt-4">
-              <LicensesPanel />
-            </TabsContent>
-          ) : null}
-
-          {isAdmin ? (
-            <TabsContent value="payments" className="mt-4">
-              <SalesPanel />
-            </TabsContent>
+            <>
+              <TabsContent value="business" className="mt-4">
+                <BusinessDashboard />
+              </TabsContent>
+              <TabsContent value="tickets" className="mt-4">
+                <SupportTicketsPanel />
+              </TabsContent>
+              <TabsContent value="announcements" className="mt-4">
+                <AnnouncementsPanel />
+              </TabsContent>
+              <TabsContent value="plans" className="mt-4">
+                <PlanConfigsPanel />
+              </TabsContent>
+              <TabsContent value="licenses" className="mt-4">
+                <LicensesPanel />
+              </TabsContent>
+              <TabsContent value="payments" className="mt-4">
+                <SalesPanel />
+              </TabsContent>
+            </>
           ) : null}
 
 

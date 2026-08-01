@@ -13,6 +13,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { useProfile } from "@/lib/queries";
+import { createSupportTicket } from "@/lib/admin-expansion.functions";
+import { useServerFn } from "@tanstack/react-start";
 
 export function ContactModal({
   open,
@@ -25,6 +27,7 @@ export function ContactModal({
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const createTicket = useServerFn(createSupportTicket);
 
   const [subject, setSubject] = useState("Suporte GastoCerto");
   const [message, setMessage] = useState(
@@ -45,14 +48,7 @@ export function ContactModal({
     setSending(true);
 
     try {
-      // Simula envio de e-mail (em produção integraria com serviço de e-mail)
-      await new Promise((resolve, reject) => {
-        setTimeout(() => {
-          // 5% de chance de erro simulado para testar UI
-          if (Math.random() > 0.95) reject(new Error("Falha na conexão com o servidor."));
-          else resolve(true);
-        }, 1200);
-      });
+      await createTicket({ data: { subject, message } });
 
       setSent(true);
       toast.success("Mensagem enviada com sucesso!");

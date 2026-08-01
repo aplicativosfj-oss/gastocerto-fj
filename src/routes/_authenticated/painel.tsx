@@ -53,6 +53,7 @@ import { VehicleEmblem } from "@/components/finance/vehicle-emblem";
 import { usePeriodStore } from "@/lib/period-store";
 import { InteractiveCalendar } from "@/components/finance/interactive-calendar";
 import { StatTile } from "@/components/finance/stat-tile";
+import { GlobalAnnouncementsBanner } from "@/components/finance/global-announcements-banner";
 
 
 
@@ -473,6 +474,8 @@ function DashboardPage() {
           </div>
 
         </header>
+
+        <GlobalAnnouncementsBanner />
 
         {loadingTransactions ? (
           <div className="grid gap-3 auto-cards-sm opacity-50 transition-opacity duration-300">
