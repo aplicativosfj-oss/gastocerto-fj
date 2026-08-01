@@ -46,6 +46,10 @@ import { BlockedIpsPanel } from "@/components/admin/blocked-ips-panel";
 import { ClosingPolicyPanel } from "@/components/admin/closing-policy-panel";
 import { CategoriesCatalogPanel } from "@/components/admin/categories-panel";
 import { AdminAccessPanel } from "@/components/admin/admin-access-panel";
+import { SupportTicketsPanel } from "@/components/admin/support-tickets-panel";
+import { AnnouncementsPanel } from "@/components/admin/announcements-panel";
+import { PlanConfigsPanel } from "@/components/admin/plan-configs-panel";
+import { BusinessDashboard } from "@/components/admin/business-dashboard";
 
 import {
   adminCancelSubscription,
