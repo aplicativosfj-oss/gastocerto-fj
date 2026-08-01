@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.create_default_categories(uuid) FROM authenticated, anon, public;
