@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { ScrollText, Download, FileText, RefreshCw } from "lucide-react";
+import { ScrollText, Download, FileText, RefreshCw, Trash2, AlertTriangle } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
@@ -8,6 +8,17 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import {
   Select,
   SelectContent,
@@ -34,7 +45,9 @@ import {
   type AuditLogRow,
 } from "@/lib/audit-log";
 import { adminListAuditLogs } from "@/lib/audit-logs.functions";
+import { adminClearAuditLogs } from "@/lib/admin-maintenance.functions";
 import { formatDateTime } from "@/lib/format";
+import { toast } from "sonner";
 
 function download(name: string, blob: Blob) {
   const url = URL.createObjectURL(blob);
@@ -47,6 +60,8 @@ function download(name: string, blob: Blob) {
 
 export function AuditLogsPanel({ globalSearch = "" }: { globalSearch?: string }) {
   const listLogs = useServerFn(adminListAuditLogs);
+  const clearLogs = useServerFn(adminClearAuditLogs);
+  const [isClearing, setIsClearing] = useState(false);
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [category, setCategory] = useState<AuditCategory | "all">("all");
@@ -129,6 +144,19 @@ export function AuditLogsPanel({ globalSearch = "" }: { globalSearch?: string })
     doc.save(`auditoria-${from || "inicio"}-${to || "hoje"}.pdf`);
   }
 
+  async function handleClearLogs() {
+    setIsClearing(true);
+    try {
+      await clearLogs();
+      toast.success("Logs de auditoria removidos com sucesso.");
+      refetch();
+    } catch (error: any) {
+      toast.error(error.message || "Erro ao limpar logs.");
+    } finally {
+      setIsClearing(false);
+    }
+  }
+
   return (
     <Card className="border-border/60 shadow-sm">
       <CardHeader className="pb-4">
@@ -155,6 +183,37 @@ export function AuditLogsPanel({ globalSearch = "" }: { globalSearch?: string })
               <FileText className="size-4" />
               PDF
             </Button>
+
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="ghost" size="sm" className="text-destructive hover:bg-destructive/10 hover:text-destructive">
+                  <Trash2 className="size-4" />
+                  Limpar tudo
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle className="flex items-center gap-2">
+                    <AlertTriangle className="size-5 text-destructive" />
+                    Limpar auditoria?
+                  </AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Esta ação é irreversível. Todos os registros de ações administrativas serão
+                    permanentemente removidos, exceto por um log registrando esta própria limpeza.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleClearLogs}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    disabled={isClearing}
+                  >
+                    {isClearing ? "Limpando..." : "Confirmar exclusão"}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </div>
 
