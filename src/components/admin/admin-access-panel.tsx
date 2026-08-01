@@ -13,7 +13,8 @@ import {
   User,
   ExternalLink,
   Copy,
-  Hash
+  Hash,
+  Loader2
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -26,6 +27,7 @@ import {
   revokeAdminAccessCode,
   getAdminAccessLogs 
 } from "@/lib/admin-code.functions";
+import { adminDeleteAccessCode } from "@/lib/licenses.functions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -56,6 +58,7 @@ export function AdminAccessPanel() {
   const listCodes = useServerFn(listAdminAccessCodes);
   const createCode = useServerFn(createAdminAccessCode);
   const revokeCode = useServerFn(revokeAdminAccessCode);
+  const deleteCode = useServerFn(adminDeleteAccessCode);
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [newLabel, setNewLabel] = useState("");
@@ -85,6 +88,15 @@ export function AdminAccessPanel() {
       queryClient.invalidateQueries({ queryKey: ["admin-access-codes"] });
       toast.success("Código revogado.");
     },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => deleteCode({ data: { id } }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-access-codes"] });
+      toast.success("Código excluído.");
+    },
+    onError: (err: any) => toast.error(err.message || "Erro ao excluir"),
   });
 
   const handleCopy = (code: string) => {
@@ -246,11 +258,28 @@ export function AdminAccessPanel() {
                               onClick={() => revokeMutation.mutate(code.id)}
                               disabled={revokeMutation.isPending}
                             >
-                              <Trash2 className="size-4" />
+                                <Trash2 className="size-4" />
+                              </Button>
+                            )}
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="size-8 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                              onClick={() => {
+                                if (window.confirm("Excluir este código administrativo?")) {
+                                  deleteMutation.mutate(code.id);
+                                }
+                              }}
+                              disabled={deleteMutation.isPending}
+                            >
+                              {deleteMutation.isPending ? (
+                                <Loader2 className="size-4 animate-spin" />
+                              ) : (
+                                <Trash2 className="size-4" />
+                              )}
                             </Button>
-                          )}
-                        </div>
-                      </TableCell>
+                          </div>
+                        </TableCell>
                     </TableRow>
                   );
                 })}
