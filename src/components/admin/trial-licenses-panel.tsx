@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Copy, Gift, Loader2 } from "lucide-react";
+import { Copy, Gift, Loader2, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -24,7 +24,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { formatDateTime } from "@/lib/format";
-import { adminCreateTrialLicenses, adminListLicenses } from "@/lib/licenses.functions";
+import { adminCreateTrialLicenses, adminListLicenses, adminDeleteLicense } from "@/lib/licenses.functions";
 
 const STATUS_LABELS: Record<string, string> = {
   pending: "Aguardando ativação",
@@ -41,6 +41,7 @@ export function TrialLicensesPanel() {
   const create = useServerFn(adminCreateTrialLicenses);
   const listLicenses = useServerFn(adminListLicenses);
   const queryClient = useQueryClient();
+  const deleteLicense = useServerFn(adminDeleteLicense);
 
   const [quantity, setQuantity] = useState("5");
   const [trialDays, setTrialDays] = useState("15");
@@ -84,6 +85,15 @@ export function TrialLicensesPanel() {
       void queryClient.invalidateQueries({ queryKey: ["admin", "licenses"] });
     },
     onError: (error: Error) => toast.error(error.message || "Não foi possível gerar os códigos."),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => deleteLicense({ data: { id } }),
+    onSuccess: () => {
+      toast.success("Licença excluída com sucesso.");
+      void queryClient.invalidateQueries({ queryKey: ["admin", "licenses"] });
+    },
+    onError: (error: Error) => toast.error(error.message || "Não foi possível excluir a licença."),
   });
 
   const pendingKeys = trials
@@ -206,7 +216,8 @@ export function TrialLicensesPanel() {
               <TableHead>Situação</TableHead>
               <TableHead>Gerada em</TableHead>
               <TableHead>Ativada em</TableHead>
-              <TableHead>Expira em</TableHead>
+               <TableHead>Expira em</TableHead>
+               <TableHead className="w-[50px]"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -245,8 +256,23 @@ export function TrialLicensesPanel() {
                     <TableCell className="text-sm text-muted-foreground">
                       {row.activated_at ? formatDateTime(row.activated_at) : "—"}
                     </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
+                     <TableCell className="text-sm text-muted-foreground">
                       {row.expires_at ? formatDateTime(row.expires_at) : "—"}
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="size-8 text-muted-foreground hover:text-destructive"
+                        disabled={deleteMutation.isPending}
+                        onClick={() => {
+                          if (confirm("Tem certeza que deseja excluir esta licença?")) {
+                            deleteMutation.mutate(row.id);
+                          }
+                        }}
+                      >
+                        <Trash2 className="size-4" />
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ),
