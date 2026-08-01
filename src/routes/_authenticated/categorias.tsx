@@ -525,6 +525,21 @@ function CategoriesPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <ConfirmDialog
+        open={pending !== null}
+        onOpenChange={(open) => !open && setPending(null)}
+        title={pending?.next ? "Ativar categoria?" : "Desativar categoria?"}
+        description={
+          pending?.next
+            ? `"${pending.name}" volta a aparecer na lista de lançamentos.`
+            : `"${pending?.name}" deixa de aparecer em novos lançamentos. Nada é excluído e você pode reativar quando quiser.`
+        }
+        confirmLabel={pending?.next ? "Ativar" : "Desativar"}
+        tone={pending?.next ? "default" : "destructive"}
+        loading={toggling}
+        onConfirm={confirmToggle}
+      />
     </AppShell>
   );
 }
