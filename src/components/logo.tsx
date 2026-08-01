@@ -3,8 +3,8 @@ import { cn } from "@/lib/utils";
 
 export function BrandMark({ className }: { className?: string }) {
   return (
-    <div className={cn("relative flex items-center justify-center overflow-hidden rounded-xl bg-white p-1 shadow-soft", className)}>
-      <img src={logoAsset.url} alt="GastoCerto Logo Mark" className="h-full w-full object-contain" />
+    <div className={cn("relative flex items-center justify-center overflow-hidden rounded-xl bg-white p-1 shadow-md ring-1 ring-black/5", className)}>
+      <img src={logoAsset.url} alt="GastoCerto Logo Mark" className="h-full w-full object-contain transition-transform hover:scale-105" />
     </div>
   );
 }
