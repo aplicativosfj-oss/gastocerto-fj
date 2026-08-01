@@ -176,8 +176,9 @@ function OrderStatusPage() {
                     <Mail className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
                     {order.deliveredByEmail
                       ? "Também enviamos a chave para o e-mail do pedido."
-                      : "Guarde esta chave: o envio automático por e-mail ainda não está disponível, então esta página é o seu comprovante de entrega."}
+                      : "Importante: O envio automático por e-mail só funcionará após a configuração do domínio remetente pelo administrador. Por favor, guarde esta chave agora; esta página é seu comprovante atual de entrega."}
                   </p>
+
                 </div>
               ) : order.qrCodeBase64 || order.qrCode ? (
                 <div className="mt-4 rounded-xl border border-border p-4">
