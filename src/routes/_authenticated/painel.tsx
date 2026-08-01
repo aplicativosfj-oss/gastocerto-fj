@@ -41,7 +41,10 @@ import { MetricDetailDialog, type MetricDetail } from "@/components/finance/metr
 import { QuickCategoryMenu, type QuickPick } from "@/components/finance/quick-category-menu";
 import { PeriodPicker } from "@/components/finance/period-picker";
 import { CardMonthSummary } from "@/components/finance/card-month-summary";
+import { InsightsPanel } from "@/components/finance/insights-panel";
+import { PastMonthsLockNotice } from "@/components/finance/past-months-lock-notice";
 import { VehicleEmblem } from "@/components/finance/vehicle-emblem";
+
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
