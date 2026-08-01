@@ -319,6 +319,17 @@ export function TransactionDialog({
 
     const total = installments ? Number(installments) : null;
 
+    // Validação de data incoerente
+    const today = new Date();
+    const selectedDate = new Date(date);
+    const isDifferentDay = selectedDate.getDate() !== today.getDate() || 
+                          selectedDate.getMonth() !== today.getMonth() ||
+                          selectedDate.getFullYear() !== today.getFullYear();
+
+    if (isDifferentDay && !editing && !confirm(`Você selecionou a data ${formatDate(date)}, que é diferente de hoje. Confirmar lançamento para este dia?`)) {
+      return;
+    }
+
     try {
       const saved = await save.mutateAsync({
         id: transaction?.id,
