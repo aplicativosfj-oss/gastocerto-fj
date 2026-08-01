@@ -60,6 +60,7 @@ import { formatCurrency, formatDate } from "@/lib/format";
 import { MONTH_NAMES, isoDate, monthRange, periodDefaultDate } from "@/lib/finance";
 import { useCategories, useProfile } from "@/lib/queries";
 import { useBudgets, useTransactions, type Transaction } from "@/lib/transactions";
+import { useAutoRecurring } from "@/lib/recurring";
 import { useVehicles, VEHICLE_TYPES } from "@/lib/vehicles";
 import { vehicleSpendBreakdown } from "@/lib/vehicle-spend";
 import { labelFor } from "@/lib/finance";
@@ -99,6 +100,9 @@ function DashboardPage() {
   const range = monthRange(period.year, period.month);
   const { data: transactions, isLoading: loadingTransactions } = useTransactions(range);
   const { data: budgets } = useBudgets(period.year, period.month);
+
+  // Contabiliza automaticamente as contas recorrentes do período.
+  useAutoRecurring();
 
 
   const previous = new Date(period.year, period.month - 2, 1);
