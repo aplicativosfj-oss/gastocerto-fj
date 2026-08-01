@@ -61,7 +61,6 @@ import {
 } from "@/lib/admin-users.functions";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { fixComplexAdjustments, fixNexxusTransaction } from "@/lib/admin-fixes.functions";
 
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
