@@ -61,7 +61,7 @@ export function CheckoutDialog({
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [cpf, setCpf] = useState("");
-  const [charge, setCharge] = useState<Charge | null>(null);
+  const [order, setOrder] = useState<Order | null>(null);
   const [status, setStatus] = useState("pending");
   const [licenseKey, setLicenseKey] = useState<string | null>(null);
   const [verification, setVerification] = useState<Verification | null>(null);
@@ -69,6 +69,14 @@ export function CheckoutDialog({
   const pollRef = useRef<number | null>(null);
 
   const { data: livePlans } = usePublicPlans();
+
+  // Dados de Pix/transferência que o administrador mantém no painel.
+  const { data: manual } = useQuery({
+    queryKey: ["manual-payment-instructions"],
+    queryFn: () => getManualPaymentInstructions(),
+    enabled: open,
+    staleTime: 5 * 60 * 1000,
+  });
 
   // Catálogo com os preços vigentes do banco (ajustes do admin valem na hora).
   const catalog = CHECKOUT_PLANS.map((item) => {
@@ -84,19 +92,20 @@ export function CheckoutDialog({
     setStep(initialPlan ? "form" : "plan");
     setPlanSlug(initialPlan ?? "premium_ia");
     setCycle(initialCycle);
-    setCharge(null);
+    setOrder(null);
     setLicenseKey(null);
     setStatus("pending");
     setVerification(null);
     setCode("");
   }, [open, initialPlan, initialCycle]);
 
-  // Rede de segurança: consulta o Mercado Pago a cada 5s enquanto o Pix não é pago.
+  // Enquanto o pedido está aberto, verificamos a cada 15s se o administrador
+  // já confirmou o recebimento e liberou a chave.
   useEffect(() => {
-    if (step !== "pix" || !charge) return;
+    if (step !== "manual" || !order) return;
     const check = async () => {
       try {
-        const result = await getPixCheckoutStatus({ data: { paymentId: charge.paymentId } });
+        const result = await getCheckoutStatus({ data: { paymentId: order.paymentId } });
         setStatus(result.status);
         if (result.status === "approved" && result.licenseKey) {
           setLicenseKey(result.licenseKey);
@@ -107,11 +116,11 @@ export function CheckoutDialog({
       }
     };
     void check();
-    pollRef.current = window.setInterval(check, 5000);
+    pollRef.current = window.setInterval(check, 15000);
     return () => {
       if (pollRef.current) window.clearInterval(pollRef.current);
     };
-  }, [step, charge]);
+  }, [step, order]);
 
   // Etapa 1: envia o código para o e-mail. Nenhum cadastro é criado ainda.
   const verify = useMutation({
@@ -133,17 +142,25 @@ export function CheckoutDialog({
 
   const create = useMutation({
     mutationFn: () =>
-      startPixCheckout({
-        data: { planSlug, cycle, fullName, email, cpf, verificationId: verification?.verificationId ?? "" },
+      startManualOrder({
+        data: {
+          planSlug: planSlug as "premium" | "premium_ia",
+          cycle,
+          fullName,
+          email,
+          cpf,
+          verificationId: verification?.verificationId ?? "",
+        },
       }),
     onSuccess: (result) => {
-      setCharge(result);
+      setOrder(result);
       setStatus(result.status);
-      setStep("pix");
+      setStep("manual");
     },
     onError: (error) =>
-      toast.error(error instanceof Error ? error.message : "Não foi possível gerar o Pix."),
+      toast.error(error instanceof Error ? error.message : "Não foi possível registrar o pedido."),
   });
+
 
   // Etapa 2: confirma o código e só então segue para a cobrança.
   const confirm = useMutation({
