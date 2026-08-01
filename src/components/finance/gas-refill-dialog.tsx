@@ -24,8 +24,8 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { GAS_SIZES, useDeleteGasRefill, useSaveGasRefill, type GasRefill } from "@/lib/gas";
 import { isoDate, parseAmount, PAYMENT_METHODS } from "@/lib/finance";
-import { useCategories } from "@/lib/queries";
-import { useSaveTransaction } from "@/lib/transactions";
+import { useGasExpenseSync } from "@/lib/gas-expense";
+
 
 /**
  * Registro de troca do botijão de gás. Opcionalmente lança a compra também
@@ -42,8 +42,8 @@ export function GasRefillDialog({
 }) {
   const save = useSaveGasRefill();
   const remove = useDeleteGasRefill();
-  const saveTransaction = useSaveTransaction();
-  const { data: categories } = useCategories();
+  const { sync: syncGasExpense } = useGasExpenseSync();
+
 
   const [date, setDate] = useState(isoDate(new Date()));
   const [amount, setAmount] = useState("");
@@ -61,7 +61,7 @@ export function GasRefillDialog({
     setSupplier(refill?.supplier ?? "");
     setMethod(refill?.payment_method ?? "pix");
     setNotes(refill?.notes ?? "");
-    setCreateExpense(!refill);
+    setCreateExpense(refill ? Boolean(refill.transaction_id) : true);
   }, [open, refill]);
 
   const value = parseAmount(amount);
@@ -78,25 +78,18 @@ export function GasRefillDialog({
 
     let transactionId = refill?.transaction_id ?? null;
 
-    if (createExpense && !refill) {
-      const category = (categories ?? []).find(
-        (item) => item.type === "expense" && item.name.toLowerCase() === "gás",
-      );
+    // Mantém a despesa sempre consistente: cria na primeira vez e atualiza
+    // valor/data automaticamente quando a troca é editada.
+    if (createExpense) {
       try {
-        const created = await saveTransaction.mutateAsync({
-          values: {
-            description: `Botijão de gás${supplier ? ` — ${supplier}` : ""}`,
-            amount: value,
-            transaction_type: "expense",
-            transaction_date: date,
-            payment_date: date,
-            status: "paid",
-            payment_method: method,
-            category_id: category?.id ?? null,
-            tags: ["gas"],
-          },
+        transactionId = await syncGasExpense({
+          refillDate: date,
+          amount: value,
+          supplier: supplier.trim() || null,
+          paymentMethod: method,
+          sizeKg: Number(size),
+          transactionId,
         });
-        transactionId = created.id;
       } catch (error) {
         console.error("[gas] falha ao lançar despesa", error);
         toast.error(
@@ -104,6 +97,7 @@ export function GasRefillDialog({
         );
       }
     }
+
 
     try {
       await save.mutateAsync({
@@ -223,17 +217,18 @@ export function GasRefillDialog({
               maxLength={280}
             />
           </div>
-          {!refill ? (
-            <label className="flex items-center gap-2 text-sm sm:col-span-2">
-              <input
-                type="checkbox"
-                checked={createExpense}
-                onChange={(event) => setCreateExpense(event.target.checked)}
-                className="size-4 accent-[oklch(0.72_0.17_45)]"
-              />
-              Lançar também como despesa na categoria <strong>Gás</strong>
-            </label>
-          ) : null}
+          <label className="flex items-center gap-2 text-sm sm:col-span-2">
+            <input
+              type="checkbox"
+              checked={createExpense}
+              onChange={(event) => setCreateExpense(event.target.checked)}
+              className="size-4 accent-[oklch(0.72_0.17_45)]"
+            />
+            {refill
+              ? "Manter a despesa na categoria Gás sincronizada com esta troca"
+              : "Lançar automaticamente como despesa na categoria Gás"}
+          </label>
+
         </div>
 
         <DialogFooter className="gap-2 sm:justify-between">

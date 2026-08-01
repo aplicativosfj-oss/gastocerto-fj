@@ -1,5 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { CalendarClock, Flame, Plus, TrendingDown } from "lucide-react";
+import {
+  CalendarClock,
+  FileSpreadsheet,
+  FileText,
+  FileUp,
+  Flame,
+  Plus,
+  TrendingDown,
+} from "lucide-react";
+
 import { useMemo, useState } from "react";
 import {
   Bar,
@@ -14,7 +23,10 @@ import {
 } from "recharts";
 
 import { AppShell } from "@/components/app-shell";
+import { GasImportDialog } from "@/components/finance/gas-import-dialog";
 import { GasRefillDialog } from "@/components/finance/gas-refill-dialog";
+import { GasReminderCard } from "@/components/finance/gas-reminder-card";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EmblemGauge } from "@/components/ui/panel-emblems";
@@ -30,6 +42,8 @@ import {
 import { axisProps, gridProps, seriesColor, tooltipProps, barRadius } from "@/lib/chart-theme";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { durationLabel, summarizeGas } from "@/lib/gas-analytics";
+import { exportGasCsv, exportGasPdf } from "@/lib/gas-export";
+
 import { useGasRefills, type GasRefill } from "@/lib/gas";
 
 export const Route = createFileRoute("/_authenticated/gas")({
@@ -75,6 +89,8 @@ function GasPage() {
   const { data: refills, isLoading } = useGasRefills();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<GasRefill | null>(null);
+  const [importOpen, setImportOpen] = useState(false);
+
 
   const summary = useMemo(() => summarizeGas(refills ?? []), [refills]);
 
@@ -114,10 +130,33 @@ function GasPage() {
             </p>
           </div>
         </div>
-        <Button onClick={openNew}>
-          <Plus className="size-4" />
-          Registrar troca
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" onClick={() => setImportOpen(true)}>
+            <FileUp className="size-4" />
+            Importar histórico
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => exportGasCsv(summary)}
+            disabled={summary.refillCount === 0}
+          >
+            <FileSpreadsheet className="size-4" />
+            CSV
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => void exportGasPdf(summary)}
+            disabled={summary.refillCount === 0}
+          >
+            <FileText className="size-4" />
+            PDF
+          </Button>
+          <Button onClick={openNew}>
+            <Plus className="size-4" />
+            Registrar troca
+          </Button>
+        </div>
+
       </header>
 
       {isLoading ? (
@@ -141,7 +180,11 @@ function GasPage() {
         </section>
       ) : (
         <>
-          <section className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-6">
+            <GasReminderCard summary={summary} />
+          </div>
+          <section className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+
             <MetricCard
               label="Duração média"
               value={
@@ -316,6 +359,8 @@ function GasPage() {
       )}
 
       <GasRefillDialog open={dialogOpen} onOpenChange={setDialogOpen} refill={editing} />
+      <GasImportDialog open={importOpen} onOpenChange={setImportOpen} />
+
     </AppShell>
   );
 }
