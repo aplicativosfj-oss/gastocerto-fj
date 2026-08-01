@@ -59,7 +59,7 @@ import {
 import { formatCurrency, formatDate } from "@/lib/format";
 import { MONTH_NAMES, isoDate, monthRange, periodDefaultDate } from "@/lib/finance";
 import { useCategories, useProfile } from "@/lib/queries";
-import { useBudgets, useTransactions } from "@/lib/transactions";
+import { useBudgets, useTransactions, type Transaction } from "@/lib/transactions";
 import { useVehicles, VEHICLE_TYPES } from "@/lib/vehicles";
 import { vehicleSpendBreakdown } from "@/lib/vehicle-spend";
 import { labelFor } from "@/lib/finance";
@@ -89,6 +89,7 @@ function DashboardPage() {
   const [dialogKind, setDialogKind] = useState<"expense" | "income">("expense");
   const [preset, setPreset] = useState<QuickPick>({ categoryId: null, subCategoryId: null });
   const [detail, setDetail] = useState<MetricDetail | null>(null);
+  const [editingTx, setEditingTx] = useState<Transaction | null>(null);
   const [dependentOpen, setDependentOpen] = useState(false);
   const [taxOpen, setTaxOpen] = useState(false);
 
@@ -347,6 +348,7 @@ function DashboardPage() {
               kind="income"
               label="Nova receita"
               onPick={(pick) => {
+                setEditingTx(null);
                 setDialogKind("income");
                 setPreset(pick);
                 setDialogOpen(true);
@@ -360,6 +362,7 @@ function DashboardPage() {
               kind="expense"
               label="Novo gasto"
               onPick={(pick) => {
+                setEditingTx(null);
                 setDialogKind("expense");
                 setPreset(pick);
                 setDialogOpen(true);
@@ -913,6 +916,13 @@ function DashboardPage() {
         onOpenChange={(next) => {
           if (!next) setDetail(null);
         }}
+        onEditTransaction={(row) => {
+          setDetail(null);
+          setEditingTx(row);
+          setDialogKind(row.transaction_type === "income" ? "income" : "expense");
+          setPreset({ categoryId: null, subCategoryId: null });
+          setDialogOpen(true);
+        }}
       />
 
       <DependentExpenseDialog open={dependentOpen} onOpenChange={setDependentOpen} />
@@ -923,6 +933,7 @@ function DashboardPage() {
         open={cardsOpen}
         onOpenChange={setCardsOpen}
         onAdvanced={() => {
+          setEditingTx(null);
           setDialogKind("expense");
           setPreset({ categoryId: null, subCategoryId: null });
           setDialogOpen(true);
@@ -931,8 +942,12 @@ function DashboardPage() {
 
       <TransactionDialog
         open={dialogOpen}
-        onOpenChange={setDialogOpen}
+        onOpenChange={(next) => {
+          setDialogOpen(next);
+          if (!next) setEditingTx(null);
+        }}
         kind={dialogKind}
+        transaction={editingTx}
         presetCategoryId={preset.categoryId}
         presetSubCategoryId={preset.subCategoryId}
         defaultDate={periodDefaultDate(period.year, period.month)}

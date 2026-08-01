@@ -3,6 +3,7 @@ import { CreditCard, Plus, Sparkles } from "lucide-react";
 
 import { CreditPurchaseDialog } from "@/components/finance/credit-purchase-dialog";
 import { MetricDetailDialog, type MetricDetail } from "@/components/finance/metric-detail-dialog";
+import { TransactionDialog } from "@/components/finance/transaction-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { creditPurchases, summarizeByCard } from "@/lib/credit-purchases";
@@ -26,6 +27,7 @@ export function CardMonthSummary({
   const { data: accounts } = useAccounts();
   const [detail, setDetail] = useState<MetricDetail | null>(null);
   const [batchOpen, setBatchOpen] = useState(false);
+  const [editingTx, setEditingTx] = useState<Transaction | null>(null);
 
   const cards = useMemo(
     () =>
@@ -148,6 +150,18 @@ export function CardMonthSummary({
         detail={detail}
         categories={categories}
         onOpenChange={(next) => !next && setDetail(null)}
+        onEditTransaction={(row) => {
+          setDetail(null);
+          setEditingTx(row);
+        }}
+      />
+      <TransactionDialog
+        open={Boolean(editingTx)}
+        onOpenChange={(next) => {
+          if (!next) setEditingTx(null);
+        }}
+        kind={editingTx?.transaction_type === "income" ? "income" : "expense"}
+        transaction={editingTx}
       />
     </section>
   );
