@@ -31,10 +31,10 @@ export const Route = createFileRoute("/auth")({
   validateSearch: searchSchema,
   head: () => ({
     meta: [
-      { title: "Entrar com CPF — GastoCerto" },
+      { title: "Acesse sua conta — GastoCerto" },
       {
         name: "description",
-        content: "Acesse o GastoCerto com seu CPF e senha de 6 dígitos.",
+        content: "Faça login no GastoCerto para controlar suas finanças pessoais.",
       },
       { property: "og:title", content: "Entrar com CPF — GastoCerto" },
       {
