@@ -186,9 +186,9 @@ export function CreditPurchaseDialog({
                 </SelectTrigger>
                 <SelectContent>
                   {cards.length === 0 ? (
-                    <SelectItem value="" disabled>
-                      Cadastre um cartão primeiro
-                    </SelectItem>
+                    <p className="px-2 py-1.5 text-xs text-muted-foreground">
+                      Cadastre um cartão em Cadastros.
+                    </p>
                   ) : (
                     cards.map((card) => (
                       <SelectItem key={card.id} value={card.id}>
