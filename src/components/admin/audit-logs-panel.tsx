@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { ScrollText, Download, FileText, RefreshCw } from "lucide-react";
+import { ScrollText, Download, FileText, RefreshCw, Trash2, AlertTriangle } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
@@ -8,6 +8,17 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import {
   Select,
   SelectContent,
@@ -34,6 +45,7 @@ import {
   type AuditLogRow,
 } from "@/lib/audit-log";
 import { adminListAuditLogs } from "@/lib/audit-logs.functions";
+import { adminClearAuditLogs } from "@/lib/admin-maintenance.functions";
 import { formatDateTime } from "@/lib/format";
 
 function download(name: string, blob: Blob) {
@@ -47,6 +59,8 @@ function download(name: string, blob: Blob) {
 
 export function AuditLogsPanel({ globalSearch = "" }: { globalSearch?: string }) {
   const listLogs = useServerFn(adminListAuditLogs);
+  const clearLogs = useServerFn(adminClearAuditLogs);
+  const [isClearing, setIsClearing] = useState(false);
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [category, setCategory] = useState<AuditCategory | "all">("all");
