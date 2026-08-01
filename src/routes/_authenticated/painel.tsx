@@ -131,8 +131,13 @@ function DashboardPage() {
     const dailyAverage = elapsedDays > 0 ? totalExpense / elapsedDays : 0;
 
     return {
-      today: sum(expenses.filter((row) => row.transaction_date === todayIso)),
-      week: sum(expenses.filter((row) => row.transaction_date >= weekStart)),
+      isCurrentMonth,
+      /** Só soma quando o período aberto é o mês corrente, evitando misturar competências. */
+      today: isCurrentMonth
+        ? sum(expenses.filter((row) => row.transaction_date === todayIso))
+        : 0,
+      week: isCurrentMonth ? sum(expenses.filter((row) => row.transaction_date >= weekStart)) : 0,
+
       totalExpense,
       totalIncome,
       balance: totalIncome - totalExpense,
