@@ -55,6 +55,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { formatCurrency, formatDate } from "@/lib/format";
+import { PdfExportSettingsDialog } from "@/components/finance/pdf-export-settings-dialog";
 import { exportTransactionPdf } from "@/lib/transaction-detail-export";
 import { fetchNoteHistory } from "@/lib/transaction-notes";
 
@@ -295,6 +296,8 @@ function TransactionsPage() {
               <Download className="mr-2 size-4" />
               CSV
             </Button>
+            <PdfExportSettingsDialog />
+
             <Button variant="secondary" onClick={() => setCardsOpen(true)}>
               <Zap className="mr-2 size-4" aria-hidden />
               Gasto rápido

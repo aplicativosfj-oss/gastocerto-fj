@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { ArrowLeft, Check, Delete, Eye, SlidersHorizontal } from "lucide-react";
+import { ArrowLeft, Check, Delete, Eye, SlidersHorizontal, Smartphone } from "lucide-react";
 import { toast } from "sonner";
 
 import { readRecentCategories, rememberCategory } from "@/components/finance/category-picker";
@@ -74,6 +74,11 @@ export function ExpenseCardsDialog({
   const [firstDue, setFirstDue] = useState(isoDate(new Date()));
   const [endDate, setEndDate] = useState("");
   const [confirming, setConfirming] = useState(false);
+  // Recarga / plano de celular: valor, gigas contratados e validade.
+  const [phoneMode, setPhoneMode] = useState(false);
+  const [gigas, setGigas] = useState("");
+  const [validityDays, setValidityDays] = useState("30");
+
 
   const expenseCategories = useMemo(() => {
     const all = (categories ?? []).filter(
@@ -104,7 +109,43 @@ export function ExpenseCardsDialog({
     setFirstDue(isoDate(new Date()));
     setEndDate("");
     setConfirming(false);
+    setPhoneMode(false);
+    setGigas("");
+    setValidityDays("30");
   }
+
+  /** Categoria de telefonia usada pelo card de recarga. */
+  const phoneCategory = useMemo(() => {
+    const all = (categories ?? []).filter(
+      (category) => category.type === "expense" && category.active !== false,
+    );
+    return (
+      all.find((category) => /celular|telefon/i.test(category.name)) ??
+      all.find((category) => /internet/i.test(category.name)) ??
+      all[0] ??
+      null
+    );
+  }, [categories]);
+
+  /** Validade da recarga a partir da data do gasto. */
+  const validUntil = useMemo(() => {
+    const days = Number(validityDays) || 0;
+    if (!phoneMode || days <= 0) return "";
+    const base = new Date(`${date}T12:00:00`);
+    base.setDate(base.getDate() + days);
+    return isoDate(base);
+  }, [phoneMode, validityDays, date]);
+
+  /** Resumo do plano de celular gravado nas anotações. */
+  const phoneSummary = useMemo(() => {
+    if (!phoneMode) return "";
+    const parts = [`Recarga/plano de celular: ${formatCurrency(cents)}`];
+    if (gigas.trim()) parts.push(`${gigas.trim()} GB contratados`);
+    if (Number(validityDays) > 0) parts.push(`validade ${validityDays} dias`);
+    if (validUntil) parts.push(`até ${formatDate(`${validUntil}T12:00:00`)}`);
+    return parts.join(" · ");
+  }, [phoneMode, cents, gigas, validityDays, validUntil]);
+
 
   function press(key: (typeof KEYS)[number]) {
     if (key === "back") {
@@ -179,7 +220,14 @@ export function ExpenseCardsDialog({
       toast.error("Digite o valor do gasto.");
       return;
     }
-    const description = note.trim() ? note.trim().slice(0, 140) : selected.name;
+    const baseDescription = note.trim() ? note.trim().slice(0, 140) : selected.name;
+    const description = phoneMode
+      ? `Recarga de celular${gigas.trim() ? ` ${gigas.trim()}GB` : ""}${note.trim() ? ` — ${note.trim()}` : ""}`.slice(
+          0,
+          140,
+        )
+      : baseDescription;
+
     try {
       if (kind === "installments") {
         if (total <= 0) {
@@ -226,9 +274,13 @@ export function ExpenseCardsDialog({
             transaction_date: date,
             status: "paid",
             payment_date: date,
+            ...(phoneMode
+              ? { notes: phoneSummary, due_date: validUntil || null, tags: ["celular"] }
+              : {}),
           },
         });
       }
+
       rememberCategory(selected.id);
       toast.success(
         kind === "installments"
@@ -275,6 +327,30 @@ export function ExpenseCardsDialog({
               className="h-10"
               aria-label="Buscar categoria"
             />
+
+            {phoneCategory ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setSelected(phoneCategory);
+                  setPhoneMode(true);
+                  setKind("single");
+                }}
+                className="flex w-full items-center gap-3 rounded-xl border border-primary/40 bg-primary/5 p-3 text-left transition hover:-translate-y-0.5 hover:shadow-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                <span className="flex size-9 items-center justify-center rounded-lg bg-primary/15 text-primary">
+                  <Smartphone className="size-4" aria-hidden />
+                </span>
+                <span className="min-w-0">
+                  <span className="block text-sm font-semibold">Crédito / plano de celular</span>
+                  <span className="block text-[11px] text-muted-foreground">
+                    Valor da recarga, gigas contratados e validade
+                  </span>
+                </span>
+              </button>
+            ) : null}
+
+
 
             <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
               {expenseCategories.slice(0, 24).map((category) => {
@@ -368,6 +444,67 @@ export function ExpenseCardsDialog({
                 aria-label="Data do gasto"
               />
             </div>
+
+            {phoneMode ? (
+              <div className="rounded-xl border border-primary/30 bg-primary/5 p-3">
+                <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-primary">
+                  <Smartphone className="size-3.5" aria-hidden />
+                  Recarga / plano de celular
+                </p>
+                <div className="mt-2 grid grid-cols-2 gap-2">
+                  <div>
+                    <Label htmlFor="qk-gigas" className="text-[11px] text-muted-foreground">
+                      Gigas contratados
+                    </Label>
+                    <Input
+                      id="qk-gigas"
+                      inputMode="decimal"
+                      value={gigas}
+                      onChange={(event) =>
+                        setGigas(event.target.value.replace(/[^\d.,]/g, "").slice(0, 6))
+                      }
+                      placeholder="ex.: 20"
+                      className="mt-1 h-9 tabular-nums"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="qk-validity" className="text-[11px] text-muted-foreground">
+                      Validade (dias)
+                    </Label>
+                    <Input
+                      id="qk-validity"
+                      inputMode="numeric"
+                      value={validityDays}
+                      onChange={(event) =>
+                        setValidityDays(event.target.value.replace(/\D/g, "").slice(0, 3))
+                      }
+                      className="mt-1 h-9 tabular-nums"
+                    />
+                  </div>
+                </div>
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {["7", "15", "30", "90"].map((option) => (
+                    <Button
+                      key={option}
+                      type="button"
+                      size="sm"
+                      variant={validityDays === option ? "secondary" : "outline"}
+                      className="h-7 text-[11px]"
+                      onClick={() => setValidityDays(option)}
+                    >
+                      {option} dias
+                    </Button>
+                  ))}
+                </div>
+                <p className="mt-2 text-[11px] text-muted-foreground">
+                  {validUntil
+                    ? `Válido até ${formatDate(`${validUntil}T12:00:00`)}`
+                    : "Informe a validade em dias."}
+                </p>
+              </div>
+            ) : null}
+
+
 
             <div>
               <Label className="text-[11px] uppercase tracking-wide text-muted-foreground">
@@ -577,6 +714,10 @@ export function ExpenseCardsDialog({
                   ? "todo mês"
                   : "pagamento único"}
             </p>
+            {phoneMode && phoneSummary ? (
+              <p className="mt-2 text-[11px] text-primary">{phoneSummary}</p>
+            ) : null}
+
           </div>
 
           <dl className="grid grid-cols-2 gap-2 text-xs">
