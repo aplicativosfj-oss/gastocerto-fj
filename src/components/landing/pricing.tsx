@@ -65,6 +65,8 @@ const savingsPerYear = premium.monthly * 12 - premium.yearly * 12;
 export function Pricing() {
   const [cycle, setCycle] = useState<Cycle>("yearly");
   const isYearly = cycle === "yearly";
+  const [checkoutPlan, setCheckoutPlan] = useState<"premium" | "premium_ia" | null>(null);
+
 
   return (
     <section id="planos" className="section-y">
