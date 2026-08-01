@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { MoneyInput } from "@/components/ui/money-input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
@@ -188,13 +189,12 @@ function OnboardingPage() {
               </div>
               <div>
                 <Label htmlFor="income">Renda mensal (R$)</Label>
-                <Input
+                <MoneyInput
                   id="income"
-                  inputMode="decimal"
                   value={income}
-                  onChange={(event) => setIncome(event.target.value)}
-                  placeholder="3500,00"
-                  className="mt-1.5 tabular-nums"
+                  onValueChange={setIncome}
+                  placeholder="3.500,00"
+                  className="mt-1.5"
                 />
               </div>
             </section>
