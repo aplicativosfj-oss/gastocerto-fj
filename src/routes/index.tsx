@@ -47,7 +47,8 @@ export const Route = createFileRoute("/")({
 
 function LandingPage() {
   return (
-    <div className="relative flex min-h-dvh flex-col bg-background">
+    <div className="relative flex min-h-dvh flex-col bg-background" data-description="Criar uma página para o cliente ver o status do seu pagamento e a entrega da chave, mostrando pendente, pago e entregue.  crie um codigo para que o admnistrador possa inserir e com isso abri o painel do administrador de maneira mais rapida, esse código sera ja credenciado para isso, sera codigo unico feito pra ele; possa acessar pela homepage,">
+
       <PageBackground />
       <a
         href="#conteudo"
