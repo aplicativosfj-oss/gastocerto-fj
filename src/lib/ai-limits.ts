@@ -23,6 +23,8 @@ export type AiLimits = {
   monthlyCreditAllowance: number;
   /** Fração restante que dispara o alerta de créditos baixos (0–1). */
   lowCreditRatio: number;
+  /** Modo econômico: usa modelos mais leves ou instruções mais curtas. */
+  economyMode: boolean;
 };
 
 export const AI_LIMITS_SETTING_KEY = "ai_limits";
@@ -35,6 +37,7 @@ export const DEFAULT_AI_LIMITS: AiLimits = {
   monthlyQueryLimit: 120,
   monthlyCreditAllowance: 50,
   lowCreditRatio: 0.2,
+  economyMode: false,
 };
 
 export const AiLimitsSchema = z.object({
@@ -45,6 +48,7 @@ export const AiLimitsSchema = z.object({
   monthlyQueryLimit: z.coerce.number().int().min(1).max(100_000),
   monthlyCreditAllowance: z.coerce.number().min(0.1).max(100_000),
   lowCreditRatio: z.coerce.number().min(0.01).max(0.9),
+  economyMode: z.boolean().default(false),
 });
 
 /** Normaliza qualquer valor vindo do banco/formulário para limites válidos. */
