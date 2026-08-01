@@ -47,7 +47,7 @@ export const Route = createFileRoute("/")({
 
 function LandingPage() {
   return (
-    <div className="relative flex min-h-dvh flex-col bg-background" data-description="corrija anomalia (o painel do admnistrador é para ter apenas paineis de gerenciamento de clientes, criação de codigos, ativação de contas, exclusao, bloqueio, gerenciamento de planos, gerenciamento de tudo do sistema, mas quando entro com as credenciais de admnisatrador ele migra par auma conta de cliente; corrija">
+    <div className="relative flex min-h-dvh flex-col bg-background" data-description="o que tem na area do admnistrador? e o que falta?">
 
       <PageBackground />
       <a
