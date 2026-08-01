@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { useAuth } from "@/hooks/use-auth";
@@ -318,4 +319,42 @@ export function useGenerateRecurring() {
     },
     onSuccess: refresh,
   });
+}
+
+/* -------------------------------------------------------------------------- */
+/* Geração automática ao abrir o app                                          */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Garante que as contas recorrentes já estejam contabilizadas nos gastos:
+ * gera os lançamentos das regras ativas e atualiza os status uma vez por dia,
+ * sem precisar entrar na tela de recorrências.
+ */
+export function useAutoRecurring() {
+  const { user } = useAuth();
+  const { data: rules } = useRecurringRules();
+  const generate = useGenerateRecurring();
+  const sync = useSyncRecurringStatus();
+  const ran = useRef(false);
+
+  useEffect(() => {
+    if (!user || !rules || ran.current) return;
+    const today = isoDate(new Date());
+    const storageKey = `gc:auto-recurring:${user.id}`;
+    if (typeof window !== "undefined" && window.localStorage.getItem(storageKey) === today) return;
+    ran.current = true;
+
+    void (async () => {
+      try {
+        if (rules.some((rule) => rule.active)) {
+          await generate.mutateAsync(rules);
+        }
+        await sync.mutateAsync();
+        if (typeof window !== "undefined") window.localStorage.setItem(storageKey, today);
+      } catch (error) {
+        console.error("[recorrencia] geração automática falhou", error);
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id, rules]);
 }
