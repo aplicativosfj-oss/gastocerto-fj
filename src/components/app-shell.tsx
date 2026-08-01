@@ -119,29 +119,17 @@ export function AppShell({ children }: { children: ReactNode }) {
   usePlanRealtimeSync();
   const unreadCount = (notifications ?? []).filter((item) => !item.read_at).length;
   const isStaff = (roles ?? []).some((role) => role === "admin" || role === "support");
-  const { labelFor, order } = useNavLabels();
   const baseItems: NavGroup[] = isStaff
     ? [
         ...navGroups,
         { key: "admin", label: "Administração", to: "/admin", icon: ShieldCheck },
       ]
     : [...navGroups];
-  const items: NavGroup[] = sortBySavedOrder(baseItems, order["root"]).map((group) => ({
-    ...group,
-    label: labelFor(group.key, group.label),
-    children: sortBySavedOrder(group.children ?? [], order[group.key]).map((child) => ({
-      ...child,
-      label: labelFor(child.key, child.label),
-    })),
-  })).map((group) => ({
+  const items: NavGroup[] = baseItems.map((group) => ({
     ...group,
     children: group.children && group.children.length > 0 ? group.children : undefined,
   }));
-  const labelGroups = baseItems.map((group) => ({
-    key: group.key,
-    fallback: group.label,
-    children: group.children?.map((child) => ({ key: child.key, fallback: child.label })),
-  }));
+
 
 
 
@@ -180,7 +168,6 @@ export function AppShell({ children }: { children: ReactNode }) {
           ))}
         </nav>
         <div className="space-y-1 border-t border-border p-3">
-          <NavLabelsDialog groups={labelGroups} />
           <Button
             variant="ghost"
             className="w-full justify-start gap-2 text-muted-foreground"
@@ -331,9 +318,6 @@ function MobileTabBar({
               <div className="flex items-center gap-1.5">
                 <ThemeToggle />
                 <ContrastToggle />
-                <div className="min-w-0 flex-1">
-                  <NavLabelsDialog groups={labelGroups} />
-                </div>
               </div>
               <Button variant="outline" className="justify-center gap-2" onClick={onSignOut}>
                 <LogOut className="size-4" />
