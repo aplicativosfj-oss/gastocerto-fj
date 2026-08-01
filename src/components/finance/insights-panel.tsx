@@ -35,7 +35,7 @@ type InsightsPanelProps = {
 };
 
 const TONE_STYLE: Record<string, string> = {
-  good: "border-emerald-500/40 bg-emerald-500/5",
+  good: "border-income-border bg-income-surface",
   warn: "border-amber-500/40 bg-amber-500/5",
   bad: "border-destructive/40 bg-destructive/5",
   info: "border-border bg-muted/40",
