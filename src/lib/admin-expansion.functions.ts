@@ -38,7 +38,12 @@ export const adminUpdateTicket = createServerFn({ method: "POST" })
 export const adminGetPlanConfigs = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    await assertAdmin(context);
+    // Permite que suporte também visualize as configs, mas apenas admin edita
+    const { data: isAdmin } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
+    const { data: isSupport } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "support" });
+    
+    if (!isAdmin && !isSupport) throw new Error("Acesso negado");
+
     const { data, error } = await context.supabase.from("plan_configs" as any).select("*").order("slug");
     if (error) throw error;
     return data as any[];

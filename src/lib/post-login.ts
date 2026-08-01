@@ -9,15 +9,20 @@ export async function resolveHomeRoute(userId?: string | null): Promise<"/admin"
       _role: "admin",
     });
     
-    // Prioridade absoluta: se for admin, sempre vai para /admin
-    if (data === true) return "/admin";
+    // Prioridade absoluta: se for admin ou suporte, sempre vai para /admin
+    if (data === true) {
+      console.log("[auth] redirecionando para painel administrativo");
+      return "/admin";
+    }
     
-    // Se não for admin, verifica suporte
     const { data: isSupport } = await supabase.rpc("has_role", {
       _user_id: userId,
       _role: "support",
     });
-    if (isSupport === true) return "/admin";
+    if (isSupport === true) {
+      console.log("[auth] redirecionando para painel de suporte");
+      return "/admin";
+    }
 
     return "/painel";
   } catch {
