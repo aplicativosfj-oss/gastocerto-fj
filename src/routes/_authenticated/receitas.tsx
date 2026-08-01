@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
+import { PageHeader } from "@/components/finance/page-header";
 import { PeriodPicker } from "@/components/finance/period-picker";
 import { TransactionDialog } from "@/components/finance/transaction-dialog";
 import { Button } from "@/components/ui/button";
