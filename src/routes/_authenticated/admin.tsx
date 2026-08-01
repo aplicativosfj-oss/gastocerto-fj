@@ -240,7 +240,7 @@ function AdminContent({ isAdmin }: { isAdmin: boolean }) {
                 onClick={async () => {
                   try {
                     const res = await fixComplexAdjustments({ data: { userId: '6f34802b-e8a0-49c3-bfae-b689da7f993a' } });
-                    toast.success(`${res.movedRevenues} receitas transferidas e ${res.correctedExpense262} gasto de R$ 262 corrigido.`);
+                    toast.success(`${res.movedRevenues} receitas transferidas, ${res.correctedExpense262} gasto de R$ 262 corrigido e ${res.correctedExpense253} gasto de R$ 253,89 corrigido.`);
                   } catch (e) {
                     toast.error("Erro ao processar ajustes complexos.");
                   }
