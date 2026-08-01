@@ -1,8 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Gift, Loader2 } from "lucide-react";
+import { Gift, Loader2, FileDown, FileText } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -69,6 +71,19 @@ export function TrialGrantPanel() {
     onError: (error: Error) => toast.error(error.message || "Não foi possível conceder o teste."),
   });
 
+  const exportPdf = () => {
+    const doc = new jsPDF();
+    doc.text("GastoCerto — Relatório de Usuários em Teste", 14, 15);
+    autoTable(doc, {
+      startY: 25,
+      head: [["Nome", "CPF", "Expira em"]],
+      body: (users.data ?? []).filter(u => u.trial_ends_at).map(u => [u.full_name || "—", u.cpf ? maskCpf(u.cpf) : "—", formatDateTime(u.trial_ends_at!)]),
+      theme: "striped"
+    });
+    doc.save("usuarios-teste.pdf");
+    toast.success("PDF exportado.");
+  };
+
   return (
     <section className="rounded-2xl border border-border bg-card p-4">
       <header className="flex items-center gap-3">
@@ -93,7 +108,7 @@ export function TrialGrantPanel() {
         </ul>
       </div>
 
-      <div className="mt-3 flex flex-wrap gap-2">
+      <div className="mt-3 flex flex-wrap gap-2 items-end">
         <div className="min-w-56 flex-1 space-y-1">
           <Label htmlFor="trial-search" className="text-xs">
             Buscar usuário
@@ -121,6 +136,10 @@ export function TrialGrantPanel() {
             </SelectContent>
           </Select>
         </div>
+        <Button variant="outline" size="sm" onClick={exportPdf} className="h-9">
+            <FileText className="size-4 mr-2" />
+            PDF
+        </Button>
       </div>
 
       {users.isLoading ? (
