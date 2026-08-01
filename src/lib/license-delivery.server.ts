@@ -35,27 +35,8 @@ export async function sendLicenseKeyEmail(input: {
     };
   }
 
-  try {
-    const { sendTemplateEmail } = await import("@/lib/email-templates/send-email");
-    const result = await sendTemplateEmail("license-key", input.to, {
-      templateData: {
-        fullName: input.fullName,
-        planName: input.planName,
-        licenseKey: input.licenseKey,
-        statusUrl: input.statusUrl,
-      },
-      idempotencyKey: `license-key-${input.licenseKey}`,
-    });
-    if (!result?.sent) {
-      return { delivered: false, channel: "onscreen", reason: result?.reason ?? "not_sent" };
-    }
-    return { delivered: true, channel: "email" };
-  } catch (error) {
-    console.error("[checkout] falha ao enviar a chave por e-mail", error);
-    return {
-      delivered: false,
-      channel: "onscreen",
-      reason: error instanceof Error ? error.message : "email_error",
-    };
-  }
+  // A infraestrutura de e-mail do projeto ainda não foi provisionada
+  // (nenhum domínio remetente verificado). Assim que o domínio estiver ativo,
+  // este ponto envia a chave usando os modelos de e-mail do app.
+  return { delivered: false, channel: "onscreen", reason: "email_sender_unavailable" };
 }
