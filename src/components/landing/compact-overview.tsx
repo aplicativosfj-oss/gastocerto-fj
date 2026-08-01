@@ -273,7 +273,7 @@ export function CompactOverview() {
           </nav>
         </Reveal>
 
-        <Reveal delay={80} className="mt-3 grid grid-cols-3 gap-2 rounded-xl border border-border bg-card/70 p-2 backdrop-blur sm:gap-3 sm:p-2.5">
+        <Reveal delay={80} className="mt-3 grid gap-1.5 rounded-xl border border-border bg-card/70 p-2 backdrop-blur sm:grid-cols-3 sm:gap-3 sm:p-2.5">
           {highlights.map((item) => (
             <div key={item.label} className="flex min-w-0 items-center gap-2">
               <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-brand/10 text-brand">
@@ -281,12 +281,13 @@ export function CompactOverview() {
               </span>
               <div className="min-w-0">
                 <p className="tabular text-sm font-bold leading-none">{item.value}</p>
-                <p className="truncate text-[11px] text-muted-foreground">{item.label}</p>
+                <p className="text-[11px] leading-snug text-muted-foreground sm:truncate">{item.label}</p>
                 <p className="hidden truncate text-[10px] text-muted-foreground sm:block">{item.hint}</p>
               </div>
             </div>
           ))}
         </Reveal>
+
 
         <Tabs value={tab} onValueChange={(v) => setTab(v as TabValue)} className="mt-3.5">
           <div role="region" aria-label="Navegação das seções do produto" className="w-full">
