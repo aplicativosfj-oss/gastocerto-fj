@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { evaluateAiEntitlement, evaluateAiRateLimit, isAiBalanceLow } from "./ai-entitlement";
 import { DEFAULT_AI_LIMITS, normalizeAiLimits } from "./ai-limits";
-import { resolvePlanAccess, hasFeature, trialDaysForSlug } from "./plan-features";
+import { resolvePlanAccess, hasFeature, trialDaysForSlug, withinLimit } from "./plan-features";
 
 const now = new Date("2026-07-31T12:00:00Z");
 
