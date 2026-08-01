@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Loader2, ShieldCheck } from "lucide-react";
+import { Loader2, Lock, ShieldCheck } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 
 import { Button } from "@/components/ui/button";
@@ -21,8 +21,33 @@ export type PasswordConfirmDialogProps = {
   /** Mantido por compatibilidade; a validação usa o e-mail real da sessão. */
   email?: string | null;
   description?: string;
+  /** Competências bloqueadas (YYYY-MM) que a confirmação vai liberar. */
+  lockedMonths?: string[];
+  /** Ação exata que será executada depois da confirmação. */
+  actionLabel?: string | null;
   onConfirmed: () => void;
 };
+
+const MONTHS = [
+  "janeiro",
+  "fevereiro",
+  "março",
+  "abril",
+  "maio",
+  "junho",
+  "julho",
+  "agosto",
+  "setembro",
+  "outubro",
+  "novembro",
+  "dezembro",
+];
+
+function monthLabel(monthKey: string) {
+  const [year, month] = monthKey.split("-").map(Number);
+  if (!year || !month) return monthKey;
+  return `${MONTHS[month - 1]} de ${year}`;
+}
 
 /**
  * Reautenticação leve: confirma a senha do próprio usuário antes de liberar
@@ -33,6 +58,8 @@ export function PasswordConfirmDialog({
   open,
   onOpenChange,
   description,
+  lockedMonths,
+  actionLabel,
   onConfirmed,
 }: PasswordConfirmDialogProps) {
   const verify = useServerFn(verifyMyPassword);
@@ -75,9 +102,41 @@ export function PasswordConfirmDialog({
           </DialogTitle>
           <DialogDescription>
             {description ??
-              "Para alterar informações de um mês anterior é necessário confirmar sua identidade."}
+              "Meses anteriores ficam bloqueados. Confirme sua senha de acesso para liberar a edição por 30 minutos."}
           </DialogDescription>
         </DialogHeader>
+
+        {lockedMonths?.length || actionLabel ? (
+          <div className="space-y-2.5 rounded-xl border border-amber-500/35 bg-amber-500/5 p-3">
+            {lockedMonths?.length ? (
+              <div className="flex items-start gap-2">
+                <Lock className="mt-0.5 size-4 shrink-0 text-amber-600" aria-hidden />
+                <div className="min-w-0">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-500">
+                    {lockedMonths.length > 1 ? "Meses bloqueados" : "Mês bloqueado"}
+                  </p>
+                  <p className="text-[13px] font-semibold text-foreground">
+                    {lockedMonths.map(monthLabel).join(", ")}
+                  </p>
+                </div>
+              </div>
+            ) : null}
+            {actionLabel ? (
+              <div className="flex items-start gap-2 border-t border-amber-500/25 pt-2.5">
+                <ShieldCheck className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
+                <div className="min-w-0">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                    Será liberado agora
+                  </p>
+                  <p className="truncate text-[13px] font-semibold text-foreground">{actionLabel}</p>
+                  <p className="mt-0.5 text-[11px] text-muted-foreground">
+                    A liberação vale para todos os lançamentos deste mês por 30 minutos.
+                  </p>
+                </div>
+              </div>
+            ) : null}
+          </div>
+        ) : null}
 
         <form className="space-y-3" onSubmit={handleConfirm}>
           <div className="space-y-1.5">

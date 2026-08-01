@@ -101,7 +101,12 @@ export const Route = createFileRoute("/_authenticated/lancamentos")({
       { name: "robots", content: "noindex" },
     ],
   }),
-  validateSearch: (search: Record<string, unknown>) => ({
+  validateSearch: (search: Record<string, unknown>): {
+    veiculo?: string;
+    ano?: number;
+    mes?: number;
+    tipo?: "all" | "expense" | "income";
+  } => ({
     veiculo: typeof search["veiculo"] === "string" ? (search["veiculo"] as string) : undefined,
     ano: Number(search["ano"]) || undefined,
     mes: Number(search["mes"]) || undefined,
@@ -188,6 +193,7 @@ function TransactionsPage() {
   const [askPassword, setAskPassword] = useState(false);
   const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
   const [pendingLabel, setPendingLabel] = useState<string | null>(null);
+  const view = VIEWS.find((item) => item.key === typeFilter) ?? VIEWS[2];
 
   /** Executa a ação somente quando a competência estiver liberada. */
   function guardPast(action: () => void, label?: string) {
