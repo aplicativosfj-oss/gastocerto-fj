@@ -47,7 +47,7 @@ export const Route = createFileRoute("/")({
 
 function LandingPage() {
   return (
-    <div className="relative flex min-h-dvh flex-col bg-background" data-description="Criar uma página para o cliente ver o status do seu pagamento e a entrega da chave, mostrando pendente, pago e entregue.  crie um codigo para que o admnistrador possa inserir e com isso abri o painel do administrador de maneira mais rapida, esse código sera ja credenciado para isso, sera codigo unico feito pra ele; possa acessar pela homepage,">
+    <div className="relative flex min-h-dvh flex-col bg-background" data-description="corrija anomalia (o painel do admnistrador é para ter apenas paineis de gerenciamento de clientes, criação de codigos, ativação de contas, exclusao, bloqueio, gerenciamento de planos, gerenciamento de tudo do sistema, mas quando entro com as credenciais de admnisatrador ele migra par auma conta de cliente; corrija">
 
       <PageBackground />
       <a

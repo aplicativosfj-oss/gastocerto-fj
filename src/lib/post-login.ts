@@ -8,8 +8,18 @@ export async function resolveHomeRoute(userId?: string | null): Promise<"/admin"
       _user_id: userId,
       _role: "admin",
     });
-    if (error) return "/painel";
-    return data ? "/admin" : "/painel";
+    
+    // Prioridade absoluta: se for admin, sempre vai para /admin
+    if (data === true) return "/admin";
+    
+    // Se não for admin, verifica suporte
+    const { data: isSupport } = await supabase.rpc("has_role", {
+      _user_id: userId,
+      _role: "support",
+    });
+    if (isSupport === true) return "/admin";
+
+    return "/painel";
   } catch {
     return "/painel";
   }

@@ -47,7 +47,8 @@ export function CodeAccessDialog({ children }: { children: React.ReactNode }) {
       if (res.success) {
         toast.success("Acesso administrativo confirmado.");
         setOpen(false);
-        void navigate({ to: "/admin" });
+        // Usamos location.href para forçar uma recarga limpa e garantir o estado do Admin
+        window.location.href = "/admin";
         return;
       }
     } catch (e) {
