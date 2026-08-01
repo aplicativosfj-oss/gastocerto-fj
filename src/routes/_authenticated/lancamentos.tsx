@@ -479,7 +479,9 @@ function TransactionsPage() {
               </TableHeader>
               <TableBody>
                 {rows.map((row) => (
+                  <>
                   <TableRow key={row.id}>
+
                     <TableCell>
                       <Checkbox
                         aria-label={`Selecionar ${row.description}`}
