@@ -97,13 +97,15 @@ export function LandingHeader({ hideActions }: { hideActions?: boolean }) {
         {!hideActions && (
           <div className="flex items-center gap-2">
             <ThemeToggle className={cn("hidden sm:inline-flex", !scrolled && "text-white hover:bg-white/10 hover:text-white")} />
-            <Button
-              variant="ghost"
-              className={cn("hidden sm:inline-flex", !scrolled && "text-white hover:bg-white/10 hover:text-white")}
-              asChild
-            >
-              <Link to="/demonstracao">Ver demonstração</Link>
-            </Button>
+            <CodeAccessDialog>
+              <Button
+                variant="ghost"
+                className={cn("hidden sm:inline-flex", !scrolled && "text-white hover:bg-white/10 hover:text-white")}
+              >
+                <KeyRound className="size-4" aria-hidden />
+                Tenho um código
+              </Button>
+            </CodeAccessDialog>
             <Button
               variant="ghost"
               className={cn("hidden sm:inline-flex", !scrolled && "text-white hover:bg-white/10 hover:text-white")}
@@ -114,6 +116,7 @@ export function LandingHeader({ hideActions }: { hideActions?: boolean }) {
             <Button className="hidden shadow-soft sm:inline-flex" asChild>
               <Link to="/auth" search={{ mode: "signup" }}>Criar conta gratuita</Link>
             </Button>
+
             <Button
               variant="outline"
               size="icon"
