@@ -973,7 +973,7 @@ function DashboardPage() {
                 </ul>
               )}
             </section>
-
+          </div>
         )}
       </div>
 
