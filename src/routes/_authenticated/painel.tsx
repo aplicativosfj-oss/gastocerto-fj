@@ -60,6 +60,7 @@ import { formatCurrency, formatDate } from "@/lib/format";
 import { MONTH_NAMES, isoDate, monthRange, periodDefaultDate } from "@/lib/finance";
 import { useCategories, useProfile } from "@/lib/queries";
 import { useBudgets, useTransactions, type Transaction } from "@/lib/transactions";
+import { useAutoRecurring } from "@/lib/recurring";
 import { useVehicles, VEHICLE_TYPES } from "@/lib/vehicles";
 import { vehicleSpendBreakdown } from "@/lib/vehicle-spend";
 import { labelFor } from "@/lib/finance";
@@ -99,6 +100,9 @@ function DashboardPage() {
   const range = monthRange(period.year, period.month);
   const { data: transactions, isLoading: loadingTransactions } = useTransactions(range);
   const { data: budgets } = useBudgets(period.year, period.month);
+
+  // Contabiliza automaticamente as contas recorrentes do período.
+  useAutoRecurring();
 
 
   const previous = new Date(period.year, period.month - 2, 1);
@@ -144,16 +148,20 @@ function DashboardPage() {
         ? sum(expenses.filter((row) => row.transaction_date === todayIso))
         : 0,
       /**
-       * Últimos 7 dias corridos (inclui o dia de hoje). Considera também o mês
-       * anterior quando a janela cruza a virada do mês e ignora datas futuras.
+       * Últimos 7 dias corridos (inclui hoje), restrito ao mês aberto: cada mês
+       * enxerga apenas os próprios gastos, sem misturar competências.
        */
       week: isCurrentMonth
         ? sum(
-            [...expenses, ...previousMonthExpenses].filter(
-              (row) => row.transaction_date >= weekStart && row.transaction_date <= todayIso,
+            expenses.filter(
+              (row) =>
+                row.transaction_date >= weekStart &&
+                row.transaction_date >= range.start &&
+                row.transaction_date <= todayIso,
             ),
           )
         : 0,
+
 
       totalExpense,
       totalIncome,

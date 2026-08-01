@@ -41,6 +41,7 @@ import { TrialGrantPanel } from "@/components/admin/trial-grant-panel";
 import { TrialLicensesPanel } from "@/components/admin/trial-licenses-panel";
 import { BlockedIpsPanel } from "@/components/admin/blocked-ips-panel";
 import { ClosingPolicyPanel } from "@/components/admin/closing-policy-panel";
+import { CategoriesCatalogPanel } from "@/components/admin/categories-panel";
 import {
   adminCancelSubscription,
   adminDeleteUser,
@@ -262,6 +263,7 @@ function AdminContent({ isAdmin }: { isAdmin: boolean }) {
             {isAdmin ? <TabsTrigger value="payments">Pagamentos</TabsTrigger> : null}
             {isAdmin ? <TabsTrigger value="ai">IA &amp; testes</TabsTrigger> : null}
             {isAdmin ? <TabsTrigger value="security">Segurança</TabsTrigger> : null}
+            {isAdmin ? <TabsTrigger value="categories">Categorias</TabsTrigger> : null}
             <TabsTrigger value="reopen">Liberações</TabsTrigger>
             <TabsTrigger value="logs">Logs</TabsTrigger>
           </TabsList>
@@ -382,6 +384,12 @@ function AdminContent({ isAdmin }: { isAdmin: boolean }) {
           {isAdmin ? (
             <TabsContent value="security" className="mt-4 space-y-4">
               <BlockedIpsPanel />
+            </TabsContent>
+          ) : null}
+
+          {isAdmin ? (
+            <TabsContent value="categories" className="mt-4 space-y-4">
+              <CategoriesCatalogPanel />
             </TabsContent>
           ) : null}
 
