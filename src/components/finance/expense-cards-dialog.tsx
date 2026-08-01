@@ -109,7 +109,43 @@ export function ExpenseCardsDialog({
     setFirstDue(isoDate(new Date()));
     setEndDate("");
     setConfirming(false);
+    setPhoneMode(false);
+    setGigas("");
+    setValidityDays("30");
   }
+
+  /** Categoria de telefonia usada pelo card de recarga. */
+  const phoneCategory = useMemo(() => {
+    const all = (categories ?? []).filter(
+      (category) => category.type === "expense" && category.active !== false,
+    );
+    return (
+      all.find((category) => /celular|telefon/i.test(category.name)) ??
+      all.find((category) => /internet/i.test(category.name)) ??
+      all[0] ??
+      null
+    );
+  }, [categories]);
+
+  /** Validade da recarga a partir da data do gasto. */
+  const validUntil = useMemo(() => {
+    const days = Number(validityDays) || 0;
+    if (!phoneMode || days <= 0) return "";
+    const base = new Date(`${date}T12:00:00`);
+    base.setDate(base.getDate() + days);
+    return isoDate(base);
+  }, [phoneMode, validityDays, date]);
+
+  /** Resumo do plano de celular gravado nas anotações. */
+  const phoneSummary = useMemo(() => {
+    if (!phoneMode) return "";
+    const parts = [`Recarga/plano de celular: ${formatCurrency(cents)}`];
+    if (gigas.trim()) parts.push(`${gigas.trim()} GB contratados`);
+    if (Number(validityDays) > 0) parts.push(`validade ${validityDays} dias`);
+    if (validUntil) parts.push(`até ${formatDate(`${validUntil}T12:00:00`)}`);
+    return parts.join(" · ");
+  }, [phoneMode, cents, gigas, validityDays, validUntil]);
+
 
   function press(key: (typeof KEYS)[number]) {
     if (key === "back") {
