@@ -143,8 +143,8 @@ function CompromissosPage() {
       <div className="space-y-4">
         <header className="flex flex-wrap items-end justify-between gap-3">
           <div className="space-y-1">
-            <h1 className="text-xl font-semibold tracking-tight">Compromissos e dívidas</h1>
-            <p className="text-sm text-muted-foreground">
+            <h1 className="page-title">Compromissos e dívidas</h1>
+            <p className="page-subtitle mt-1">
               Financiamentos, fiado no comércio, açougue, empréstimos, cartão de crédito, compras a
               prazo, pensão alimentícia e outras saídas — com saldo devedor, parcelas e vencimentos.
             </p>

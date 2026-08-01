@@ -214,8 +214,8 @@ function RecurringPage() {
       <div className="space-y-4">
         <header className="flex flex-wrap items-center justify-between gap-3">
           <div className="min-w-0">
-            <h1 className="text-2xl font-bold tracking-tight">Contas recorrentes</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <h1 className="page-title">Contas recorrentes</h1>
+            <p className="page-subtitle mt-1">
               {formatCurrency(pendingTotal)} em vencimentos ainda não pagos.
             </p>
           </div>

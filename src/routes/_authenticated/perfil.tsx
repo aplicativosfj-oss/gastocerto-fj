@@ -152,8 +152,8 @@ function ProfilePage() {
     <AppShell>
       <div className="mx-auto max-w-2xl space-y-8">
         <header>
-          <h1 className="text-2xl font-bold tracking-tight">Meu perfil</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <h1 className="page-title">Meu perfil</h1>
+          <p className="page-subtitle mt-1">
             Seus dados ficam visíveis apenas para você.
           </p>
         </header>

@@ -81,8 +81,8 @@ function VehicleSpendReportPage() {
       <div className="space-y-4">
         <header className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h1 className="text-lg font-semibold">Relatório de gastos com veículo</h1>
-            <p className="text-sm text-muted-foreground">
+            <h1 className="page-title">Relatório de gastos com veículo</h1>
+            <p className="page-subtitle mt-1">
               Todos os lançamentos vinculados a um veículo no período selecionado.
             </p>
           </div>

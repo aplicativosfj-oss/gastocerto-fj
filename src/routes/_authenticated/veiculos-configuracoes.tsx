@@ -45,8 +45,8 @@ function VehicleSettingsPage() {
       <div className="space-y-4">
         <header className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0">
-            <h1 className="text-2xl font-bold tracking-tight">Metas e alertas por veículo</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <h1 className="page-title">Metas e alertas por veículo</h1>
+            <p className="page-subtitle mt-1">
               Ajuste a meta de consumo, a tolerância do alerta e o teto mensal de combustível.
               Você pode revisar esses limites sempre que quiser.
             </p>

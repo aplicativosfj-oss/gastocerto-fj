@@ -47,7 +47,7 @@ function ReconciliationPage() {
     <AppShell>
       <div className="max-w-4xl mx-auto space-y-6">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Reconciliação Mensal</h1>
+          <h1 className="page-title">Reconciliação Mensal</h1>
           <p className="text-muted-foreground">
             Acompanhe receitas transferidas e o impacto no saldo de {MONTH_NAMES[currentMonth - 1]}.
           </p>

@@ -269,8 +269,8 @@ function FechamentoPage() {
       <div className="space-y-4">
         <header className="flex flex-wrap items-end justify-between gap-3">
           <div className="space-y-1">
-            <h1 className="text-xl font-semibold tracking-tight">Fechamento mensal</h1>
-            <p className="text-sm text-muted-foreground">
+            <h1 className="page-title">Fechamento mensal</h1>
+            <p className="page-subtitle mt-1">
               O balancete começa em {monthLabel(BALANCE_START.year, BALANCE_START.month)} (mês de
               implantação, aceita lançamentos retroativos). A partir do mês seguinte, cada
               competência conta do dia 1º ao último dia do mês, e o saldo final vira o saldo inicial

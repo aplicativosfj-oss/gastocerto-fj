@@ -102,8 +102,8 @@ function AdvisorPage() {
           <div className="flex items-center gap-3">
             <EmblemAdvisor title="Consultor de IA" className="size-11" />
             <div>
-              <h1 className="font-display text-lg font-semibold tracking-tight">Consultor de IA</h1>
-              <p className="text-sm text-muted-foreground">
+              <h1 className="page-title">Consultor de IA</h1>
+              <p className="page-subtitle mt-1">
                 Ele lê seus lançamentos, mapeia seus gastos e sugere decisões. Exclusivo para
                 assinantes.
               </p>

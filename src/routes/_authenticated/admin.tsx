@@ -109,8 +109,8 @@ function AdminPage() {
       <AppShell>
         <div className="rounded-xl border border-dashed border-border p-10 text-center">
           <ShieldCheck className="mx-auto size-8 text-muted-foreground" />
-          <h1 className="mt-3 font-display text-sm font-semibold">Acesso restrito</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <h1 className="page-title">Acesso restrito</h1>
+          <p className="page-subtitle mt-1">
             Esta área é exclusiva da equipe administrativa.
           </p>
         </div>
@@ -207,8 +207,8 @@ function AdminContent({ isAdmin }: { isAdmin: boolean }) {
         <header className="flex items-start gap-3">
           <EmblemShield title="Painel administrativo" className="size-11" />
           <div>
-          <h1 className="font-display text-2xl font-semibold tracking-tight">Administração</h1>
-          <p className="text-sm text-muted-foreground">
+          <h1 className="page-title">Administração</h1>
+          <p className="page-subtitle mt-1">
             Gestão de usuários, papéis, suporte e trilha de auditoria.
           </p>
           </div>

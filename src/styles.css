@@ -302,6 +302,42 @@
   height: clamp(150px, 34vw, 230px);
 }
 
+/* Área de conteúdo do app com altura mínima estável entre navegações,
+   para a janela ativa não mudar de forma ao alternar menus e painéis. */
+@utility app-main {
+  min-height: calc(100svh - 8.75rem);
+}
+
+/* Faixa de abas com altura fixa: alternar seção não muda a altura do header. */
+@utility subnav-strip {
+  height: 2.375rem;
+}
+
+/* Título e subtítulo padrão das telas internas: compacto no celular,
+   generoso no desktop — mesma hierarquia em todas as páginas. */
+@utility page-title {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  font-size: 1.125rem;
+  color: var(--foreground);
+
+  @media (width >= 40rem) {
+    font-size: 1.375rem;
+  }
+}
+
+@utility page-subtitle {
+  font-size: 0.75rem;
+  line-height: 1.35;
+  color: var(--muted-foreground);
+
+  @media (width >= 40rem) {
+    font-size: 0.8125rem;
+  }
+}
+
+
 
 /* Revelação suave ao entrar na viewport. */
 @utility reveal {
@@ -374,6 +410,11 @@
     scroll-padding-top: 5rem;
     overflow-x: clip;
     -webkit-text-size-adjust: 100%;
+    /* Reserva o espaço da barra de rolagem: a janela nunca muda de largura
+       ao alternar menus, abas ou painéis. */
+    scrollbar-gutter: stable;
+    /* Sempre com rolagem vertical disponível para não "pular" de largura. */
+    overflow-y: scroll;
   }
 
   /* Nada de rolagem lateral nem tela "pulando" de largura. */
@@ -381,6 +422,9 @@
     overflow-x: clip;
     min-width: 0;
   }
+
+
+
 
   img,
   svg,

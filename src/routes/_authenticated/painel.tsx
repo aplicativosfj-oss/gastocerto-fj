@@ -367,10 +367,10 @@ function DashboardPage() {
       <div className="space-y-4">
         <header className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 sm:flex sm:flex-wrap sm:items-center sm:justify-between">
           <div className="min-w-0">
-            <h1 className="truncate text-xl font-bold tracking-tight sm:text-2xl">
+            <h1 className="page-title truncate">
               Olá, {firstName}!
             </h1>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <p className="page-subtitle mt-1">
               {MONTH_NAMES[period.month - 1]} de {period.year} · Clique nos gráficos para ver detalhes profissionais
             </p>
           </div>

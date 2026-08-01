@@ -220,19 +220,21 @@ export function AppShell({ children }: { children: ReactNode }) {
             </div>
           </div>
 
-          {subTabs.length > 1 ? (
-            <div className="border-t border-border bg-background/80">
-              <nav
-                aria-label="Seções da área"
-                className="mx-auto flex w-full max-w-6xl gap-1 overflow-x-auto px-3 py-1 sm:px-4 sm:py-1.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-              >
-                {subTabs.map((tab) => (
+          {/* Faixa sempre presente e com altura fixa: alternar seção nunca
+              muda a altura do header nem "redimensiona" a janela ativa. */}
+          <div className="border-t border-border bg-background/80">
+            <nav
+              aria-label="Seções da área"
+              className="subnav-strip mx-auto flex w-full max-w-6xl items-center gap-1 overflow-x-auto px-3 sm:px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            >
+              {subTabs.length > 1 ? (
+                subTabs.map((tab) => (
                   <Link
                     key={tab.to}
                     to={tab.to as never}
                     aria-current={pathname === tab.to ? "page" : undefined}
                     className={cn(
-                      "shrink-0 rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors sm:px-3 sm:py-1.5 sm:text-xs",
+                      "shrink-0 rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors sm:px-3 sm:text-xs",
                       pathname === tab.to
                         ? "bg-brand text-brand-foreground"
                         : "text-muted-foreground hover:bg-secondary hover:text-foreground",
@@ -240,13 +242,17 @@ export function AppShell({ children }: { children: ReactNode }) {
                   >
                     {tab.label}
                   </Link>
-                ))}
-              </nav>
-            </div>
-          ) : null}
+                ))
+              ) : (
+                <span className="truncate text-[11px] font-medium text-muted-foreground">
+                  {activeGroup?.label ?? "Painel"}
+                </span>
+              )}
+            </nav>
+          </div>
         </header>
 
-        <main className="mx-auto w-full min-w-0 max-w-6xl flex-1 px-3 py-2.5 pb-[calc(4.75rem+env(safe-area-inset-bottom))] sm:px-4 sm:py-4 lg:pb-6">
+        <main className="app-main mx-auto w-full min-w-0 max-w-6xl flex-1 px-3 py-2.5 pb-[calc(4.75rem+env(safe-area-inset-bottom))] sm:px-4 sm:py-4 lg:pb-6">
           {children}
         </main>
         <footer className="hidden border-t border-border px-4 py-2 text-center text-[11px] text-muted-foreground lg:block">
@@ -293,51 +299,111 @@ function MobileTabBar({
             type="button"
             aria-label="Fechar menu"
             onClick={() => onOpenChange(false)}
-            className="absolute inset-0 bg-foreground/40 backdrop-blur-sm"
+            className="absolute inset-0 bg-foreground/50 backdrop-blur-sm"
           />
-          <div className="absolute inset-x-0 bottom-0 max-h-[78svh] overflow-y-auto rounded-t-2xl border-t border-border bg-background pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-lifted">
-            <div className="sticky top-0 flex items-center justify-between border-b border-border bg-background/95 px-4 py-2.5 backdrop-blur">
-              <p className="text-sm font-semibold">Menu</p>
-              <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)} aria-label="Fechar menu">
-                <X className="size-5" />
-              </Button>
+          <div className="absolute inset-x-0 bottom-0 max-h-[86svh] overflow-y-auto rounded-t-3xl border-t border-border bg-background pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-lifted">
+            <div className="sticky top-0 z-10 border-b border-border bg-background/95 px-3 py-2.5 backdrop-blur">
+              <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
+                <div className="min-w-0">
+                  <p className="text-[13px] font-bold leading-tight">Tudo do seu controle</p>
+                  <p className="truncate text-[11px] text-muted-foreground">
+                    Toque em uma área para abrir a seção
+                  </p>
+                </div>
+                <div className="flex shrink-0 items-center gap-1">
+                  <ThemeToggle />
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => onOpenChange(false)}
+                    aria-label="Fechar menu"
+                  >
+                    <X className="size-5" />
+                  </Button>
+                </div>
+              </div>
             </div>
-            <div className="grid grid-cols-2 gap-1.5 p-3">
-              {items.map((item) => (
+
+            {/* Atalhos rápidos: as ações mais usadas em uma linha só. */}
+            <div className="grid grid-cols-3 gap-1.5 px-3 pt-3">
+              {[
+                { to: "/lancamentos", label: "Lançar", icon: Plus },
+                { to: "/calendario", label: "Alertas", icon: Bell },
+                { to: "/perfil", label: "Perfil", icon: User2 },
+              ].map((shortcut) => (
                 <Link
-                  key={item.to}
-                  to={item.to as never}
+                  key={shortcut.to}
+                  to={shortcut.to as never}
                   onClick={() => onOpenChange(false)}
-                  className={cn(
-                    "flex min-h-11 items-center gap-2 rounded-xl border border-border bg-card px-3 text-[13px] font-medium transition-colors",
-                    activeGroup === item.to ? "border-brand/40 bg-brand/10 text-foreground" : "text-muted-foreground",
-                  )}
+                  className="flex min-h-14 flex-col items-center justify-center gap-1 rounded-2xl border border-brand/25 bg-brand/10 text-[11px] font-semibold text-foreground"
                 >
-                  <item.icon className="size-4 shrink-0 text-brand" />
-                  <span className="truncate">{item.label}</span>
+                  <shortcut.icon className="size-4 text-brand" aria-hidden="true" />
+                  {shortcut.label}
                 </Link>
               ))}
             </div>
-            <div className="grid gap-1.5 border-t border-border p-3">
-              <div className="flex items-center gap-1.5">
-                <ThemeToggle />
-                <Link
-                  to="/lancamentos"
-                  onClick={() => onOpenChange(false)}
-                  className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-md bg-brand px-3 text-[13px] font-semibold text-brand-foreground"
-                >
-                  <Plus className="size-4" aria-hidden="true" />
-                  Novo lançamento
-                </Link>
-              </div>
-              <Button variant="outline" className="justify-center gap-2" onClick={onSignOut}>
+
+            {/* Áreas com suas subseções: qualquer página em 2 toques. */}
+            <div className="space-y-2 p-3">
+              {items.map((item) => {
+                const isActive = activeGroup === item.to;
+                return (
+                  <section
+                    key={item.to}
+                    className={cn(
+                      "overflow-hidden rounded-2xl border bg-card",
+                      isActive ? "border-brand/40" : "border-border",
+                    )}
+                  >
+                    <Link
+                      to={item.to as never}
+                      onClick={() => onOpenChange(false)}
+                      className={cn(
+                        "flex min-h-11 items-center gap-2 px-3 text-[13px] font-bold transition-colors",
+                        isActive ? "bg-brand/10 text-foreground" : "text-foreground",
+                      )}
+                    >
+                      <span
+                        className={cn(
+                          "grid size-7 shrink-0 place-items-center rounded-lg border",
+                          isActive
+                            ? "border-brand/40 bg-brand/15 text-brand"
+                            : "border-border bg-secondary text-brand",
+                        )}
+                      >
+                        <item.icon className="size-4" aria-hidden="true" />
+                      </span>
+                      <span className="truncate">{item.label}</span>
+                    </Link>
+                    {item.children && item.children.length > 1 ? (
+                      <div className="flex flex-wrap gap-1.5 border-t border-border px-3 py-2">
+                        {item.children.map((child) => (
+                          <Link
+                            key={child.to}
+                            to={child.to as never}
+                            onClick={() => onOpenChange(false)}
+                            className="rounded-full border border-border bg-secondary/60 px-2.5 py-1 text-[11px] font-medium text-muted-foreground transition-colors active:bg-brand/15 active:text-foreground"
+                          >
+                            {child.label}
+                          </Link>
+                        ))}
+                      </div>
+                    ) : null}
+                  </section>
+                );
+              })}
+            </div>
+
+            <div className="border-t border-border p-3">
+              <Button variant="outline" className="w-full justify-center gap-2" onClick={onSignOut}>
                 <LogOut className="size-4" />
-                Sair
+                Sair da conta
               </Button>
             </div>
           </div>
         </div>
       ) : null}
+
 
       <nav
         aria-label="Navegação principal"
