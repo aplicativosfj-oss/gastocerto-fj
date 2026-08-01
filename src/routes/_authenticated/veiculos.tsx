@@ -491,16 +491,15 @@ function VehiclesPage() {
                   {alert && (
                     <div className="mt-4 flex items-start gap-2 rounded-lg bg-destructive/5 p-3 text-[11px] font-semibold text-destructive">
                       <TriangleAlert className="mt-0.5 size-3.5 shrink-0" />
-                      Consumo abaixo da meta no período. Verifique calibragem, trajeto ou
-                      manutenção.
-                    </p>
-                  ) : null}
-                  {budgetAlert ? (
-                    <p className="mt-2 flex items-start gap-2 rounded-lg bg-amber-500/10 p-2 text-xs text-amber-600 dark:text-amber-400">
+                      <span>Consumo abaixo da meta. Verifique calibragem ou manutenção.</span>
+                    </div>
+                  )}
+                  {budgetAlert && (
+                    <div className="mt-2 flex items-start gap-2 rounded-lg bg-amber-500/10 p-3 text-[11px] font-semibold text-amber-600 dark:text-amber-400">
                       <TriangleAlert className="mt-0.5 size-3.5 shrink-0" />
-                      Gasto acima do teto mensal definido para este veículo.
-                    </p>
-                  ) : null}
+                      <span>Gasto acima do teto mensal para este veículo.</span>
+                    </div>
+                  )}
                 </article>
               ))}
             </div>
