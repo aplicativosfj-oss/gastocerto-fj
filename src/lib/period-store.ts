@@ -12,10 +12,11 @@ export const usePeriodStore = create<PeriodState>()(
     (set) => ({
       year: new Date().getFullYear(),
       month: new Date().getMonth() + 1,
-      setPeriod: (period) => set(period),
+      setPeriod: (period: { year: number; month: number }) => set(period),
     }),
     {
       name: 'gastocerto-period',
     }
   )
 );
+

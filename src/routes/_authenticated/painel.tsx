@@ -44,6 +44,7 @@ import { CardMonthSummary } from "@/components/finance/card-month-summary";
 import { InsightsPanel } from "@/components/finance/insights-panel";
 import { PastMonthsLockNotice } from "@/components/finance/past-months-lock-notice";
 import { VehicleEmblem } from "@/components/finance/vehicle-emblem";
+import { usePeriodStore } from "@/lib/period-store";
 
 
 import { Badge } from "@/components/ui/badge";
@@ -87,7 +88,13 @@ export const Route = createFileRoute("/_authenticated/painel")({
 function DashboardPage() {
   const navigate = useNavigate();
   const today = new Date();
-  const [period, setPeriod] = useState({ year: today.getFullYear(), month: today.getMonth() + 1 });
+  const { year: storedYear, month: storedMonth, setPeriod: setStoredPeriod } = usePeriodStore();
+  const [period, setPeriod] = useState({ year: storedYear, month: storedMonth });
+
+  const handlePeriodChange = (next: { year: number; month: number }) => {
+    setPeriod(next);
+    setStoredPeriod(next);
+  };
   const [dialogOpen, setDialogOpen] = useState(false);
   const [cardsOpen, setCardsOpen] = useState(false);
   const [dialogKind, setDialogKind] = useState<"expense" | "income">("expense");
@@ -375,7 +382,7 @@ function DashboardPage() {
             </p>
           </div>
           <div className="col-span-2 flex flex-wrap items-center gap-2">
-            <PeriodPicker year={period.year} month={period.month} onChange={setPeriod} />
+            <PeriodPicker year={period.year} month={period.month} onChange={handlePeriodChange} />
             <QuickCategoryMenu
               kind="income"
               label="Nova receita"
@@ -417,14 +424,14 @@ function DashboardPage() {
         </header>
 
         {loadingTransactions ? (
-          <div className="grid gap-3 auto-cards-sm">
+          <div className="grid gap-3 auto-cards-sm opacity-50 transition-opacity duration-300">
             {Array.from({ length: 8 }).map((_, index) => (
               <Skeleton key={index} className="h-20 rounded-2xl" />
             ))}
           </div>
         ) : (
           <>
-            <section className="grid gap-3 auto-cards-sm">
+            <section className={cn("grid gap-3 auto-cards-sm transition-all duration-300", loadingTransactions && "opacity-50 blur-[1px]")}>
               <StatCard
                 tile="var(--acc-4)"
                 label={
