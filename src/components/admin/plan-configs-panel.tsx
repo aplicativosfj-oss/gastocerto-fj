@@ -51,12 +51,18 @@ function AdminContactCard() {
   const mutation = useMutation({
     mutationFn: () => saveContact({ data: { contactEmail: value.trim() } }),
     onSuccess: () => {
-      toast.success("E-mail de contato atualizado");
+      const saved = value.trim();
+      toast.success(`E-mail de contato atualizado: ${saved}`, {
+        description: "Já aparece no suporte e nas respostas institucionais.",
+      });
       setEmail(null);
       queryClient.invalidateQueries({ queryKey: ["admin", "own-contact"] });
+      queryClient.invalidateQueries({ queryKey: ["admin", "settings"] });
+      queryClient.invalidateQueries({ queryKey: ["app-settings"] });
     },
     onError: (e: any) => toast.error(e?.message || "Não foi possível salvar"),
   });
+
 
   return (
     <Card className="border-brand/20 bg-card/60">
