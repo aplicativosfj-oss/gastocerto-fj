@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/select";
 import { parseAmount } from "@/lib/finance";
 import { sanitizeText } from "@/lib/validation";
+import { usePlanAccess } from "@/hooks/use-plan";
 import { FUEL_TYPES, VEHICLE_TYPES, useSaveVehicle, type Vehicle } from "@/lib/vehicles";
 
 export function VehicleDialog({
@@ -34,6 +35,7 @@ export function VehicleDialog({
   vehicle?: Vehicle | null;
 }) {
   const save = useSaveVehicle();
+  const { data: access } = usePlanAccess();
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const [name, setName] = useState(vehicle?.name ?? "");
@@ -74,6 +76,7 @@ export function VehicleDialog({
     try {
       await save.mutateAsync({
         id: vehicle?.id,
+        limit: access?.limits.vehicles ?? null,
         values: {
           name: cleanName,
           vehicle_type: type,
@@ -90,7 +93,7 @@ export function VehicleDialog({
       onOpenChange(false);
     } catch (error) {
       console.error("[veiculos] falha ao salvar", error);
-      toast.error("Não foi possível salvar o veículo.");
+      toast.error(error instanceof Error ? error.message : "Não foi possível salvar o veículo.");
     }
   }
 
