@@ -137,7 +137,7 @@ function AdvisorPage() {
                 classificar automaticamente e ajudar você a entender seus gastos com alimentação 
                 ou mercado de forma detalhada.
               </p>
-              <div className="mt-2 text-[10px] font-medium text-primary/80 uppercase tracking-wider">
+              <div className="mt-2 text-[10px] font-medium text-primary uppercase tracking-wider">
                 Disponível no Plano Premium IA
               </div>
             </div>
