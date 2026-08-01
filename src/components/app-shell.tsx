@@ -349,6 +349,7 @@ function MobileTabBar({
             </div>
 
             {/* Atalhos rápidos: as ações mais usadas em uma linha só. */}
+            {!adminArea ? (
             <div className="grid grid-cols-3 gap-1.5 px-3 pt-3">
               <Button
                 variant="outline"
@@ -384,6 +385,8 @@ function MobileTabBar({
                 Fixos
               </Button>
             </div>
+            ) : null}
+
 
             {/* Áreas com suas subseções: qualquer página em 2 toques. */}
             <div className="space-y-2 p-3">
