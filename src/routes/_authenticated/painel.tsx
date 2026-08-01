@@ -621,8 +621,7 @@ function DashboardPage() {
             />
           </div>
         </div>
-        
-        {!loadingTransactions && (
+      )}
           <div className="space-y-4">
 
 
