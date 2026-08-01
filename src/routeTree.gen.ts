@@ -25,6 +25,7 @@ import { Route as AuthenticatedComprovantesRouteImport } from './routes/_authent
 import { Route as AuthenticatedConsultorRouteImport } from './routes/_authenticated/consultor'
 import { Route as AuthenticatedDiarioRouteImport } from './routes/_authenticated/diario'
 import { Route as AuthenticatedFechamentoRouteImport } from './routes/_authenticated/fechamento'
+import { Route as AuthenticatedGasRouteImport } from './routes/_authenticated/gas'
 import { Route as AuthenticatedLancamentosRouteImport } from './routes/_authenticated/lancamentos'
 import { Route as AuthenticatedMetasRouteImport } from './routes/_authenticated/metas'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
@@ -120,6 +121,11 @@ const AuthenticatedFechamentoRoute = AuthenticatedFechamentoRouteImport.update({
   path: '/fechamento',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedGasRoute = AuthenticatedGasRouteImport.update({
+  id: '/gas',
+  path: '/gas',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedLancamentosRoute =
   AuthenticatedLancamentosRouteImport.update({
     id: '/lancamentos',
@@ -207,6 +213,7 @@ export interface FileRoutesByFullPath {
   '/consultor': typeof AuthenticatedConsultorRoute
   '/diario': typeof AuthenticatedDiarioRoute
   '/fechamento': typeof AuthenticatedFechamentoRoute
+  '/gas': typeof AuthenticatedGasRoute
   '/lancamentos': typeof AuthenticatedLancamentosRoute
   '/metas': typeof AuthenticatedMetasRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
@@ -237,6 +244,7 @@ export interface FileRoutesByTo {
   '/consultor': typeof AuthenticatedConsultorRoute
   '/diario': typeof AuthenticatedDiarioRoute
   '/fechamento': typeof AuthenticatedFechamentoRoute
+  '/gas': typeof AuthenticatedGasRoute
   '/lancamentos': typeof AuthenticatedLancamentosRoute
   '/metas': typeof AuthenticatedMetasRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
@@ -269,6 +277,7 @@ export interface FileRoutesById {
   '/_authenticated/consultor': typeof AuthenticatedConsultorRoute
   '/_authenticated/diario': typeof AuthenticatedDiarioRoute
   '/_authenticated/fechamento': typeof AuthenticatedFechamentoRoute
+  '/_authenticated/gas': typeof AuthenticatedGasRoute
   '/_authenticated/lancamentos': typeof AuthenticatedLancamentosRoute
   '/_authenticated/metas': typeof AuthenticatedMetasRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
@@ -301,6 +310,7 @@ export interface FileRouteTypes {
     | '/consultor'
     | '/diario'
     | '/fechamento'
+    | '/gas'
     | '/lancamentos'
     | '/metas'
     | '/onboarding'
@@ -331,6 +341,7 @@ export interface FileRouteTypes {
     | '/consultor'
     | '/diario'
     | '/fechamento'
+    | '/gas'
     | '/lancamentos'
     | '/metas'
     | '/onboarding'
@@ -362,6 +373,7 @@ export interface FileRouteTypes {
     | '/_authenticated/consultor'
     | '/_authenticated/diario'
     | '/_authenticated/fechamento'
+    | '/_authenticated/gas'
     | '/_authenticated/lancamentos'
     | '/_authenticated/metas'
     | '/_authenticated/onboarding'
@@ -501,6 +513,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedFechamentoRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/gas': {
+      id: '/_authenticated/gas'
+      path: '/gas'
+      fullPath: '/gas'
+      preLoaderRoute: typeof AuthenticatedGasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/lancamentos': {
       id: '/_authenticated/lancamentos'
       path: '/lancamentos'
@@ -605,6 +624,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedConsultorRoute: typeof AuthenticatedConsultorRoute
   AuthenticatedDiarioRoute: typeof AuthenticatedDiarioRoute
   AuthenticatedFechamentoRoute: typeof AuthenticatedFechamentoRoute
+  AuthenticatedGasRoute: typeof AuthenticatedGasRoute
   AuthenticatedLancamentosRoute: typeof AuthenticatedLancamentosRoute
   AuthenticatedMetasRoute: typeof AuthenticatedMetasRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
@@ -630,6 +650,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedConsultorRoute: AuthenticatedConsultorRoute,
   AuthenticatedDiarioRoute: AuthenticatedDiarioRoute,
   AuthenticatedFechamentoRoute: AuthenticatedFechamentoRoute,
+  AuthenticatedGasRoute: AuthenticatedGasRoute,
   AuthenticatedLancamentosRoute: AuthenticatedLancamentosRoute,
   AuthenticatedMetasRoute: AuthenticatedMetasRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
