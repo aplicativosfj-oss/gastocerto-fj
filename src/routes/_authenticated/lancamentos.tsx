@@ -55,6 +55,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { formatCurrency, formatDate } from "@/lib/format";
+import { PdfExportSettingsDialog } from "@/components/finance/pdf-export-settings-dialog";
 import { exportTransactionPdf } from "@/lib/transaction-detail-export";
 import { fetchNoteHistory } from "@/lib/transaction-notes";
 
