@@ -38,6 +38,14 @@ export function LogsTable({ globalSearch = "" }: { globalSearch?: string }) {
     },
   });
 
+  const nameByUser = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const profile of profiles.data ?? []) {
+      map.set(profile.user_id, profile.full_name ?? "Usuário");
+    }
+    return map;
+  }, [profiles.data]);
+
   const filteredLogs = useMemo(() => {
     const rows = logs.data ?? [];
     const term = globalSearch.trim().toLowerCase();
@@ -50,8 +58,6 @@ export function LogsTable({ globalSearch = "" }: { globalSearch?: string }) {
       return actor.includes(term) || target.includes(term) || action.includes(term) || details.includes(term);
     });
   }, [logs.data, globalSearch, nameByUser]);
-
-  const nameByUserMap = useMemo(() => {
     const map = new Map<string, string>();
     for (const profile of profiles.data ?? []) {
       map.set(profile.user_id, profile.full_name ?? "Usuário");
