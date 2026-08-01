@@ -28,6 +28,8 @@ import {
 
 import { AppShell } from "@/components/app-shell";
 import { GasImportDialog } from "@/components/finance/gas-import-dialog";
+import { Input } from "@/components/ui/input";
+
 import { GasRefillDialog } from "@/components/finance/gas-refill-dialog";
 import { GasReminderCard } from "@/components/finance/gas-reminder-card";
 
@@ -291,12 +293,23 @@ function GasPage() {
   const [importOpen, setImportOpen] = useState(false);
   const [detailKey, setDetailKey] = useState<string | null>(null);
   const [chartRange, setChartRange] = useState("all");
+  const [customStart, setCustomStart] = useState("");
+  const [customEnd, setCustomEnd] = useState("");
 
   const summary = useMemo(() => summarizeGas(refills ?? []), [refills]);
 
   const filteredRefills = useMemo(() => {
     if (!refills) return [];
+    if (chartRange === "custom") {
+      return refills.filter(r => {
+        const d = r.refill_date;
+        const after = customStart ? d >= customStart : true;
+        const before = customEnd ? d <= customEnd : true;
+        return after && before;
+      });
+    }
     if (chartRange === "all") return refills;
+
     const days = parseInt(chartRange, 10);
     const limit = new Date();
     limit.setDate(limit.getDate() - days);
@@ -381,6 +394,7 @@ function GasPage() {
             { label: "30 dias", value: "30" },
             { label: "60 dias", value: "60" },
             { label: "90 dias", value: "90" },
+            { label: "Personalizado", value: "custom" },
           ].map((range) => (
             <Button
               key={range.value}
@@ -393,7 +407,27 @@ function GasPage() {
             </Button>
           ))}
         </div>
+
+        {chartRange === "custom" && (
+          <div className="flex items-center gap-2 ml-auto">
+            <Input
+              type="date"
+              value={customStart}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCustomStart(e.target.value)}
+              className="h-8 w-32 text-xs"
+            />
+            <span className="text-xs text-muted-foreground">até</span>
+            <Input
+              type="date"
+              value={customEnd}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCustomEnd(e.target.value)}
+              className="h-8 w-32 text-xs"
+            />
+
+          </div>
+        )}
       </section>
+
 
 
       {isLoading ? (

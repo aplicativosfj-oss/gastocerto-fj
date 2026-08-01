@@ -190,7 +190,9 @@ function ReportsPage() {
       .map((line) => line.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(";"))
       .join("\n");
 
-    const filename = `relatorio-${categoryFilter !== 'all' ? categoryName.get(categoryFilter) + '-' : ''}${start}-a-${end}.csv`;
+    const namePart = recipientFilter !== 'all' ? `destinatario-${recipientFilter}` : categoryFilter !== 'all' ? categoryName.get(categoryFilter) : 'geral';
+    const filename = `relatorio-${namePart}-${start}-a-${end}.csv`;
+
     downloadBlob(`\uFEFF${csv}`, "text/csv;charset=utf-8;", filename);
 
     toast.success("CSV exportado");
@@ -253,7 +255,9 @@ function ReportsPage() {
         headStyles: { fillColor: [30, 41, 59] },
       });
 
-      const filename = `relatorio-${categoryFilter !== 'all' ? categoryName.get(categoryFilter) + '-' : ''}${start}-a-${end}.pdf`;
+      const namePart = recipientFilter !== 'all' ? `destinatario-${recipientFilter}` : categoryFilter !== 'all' ? categoryName.get(categoryFilter) : 'geral';
+      const filename = `relatorio-${namePart}-${start}-a-${end}.pdf`;
+
       doc.save(filename);
 
       toast.success("PDF gerado");
