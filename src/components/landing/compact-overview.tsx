@@ -239,14 +239,14 @@ export function CompactOverview() {
           <div className="min-w-0">
             <p className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-brand">
               <Sparkles className="size-3.5" aria-hidden="true" />
-              Sem planilha, sem caderninho
+              Recursos da plataforma
             </p>
             <h2 className="mt-1 section-title">
-              Tudo o que você gasta, em uma plataforma só
+              Um sistema para todo o seu controle financeiro
             </h2>
             <p className="mt-1 max-w-xl text-[13px] leading-relaxed text-muted-foreground">
-              Do botijão de gás ao custo por quilômetro rodado: dezesseis recursos integrados
-              para você lançar rápido, prever o mês e parar de descobrir o prejuízo só na fatura.
+              Dezesseis recursos integrados que cobrem o dia a dia, veículos, planejamento e
+              análise — do registro de um gasto ao relatório consolidado do mês.
             </p>
           </div>
           <nav aria-label="Atalhos para seções da página" className="flex min-w-0 flex-wrap items-center gap-1.5 sm:justify-end">
