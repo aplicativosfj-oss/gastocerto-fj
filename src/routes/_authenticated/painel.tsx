@@ -624,9 +624,6 @@ function DashboardPage() {
         
         {!loadingTransactions && (
           <div className="space-y-4">
-        
-        {!loadingTransactions && (
-          <div className="space-y-4">
 
 
             <section className="rounded-2xl border border-border bg-card p-4">
