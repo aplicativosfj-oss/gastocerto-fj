@@ -134,6 +134,7 @@ export function TransactionDialog({
   const [suggestion, setSuggestion] = useState<{ id: string; name: string; subCategoryId?: string | null } | null>(null);
   const [subCategoryId, setSubCategoryId] = useState((transaction as any)?.sub_category_id ?? "");
   const saveFeedback = useSaveCategoryFeedback();
+  const [revenueSuggestion, setRevenueSuggestion] = useState<{ message: string; date: string } | null>(null);
 
   const { data: lastTransaction } = useLastTransaction(kind);
 
@@ -493,6 +494,27 @@ export function TransactionDialog({
                 className="mt-1.5"
                 aria-invalid={Boolean(errors.date)}
               />
+              {revenueSuggestion && (
+                <Alert className="mt-2 py-2 bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800">
+                  <div className="flex flex-col gap-1 w-full">
+                    <p className="text-[11px] text-emerald-700 dark:text-emerald-300 font-medium">
+                      {revenueSuggestion.message}
+                    </p>
+                    <Button 
+                      type="button" 
+                      variant="link" 
+                      className="h-auto p-0 text-[11px] text-emerald-600 underline justify-start"
+                      onClick={() => {
+                        setDate(revenueSuggestion.date);
+                        setRevenueSuggestion(null);
+                        setNotes((n) => n ? `${n} (Transferido para o mês correto)` : "Transferido para o mês correto");
+                      }}
+                    >
+                      Mover para {formatDate(revenueSuggestion.date)}
+                    </Button>
+                  </div>
+                </Alert>
+              )}
               <div className="mt-2 flex flex-wrap gap-2">
                 <Button type="button" variant="outline" size="sm" onClick={() => shiftDate("today")}>
                   Hoje
