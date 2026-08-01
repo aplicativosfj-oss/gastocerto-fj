@@ -54,7 +54,7 @@ import {
   seriesColor,
   tooltipProps,
 } from "@/lib/chart-theme";
-import { formatCurrency } from "@/lib/format";
+import { formatCurrency, formatDate } from "@/lib/format";
 import { MONTH_NAMES, isoDate, monthRange, periodDefaultDate } from "@/lib/finance";
 import { useCategories, useProfile } from "@/lib/queries";
 import { useBudgets, useTransactions } from "@/lib/transactions";
@@ -317,18 +317,27 @@ function DashboardPage() {
             <section className="grid gap-3 auto-cards-sm">
               <StatCard
                 tile="var(--acc-4)"
-                label="Gasto hoje"
+                label={`Gasto hoje · ${formatDate(isoDate(today))}`}
                 value={formatCurrency(metrics.today)}
+                hint={
+                  detailRows.todayExpenses.length === 0
+                    ? "Nenhum lançamento hoje"
+                    : `${detailRows.todayExpenses.length} lançamento${
+                        detailRows.todayExpenses.length > 1 ? "s" : ""
+                      } só de hoje`
+                }
                 icon={<TrendingDown className="size-4" />}
                 onClick={() =>
                   setDetail({
-                    label: "Gasto hoje",
+                    label: `Gasto hoje · ${formatDate(isoDate(today))}`,
                     value: formatCurrency(metrics.today),
-                    formula: "Soma das despesas com data de hoje.",
+                    formula:
+                      "Apenas despesas com a data de hoje. Os outros dias da semana ficam no card “Gasto nos 7 dias”.",
                     rows: detailRows.todayExpenses,
                   })
                 }
               />
+
               <StatCard
                 tile="var(--acc-3)"
                 label="Gasto nos 7 dias"

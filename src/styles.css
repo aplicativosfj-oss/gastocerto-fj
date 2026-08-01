@@ -482,11 +482,22 @@
     color: var(--color-foreground);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
-    background-image: 
-      radial-gradient(at 0% 0%, oklch(0.68 0.13 255 / 0.03) 0px, transparent 50%),
-      radial-gradient(at 100% 0%, oklch(0.72 0.14 162 / 0.03) 0px, transparent 50%);
+    /* Fundo fintech: brilhos radiais + malha sutil de grade. */
+    background-image:
+      radial-gradient(at 8% -5%, oklch(0.68 0.13 255 / 0.16) 0px, transparent 55%),
+      radial-gradient(at 95% 0%, oklch(0.72 0.14 162 / 0.14) 0px, transparent 55%),
+      radial-gradient(at 50% 110%, oklch(0.7 0.12 300 / 0.1) 0px, transparent 60%),
+      linear-gradient(oklch(1 0 0 / 0.022) 1px, transparent 1px),
+      linear-gradient(90deg, oklch(1 0 0 / 0.022) 1px, transparent 1px);
+    background-size:
+      auto,
+      auto,
+      auto,
+      32px 32px,
+      32px 32px;
     background-attachment: fixed;
   }
+
 
   :focus-visible {
     outline: 2px solid var(--color-ring);
