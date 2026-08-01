@@ -1,5 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { CalendarClock, Flame, Plus, TrendingDown } from "lucide-react";
+import {
+  CalendarClock,
+  FileSpreadsheet,
+  FileText,
+  FileUp,
+  Flame,
+  Plus,
+  TrendingDown,
+} from "lucide-react";
+
 import { useMemo, useState } from "react";
 import {
   Bar,
