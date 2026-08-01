@@ -24,6 +24,7 @@ import { Fragment, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
+import { RefreshCw } from "lucide-react";
 import { FilterField, FilterPanel } from "@/components/finance/filter-panel";
 import { FilterPresets } from "@/components/finance/filter-presets";
 import { MetaChip, PageHeader } from "@/components/finance/page-header";
@@ -149,12 +150,19 @@ const VIEWS = [
   },
 ] as const;
 
+const TYPE_LABELS: Record<string, string> = {
+  all: "Todos os lançamentos",
+  expense: "Despesas",
+  income: "Receitas",
+  recurring: "Lançamentos fixos",
+};
+
 function TransactionsPage() {
   const today = new Date();
   const search_ = Route.useSearch();
   const navigate = Route.useNavigate();
 
-  const { year: storedYear, month: storedMonth, setPeriod: setStoredPeriod } = usePeriodStore();
+  const { year: storedYear, month: storedMonth, typeFilter, setPeriod: setStoredPeriod, setTypeFilter, reset } = usePeriodStore();
   
   const period = useMemo(() => ({
     year: search_.ano ?? storedYear ?? today.getFullYear(),
@@ -173,6 +181,37 @@ function TransactionsPage() {
     });
   };
 
+  const handleReset = () => {
+    reset();
+    navigate({
+      search: {
+        ano: new Date().getFullYear(),
+        mes: new Date().getMonth() + 1,
+        tipo: "all",
+      } as any,
+      replace: true,
+    });
+    // Forçar reset de estados locais se necessário
+    setSearch("");
+    setMerchantFilter("");
+    setFromDate("");
+    setToDate("");
+    setCategoryFilter("all");
+    setStatusFilter("all");
+    setVehicleFilter("all");
+  };
+
+  const handleTypeChange = (next: string) => {
+    setTypeFilter(next as any);
+    navigate({
+      search: (prev: any) => ({
+        ...prev,
+        tipo: next,
+      }) as any,
+      replace: true,
+    });
+  };
+
   const [vehicleFilter, setVehicleFilter] = useState(search_.veiculo ?? "all");
   const { data: vehicles } = useVehicles(true);
   const range = monthRange(period.year, period.month);
@@ -187,7 +226,7 @@ function TransactionsPage() {
   const [toDate, setToDate] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [typeFilter, setTypeFilter] = useState<string>(search_.tipo ?? "expense");
+  const currentTypeFilter = search_.tipo ?? typeFilter ?? "expense";
   const [sort, setSort] = useState("date_desc");
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<string[]>([]);
@@ -520,11 +559,23 @@ function TransactionsPage() {
             </div>
 
             <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 [scrollbar-width:none] lg:overflow-visible lg:pb-0 [&::-webkit-scrollbar]:hidden [&>*]:shrink-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="h-9 rounded-lg px-3 text-xs font-medium text-muted-foreground hover:text-foreground flex"
+                onClick={handleReset}
+                title="Redefinir mês e filtros"
+              >
+                <RefreshCw className="mr-1.5 size-3" />
+                <span className="hidden xs:inline">Redefinir</span>
+              </Button>
               <PeriodPicker
                 year={period.year}
                 month={period.month}
                 onChange={updatePeriod}
               />
+            </div>
               <span aria-hidden className="mx-0.5 hidden h-6 w-px bg-border lg:block" />
               <Button
                 variant="outline"
@@ -622,7 +673,7 @@ function TransactionsPage() {
             if (patch.to !== undefined) setToDate(patch.to);
             if (patch.category !== undefined) setCategoryFilter(patch.category);
             if (patch.status !== undefined) setStatusFilter(patch.status);
-            if (patch.type !== undefined) setTypeFilter(patch.type);
+            if (patch.type !== undefined) setTypeFilter(patch.type as any);
             if (patch.vehicle !== undefined) setVehicleFilter(patch.vehicle);
             if (patch.sort !== undefined) setSort(patch.sort);
             setPage(1);

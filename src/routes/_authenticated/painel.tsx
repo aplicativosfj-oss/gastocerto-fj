@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   AlertTriangle,
@@ -89,7 +90,7 @@ export const Route = createFileRoute("/_authenticated/painel")({
 function DashboardPage() {
   const navigate = useNavigate();
   const today = new Date();
-  const { year: storedYear, month: storedMonth, setPeriod: setStoredPeriod } = usePeriodStore();
+  const { year: storedYear, month: storedMonth, setPeriod: setStoredPeriod, reset } = usePeriodStore();
   const [period, setPeriod] = useState({ year: storedYear, month: storedMonth });
 
   const handlePeriodChange = (next: { year: number; month: number }) => {
@@ -383,6 +384,25 @@ function DashboardPage() {
             </p>
           </div>
           <div className="col-span-2 flex flex-wrap items-center gap-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="h-9 rounded-lg px-2 text-xs font-medium text-muted-foreground hover:text-foreground"
+              onClick={() => {
+                reset();
+                navigate({
+                  search: {
+                    ano: new Date().getFullYear(),
+                    mes: new Date().getMonth() + 1,
+                  } as any,
+                  replace: true,
+                });
+              }}
+              title="Voltar para hoje e limpar filtros"
+            >
+              <RefreshCw className="mr-1.5 size-3" />
+              Redefinir
+            </Button>
             <PeriodPicker year={period.year} month={period.month} onChange={handlePeriodChange} />
             <QuickCategoryMenu
               kind="income"
