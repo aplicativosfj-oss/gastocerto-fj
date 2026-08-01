@@ -759,7 +759,7 @@ function TransactionsPage() {
         ) : null}
 
         {/* Mobile: cartões densos, com cor por natureza e ações essenciais. */}
-        <section className="space-y-2 sm:hidden" aria-label="Lançamentos do período">
+        <section className={cn("space-y-2 sm:hidden transition-all duration-300", isLoading && "opacity-50 blur-[1px]")} aria-label="Lançamentos do período">
           {isLoading ? (
             Array.from({ length: 5 }).map((_, index) => (
               <Skeleton key={index} className="h-20 rounded-2xl" />
