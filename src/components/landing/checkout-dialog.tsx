@@ -61,6 +61,8 @@ export function CheckoutDialog({
   const [charge, setCharge] = useState<Charge | null>(null);
   const [status, setStatus] = useState("pending");
   const [licenseKey, setLicenseKey] = useState<string | null>(null);
+  const [verification, setVerification] = useState<Verification | null>(null);
+  const [code, setCode] = useState("");
   const pollRef = useRef<number | null>(null);
 
   const plan = CHECKOUT_PLANS.find((item) => item.slug === planSlug) ?? CHECKOUT_PLANS[0];
@@ -74,6 +76,8 @@ export function CheckoutDialog({
     setCharge(null);
     setLicenseKey(null);
     setStatus("pending");
+    setVerification(null);
+    setCode("");
   }, [open, initialPlan, initialCycle]);
 
   // Rede de segurança: consulta o Mercado Pago a cada 5s enquanto o Pix não é pago.
@@ -98,9 +102,29 @@ export function CheckoutDialog({
     };
   }, [step, charge]);
 
+  // Etapa 1: envia o código para o e-mail. Nenhum cadastro é criado ainda.
+  const verify = useMutation({
+    mutationFn: () =>
+      requestCheckoutVerification({ data: { planSlug, cycle, fullName, email, cpf } }),
+    onSuccess: (result) => {
+      setVerification(result);
+      setCode("");
+      setStep("code");
+      toast.success(
+        result.emailDelivered
+          ? `Código enviado para ${result.email}.`
+          : "Código gerado. O envio por e-mail depende do domínio remetente configurado.",
+      );
+    },
+    onError: (error) =>
+      toast.error(error instanceof Error ? error.message : "Não foi possível enviar o código."),
+  });
+
   const create = useMutation({
     mutationFn: () =>
-      startPixCheckout({ data: { planSlug, cycle, fullName, email, cpf } }),
+      startPixCheckout({
+        data: { planSlug, cycle, fullName, email, cpf, verificationId: verification?.verificationId ?? "" },
+      }),
     onSuccess: (result) => {
       setCharge(result);
       setStatus(result.status);
@@ -109,6 +133,21 @@ export function CheckoutDialog({
     onError: (error) =>
       toast.error(error instanceof Error ? error.message : "Não foi possível gerar o Pix."),
   });
+
+  // Etapa 2: confirma o código e só então segue para a cobrança.
+  const confirm = useMutation({
+    mutationFn: () =>
+      confirmCheckoutVerification({
+        data: { verificationId: verification?.verificationId ?? "", code: code.trim() },
+      }),
+    onSuccess: () => {
+      toast.success("E-mail confirmado. Gerando seu Pix...");
+      create.mutate();
+    },
+    onError: (error) =>
+      toast.error(error instanceof Error ? error.message : "Código inválido."),
+  });
+
 
   const copy = async (value: string, label: string) => {
     try {
