@@ -40,3 +40,21 @@ export async function sendLicenseKeyEmail(input: {
   // este ponto envia a chave usando os modelos de e-mail do app.
   return { delivered: false, channel: "onscreen", reason: "email_sender_unavailable" };
 }
+
+/** Envia o código de verificação do e-mail antes de criar qualquer registro. */
+export async function sendVerificationCodeEmail(input: {
+  to: string;
+  fullName: string | null;
+  code: string;
+  minutes: number;
+}): Promise<DeliveryOutcome> {
+  const domain = senderDomain();
+  if (!domain) {
+    return { delivered: false, channel: "onscreen", reason: "email_domain_not_configured" };
+  }
+
+  // Assim que o domínio remetente estiver verificado, este ponto envia o código
+  // usando os modelos de e-mail do app. Até então o código aparece na tela.
+  console.info("[checkout] código de verificação gerado para", input.to.slice(0, 3) + "***");
+  return { delivered: false, channel: "onscreen", reason: "email_sender_unavailable" };
+}
