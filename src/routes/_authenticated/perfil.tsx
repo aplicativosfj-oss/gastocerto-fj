@@ -94,24 +94,26 @@ function ProfilePage() {
     toast.success("Perfil atualizado!");
   }
 
-  async function handleAvatar(event: React.ChangeEvent<HTMLInputElement>) {
+  function handlePick(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
-    if (!file || !user) return;
-
+    event.target.value = "";
+    if (!file) return;
     const validationError = validateAvatarFile(file);
     if (validationError) {
       toast.error(validationError);
-      event.target.value = "";
       return;
     }
+    setPending(file);
+  }
 
+  async function handleCropped(blob: Blob) {
+    if (!user) return;
     setUploading(true);
-    const extension = file.type === "image/png" ? "png" : file.type === "image/webp" ? "webp" : "jpg";
-    const path = `${user.id}/avatar.${extension}`;
+    const path = `${user.id}/avatar.jpg`;
 
     const { error: uploadError } = await supabase.storage
       .from("avatars")
-      .upload(path, file, { upsert: true, contentType: file.type });
+      .upload(path, blob, { upsert: true, contentType: "image/jpeg" });
 
     if (uploadError) {
       console.error("[perfil] falha no upload", uploadError.message);
@@ -125,7 +127,7 @@ function ProfilePage() {
       .update({ avatar_url: path })
       .eq("user_id", user.id);
     setUploading(false);
-    event.target.value = "";
+    setPending(null);
 
     if (updateError) {
       console.error("[perfil] falha ao salvar avatar", updateError.message);
@@ -135,6 +137,7 @@ function ProfilePage() {
     await invalidateProfile();
     toast.success("Foto atualizada!");
   }
+
 
   if (isLoading) {
     return (
