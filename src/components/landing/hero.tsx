@@ -102,25 +102,17 @@ export function Hero() {
                 <ArrowRight className="size-4 shrink-0" aria-hidden="true" />
               </Link>
             </Button>
-            <DemoDialog>
+            <CodeAccessDialog>
               <Button
                 variant="outline"
                 className="h-12 w-full justify-center border-white/25 bg-white/10 px-4 text-sm text-white backdrop-blur hover:bg-white/20 hover:text-white sm:h-11 sm:w-auto sm:bg-white/5 sm:px-6 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
               >
-                <PlayCircle className="size-4 shrink-0" aria-hidden="true" />
-                <span className="truncate">Ver funcionando</span>
+                <KeyRound className="size-4 shrink-0" aria-hidden="true" />
+                <span className="truncate">Tenho um código</span>
               </Button>
-            </DemoDialog>
-            <a
-              href="#explorar"
-              onClick={(event) => handleAnchorClick(event, "#explorar")}
-              aria-label="Explorar seções"
-              className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-md text-[13px] font-medium text-white/90 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent sm:h-11 sm:w-auto sm:px-3 sm:text-sm"
-            >
-              <span>Explorar seções</span>
-              <ChevronDown className="size-4 shrink-0" aria-hidden="true" />
-            </a>
+            </CodeAccessDialog>
           </div>
+
 
           {/* phone-only summary card replaces the empty photo space */}
           <div className="mt-6 rounded-2xl border border-white/15 bg-[oklch(0.22_0.035_258/0.72)] p-3.5 shadow-lifted backdrop-blur-md sm:hidden">
