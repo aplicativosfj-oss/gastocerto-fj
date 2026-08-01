@@ -35,19 +35,26 @@ export function useShareLinks() {
   });
 }
 
+export type ShareLinkInput = {
+  label?: string;
+  password: string;
+  year: number;
+  month: number;
+  includeTransactions: boolean;
+  includeNotes: boolean;
+  includeTotals: boolean;
+  includeCharts: boolean;
+  includeCategories: boolean;
+  includeAmounts: boolean;
+  /** Data e hora exatas de expiração em ISO, ou `null` para nunca expirar. */
+  expiresAt: string | null;
+};
+
 export function useCreateShareLink() {
   const queryClient = useQueryClient();
   const create = useServerFn(createShareLink);
   return useMutation({
-    mutationFn: async (input: {
-      label?: string;
-      password: string;
-      year: number;
-      month: number;
-      includeTransactions: boolean;
-      includeNotes: boolean;
-      expiresInDays: number | null;
-    }) => create({ data: input }),
+    mutationFn: async (input: ShareLinkInput) => create({ data: input }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["share-links"] }),
   });
 }
