@@ -50,6 +50,7 @@ import { SupportTicketsPanel } from "@/components/admin/support-tickets-panel";
 import { AnnouncementsPanel } from "@/components/admin/announcements-panel";
 import { PlanConfigsPanel } from "@/components/admin/plan-configs-panel";
 import { BusinessDashboard } from "@/components/admin/business-dashboard";
+import { ClientCodesPanel } from "@/components/admin/client-codes-panel";
 
 import {
   adminCancelSubscription,
