@@ -15,7 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { formatDate } from "@/lib/format";
+import { formatDateTime } from "@/lib/format";
 import {
   shareLinkStatus,
   shareLinkUrl,
@@ -40,12 +40,20 @@ const MONTHS = [
   "Dezembro",
 ];
 
-const DURATIONS = [
-  { label: "7 dias", value: 7 },
-  { label: "15 dias", value: 15 },
-  { label: "30 dias", value: 30 },
-  { label: "Sem expirar", value: null },
+const PRESETS = [
+  { label: "24 horas", hours: 24 },
+  { label: "7 dias", hours: 24 * 7 },
+  { label: "15 dias", hours: 24 * 15 },
+  { label: "30 dias", hours: 24 * 30 },
 ] as const;
+
+/** Converte um instante em valor aceito pelo input datetime-local (hora local). */
+function toLocalInput(date: Date) {
+  const pad = (value: number) => String(value).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(
+    date.getHours(),
+  )}:${pad(date.getMinutes())}`;
+}
 
 type Props = { year: number; month: number };
 
@@ -54,15 +62,27 @@ export function ShareLinkDialog({ year, month }: Props) {
   const [open, setOpen] = useState(false);
   const [label, setLabel] = useState("");
   const [password, setPassword] = useState("");
-  const [includeTransactions, setIncludeTransactions] = useState(true);
-  const [includeNotes, setIncludeNotes] = useState(false);
-  const [expiresInDays, setExpiresInDays] = useState<number | null>(7);
+  const [neverExpires, setNeverExpires] = useState(false);
+  const [expiresLocal, setExpiresLocal] = useState(() =>
+    toLocalInput(new Date(Date.now() + 7 * 86_400_000)),
+  );
+  const [visibility, setVisibility] = useState({
+    totals: true,
+    charts: true,
+    categories: true,
+    transactions: true,
+    notes: false,
+    amounts: true,
+  });
   const [lastUrl, setLastUrl] = useState<string | null>(null);
 
   const { data: links } = useShareLinks();
   const create = useCreateShareLink();
   const revoke = useRevokeShareLink();
   const remove = useDeleteShareLink();
+
+  const setFlag = (key: keyof typeof visibility) => (value: boolean) =>
+    setVisibility((current) => ({ ...current, [key]: value }));
 
   const copy = async (url: string) => {
     await navigator.clipboard.writeText(url);
@@ -74,15 +94,33 @@ export function ShareLinkDialog({ year, month }: Props) {
       toast.error("Defina uma senha com pelo menos 4 caracteres.");
       return;
     }
+    let expiresAt: string | null = null;
+    if (!neverExpires) {
+      const parsed = new Date(expiresLocal);
+      if (Number.isNaN(parsed.getTime())) {
+        toast.error("Informe a data e a hora de expiração.");
+        return;
+      }
+      if (parsed.getTime() <= Date.now()) {
+        toast.error("A expiração precisa ser no futuro.");
+        return;
+      }
+      expiresAt = parsed.toISOString();
+    }
+
     try {
       const row = await create.mutateAsync({
         label: label.trim() || undefined,
         password: password.trim(),
         year,
         month,
-        includeTransactions,
-        includeNotes,
-        expiresInDays,
+        includeTransactions: visibility.transactions,
+        includeNotes: visibility.transactions && visibility.notes,
+        includeTotals: visibility.totals,
+        includeCharts: visibility.charts,
+        includeCategories: visibility.categories,
+        includeAmounts: visibility.amounts,
+        expiresAt,
       });
       const url = shareLinkUrl(row.token);
       setLastUrl(url);
@@ -94,6 +132,24 @@ export function ShareLinkDialog({ year, month }: Props) {
       toast.error("Não foi possível criar o link.");
     }
   };
+
+  const options: Array<{ key: keyof typeof visibility; label: string; hint: string; disabled?: boolean }> = [
+    { key: "totals", label: "Totais do mês", hint: "Receitas, despesas e saldo" },
+    { key: "charts", label: "Gráficos", hint: "Distribuição visual das despesas" },
+    { key: "categories", label: "Categorias", hint: "Ranking de gastos por categoria" },
+    { key: "transactions", label: "Lista de lançamentos", hint: "Cada gasto e receita do mês" },
+    {
+      key: "notes",
+      label: "Minhas anotações",
+      hint: "Observações escritas nos lançamentos",
+      disabled: !visibility.transactions,
+    },
+    {
+      key: "amounts",
+      label: "Valores detalhados",
+      hint: "Desligue para mostrar só percentuais",
+    },
+  ];
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -138,47 +194,74 @@ export function ShareLinkDialog({ year, month }: Props) {
             </div>
           </div>
 
-          <div>
-            <Label className="text-xs uppercase tracking-wide text-muted-foreground">
-              Validade
-            </Label>
-            <div className="mt-1.5 flex flex-wrap gap-2">
-              {DURATIONS.map((item) => (
+          <div className="space-y-2 rounded-xl border border-border p-3">
+            <div className="flex items-center justify-between gap-3">
+              <Label htmlFor="share-expires" className="text-xs uppercase tracking-wide text-muted-foreground">
+                Expiração automática
+              </Label>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground">Sem expirar</span>
+                <Switch
+                  id="share-never"
+                  checked={neverExpires}
+                  onCheckedChange={setNeverExpires}
+                  aria-label="Link sem expiração"
+                />
+              </div>
+            </div>
+            <Input
+              id="share-expires"
+              type="datetime-local"
+              value={expiresLocal}
+              min={toLocalInput(new Date(Date.now() + 60_000))}
+              onChange={(event) => setExpiresLocal(event.target.value)}
+              disabled={neverExpires}
+            />
+            <div className="flex flex-wrap gap-2">
+              {PRESETS.map((item) => (
                 <Button
                   key={item.label}
                   type="button"
                   size="sm"
-                  variant={expiresInDays === item.value ? "secondary" : "outline"}
-                  onClick={() => setExpiresInDays(item.value)}
+                  variant="outline"
+                  disabled={neverExpires}
+                  onClick={() => setExpiresLocal(toLocalInput(new Date(Date.now() + item.hours * 3_600_000)))}
                 >
                   {item.label}
                 </Button>
               ))}
             </div>
+            <p className="text-[11px] text-muted-foreground">
+              {neverExpires
+                ? "O link fica ativo até você revogar."
+                : `O acesso é bloqueado automaticamente em ${
+                    Number.isNaN(new Date(expiresLocal).getTime())
+                      ? "—"
+                      : formatDateTime(new Date(expiresLocal).toISOString())
+                  }.`}
+            </p>
           </div>
 
           <div className="space-y-3 rounded-xl border border-border p-3">
-            <div className="flex items-center justify-between gap-3">
-              <Label htmlFor="share-tx" className="text-sm font-normal">
-                Mostrar a lista de lançamentos
-              </Label>
-              <Switch
-                id="share-tx"
-                checked={includeTransactions}
-                onCheckedChange={setIncludeTransactions}
-              />
-            </div>
-            <div className="flex items-center justify-between gap-3">
-              <Label htmlFor="share-notes" className="text-sm font-normal">
-                Incluir minhas anotações
-              </Label>
-              <Switch
-                id="share-notes"
-                checked={includeNotes}
-                onCheckedChange={setIncludeNotes}
-                disabled={!includeTransactions}
-              />
-            </div>
+            <p className="text-xs uppercase tracking-wide text-muted-foreground">
+              O que o visitante pode ver
+            </p>
+            {options.map((item) => (
+              <div key={item.key} className="flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <Label htmlFor={`share-${item.key}`} className="text-sm font-normal">
+                    {item.label}
+                  </Label>
+                  <p className="text-[11px] text-muted-foreground">{item.hint}</p>
+                </div>
+                <Switch
+                  id={`share-${item.key}`}
+                  checked={visibility[item.key]}
+                  onCheckedChange={setFlag(item.key)}
+                  disabled={item.disabled}
+                />
+              </div>
+            ))}
           </div>
 
           <Button type="button" className="w-full" onClick={submit} disabled={create.isPending}>
@@ -220,7 +303,9 @@ export function ShareLinkDialog({ year, month }: Props) {
                       </p>
                       <p className="text-[11px] text-muted-foreground">
                         {MONTHS[link.month - 1]}/{link.year} · {link.view_count} acesso(s)
-                        {link.expires_at ? ` · até ${formatDate(link.expires_at)}` : " · sem expirar"}
+                        {link.expires_at
+                          ? ` · até ${formatDateTime(link.expires_at)}`
+                          : " · sem expirar"}
                       </p>
                     </div>
                     <div className="flex shrink-0 items-center gap-1.5">

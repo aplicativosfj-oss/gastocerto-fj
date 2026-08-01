@@ -1,8 +1,9 @@
 import { useMemo, useState } from "react";
-import { ArrowLeft, Check, Delete, Eye, SlidersHorizontal, Smartphone } from "lucide-react";
+import { ArrowLeft, Check, Delete, Eye, SlidersHorizontal, Smartphone, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 import { readRecentCategories, rememberCategory } from "@/components/finance/category-picker";
+import { CreditPurchaseDialog } from "@/components/finance/credit-purchase-dialog";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -78,6 +79,8 @@ export function ExpenseCardsDialog({
   const [phoneMode, setPhoneMode] = useState(false);
   const [gigas, setGigas] = useState("");
   const [validityDays, setValidityDays] = useState("30");
+  // Compras de créditos (plataformas de IA/apps): lançamento em lote.
+  const [creditsOpen, setCreditsOpen] = useState(false);
 
 
   const expenseCategories = useMemo(() => {
@@ -351,6 +354,22 @@ export function ExpenseCardsDialog({
             ) : null}
 
 
+
+            <button
+              type="button"
+              onClick={() => setCreditsOpen(true)}
+              className="flex w-full items-center gap-3 rounded-xl border border-primary/40 bg-primary/5 p-3 text-left transition hover:-translate-y-0.5 hover:shadow-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              <span className="flex size-9 items-center justify-center rounded-lg bg-primary/15 text-primary">
+                <Sparkles className="size-4" aria-hidden />
+              </span>
+              <span className="min-w-0">
+                <span className="block text-sm font-semibold">Compra de créditos</span>
+                <span className="block text-[11px] text-muted-foreground">
+                  Quantidade, preço por crédito e total — várias datas de uma vez
+                </span>
+              </span>
+            </button>
 
             <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
               {expenseCategories.slice(0, 24).map((category) => {
@@ -796,6 +815,8 @@ export function ExpenseCardsDialog({
           </div>
         </DialogContent>
       </Dialog>
+
+      <CreditPurchaseDialog open={creditsOpen} onOpenChange={setCreditsOpen} />
     </Dialog>
   );
 }

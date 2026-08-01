@@ -40,6 +40,7 @@ import { RecurringAlerts } from "@/components/finance/recurring-alerts";
 import { MetricDetailDialog, type MetricDetail } from "@/components/finance/metric-detail-dialog";
 import { QuickCategoryMenu, type QuickPick } from "@/components/finance/quick-category-menu";
 import { PeriodPicker } from "@/components/finance/period-picker";
+import { CardMonthSummary } from "@/components/finance/card-month-summary";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -198,11 +199,12 @@ function DashboardPage() {
 
   const byCategory = useMemo(() => {
     const names = new Map((categories ?? []).map((category) => [category.id, category]));
-    const totals = new Map<string, { name: string; value: number; color: string }>();
+    const totals = new Map<string, { id: string; name: string; value: number; color: string }>();
     for (const row of metrics.expenses) {
       const category = row.category_id ? names.get(row.category_id) : undefined;
       const key = category?.id ?? "sem-categoria";
       const current = totals.get(key) ?? {
+        id: key,
         name: category?.name ?? "Sem categoria",
         value: 0,
         color: category?.color ?? "#94a3b8",
@@ -222,6 +224,63 @@ function DashboardPage() {
       { name: "Não essenciais", value: metrics.totalExpense - essential, color: CHART_TOKENS.warning },
     ];
   }, [metrics.expenses, metrics.totalExpense]);
+
+  /** Detalhamento profissional ao clicar em qualquer ponto dos gráficos. */
+  const openCategoryDetail = (categoryId: string, name: string) => {
+    const rows = metrics.expenses.filter((row) =>
+      categoryId === "sem-categoria" ? !row.category_id : row.category_id === categoryId,
+    );
+    const total = rows.reduce((sum, row) => sum + Number(row.amount), 0);
+    setDetail({
+      label: `Gastos em ${name}`,
+      value: formatCurrency(total),
+      hint: `${rows.length} lançamento(s) em ${MONTH_NAMES[period.month - 1]} de ${period.year}`,
+      formula: "Soma das despesas do período classificadas nesta categoria.",
+      rows,
+      extra: [
+        {
+          label: "Participação nas despesas",
+          value:
+            metrics.totalExpense > 0
+              ? `${((total / metrics.totalExpense) * 100).toFixed(1)}%`
+              : "—",
+        },
+        {
+          label: "Ticket médio",
+          value: rows.length > 0 ? formatCurrency(total / rows.length) : "—",
+        },
+      ],
+    });
+  };
+
+  const openDayDetail = (day: number) => {
+    const iso = `${period.year}-${String(period.month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+    const rows = (transactions ?? []).filter((row) => row.transaction_date === iso);
+    const expense = rows
+      .filter((row) => row.transaction_type === "expense")
+      .reduce((sum, row) => sum + Number(row.amount), 0);
+    setDetail({
+      label: `Movimentos de ${formatDate(iso)}`,
+      value: formatCurrency(expense),
+      hint: `${rows.length} lançamento(s) no dia`,
+      formula: "Soma das despesas lançadas exatamente nesta data.",
+      rows,
+    });
+  };
+
+  const openEssentialDetail = (essential: boolean) => {
+    const rows = metrics.expenses.filter((row) => Boolean(row.is_essential) === essential);
+    const total = rows.reduce((sum, row) => sum + Number(row.amount), 0);
+    setDetail({
+      label: essential ? "Gastos essenciais" : "Gastos não essenciais",
+      value: formatCurrency(total),
+      hint: `${rows.length} lançamento(s)`,
+      formula: essential
+        ? "Despesas marcadas como essenciais no período."
+        : "Despesas não marcadas como essenciais no período.",
+      rows,
+    });
+  };
 
   const budgetAlerts = useMemo(() => {
     const names = new Map((categories ?? []).map((category) => [category.id, category.name]));
@@ -551,15 +610,27 @@ function DashboardPage() {
             <section className="auto-cards-lg">
               <ChartCard
                 title="Gastos por dia"
-                summary={`Maior gasto diário: ${formatCurrency(Math.max(0, ...byDay.map((item) => item.gasto)))}.`}
+                summary={`Maior gasto diário: ${formatCurrency(Math.max(0, ...byDay.map((item) => item.gasto)))}. Clique em uma barra para ver o dia.`}
               >
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={byDay}>
+                  <BarChart
+                    data={byDay}
+                    onClick={(state: { activeLabel?: string | number }) => {
+                      const day = Number(state?.activeLabel);
+                      if (day) openDayDetail(day);
+                    }}
+                  >
                     <CartesianGrid {...gridProps} />
                     <XAxis dataKey="day" {...axisProps} />
                     <YAxis {...axisProps} width={44} />
                     <Tooltip {...tooltipProps} formatter={(value: number) => formatCurrency(value)} />
-                    <Bar dataKey="gasto" name="Gasto" fill={CHART_TOKENS.neutral} radius={barRadius} />
+                    <Bar
+                      dataKey="gasto"
+                      name="Gasto"
+                      fill={CHART_TOKENS.neutral}
+                      radius={barRadius}
+                      className="cursor-pointer"
+                    />
                   </BarChart>
                 </ResponsiveContainer>
               </ChartCard>
@@ -568,13 +639,23 @@ function DashboardPage() {
                 title="Gastos por categoria"
                 summary={
                   byCategory.length > 0
-                    ? `Maior categoria: ${byCategory[0].name} com ${formatCurrency(byCategory[0].value)}.`
+                    ? `Maior categoria: ${byCategory[0].name} com ${formatCurrency(byCategory[0].value)}. Clique na fatia para detalhar.`
                     : "Sem gastos categorizados neste período."
                 }
               >
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
-                    <Pie data={byCategory} dataKey="value" nameKey="name" innerRadius={42} outerRadius={72}>
+                    <Pie
+                      data={byCategory}
+                      dataKey="value"
+                      nameKey="name"
+                      innerRadius={42}
+                      outerRadius={72}
+                      className="cursor-pointer"
+                      onClick={(entry: { id?: string; name?: string }) => {
+                        if (entry?.id) openCategoryDetail(entry.id, entry.name ?? "Categoria");
+                      }}
+                    >
                       {byCategory.map((entry, index) => (
                         <Cell
                           key={entry.name}
@@ -630,7 +711,16 @@ function DashboardPage() {
               >
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
-                    <Pie data={essentialSplit} dataKey="value" nameKey="name" outerRadius={72}>
+                    <Pie
+                      data={essentialSplit}
+                      dataKey="value"
+                      nameKey="name"
+                      outerRadius={72}
+                      className="cursor-pointer"
+                      onClick={(entry: { name?: string }) =>
+                        openEssentialDetail(entry?.name === "Essenciais")
+                      }
+                    >
                       {essentialSplit.map((entry) => (
                         <Cell key={entry.name} fill={entry.color} stroke="var(--card)" strokeWidth={2} />
                       ))}
@@ -641,6 +731,12 @@ function DashboardPage() {
                 </ResponsiveContainer>
               </ChartCard>
             </section>
+
+            <CardMonthSummary
+              transactions={transactions ?? []}
+              categories={categories ?? []}
+              monthLabel={`${MONTH_NAMES[period.month - 1]}/${period.year}`}
+            />
 
             <section className="auto-cards-lg">
               <div className="rounded-2xl border border-border bg-card p-4">
