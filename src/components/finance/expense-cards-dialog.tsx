@@ -445,6 +445,67 @@ export function ExpenseCardsDialog({
               />
             </div>
 
+            {phoneMode ? (
+              <div className="rounded-xl border border-primary/30 bg-primary/5 p-3">
+                <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-primary">
+                  <Smartphone className="size-3.5" aria-hidden />
+                  Recarga / plano de celular
+                </p>
+                <div className="mt-2 grid grid-cols-2 gap-2">
+                  <div>
+                    <Label htmlFor="qk-gigas" className="text-[11px] text-muted-foreground">
+                      Gigas contratados
+                    </Label>
+                    <Input
+                      id="qk-gigas"
+                      inputMode="decimal"
+                      value={gigas}
+                      onChange={(event) =>
+                        setGigas(event.target.value.replace(/[^\d.,]/g, "").slice(0, 6))
+                      }
+                      placeholder="ex.: 20"
+                      className="mt-1 h-9 tabular-nums"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="qk-validity" className="text-[11px] text-muted-foreground">
+                      Validade (dias)
+                    </Label>
+                    <Input
+                      id="qk-validity"
+                      inputMode="numeric"
+                      value={validityDays}
+                      onChange={(event) =>
+                        setValidityDays(event.target.value.replace(/\D/g, "").slice(0, 3))
+                      }
+                      className="mt-1 h-9 tabular-nums"
+                    />
+                  </div>
+                </div>
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {["7", "15", "30", "90"].map((option) => (
+                    <Button
+                      key={option}
+                      type="button"
+                      size="sm"
+                      variant={validityDays === option ? "secondary" : "outline"}
+                      className="h-7 text-[11px]"
+                      onClick={() => setValidityDays(option)}
+                    >
+                      {option} dias
+                    </Button>
+                  ))}
+                </div>
+                <p className="mt-2 text-[11px] text-muted-foreground">
+                  {validUntil
+                    ? `Válido até ${formatDate(`${validUntil}T12:00:00`)}`
+                    : "Informe a validade em dias."}
+                </p>
+              </div>
+            ) : null}
+
+
+
             <div>
               <Label className="text-[11px] uppercase tracking-wide text-muted-foreground">
                 Tipo de gasto
