@@ -939,8 +939,12 @@ function DashboardPage() {
 
       <TransactionDialog
         open={dialogOpen}
-        onOpenChange={setDialogOpen}
+        onOpenChange={(next) => {
+          setDialogOpen(next);
+          if (!next) setEditingTx(null);
+        }}
         kind={dialogKind}
+        transaction={editingTx}
         presetCategoryId={preset.categoryId}
         presetSubCategoryId={preset.subCategoryId}
         defaultDate={periodDefaultDate(period.year, period.month)}
