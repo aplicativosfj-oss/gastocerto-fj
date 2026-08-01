@@ -27,6 +27,7 @@ export function ContactModal({
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const createTicket = useServerFn(createSupportTicket);
 
   const [subject, setSubject] = useState("Suporte GastoCerto");
   const [message, setMessage] = useState(
