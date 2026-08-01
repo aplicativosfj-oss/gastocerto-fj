@@ -454,7 +454,7 @@ function MobileTabBar({
         aria-label="Navegação principal"
         className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden"
       >
-        <div className="grid grid-cols-5">
+        <div className={cn("grid", adminArea ? "grid-cols-3" : "grid-cols-5")}>
           {primary.map((item) => (
             <Link
               key={item.to}
