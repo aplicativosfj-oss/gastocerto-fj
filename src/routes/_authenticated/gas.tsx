@@ -180,7 +180,11 @@ function GasPage() {
         </section>
       ) : (
         <>
-          <section className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-6">
+            <GasReminderCard summary={summary} />
+          </div>
+          <section className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+
             <MetricCard
               label="Duração média"
               value={
