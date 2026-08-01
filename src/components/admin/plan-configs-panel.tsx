@@ -22,6 +22,9 @@ export function PlanConfigsPanel() {
       toast.success("Plano atualizado");
       setEditingId(null);
     },
+    onError: (err: any) => {
+      toast.error(err.message || "Erro ao atualizar plano");
+    }
   });
 
   if (isLoading) return <div className="flex justify-center p-8"><Loader2 className="animate-spin" /></div>;
@@ -69,17 +72,27 @@ export function PlanConfigsPanel() {
               </TableCell>
               <TableCell className="text-right">
                 {editingId === plan.id ? (
-                  <Button 
-                    size="sm" 
-                    onClick={() => {
-                      const m = Number((document.getElementById(`price-m-${plan.id}`) as HTMLInputElement).value);
-                      const a = Number((document.getElementById(`price-a-${plan.id}`) as HTMLInputElement).value);
-                      updateMutation.mutate({ data: { id: plan.id, monthlyPrice: m, annualPrice: a, limits: plan.limits } });
-                    }}
-                  >
-                    <Save className="mr-2 size-4" />
-                    Salvar
-                  </Button>
+                  <div className="flex justify-end gap-2">
+                    <Button 
+                      size="sm" 
+                      variant="ghost" 
+                      onClick={() => setEditingId(null)}
+                    >
+                      Cancelar
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      disabled={updateMutation.isPending}
+                      onClick={() => {
+                        const m = Number((document.getElementById(`price-m-${plan.id}`) as HTMLInputElement).value);
+                        const a = Number((document.getElementById(`price-a-${plan.id}`) as HTMLInputElement).value);
+                        updateMutation.mutate({ data: { id: plan.id, monthlyPrice: m, annualPrice: a, limits: plan.limits } });
+                      }}
+                    >
+                      {updateMutation.isPending ? <Loader2 className="size-4 animate-spin" /> : <Save className="mr-2 size-4" />}
+                      Salvar
+                    </Button>
+                  </div>
                 ) : (
                   <Button size="sm" variant="outline" onClick={() => setEditingId(plan.id)}>Editar</Button>
                 )}
