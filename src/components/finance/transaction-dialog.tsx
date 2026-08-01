@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { CategoryPicker, readRecentCategories, rememberCategory } from "@/components/finance/category-picker";
 import { PurchaseItemsEditor } from "@/components/finance/purchase-items-editor";
 import { ReceiptField } from "@/components/finance/receipt-field";
+import { StoredTransactionPanel } from "@/components/finance/stored-transaction-panel";
 
 import { Button } from "@/components/ui/button";
 
