@@ -149,7 +149,8 @@ function CategoriesPage() {
     }
   }
 
-  async function toggleActive(id: string, active: boolean) {
+  /** Grava o novo estado sem avisos: usado pelo fluxo confirmado e pelo desfazer. */
+  async function applyActive(id: string, active: boolean) {
     const { error: updateError } = await supabase
       .from("categories")
       .update({ active })
@@ -157,10 +158,35 @@ function CategoriesPage() {
     if (updateError) {
       console.error("[categorias] falha ao alterar", updateError.message);
       toast.error("Não foi possível alterar a categoria.");
-      return;
+      return false;
     }
     await refresh();
-    toast.success(active ? "Categoria reativada." : "Categoria desativada.");
+    return true;
+  }
+
+  /** Confirma, aplica e oferece desfazer imediato por 8 segundos. */
+  async function confirmToggle() {
+    if (!pending) return;
+    const { id, name, next } = pending;
+    setToggling(true);
+    const ok = await applyActive(id, next);
+    setToggling(false);
+    setPending(null);
+    if (!ok) return;
+    toast.success(next ? `"${name}" foi reativada.` : `"${name}" foi desativada.`, {
+      duration: 8000,
+      description: next
+        ? "Ela volta a aparecer nos lançamentos."
+        : "Nada foi excluído: seus lançamentos antigos continuam intactos.",
+      action: {
+        label: "Desfazer",
+        onClick: () => {
+          void applyActive(id, !next).then((reverted) => {
+            if (reverted) toast.info(`"${name}" restaurada ao estado anterior.`);
+          });
+        },
+      },
+    });
   }
 
   async function updateOrder(id: string, order: number) {
