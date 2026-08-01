@@ -272,40 +272,98 @@ export function commitmentTag(commitmentId: string) {
 const MIN_TRANSACTION_DATE = "2026-07-01";
 
 /**
- * Cria automaticamente as parcelas futuras (lançamentos pendentes) do
- * compromisso, sem duplicar as que já existem, para o usuário não precisar
- * lançar cada parcela manualmente.
+ * Reconcilia as parcelas geradas automaticamente do compromisso: cria as que
+ * faltam, corrige data/valor das pendentes que mudaram, remove as pendentes
+ * que não existem mais no cronograma e nunca mexe nas parcelas já pagas.
+ * A operação é idempotente — rodar de novo não duplica nada.
  */
 export function useGenerateCommitmentInstallments() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (commitment: Commitment): Promise<number> => {
+    mutationFn: async (
+      commitment: Commitment,
+    ): Promise<{ created: number; updated: number; removed: number }> => {
       if (!user) throw new Error("Sessão expirada");
       const { buildSchedule } = await import("@/lib/commitment-schedule");
       const schedule = buildSchedule(commitment, []);
-      if (!schedule) return 0;
+      const empty = { created: 0, updated: 0, removed: 0 };
+      if (!schedule) return empty;
 
       const tag = commitmentTag(commitment.id);
       const { data: existing, error: existingError } = await supabase
         .from("transactions")
-        .select("id, due_date, installment_number")
+        .select("id, due_date, amount, status, installment_number, description")
+        .eq("user_id", user.id)
+        .is("deleted_at", null)
         .ilike("notes", `%${tag}%`);
       if (existingError) throw existingError;
 
-      const taken = new Set(
-        (existing ?? []).map((row) => `${row.installment_number ?? 0}:${row.due_date ?? ""}`),
+      const rows = existing ?? [];
+      const total = schedule.installments.length;
+      const paidUntil = commitment.installments_paid ?? 0;
+
+      /** Parcelas que o cronograma atual deve manter em aberto. */
+      const wanted = new Map(
+        schedule.installments
+          .filter((item) => item.number > paidUntil)
+          .filter((item) => item.dueDate >= MIN_TRANSACTION_DATE)
+          .map((item) => [item.number, item]),
       );
 
-      const paidUntil = commitment.installments_paid ?? 0;
-      const rows = schedule.installments
-        .filter((item) => item.number > paidUntil)
-        .filter((item) => item.dueDate >= MIN_TRANSACTION_DATE)
-        .filter((item) => !taken.has(`${item.number}:${item.dueDate}`))
+      const seen = new Set<number>();
+      const toRemove: string[] = [];
+      let updated = 0;
+
+      for (const row of rows) {
+        const number = row.installment_number ?? 0;
+        const settled = row.status !== "pending";
+        const target = wanted.get(number);
+
+        // Parcela já quitada: preserva o histórico sempre.
+        if (settled) {
+          seen.add(number);
+          continue;
+        }
+        // Duplicada ou fora do cronograma atual: remove a pendente.
+        if (!target || seen.has(number)) {
+          toRemove.push(row.id);
+          continue;
+        }
+        seen.add(number);
+
+        const sameDate = row.due_date === target.dueDate;
+        const sameAmount = Math.abs(Number(row.amount) - target.amount) < 0.005;
+        if (!sameDate || !sameAmount) {
+          const { error } = await supabase
+            .from("transactions")
+            .update({
+              transaction_date: target.dueDate,
+              due_date: target.dueDate,
+              amount: target.amount,
+              description: `${commitment.name} — parcela ${number}/${total}`,
+              total_installments: total,
+            })
+            .eq("id", row.id);
+          if (error) throw error;
+          updated += 1;
+        }
+      }
+
+      if (toRemove.length > 0) {
+        const { error } = await supabase
+          .from("transactions")
+          .update({ deleted_at: new Date().toISOString() })
+          .in("id", toRemove);
+        if (error) throw error;
+      }
+
+      const inserts = [...wanted.values()]
+        .filter((item) => !seen.has(item.number))
         .map((item) => ({
           user_id: user.id,
-          description: `${commitment.name} — parcela ${item.number}/${schedule.installments.length}`,
+          description: `${commitment.name} — parcela ${item.number}/${total}`,
           amount: item.amount,
           transaction_type: "expense" as const,
           category_id: commitment.category_id,
@@ -315,14 +373,16 @@ export function useGenerateCommitmentInstallments() {
           due_date: item.dueDate,
           status: "pending" as const,
           installment_number: item.number,
-          total_installments: schedule.installments.length,
+          total_installments: total,
           notes: tag,
         }));
 
-      if (rows.length === 0) return 0;
-      const { error } = await supabase.from("transactions").insert(rows);
-      if (error) throw error;
-      return rows.length;
+      if (inserts.length > 0) {
+        const { error } = await supabase.from("transactions").insert(inserts);
+        if (error) throw error;
+      }
+
+      return { created: inserts.length, updated, removed: toRemove.length };
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["transactions"] });
