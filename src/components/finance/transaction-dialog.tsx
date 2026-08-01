@@ -8,6 +8,10 @@ import { ReceiptField } from "@/components/finance/receipt-field";
 
 import { Button } from "@/components/ui/button";
 
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "@/components/ui/alert";
 import {
   Dialog,
   DialogContent,
@@ -135,6 +139,21 @@ export function TransactionDialog({
   const [subCategoryId, setSubCategoryId] = useState((transaction as any)?.sub_category_id ?? "");
   const saveFeedback = useSaveCategoryFeedback();
   const [revenueSuggestion, setRevenueSuggestion] = useState<{ message: string; date: string } | null>(null);
+
+  useEffect(() => {
+    async function checkRevenue() {
+      if (kind === "income" && date && !editing) {
+        const { suggestRevenueTransfer } = await import("@/lib/reconciliation.functions");
+        const res = await suggestRevenueTransfer({ userId: "temp", date });
+        if (res.shouldSuggest && res.suggestedDate) {
+          setRevenueSuggestion({ message: res.message, date: res.suggestedDate });
+        } else {
+          setRevenueSuggestion(null);
+        }
+      }
+    }
+    checkRevenue();
+  }, [date, kind, editing]);
 
   const { data: lastTransaction } = useLastTransaction(kind);
 
