@@ -5,6 +5,7 @@ import {
   BarChart3,
   Bell,
   Car,
+  Flame,
   LayoutDashboard,
   LogOut,
   Menu,
