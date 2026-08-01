@@ -279,8 +279,8 @@ function CalendarPage() {
       <div className="space-y-4">
         <header className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h1 className="font-display text-2xl font-semibold tracking-tight">Calendário</h1>
-            <p className="text-sm text-muted-foreground">
+            <h1 className="page-title">Calendário</h1>
+            <p className="page-subtitle mt-1">
               Vencimentos, recorrências e alertas de orçamento em um só lugar.
             </p>
           </div>

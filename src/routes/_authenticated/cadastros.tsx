@@ -129,8 +129,8 @@ function RegistrationsPage() {
         <header className="rounded-2xl border border-border bg-card p-4">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div className="min-w-0">
-              <h1 className="text-2xl font-bold tracking-tight">Meus cadastros</h1>
-              <p className="mt-1 text-sm text-muted-foreground">
+              <h1 className="page-title">Meus cadastros</h1>
+              <p className="page-subtitle mt-1">
                 Cadastre primeiro o que você já tem — veículos, bancos, cartões, empréstimos,
                 financiamentos e pensões. Depois, cada lançamento fica automático e organizado.
               </p>

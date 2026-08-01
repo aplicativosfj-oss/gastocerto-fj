@@ -162,8 +162,8 @@ function DailyPage() {
       <div className="space-y-4">
         <header className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">Gastos em detalhes</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <h1 className="page-title">Gastos em detalhes</h1>
+            <p className="page-subtitle mt-1">
               {formatDate(range.start)} até {formatDate(range.end)} · hora de cada lançamento
             </p>
           </div>

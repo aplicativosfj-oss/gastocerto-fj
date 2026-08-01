@@ -174,8 +174,8 @@ function CategoriesPage() {
       <div className="space-y-4">
         <header className="flex flex-wrap items-center justify-between gap-3">
           <div className="min-w-0">
-            <h1 className="text-2xl font-bold tracking-tight">Categorias</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <h1 className="page-title">Categorias</h1>
+            <p className="page-subtitle mt-1">
               Organize seus gastos e receitas do jeito que faz sentido para você.
             </p>
           </div>

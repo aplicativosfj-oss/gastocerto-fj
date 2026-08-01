@@ -351,8 +351,8 @@ function GasPage() {
         <div className="flex items-start gap-3">
           <EmblemGauge className="size-11" />
           <div>
-            <h1 className="font-display text-2xl font-semibold">Controle de botijão de gás</h1>
-            <p className="text-sm text-muted-foreground">
+            <h1 className="page-title">Controle de botijão de gás</h1>
+            <p className="page-subtitle mt-1">
               Registre cada troca e acompanhe quanto tempo o gás dura, o valor pago e quando ele
               deve acabar de novo.
             </p>

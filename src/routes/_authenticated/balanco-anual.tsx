@@ -102,8 +102,8 @@ function AnnualBalancePage() {
           <div className="flex items-start gap-3">
             <EmblemReceipt className="size-11 shrink-0" />
             <div>
-              <h1 className="text-2xl font-semibold text-foreground">Balanço geral do ano</h1>
-              <p className="text-sm text-muted-foreground">
+              <h1 className="page-title">Balanço geral do ano</h1>
+              <p className="page-subtitle mt-1">
                 Fechamento consolidado de entradas, saídas e resultado — mês a mês e por categoria.
               </p>
             </div>

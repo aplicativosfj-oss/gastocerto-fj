@@ -90,11 +90,11 @@ function FuelAuditPage() {
       <div className="space-y-4">
         <header className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h1 className="flex items-center gap-2 text-2xl font-bold tracking-tight">
+            <h1 className="page-title flex items-center gap-2">
               <History className="size-5" />
               Auditoria de odômetro e abastecimentos
             </h1>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <p className="page-subtitle mt-1">
               {items.length} registro(s) · {warningCount} com alertas acionados.
             </p>
           </div>
