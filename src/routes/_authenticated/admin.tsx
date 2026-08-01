@@ -61,7 +61,6 @@ import {
 } from "@/lib/admin-users.functions";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { fixComplexAdjustments, fixNexxusTransaction } from "@/lib/admin-fixes.functions";
 
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
@@ -225,38 +224,13 @@ function AdminContent({ isAdmin }: { isAdmin: boolean }) {
             <StatTile tone="success" label="Contas ativas" value={String(overview.data?.activeUsers ?? 0)} icon={ShieldCheck} />
             <StatTile tone="warning" label="Novos (30 dias)" value={String(overview.data?.newUsers30d ?? 0)} icon={TrendingUp} />
             <StatTile tone="neutral" label="Lançamentos" value={String(overview.data?.totalTransactions ?? 0)} icon={Database} />
-            <div className="flex flex-col gap-2 rounded-xl border border-dashed border-border p-3">
+            <StatTile
+              tone="neutral"
+              label="Usuários cadastrados"
+              value={String((profiles.data ?? []).length)}
+              icon={Users}
+            />
 
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={async () => {
-                  try {
-                    const res = await fixNexxusTransaction({ data: { userId: '6f34802b-e8a0-49c3-bfae-b689da7f993a' } });
-                    if (res.count > 0) toast.success("Lançamento Nexxus corrigido!");
-                    else toast.info("Lançamento não encontrado ou já corrigido.");
-                  } catch (e) {
-                    toast.error("Erro ao corrigir lançamento.");
-                  }
-                }}
-              >
-                Corrigir Lançamento Nexxus
-              </Button>
-              <Button 
-                variant="secondary" 
-                size="sm" 
-                onClick={async () => {
-                  try {
-                    const res = await fixComplexAdjustments({ data: { userId: '6f34802b-e8a0-49c3-bfae-b689da7f993a' } });
-                    toast.success(`${res.movedRevenues} receitas transferidas, ${res.correctedExpense262} gasto de R$ 262 corrigido e ${res.correctedExpense253} gasto de R$ 253,89 corrigido.`);
-                  } catch (e) {
-                    toast.error("Erro ao processar ajustes complexos.");
-                  }
-                }}
-              >
-                Transferir Receitas & Corrigir R$ 262
-              </Button>
-            </div>
 
           </div>
 

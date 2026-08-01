@@ -107,6 +107,11 @@ export const navGroups: NavGroup[] = [
   { key: "profile", label: "Meu perfil", to: "/perfil", icon: User2 },
 ];
 
+// Navegação exclusiva da área administrativa: nada de funções de cliente aqui.
+const adminNavGroups: NavGroup[] = [
+  { key: "admin", label: "Administração", to: "/admin", icon: ShieldCheck },
+  { key: "profile", label: "Minha conta", to: "/perfil", icon: User2 },
+];
 
 export function AppShell({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
@@ -120,16 +125,17 @@ export function AppShell({ children }: { children: ReactNode }) {
   usePlanRealtimeSync();
   const unreadCount = (notifications ?? []).filter((item) => !item.read_at).length;
   const isStaff = (roles ?? []).some((role) => role === "admin" || role === "support");
-  const baseItems: NavGroup[] = isStaff
-    ? [
-        ...navGroups,
-        { key: "admin", label: "Administração", to: "/admin", icon: ShieldCheck },
-      ]
-    : [...navGroups];
+  const isAdminArea = pathname.startsWith("/admin");
+  const baseItems: NavGroup[] = isAdminArea
+    ? adminNavGroups
+    : isStaff
+      ? [...navGroups, { key: "admin", label: "Administração", to: "/admin", icon: ShieldCheck }]
+      : [...navGroups];
   const items: NavGroup[] = baseItems.map((group) => ({
     ...group,
     children: group.children && group.children.length > 0 ? group.children : undefined,
   }));
+
 
 
 
@@ -159,7 +165,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="min-h-screen bg-secondary/20 lg:flex">
       <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-border bg-background lg:flex">
         <div className="flex h-20 items-center border-b border-border px-4">
-          <Link to="/painel" aria-label="Ir para o painel" className="transition-transform hover:scale-[1.02]">
+          <Link to={isAdminArea ? "/admin" : "/painel"} aria-label="Ir para o painel" className="transition-transform hover:scale-[1.02]">
             <Logo />
           </Link>
         </div>
@@ -194,26 +200,31 @@ export function AppShell({ children }: { children: ReactNode }) {
             </div>
 
             <div className="flex shrink-0 items-center gap-1 sm:gap-2">
-              <Link to="/calendario" aria-label="Notificações" className="relative">
-                <span className="inline-flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground sm:size-9">
-                  <Bell className="size-[18px]" />
-                </span>
-                {unreadCount > 0 ? (
-                  <span className="absolute -right-0.5 -top-0.5 flex size-4 items-center justify-center rounded-full bg-destructive text-[10px] font-semibold text-destructive-foreground">
-                    {unreadCount > 9 ? "9+" : unreadCount}
-                  </span>
-                ) : null}
-              </Link>
-              <Link
-                to="/lancamentos"
-                aria-label="Novo lançamento"
-                title="Novo lançamento"
-                className="inline-flex h-8 items-center gap-1.5 rounded-md bg-brand px-2.5 text-[12px] font-semibold text-brand-foreground transition-opacity hover:opacity-90 sm:h-9 sm:px-3"
-              >
-                <Plus className="size-4" aria-hidden="true" />
-                <span className="hidden sm:inline">Lançar</span>
-              </Link>
+              {!isAdminArea ? (
+                <>
+                  <Link to="/calendario" aria-label="Notificações" className="relative">
+                    <span className="inline-flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground sm:size-9">
+                      <Bell className="size-[18px]" />
+                    </span>
+                    {unreadCount > 0 ? (
+                      <span className="absolute -right-0.5 -top-0.5 flex size-4 items-center justify-center rounded-full bg-destructive text-[10px] font-semibold text-destructive-foreground">
+                        {unreadCount > 9 ? "9+" : unreadCount}
+                      </span>
+                    ) : null}
+                  </Link>
+                  <Link
+                    to="/lancamentos"
+                    aria-label="Novo lançamento"
+                    title="Novo lançamento"
+                    className="inline-flex h-8 items-center gap-1.5 rounded-md bg-brand px-2.5 text-[12px] font-semibold text-brand-foreground transition-opacity hover:opacity-90 sm:h-9 sm:px-3"
+                  >
+                    <Plus className="size-4" aria-hidden="true" />
+                    <span className="hidden sm:inline">Lançar</span>
+                  </Link>
+                </>
+              ) : null}
               <ThemeToggle />
+
               <Link to="/perfil" aria-label="Meu perfil">
                 <Avatar className="size-7 sm:size-8">
                   {avatarUrl ? <AvatarImage src={avatarUrl} alt="Foto de perfil" /> : null}
@@ -256,7 +267,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </header>
 
         <main className="app-main mx-auto w-full min-w-0 max-w-6xl flex-1 px-3 py-2.5 pb-[calc(4.75rem+env(safe-area-inset-bottom))] sm:px-4 sm:py-4 lg:pb-6">
-          <ReadOnlyBanner />
+          {!isAdminArea ? <ReadOnlyBanner /> : null}
           {children}
         </main>
 
@@ -271,6 +282,8 @@ export function AppShell({ children }: { children: ReactNode }) {
         open={open}
         onOpenChange={setOpen}
         onSignOut={handleSignOut}
+        adminArea={isAdminArea}
+
         
       />
     </div>
@@ -285,17 +298,22 @@ function MobileTabBar({
   open,
   onOpenChange,
   onSignOut,
+  adminArea = false,
 }: {
   items: NavGroup[];
   activeGroup?: string;
   open: boolean;
   onOpenChange: (value: boolean) => void;
   onSignOut: () => void;
+  adminArea?: boolean;
 }) {
   const navigate = useNavigate();
-  const primary = MOBILE_PRIMARY.map((to) => items.find((item) => item.to === to)).filter(
-    (item): item is NavGroup => Boolean(item),
-  );
+  const primary = adminArea
+    ? items
+    : MOBILE_PRIMARY.map((to) => items.find((item) => item.to === to)).filter(
+        (item): item is NavGroup => Boolean(item),
+      );
+
 
   return (
     <>
@@ -311,10 +329,15 @@ function MobileTabBar({
             <div className="sticky top-0 z-10 border-b border-border bg-background/95 px-3 py-2.5 backdrop-blur">
               <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
                 <div className="min-w-0">
-                  <p className="text-[13px] font-bold leading-tight">Tudo do seu controle</p>
-                  <p className="truncate text-[11px] text-muted-foreground">
-                    Toque em uma área para abrir a seção
+                  <p className="text-[13px] font-bold leading-tight">
+                    {adminArea ? "Área administrativa" : "Tudo do seu controle"}
                   </p>
+                  <p className="truncate text-[11px] text-muted-foreground">
+                    {adminArea
+                      ? "Gestão do negócio, usuários e licenças"
+                      : "Toque em uma área para abrir a seção"}
+                  </p>
+
                 </div>
                 <div className="flex shrink-0 items-center gap-1">
                   <ThemeToggle />
@@ -331,6 +354,7 @@ function MobileTabBar({
             </div>
 
             {/* Atalhos rápidos: as ações mais usadas em uma linha só. */}
+            {!adminArea ? (
             <div className="grid grid-cols-3 gap-1.5 px-3 pt-3">
               <Button
                 variant="outline"
@@ -366,6 +390,8 @@ function MobileTabBar({
                 Fixos
               </Button>
             </div>
+            ) : null}
+
 
             {/* Áreas com suas subseções: qualquer página em 2 toques. */}
             <div className="space-y-2 p-3">
@@ -433,7 +459,7 @@ function MobileTabBar({
         aria-label="Navegação principal"
         className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden"
       >
-        <div className="grid grid-cols-5">
+        <div className={cn("grid", adminArea ? "grid-cols-3" : "grid-cols-5")}>
           {primary.map((item) => (
             <Link
               key={item.to}
