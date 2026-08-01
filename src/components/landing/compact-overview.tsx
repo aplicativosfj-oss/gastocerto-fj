@@ -377,9 +377,9 @@ export function CompactOverview() {
                 </Reveal>
               ))}
             </div>
-            <div id="depoimentos" className="mt-3 hidden gap-2.5 sm:grid sm:grid-cols-3">
+            <div id="depoimentos" className="mt-3 grid gap-2.5 sm:grid-cols-3">
               {proofs.map((p, index) => (
-                <Reveal key={p.name} delay={index * 70}>
+                <Reveal key={p.name} delay={index * 70} className={index > 0 ? "hidden sm:block" : "block"}>
                   <div className="interactive-card h-full rounded-xl border border-border bg-card p-3">
                     <div className="flex gap-0.5 text-warning">
                       {Array.from({ length: 5 }).map((_, i) => (

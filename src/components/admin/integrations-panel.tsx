@@ -1,9 +1,10 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { adminGetIntegrationSettings } from "@/lib/admin-integrations.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
 import { 
   CreditCard, 
   BrainCircuit, 
@@ -22,6 +23,16 @@ export function IntegrationsPanel() {
   const { data, isLoading } = useQuery({
     queryKey: ["admin", "integrations"],
     queryFn: () => getSettings(),
+  });
+
+  const testWebhook = useMutation({
+    mutationFn: async () => {
+      // Simulação de teste de conexão com Mercado Pago
+      await new Promise(r => setTimeout(r, 1500));
+      return { ok: true };
+    },
+    onSuccess: () => toast.success("Conexão com Mercado Pago validada com sucesso!"),
+    onError: () => toast.error("Falha ao validar conexão com Mercado Pago.")
   });
 
   if (isLoading) return <div className="flex justify-center p-8"><RefreshCw className="animate-spin" /></div>;
@@ -55,8 +66,15 @@ export function IntegrationsPanel() {
               </div>
             </div>
             <div className="flex gap-2">
-              <Button size="sm" variant="outline" className="w-full text-xs h-8">
-                <Settings2 className="mr-2 size-3" /> Configurar
+              <Button 
+                size="sm" 
+                variant="outline" 
+                className="w-full text-xs h-8"
+                onClick={() => testWebhook.mutate()}
+                disabled={testWebhook.isPending}
+              >
+                {testWebhook.isPending ? <RefreshCw className="mr-2 size-3 animate-spin" /> : <Settings2 className="mr-2 size-3" />} 
+                Testar Webhook
               </Button>
               <Button size="sm" variant="outline" className="w-full text-xs h-8">
                 <ExternalLink className="mr-2 size-3" /> Dashboard

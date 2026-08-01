@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Download, FileText, KeyRound, Loader2, Search, UserCog } from "lucide-react";
+import { Download, FileText, KeyRound, Loader2, Search, UserCog, Shield } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -12,6 +12,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -31,6 +32,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
+import { PermissionsPanel } from "./permissions-panel";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -255,7 +257,20 @@ export function UsersPanel({ isAdmin, globalSearch = "" }: { isAdmin: boolean; g
                   <TableCell className="text-muted-foreground">
                     {formatDateTime(profile.created_at)}
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-right flex items-center justify-end gap-2">
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button variant="ghost" size="icon" className="size-8" title="Permissões">
+                          <Shield className="size-4" />
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-md">
+                        <DialogHeader>
+                          <DialogTitle>Permissões: {profile.full_name || profile.contact_email}</DialogTitle>
+                        </DialogHeader>
+                        <PermissionsPanel targetUserId={profile.user_id} />
+                      </DialogContent>
+                    </Dialog>
                     <Button size="sm" variant="outline" onClick={() => setSelected(profile)}>
                       <UserCog className="mr-2 size-4" />
                       Gerenciar

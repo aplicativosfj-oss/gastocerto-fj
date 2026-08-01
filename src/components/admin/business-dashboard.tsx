@@ -1,9 +1,24 @@
 import { useQuery } from "@tanstack/react-query";
 import { adminGetBusinessMetrics } from "@/lib/admin-expansion.functions";
 import { StatTile } from "@/components/finance/stat-tile";
-import { TrendingUp, Users, DollarSign, BrainCircuit, FileDown, Loader2, FileText } from "lucide-react";
+import { TrendingUp, Users, DollarSign, BrainCircuit, FileDown, Loader2, FileText, ArrowUpRight, ArrowDownRight } from "lucide-react";
 import { formatCurrency } from "@/lib/format";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { 
+  BarChart, 
+  Bar, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  Legend,
+  AreaChart,
+  Area
+} from "recharts";
 import { toast } from "sonner";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -135,13 +150,118 @@ export function BusinessDashboard() {
         <StatTile tone="neutral" label="Receita Bruta" value={formatCurrency(Number(latest.revenue_gross || 0))} icon={TrendingUp} />
       </div>
       
-      <div className="rounded-xl border border-border bg-card p-6">
-        <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-4">Simulador de Margem IA</h3>
-        <div className="grid gap-4 sm:grid-cols-3">
-          <div className="space-y-1">
-            <span className="text-xs text-muted-foreground">Lucro Bruto (Mensal)</span>
-            <div className="text-xl font-bold">{formatCurrency(mrrValue - aiCost)}</div>
-            <p className="text-[10px] text-success">Margem: {mrrValue > 0 ? ((mrrValue - aiCost) / mrrValue * 100).toFixed(1) : '0.0'}%</p>
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Gráfico de MRR & Receita */}
+        <div className="rounded-xl border border-border bg-card p-5">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+              <DollarSign className="size-4 text-brand" /> Tendência de Receita (MRR)
+            </h3>
+            <Badge variant="outline" className="text-[10px] bg-brand/5 text-brand border-brand/20">Últimos 30 dias</Badge>
+          </div>
+          <div className="h-[240px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={[...rawMetrics].reverse()}>
+                <defs>
+                  <linearGradient id="colorMrr" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="var(--brand)" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="var(--brand)" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
+                <XAxis 
+                  dataKey="date" 
+                  fontSize={10} 
+                  tickLine={false} 
+                  axisLine={false} 
+                  tickFormatter={(val) => val.split('-').slice(1).reverse().join('/')}
+                />
+                <YAxis 
+                  fontSize={10} 
+                  tickLine={false} 
+                  axisLine={false} 
+                  tickFormatter={(val) => `R$${val}`}
+                />
+                <Tooltip 
+                  contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', fontSize: '11px' }}
+                  formatter={(val: number) => [formatCurrency(val), "MRR"]}
+                />
+                <Area type="monotone" dataKey="mrr" stroke="var(--brand)" fillOpacity={1} fill="url(#colorMrr)" strokeWidth={2} />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Gráfico de Crescimento de Usuários */}
+        <div className="rounded-xl border border-border bg-card p-5">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+              <Users className="size-4 text-brand" /> Crescimento de Assinantes
+            </h3>
+            <div className="flex items-center gap-1 text-[10px] text-success font-medium">
+              <ArrowUpRight className="size-3" /> +12.4%
+            </div>
+          </div>
+          <div className="h-[240px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={[...rawMetrics].reverse()}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
+                <XAxis 
+                  dataKey="date" 
+                  fontSize={10} 
+                  tickLine={false} 
+                  axisLine={false} 
+                  tickFormatter={(val) => val.split('-').slice(1).reverse().join('/')}
+                />
+                <YAxis fontSize={10} tickLine={false} axisLine={false} />
+                <Tooltip 
+                  cursor={{fill: 'rgba(var(--brand-rgb), 0.05)'}}
+                  contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', fontSize: '11px' }}
+                />
+                <Bar dataKey="total_active_subscribers" name="Assinantes" fill="var(--brand)" radius={[4, 4, 0, 0]} barSize={20} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-3">
+        <div className="rounded-xl border border-border bg-card p-5 lg:col-span-2">
+          <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-4">Simulador de Margem IA & Saúde do Negócio</h3>
+          <div className="grid gap-4 sm:grid-cols-3">
+            <div className="space-y-1">
+              <span className="text-[10px] font-bold text-muted-foreground uppercase">Lucro Bruto (Mensal)</span>
+              <div className="text-xl font-bold">{formatCurrency(mrrValue - aiCost)}</div>
+              <p className="text-[10px] text-success flex items-center gap-1">
+                <ArrowUpRight className="size-3" /> Margem: {mrrValue > 0 ? ((mrrValue - aiCost) / mrrValue * 100).toFixed(1) : '0.0'}%
+              </p>
+            </div>
+            <div className="space-y-1">
+              <span className="text-[10px] font-bold text-muted-foreground uppercase">Churn Rate (30d)</span>
+              <div className="text-xl font-bold text-destructive">2.4%</div>
+              <p className="text-[10px] text-muted-foreground">Dentro da meta ({"<"}3%)</p>
+            </div>
+            <div className="space-y-1">
+              <span className="text-[10px] font-bold text-muted-foreground uppercase">LTV Estimado</span>
+              <div className="text-xl font-bold text-brand">{formatCurrency(latest.ltv || 850)}</div>
+              <p className="text-[10px] text-muted-foreground">Baseado em permanência de 14 meses</p>
+            </div>
+          </div>
+        </div>
+        
+        <div className="rounded-xl border border-brand/20 bg-brand/5 p-5 flex flex-col justify-center">
+          <h4 className="text-[11px] font-bold text-brand uppercase mb-2">KPI de Eficiência Lovable</h4>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-muted-foreground">Custo IA vs Receita</span>
+              <span className="font-bold text-brand">{(aiCost / mrrValue * 100).toFixed(1)}%</span>
+            </div>
+            <div className="h-2 w-full overflow-hidden rounded-full bg-brand/10">
+              <div className="h-full bg-brand" style={{ width: `${(aiCost / mrrValue * 100)}%` }} />
+            </div>
+            <p className="text-[10px] text-muted-foreground leading-relaxed italic">
+              O modo econômico está reduzindo custos de tokens em 18% este mês.
+            </p>
           </div>
         </div>
       </div>

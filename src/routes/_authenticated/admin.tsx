@@ -76,6 +76,9 @@ const ReopenRequestsPanel = lazy(() =>
 const AuditLogsPanel = lazy(() =>
   import("@/components/admin/audit-logs-panel").then((m) => ({ default: m.AuditLogsPanel })),
 );
+const PermissionsPanel = lazy(() =>
+  import("@/components/admin/permissions-panel").then((m) => ({ default: m.PermissionsPanel })),
+);
 const IntegrationsPanel = lazy(() =>
   import("@/components/admin/integrations-panel").then((m) => ({ default: m.IntegrationsPanel })),
 );
