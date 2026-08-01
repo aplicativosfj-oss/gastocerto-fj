@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Copy, Download, Paperclip, Pencil, Plus, Search, Trash2 } from "lucide-react";
+import { Copy, Download, Paperclip, Pencil, Plus, Search, Trash2, Zap } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -7,6 +7,7 @@ import { AppShell } from "@/components/app-shell";
 import { PeriodPicker } from "@/components/finance/period-picker";
 import { TransactionDetailsDialog } from "@/components/finance/transaction-details-dialog";
 import { TransactionDialog } from "@/components/finance/transaction-dialog";
+import { ExpenseCardsDialog } from "@/components/finance/expense-cards-dialog";
 
 import {
   AlertDialog,
@@ -98,6 +99,7 @@ function TransactionsPage() {
   const [selected, setSelected] = useState<string[]>([]);
   const [editing, setEditing] = useState<Transaction | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [cardsOpen, setCardsOpen] = useState(false);
   const [details, setDetails] = useState<Transaction | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<string[] | null>(null);
 
@@ -221,6 +223,10 @@ function TransactionsPage() {
             <Button variant="outline" onClick={exportCsv} disabled={filtered.length === 0}>
               <Download className="mr-2 size-4" />
               CSV
+            </Button>
+            <Button variant="secondary" onClick={() => setCardsOpen(true)}>
+              <Zap className="mr-2 size-4" aria-hidden />
+              Gasto rápido
             </Button>
             <Button
               onClick={() => {
@@ -498,7 +504,18 @@ function TransactionsPage() {
         ) : null}
       </div>
 
+      <ExpenseCardsDialog
+        open={cardsOpen}
+        onOpenChange={setCardsOpen}
+        onAdvanced={() => {
+          setEditing(null);
+          setDialogOpen(true);
+        }}
+      />
+
       {dialogOpen ? (
+
+
         <TransactionDialog
           key={editing?.id ?? "new"}
           open={dialogOpen}

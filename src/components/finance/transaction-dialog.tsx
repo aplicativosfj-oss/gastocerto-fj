@@ -412,23 +412,7 @@ export function TransactionDialog({
           className="space-y-4"
           noValidate
         >
-          <div
-            className={`flex flex-wrap items-center justify-between gap-2 rounded-xl border p-2.5 ${
-              kind === "income"
-                ? "border-emerald-500/40 bg-emerald-500/10"
-                : "border-destructive/30 bg-destructive/5"
-            }`}
-          >
-            <p className="text-xs font-semibold">
-              {kind === "income"
-                ? "Entrada de dinheiro (receita)"
-                : "Saída de dinheiro (despesa)"}
-              <span className="ml-1 font-normal text-muted-foreground">
-                {kind === "income"
-                  ? "— soma ao que você tem para gastar."
-                  : "— desconta do seu saldo do mês."}
-              </span>
-            </p>
+          <div className="flex justify-end">
             <Button
               type="button"
               variant={advanced ? "secondary" : "outline"}
@@ -439,6 +423,7 @@ export function TransactionDialog({
               {advanced ? "Ocultar campos extras" : "Mais opções"}
             </Button>
           </div>
+
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="sm:col-span-2">

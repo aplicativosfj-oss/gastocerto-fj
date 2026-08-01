@@ -60,6 +60,8 @@ export function CommitmentDialog({
   const [startDate, setStartDate] = useState(isoDate(new Date()));
   const [dueDay, setDueDay] = useState("");
   const [nextDue, setNextDue] = useState("");
+  const [paidInstallments, setPaidInstallments] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("pix");
   const [status, setStatus] = useState("open");
   const [openAccount, setOpenAccount] = useState(false);
@@ -84,6 +86,10 @@ export function CommitmentDialog({
       setStartDate(commitment.start_date);
       setDueDay(commitment.due_day ? String(commitment.due_day) : "");
       setNextDue(commitment.next_due_date ?? "");
+      setPaidInstallments(
+        commitment.installments_paid ? String(commitment.installments_paid) : "",
+      );
+      setEndDate(commitment.end_date ?? "");
       setPaymentMethod(commitment.payment_method ?? "pix");
       setStatus(commitment.status);
       setOpenAccount(commitment.is_open_account);
@@ -102,6 +108,8 @@ export function CommitmentDialog({
     setStartDate(isoDate(new Date()));
     setDueDay("");
     setNextDue("");
+    setPaidInstallments("");
+    setEndDate("");
     setPaymentMethod("pix");
     setStatus("open");
     setOpenAccount(false);
@@ -142,6 +150,37 @@ export function CommitmentDialog({
   }, [installments, installmentAmount, suggestedInstallment, dueDay, nextDue, startDate, isOpenAccount]);
 
 
+  /** Prazo do compromisso: parcelas pagas, quantas faltam e término previsto. */
+  const term = useMemo(() => {
+    const count = Number(installments || 0);
+    if (!count || isOpenAccount) return null;
+    const paid = Math.min(Math.max(Number(paidInstallments || 0), 0), count);
+    const remaining = count - paid;
+    const day = dueDay ? Math.min(Math.max(Number(dueDay), 1), 31) : null;
+    const firstOpen =
+      nextDue || (day ? addMonths(startDate, paid + 1, day) : addMonths(startDate, paid + 1));
+    const computedEnd = remaining > 0 ? addMonths(firstOpen, remaining - 1, day) : firstOpen;
+    const declared = parseAmount(installmentAmount || "0");
+    const amount = declared > 0 ? toCents(declared) : suggestedInstallment;
+    return {
+      count,
+      paid,
+      remaining,
+      firstOpen,
+      computedEnd,
+      remainingAmount: amount > 0 ? amount * remaining : 0,
+    };
+  }, [
+    installments,
+    paidInstallments,
+    dueDay,
+    nextDue,
+    startDate,
+    installmentAmount,
+    suggestedInstallment,
+    isOpenAccount,
+  ]);
+
   async function handleSave() {
     if (!name.trim()) {
       setError("Informe um nome para o compromisso.");
@@ -167,7 +206,9 @@ export function CommitmentDialog({
           interest_rate: interest ? parseAmount(interest) : null,
           start_date: startDate,
           due_day: dueDay ? Math.min(Math.max(Number(dueDay), 1), 31) : null,
-          next_due_date: nextDue || null,
+          next_due_date: nextDue || term?.firstOpen || null,
+          installments_paid: term ? term.paid : 0,
+          end_date: endDate || term?.computedEnd || null,
           payment_method: paymentMethod,
           status,
           is_open_account: isOpenAccount,
@@ -291,6 +332,53 @@ export function CommitmentDialog({
                 />
               </div>
 
+              <div>
+                <Label htmlFor="cm-paid">Parcelas já pagas</Label>
+                <Input
+                  id="cm-paid"
+                  value={paidInstallments}
+                  inputMode="numeric"
+                  placeholder="Ex.: 6"
+                  onChange={(event) =>
+                    setPaidInstallments(event.target.value.replace(/\D/g, "").slice(0, 3))
+                  }
+                  className="mt-1.5 tabular-nums"
+                />
+                <p className="mt-1 text-[11px] text-muted-foreground">
+                  {term
+                    ? `Faltam ${term.remaining} de ${term.count} parcelas.`
+                    : "Informe o nº de parcelas para calcular quantas faltam."}
+                </p>
+              </div>
+
+              <div>
+                <Label htmlFor="cm-end">Fim do compromisso</Label>
+                <Input
+                  id="cm-end"
+                  type="date"
+                  value={endDate || term?.computedEnd || ""}
+                  onChange={(event) => setEndDate(event.target.value)}
+                  className="mt-1.5"
+                />
+                <p className="mt-1 text-[11px] text-muted-foreground">
+                  Calculado automaticamente pelo prazo — você pode ajustar.
+                </p>
+              </div>
+
+              {term ? (
+                <div className="rounded-lg border border-border bg-muted/30 p-2.5 sm:col-span-2">
+                  <p className="text-xs font-medium">Prazo do contrato</p>
+                  <p className="mt-1 text-[11px] text-muted-foreground">
+                    {term.count} parcelas · {term.paid} paga(s) · {term.remaining} restante(s) ·
+                    próximo vencimento em {formatDate(`${term.firstOpen}T12:00:00`)} · término em{" "}
+                    {formatDate(`${endDate || term.computedEnd}T12:00:00`)}
+                    {term.remainingAmount > 0
+                      ? ` · falta pagar ${formatCurrency(term.remainingAmount)}`
+                      : ""}
+                  </p>
+                </div>
+              ) : null}
+
               <div className="rounded-lg border border-border bg-muted/40 p-2.5 sm:col-span-2">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <p className="text-xs font-medium">Parcelamento automático</p>
@@ -326,7 +414,7 @@ export function CommitmentDialog({
           </div>
 
           <div>
-            <Label htmlFor="cm-start">Início</Label>
+            <Label htmlFor="cm-start">Início (1ª cobrança)</Label>
             <Input
               id="cm-start"
               type="date"

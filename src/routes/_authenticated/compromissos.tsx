@@ -523,9 +523,30 @@ function CommitmentCard({
           </Badge>
         ) : null}
         {commitment.installments_total ? (
-          <Badge variant="outline" className="text-[10px] tabular-nums">
-            {Math.min(summary.paidInstallments, commitment.installments_total)}/
-            {commitment.installments_total} parcelas
+          <>
+            <Badge variant="outline" className="text-[10px] tabular-nums">
+              {Math.max(
+                Math.min(summary.paidInstallments, commitment.installments_total),
+                commitment.installments_paid,
+              )}
+              /{commitment.installments_total} parcelas
+            </Badge>
+            <Badge variant="outline" className="text-[10px] tabular-nums">
+              faltam{" "}
+              {Math.max(
+                commitment.installments_total -
+                  Math.max(
+                    Math.min(summary.paidInstallments, commitment.installments_total),
+                    commitment.installments_paid,
+                  ),
+                0,
+              )}
+            </Badge>
+          </>
+        ) : null}
+        {commitment.end_date ? (
+          <Badge variant="outline" className="text-[10px]">
+            termina em {formatDate(`${commitment.end_date}T12:00:00`)}
           </Badge>
         ) : null}
       </div>

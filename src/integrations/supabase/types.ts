@@ -504,6 +504,7 @@ export type Database = {
           end_date: string | null
           id: string
           installment_amount: number | null
+          installments_paid: number
           installments_total: number | null
           interest_rate: number | null
           is_open_account: boolean
@@ -529,6 +530,7 @@ export type Database = {
           end_date?: string | null
           id?: string
           installment_amount?: number | null
+          installments_paid?: number
           installments_total?: number | null
           interest_rate?: number | null
           is_open_account?: boolean
@@ -554,6 +556,7 @@ export type Database = {
           end_date?: string | null
           id?: string
           installment_amount?: number | null
+          installments_paid?: number
           installments_total?: number | null
           interest_rate?: number | null
           is_open_account?: boolean
