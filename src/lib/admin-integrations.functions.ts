@@ -136,6 +136,25 @@ export const adminReconcilePayments = createServerFn({ method: "POST" })
     return summary;
   });
 
+/** Desativa e remove as credenciais do Mercado Pago salvas no banco. */
+export const adminDeleteMercadoPagoCredentials = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { assertAdminCtx, auditLog } = await import("@/lib/admin-guard.server");
+    await assertAdminCtx(context);
+
+    const { disableStoredCredentials } = await import("@/lib/mercadopago-credentials.server");
+    const summary = await disableStoredCredentials(context.userId);
+
+    await auditLog(context, "mercadopago_credentials_deleted", {
+      action: "disabled_and_deleted_from_db",
+      fallback: summary.source === "environment" ? "using_env_vars" : "none",
+    });
+
+    return summary;
+  });
+
+
 /**
  * Auditoria do checkout Pix: tentativas de verificação por e-mail, cobranças
  * criadas, situação atual e erros devolvidos pelo Mercado Pago.

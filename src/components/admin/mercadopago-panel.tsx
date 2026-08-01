@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { CheckCircle2, KeyRound, Loader2, RefreshCcw, ShieldCheck, TriangleAlert } from "lucide-react";
+import { CheckCircle2, KeyRound, Loader2, RefreshCcw, ShieldCheck, Trash2, TriangleAlert } from "lucide-react";
 import { toast } from "sonner";
 
 import {
+  adminDeleteMercadoPagoCredentials,
   adminGetIntegrationSettings,
   adminReconcilePayments,
   adminSaveMercadoPagoCredentials,
@@ -27,6 +28,7 @@ export function MercadoPagoPanel() {
   const saveCredentials = useServerFn(adminSaveMercadoPagoCredentials);
   const testConnection = useServerFn(adminTestMercadoPago);
   const reconcile = useServerFn(adminReconcilePayments);
+  const deleteCredentials = useServerFn(adminDeleteMercadoPagoCredentials);
 
   const [publicKey, setPublicKey] = useState("");
   const [accessToken, setAccessToken] = useState("");
@@ -73,6 +75,20 @@ export function MercadoPagoPanel() {
       toast.success("Revalidação concluída", {
         description: `${result.checked} pagamentos verificados • ${result.corrected} corrigidos • ${result.failed} com erro.`,
       }),
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const remove = useMutation({
+    mutationFn: () => deleteCredentials(),
+    onSuccess: (result) => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "integrations"] });
+      toast.success("Credenciais removidas", {
+        description:
+          result.source === "environment"
+            ? "As credenciais do banco foram excluídas. O sistema voltou a usar as variáveis de ambiente."
+            : "As credenciais foram removidas. A integração de pagamentos está desativada.",
+      });
+    },
     onError: (error: Error) => toast.error(error.message),
   });
 
@@ -184,6 +200,23 @@ export function MercadoPagoPanel() {
             {revalidate.isPending ? <Loader2 className="size-3.5 animate-spin" /> : <RefreshCcw className="size-3.5" />}
             Revalidar pagamentos (72h)
           </Button>
+
+          {mp?.source === "database" && (
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-9 gap-2 text-xs text-destructive hover:bg-destructive/10 hover:text-destructive"
+              disabled={remove.isPending}
+              onClick={() => {
+                if (confirm("Tem certeza que deseja remover as credenciais do banco de dados? O sistema voltará a usar as chaves padrão ou ficará desativado.")) {
+                  remove.mutate();
+                }
+              }}
+            >
+              {remove.isPending ? <Loader2 className="size-3.5 animate-spin" /> : <Trash2 className="size-3.5" />}
+              Remover chaves do banco
+            </Button>
+          )}
         </div>
 
         <p className="flex items-start gap-2 rounded-lg border border-dashed border-border p-3 text-[11px] text-muted-foreground">
