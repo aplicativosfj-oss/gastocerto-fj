@@ -512,6 +512,7 @@ function ReportsPage() {
                   : "Sem dados no período"
               }
               icon={PieChartIcon}
+              className="interactive-card shadow-soft"
               bodyClassName="p-2 sm:p-4"
             >
               <div className="h-60 sm:h-64">
@@ -542,6 +543,7 @@ function ReportsPage() {
           title="Detalhamento por categoria"
           description="Participação de cada categoria no total de despesas"
           icon={ListFilter}
+          className="interactive-card shadow-soft"
           bodyClassName="p-0"
         >
           {byCategory.length === 0 ? (
