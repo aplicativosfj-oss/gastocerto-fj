@@ -28,9 +28,11 @@ import { maskCpf } from "@/lib/cpf";
 import { formatCurrency } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
-type Step = "plan" | "form" | "pix" | "done";
+type Step = "plan" | "form" | "code" | "pix" | "done";
 
 type Charge = Awaited<ReturnType<typeof startPixCheckout>>;
+type Verification = Awaited<ReturnType<typeof requestCheckoutVerification>>;
+
 
 export function CheckoutDialog({
   open,
