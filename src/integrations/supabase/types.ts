@@ -1055,6 +1055,45 @@ export type Database = {
         }
         Relationships: []
       }
+      integration_credentials: {
+        Row: {
+          access_token: string | null
+          active: boolean
+          created_at: string
+          environment: string
+          id: string
+          provider: string
+          public_key: string | null
+          rotated_at: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          access_token?: string | null
+          active?: boolean
+          created_at?: string
+          environment?: string
+          id?: string
+          provider: string
+          public_key?: string | null
+          rotated_at?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          access_token?: string | null
+          active?: boolean
+          created_at?: string
+          environment?: string
+          id?: string
+          provider?: string
+          public_key?: string | null
+          rotated_at?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       licenses: {
         Row: {
           activated_at: string | null
