@@ -1,5 +1,5 @@
-import { useMutation } from "@tanstack/react-query";
-import { Check, Copy, Loader2, Mail, QrCode, ShieldCheck, Sparkles } from "lucide-react";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { Check, Copy, Loader2, Landmark, ShieldCheck, Sparkles } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useNavigate } from "@tanstack/react-router";
@@ -18,9 +18,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   confirmCheckoutVerification,
-  getPixCheckoutStatus,
+  getCheckoutStatus,
+  getManualPaymentInstructions,
   requestCheckoutVerification,
-  startPixCheckout,
+  startManualOrder,
 } from "@/lib/checkout.functions";
 
 import {
@@ -35,10 +36,11 @@ import { formatCurrency } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { livePrice, usePublicPlans } from "@/hooks/use-public-plans";
 
-type Step = "plan" | "form" | "code" | "pix" | "done";
+type Step = "plan" | "form" | "code" | "manual" | "done";
 
-type Charge = Awaited<ReturnType<typeof startPixCheckout>>;
+type Order = Awaited<ReturnType<typeof startManualOrder>>;
 type Verification = Awaited<ReturnType<typeof requestCheckoutVerification>>;
+
 
 
 export function CheckoutDialog({
