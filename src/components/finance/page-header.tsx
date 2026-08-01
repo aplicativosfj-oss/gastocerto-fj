@@ -41,7 +41,7 @@ export function PageHeader({
         aria-hidden="true"
         className="pointer-events-none absolute -right-16 -top-20 size-48 rounded-full bg-[radial-gradient(circle,color-mix(in_oklab,var(--brand)_18%,transparent),transparent_70%)]"
       />
-      <div className="relative grid gap-3 lg:grid-cols-[minmax(16rem,1fr)_auto] lg:items-start">
+      <div className="relative grid gap-3 xl:grid-cols-[minmax(18rem,1fr)_auto] xl:items-center">
         <div className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)] items-start gap-3">
           {Icon ? (
             <span className="grid size-10 shrink-0 place-items-center rounded-xl border border-brand/25 bg-brand/10 text-brand sm:size-11">
@@ -54,11 +54,11 @@ export function PageHeader({
                 {eyebrow}
               </p>
             ) : null}
-            <h1 className="font-display text-lg font-bold leading-tight tracking-tight text-balance sm:text-2xl">
+            <h1 className="truncate font-display text-[17px] font-bold leading-tight tracking-tight sm:text-xl lg:text-[22px]">
               {title}
             </h1>
             {description ? (
-              <p className="mt-1 text-[12.5px] leading-relaxed text-pretty text-muted-foreground sm:text-sm">
+              <p className="mt-1 max-w-prose text-[12px] leading-snug text-pretty text-muted-foreground sm:text-[13px]">
                 {description}
               </p>
             ) : null}
@@ -66,7 +66,7 @@ export function PageHeader({
           </div>
         </div>
         {actions ? (
-          <div className="-mx-0.5 flex min-w-0 max-w-full items-center gap-2 overflow-x-auto px-0.5 pb-0.5 [scrollbar-width:none] lg:flex-wrap lg:overflow-visible lg:pb-0 lg:justify-end [&::-webkit-scrollbar]:hidden [&>*]:shrink-0">
+          <div className="-mx-0.5 flex min-w-0 max-w-full items-center gap-2 overflow-x-auto px-0.5 pb-0.5 [scrollbar-width:none] xl:flex-wrap xl:overflow-visible xl:pb-0 xl:justify-end [&::-webkit-scrollbar]:hidden [&>*]:shrink-0">
             {actions}
           </div>
         ) : null}

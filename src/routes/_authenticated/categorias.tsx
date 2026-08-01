@@ -304,10 +304,13 @@ function CategoriesPage() {
                         })()}
                       </span>
                       <div className="min-w-0">
-                        <span className={cn(
-                          "block truncate text-[14px] font-bold tracking-tight transition-colors",
-                          isActive ? "text-foreground" : "text-muted-foreground"
-                        )}>
+                        <span
+                          title={category.name}
+                          className={cn(
+                            "block text-[13.5px] font-bold leading-tight tracking-tight transition-colors [overflow-wrap:anywhere] line-clamp-2",
+                            isActive ? "text-foreground" : "text-muted-foreground",
+                          )}
+                        >
                           {category.name}
                         </span>
                         <p className="mt-0.5 text-[11px] font-medium text-muted-foreground/60 uppercase tracking-wider">
@@ -430,7 +433,10 @@ function CategoriesPage() {
                         <Icon className="size-4" />
                       </span>
                       <div className="min-w-0">
-                        <span className="block truncate text-[13px] font-semibold text-muted-foreground">
+                        <span
+                          title={category.name}
+                          className="block text-[12.5px] font-semibold leading-tight text-muted-foreground [overflow-wrap:anywhere] line-clamp-2"
+                        >
                           {category.name}
                         </span>
                         <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">

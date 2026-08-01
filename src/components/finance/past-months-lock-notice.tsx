@@ -86,7 +86,9 @@ export function PastMonthsLockNotice({ monthKey, className }: PastMonthsLockNoti
       <PasswordConfirmDialog
         open={askPassword}
         onOpenChange={setAskPassword}
-        description={`Confirme sua senha para liberar a edição de ${labelOf(monthKey)} por ${PAST_EDIT_UNLOCK_MINUTES} minutos.`}
+        lockedMonths={[monthKey]}
+        actionLabel={`Editar, duplicar e excluir lançamentos de ${labelOf(monthKey)}`}
+        description={`A liberação vale ${PAST_EDIT_UNLOCK_MINUTES} minutos e não altera nenhum lançamento por conta própria.`}
         onConfirmed={grant}
       />
     </div>

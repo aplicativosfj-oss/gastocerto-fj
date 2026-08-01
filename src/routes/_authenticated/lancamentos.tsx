@@ -101,15 +101,52 @@ export const Route = createFileRoute("/_authenticated/lancamentos")({
       { name: "robots", content: "noindex" },
     ],
   }),
-  validateSearch: (search: Record<string, unknown>) => ({
+  validateSearch: (search: Record<string, unknown>): {
+    veiculo?: string;
+    ano?: number;
+    mes?: number;
+    tipo?: "all" | "expense" | "income";
+  } => ({
     veiculo: typeof search["veiculo"] === "string" ? (search["veiculo"] as string) : undefined,
     ano: Number(search["ano"]) || undefined,
     mes: Number(search["mes"]) || undefined,
+    tipo:
+      search["tipo"] === "income" || search["tipo"] === "expense" || search["tipo"] === "all"
+        ? (search["tipo"] as "income" | "expense" | "all")
+        : undefined,
   }),
   component: TransactionsPage,
 });
 
 const PAGE_SIZE = 15;
+
+/** Recortes da tela: despesas e receitas ganham espaços próprios. */
+const VIEWS = [
+  {
+    key: "expense",
+    tab: "Despesas",
+    title: "Despesas",
+    newLabel: "Nova despesa",
+    icon: TrendingDown,
+    description: "Somente saídas do período: filtre, audite e corrija cada gasto.",
+  },
+  {
+    key: "income",
+    tab: "Receitas",
+    title: "Receitas",
+    newLabel: "Nova receita",
+    icon: TrendingUp,
+    description: "Somente entradas do período, com status de recebimento.",
+  },
+  {
+    key: "all",
+    tab: "Tudo",
+    title: "Extrato completo",
+    newLabel: "Novo lançamento",
+    icon: ArrowLeftRight,
+    description: "Entradas e saídas juntas, em ordem cronológica.",
+  },
+] as const;
 
 function TransactionsPage() {
   const today = new Date();
@@ -132,7 +169,7 @@ function TransactionsPage() {
   const [toDate, setToDate] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [typeFilter, setTypeFilter] = useState("all");
+  const [typeFilter, setTypeFilter] = useState<string>(search_.tipo ?? "expense");
   const [sort, setSort] = useState("date_desc");
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<string[]>([]);
@@ -155,9 +192,11 @@ function TransactionsPage() {
     (policy.lockPastMonths || (policy.requirePasswordForPastEdits && !pastUnlock.unlocked));
   const [askPassword, setAskPassword] = useState(false);
   const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
+  const [pendingLabel, setPendingLabel] = useState<string | null>(null);
+  const view = VIEWS.find((item) => item.key === typeFilter) ?? VIEWS[2];
 
   /** Executa a ação somente quando a competência estiver liberada. */
-  function guardPast(action: () => void) {
+  function guardPast(action: () => void, label?: string) {
     if (!pastLocked) {
       action();
       return;
@@ -170,6 +209,7 @@ function TransactionsPage() {
       return;
     }
     setPendingAction(() => action);
+    setPendingLabel(label ?? "Editar lançamentos deste mês");
     setAskPassword(true);
   }
 
@@ -361,7 +401,6 @@ function TransactionsPage() {
     toDate !== "",
     categoryFilter !== "all",
     statusFilter !== "all",
-    typeFilter !== "all",
     vehicleFilter !== "all",
   ].filter(Boolean).length;
 
@@ -380,11 +419,10 @@ function TransactionsPage() {
     <AppShell>
       <div className="mx-auto max-w-7xl space-y-3 sm:space-y-4">
         <PageHeader
-          icon={ArrowLeftRight}
-          eyebrow="Movimentações"
-          title="Lançamentos"
-          description="Registre, filtre e audite cada entrada e saída do período selecionado."
-          className="lg:p-5"
+          icon={view.icon}
+          eyebrow="Lançamentos"
+          title={view.title}
+          description={view.description}
           meta={
             <div className="flex flex-wrap items-center gap-1.5">
               <MetaChip icon={Receipt}>{filtered.length} itens</MetaChip>
@@ -399,32 +437,80 @@ function TransactionsPage() {
             </div>
           }
           actions={
-            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-              <PeriodPicker year={period.year} month={period.month} onChange={setPeriod} />
+            <div className="flex items-center gap-1.5 sm:gap-2">
               <Button
                 size="sm"
-                className="h-9 px-3 sm:h-10 sm:px-4"
+                className="h-9 px-3"
                 onClick={() => {
                   setEditing(null);
                   setDialogOpen(true);
                 }}
               >
                 <Plus className="mr-1.5 size-4" />
-                Novo
+                {view.newLabel}
               </Button>
-              <Button variant="secondary" size="sm" className="h-9 px-3 sm:h-10 sm:px-4" onClick={() => setCardsOpen(true)}>
+              <Button
+                variant="secondary"
+                size="sm"
+                className="h-9 px-3"
+                onClick={() => setCardsOpen(true)}
+              >
                 <Zap className="mr-1.5 size-4" aria-hidden />
                 Gasto rápido
               </Button>
-              <Button variant="outline" size="sm" className="h-9 px-3 sm:h-10 sm:px-4" onClick={exportCsv} disabled={filtered.length === 0}>
+            </div>
+          }
+        />
+
+        {/* Barra de contexto: recorte (despesas/receitas), competência e exportações. */}
+        <section className="rounded-2xl border border-border bg-card p-2.5 shadow-soft sm:p-3">
+          <div className="flex flex-col gap-2.5 lg:flex-row lg:items-center lg:justify-between">
+            <div
+              role="tablist"
+              aria-label="Recorte dos lançamentos"
+              className="grid grid-cols-3 gap-1 rounded-xl bg-muted/60 p-1"
+            >
+              {VIEWS.map((item) => {
+                const active = typeFilter === item.key;
+                return (
+                  <button
+                    key={item.key}
+                    type="button"
+                    role="tab"
+                    aria-selected={active}
+                    onClick={() => setTypeFilter(item.key)}
+                    className={cn(
+                      "flex items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-[12px] font-bold tracking-tight transition-all duration-200",
+                      active
+                        ? "bg-card text-foreground shadow-soft ring-1 ring-border"
+                        : "text-muted-foreground hover:text-foreground",
+                    )}
+                  >
+                    <item.icon className="size-3.5" aria-hidden />
+                    {item.tab}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 [scrollbar-width:none] lg:overflow-visible lg:pb-0 [&::-webkit-scrollbar]:hidden [&>*]:shrink-0">
+              <PeriodPicker year={period.year} month={period.month} onChange={setPeriod} />
+              <span aria-hidden className="mx-0.5 hidden h-6 w-px bg-border lg:block" />
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-9 px-3"
+                onClick={exportCsv}
+                disabled={filtered.length === 0}
+              >
                 <Download className="mr-1.5 size-4" />
                 CSV
               </Button>
               <PdfExportSettingsDialog />
               <ShareLinkDialog year={period.year} month={period.month} />
             </div>
-          }
-        />
+          </div>
+        </section>
 
         <PastMonthsLockNotice monthKey={monthKeyView} />
 
@@ -571,19 +657,6 @@ function TransactionsPage() {
             </Select>
           </FilterField>
 
-          <FilterField label="Tipo">
-            <Select value={typeFilter} onValueChange={setTypeFilter}>
-              <SelectTrigger aria-label="Filtrar por tipo">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Entradas e saídas</SelectItem>
-                <SelectItem value="expense">Saídas (gastos)</SelectItem>
-                <SelectItem value="income">Entradas (recebimentos)</SelectItem>
-              </SelectContent>
-            </Select>
-          </FilterField>
-
           <FilterField label="Ordenar">
             <Select value={sort} onValueChange={setSort}>
               <SelectTrigger aria-label="Ordenar">
@@ -648,7 +721,7 @@ function TransactionsPage() {
         {selected.length > 0 ? (
           <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-border bg-card p-3 text-sm">
             <span>{selected.length} selecionado(s)</span>
-            <Button variant="destructive" size="sm" onClick={() => guardPast(() => setConfirmDelete(selected))}>
+            <Button variant="destructive" size="sm" onClick={() => guardPast(() => setConfirmDelete(selected), `Excluir ${selected.length} lançamentos selecionados`)}>
               <Trash2 className="mr-2 size-4" />
               Excluir selecionados
             </Button>
@@ -759,7 +832,7 @@ function TransactionsPage() {
                               guardPast(() => {
                                 setEditing(row);
                                 setDialogOpen(true);
-                              })
+                              }, `Editar "${row.description}"`)
                             }
                           >
                             <Pencil className="size-4" />
@@ -768,7 +841,7 @@ function TransactionsPage() {
                             variant="ghost"
                             size="icon"
                             className="size-8 rounded-lg hover:bg-muted"
-                            onClick={() => guardPast(() => setConfirmDelete([row.id]))}
+                            onClick={() => guardPast(() => setConfirmDelete([row.id]), `Excluir "${row.description}"`)}
                           >
                             <Trash2 className="size-4" />
                           </Button>
@@ -927,7 +1000,7 @@ function TransactionsPage() {
                               guardPast(() => {
                                 setEditing(row);
                                 setDialogOpen(true);
-                              })
+                              }, `Editar "${row.description}"`)
                             }
                           >
                             <Pencil className="size-3.5" />
@@ -936,7 +1009,7 @@ function TransactionsPage() {
                             variant="ghost"
                             size="icon"
                             className="size-8 rounded-lg"
-                            onClick={() => guardPast(() => handleDuplicate(row))}
+                            onClick={() => guardPast(() => handleDuplicate(row), `Duplicar "${row.description}"`)}
                           >
                             <Copy className="size-3.5" />
                           </Button>
@@ -952,7 +1025,7 @@ function TransactionsPage() {
                             variant="ghost"
                             size="icon"
                             className="size-8 rounded-lg hover:text-destructive hover:bg-destructive/10"
-                            onClick={() => guardPast(() => setConfirmDelete([row.id]))}
+                            onClick={() => guardPast(() => setConfirmDelete([row.id]), `Excluir "${row.description}"`)}
                           >
                             <Trash2 className="size-3.5" />
                           </Button>
@@ -1014,9 +1087,13 @@ function TransactionsPage() {
         open={askPassword}
         onOpenChange={(next) => {
           setAskPassword(next);
-          if (!next) setPendingAction(null);
+          if (!next) {
+            setPendingAction(null);
+            setPendingLabel(null);
+          }
         }}
-        description="Confirme sua senha para editar lançamentos de meses anteriores."
+        lockedMonths={[monthKeyView]}
+        actionLabel={pendingLabel}
         onConfirmed={() => {
           pastUnlock.grant();
           const action = pendingAction;
@@ -1031,7 +1108,7 @@ function TransactionsPage() {
           key={editing?.id ?? "new"}
           open={dialogOpen}
           onOpenChange={setDialogOpen}
-          kind={editing?.transaction_type === "income" ? "income" : "expense"}
+          kind={(editing ? editing.transaction_type === "income" : typeFilter === "income") ? "income" : "expense"}
           transaction={editing}
           defaultDate={periodDefaultDate(period.year, period.month)}
           onSaved={(savedDate) => {
