@@ -583,16 +583,18 @@ function TransactionsPage() {
                 <Download className="mr-2 size-4" />
                 CSV
               </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-9 px-3"
-                onClick={() => window.print()}
-                title="Imprimir relatório"
-              >
-                <Printer className="mr-2 size-4" />
-                PDF
-              </Button>
+              <PeriodPdfPreview summary={pdfSummary} onDownload={exportPeriodPdf}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-9 px-3"
+                  title="Conferir resumo e gerar PDF"
+                >
+                  <Printer className="mr-2 size-4" />
+                  PDF
+                </Button>
+              </PeriodPdfPreview>
+
               <Button
                 size="sm"
                 className="h-9 px-3"
