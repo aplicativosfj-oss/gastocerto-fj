@@ -88,18 +88,18 @@ function AuthPage() {
         </Link>
         <div className="max-w-sm">
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/70">
-            Seu dinheiro, sob controle
+            Acesso à plataforma
           </p>
           <h2 className="font-display mt-2 text-3xl font-extrabold leading-tight tracking-[-0.02em]">
-            Cada abastecimento, conta e gasto no mesmo lugar.
+            Suas finanças organizadas em um só sistema.
           </h2>
           <p className="mt-2 text-sm leading-relaxed text-white/75">
-            Entre com CPF e senha de 6 dígitos. Sem cartão de crédito, sem burocracia.
+            Acesse com CPF e senha de 6 dígitos. Cadastro gratuito, sem necessidade de cartão.
           </p>
           <ul className="mt-4 grid gap-1.5 text-[13px] text-white/80">
-            <li>• Painel mensal com gastos por categoria</li>
-            <li>• Combustível com custo por km automático</li>
-            <li>• Alertas de vencimento e orçamento</li>
+            <li>• Painel mensal com despesas por categoria</li>
+            <li>• Controle de combustível com custo por quilômetro</li>
+            <li>• Orçamentos, vencimentos e relatórios exportáveis</li>
           </ul>
         </div>
         <p className="text-[11px] text-white/60">Dev. Franc D&apos;nis · Feijó-AC</p>

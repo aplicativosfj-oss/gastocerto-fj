@@ -44,7 +44,7 @@ type Feature = { icon: LucideIcon; title: string; text: string; tag: string };
 const featureGroups: { group: string; caption: string; items: Feature[] }[] = [
   {
     group: "Dia a dia",
-    caption: "O básico resolvido em segundos",
+    caption: "Registros e contas do dia a dia",
     items: [
       {
         icon: Receipt,
@@ -74,7 +74,7 @@ const featureGroups: { group: string; caption: string; items: Feature[] }[] = [
   },
   {
     group: "Veículos e trabalho",
-    caption: "Controle profissional de rodagem",
+    caption: "Custos de veículos e rodagem",
     items: [
       {
         icon: Fuel,
@@ -104,7 +104,7 @@ const featureGroups: { group: string; caption: string; items: Feature[] }[] = [
   },
   {
     group: "Planejamento",
-    caption: "Onde o dinheiro passa a sobrar",
+    caption: "Orçamentos, metas e previsibilidade",
     items: [
       {
         icon: PiggyBank,
@@ -134,7 +134,7 @@ const featureGroups: { group: string; caption: string; items: Feature[] }[] = [
   },
   {
     group: "Inteligência",
-    caption: "Você enxerga antes de acontecer",
+    caption: "Relatórios, alertas e comprovantes",
     items: [
       {
         icon: BarChart3,
@@ -208,7 +208,7 @@ const tabs = ["recursos", "como-funciona", "seguranca", "faq"] as const;
 type TabValue = (typeof tabs)[number];
 
 const tabMeta: Record<TabValue, { label: string; description: string }> = {
-  recursos: { label: "Recursos", description: "Dezesseis recursos de controle de gastos em quatro frentes" },
+  recursos: { label: "Recursos", description: "Dezesseis recursos organizados em quatro frentes" },
   "como-funciona": { label: "Como funciona", description: "Três passos e depoimentos de clientes" },
   seguranca: { label: "Segurança", description: "LGPD, criptografia e controle de acesso" },
   faq: { label: "FAQ", description: "Perguntas frequentes: seis dúvidas comuns sobre planos e demonstração" },
@@ -239,14 +239,14 @@ export function CompactOverview() {
           <div className="min-w-0">
             <p className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-brand">
               <Sparkles className="size-3.5" aria-hidden="true" />
-              Sem planilha, sem caderninho
+              Recursos da plataforma
             </p>
             <h2 className="mt-1 section-title">
-              Tudo o que você gasta, em uma plataforma só
+              Um sistema para todo o seu controle financeiro
             </h2>
             <p className="mt-1 max-w-xl text-[13px] leading-relaxed text-muted-foreground">
-              Do botijão de gás ao custo por quilômetro rodado: dezesseis recursos integrados
-              para você lançar rápido, prever o mês e parar de descobrir o prejuízo só na fatura.
+              Dezesseis recursos integrados que cobrem o dia a dia, veículos, planejamento e
+              análise — do registro de um gasto ao relatório consolidado do mês.
             </p>
           </div>
           <nav aria-label="Atalhos para seções da página" className="flex min-w-0 flex-wrap items-center gap-1.5 sm:justify-end">

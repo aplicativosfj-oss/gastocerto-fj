@@ -14,9 +14,9 @@ const DashboardPreview = lazy(() =>
 );
 
 const stats = [
-  { label: "Fecha o mês em", value: formatCurrency(3782.45), hint: "8,2% menos que junho" },
-  { label: "Sobra no bolso", value: "R$ 640/mês", hint: "média após 90 dias" },
-  { label: "Lançar um gasto", value: "10 segundos", hint: "com categoria e anexo" },
+  { label: "Despesas do mês", value: formatCurrency(3782.45), hint: "consolidado de julho" },
+  { label: "Resultado mensal", value: "R$ 640", hint: "receitas menos despesas" },
+  { label: "Registro de lançamento", value: "10 s", hint: "categoria, data e anexo" },
 ];
 
 export function Hero() {
@@ -49,16 +49,16 @@ export function Hero() {
         <div>
           <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/80 backdrop-blur sm:text-[11px]">
             <ShieldCheck className="size-3.5 text-success" aria-hidden="true" />
-            Novo · Painel 2026 com alertas inteligentes
+            Plataforma de gestão financeira pessoal
           </span>
 
           <h1 className="font-display mt-2.5 text-[1.6rem] font-extrabold leading-[1.05] tracking-[-0.03em] text-white sm:text-[2.4rem] lg:text-[2.75rem] xl:text-[3.1rem]">
-            Você trabalha demais para não saber onde o dinheiro foi parar.
+            Controle completo das suas finanças pessoais
           </h1>
 
           <p className="mt-2 max-w-lg text-[13px] leading-snug text-white/70 sm:text-[15px] sm:leading-relaxed">
-            O GastoCerto junta combustível, gás, mercado, assinaturas e contas fixas em um
-            painel só — e avisa você antes da fatura chegar.
+            Registre despesas, receitas, contas fixas, combustível e gás em um único sistema,
+            com painéis mensais, orçamentos e relatórios prontos para consulta.
           </p>
 
           <div className="mt-3.5 grid grid-cols-[1fr_1fr_auto] items-center gap-1.5 sm:flex sm:flex-wrap sm:gap-2">
@@ -137,7 +137,7 @@ export function Hero() {
 
           <div className="absolute -bottom-2 right-4 inline-flex items-center gap-2 rounded-full border border-white/15 bg-[oklch(0.2_0.03_258/0.85)] px-3 py-1.5 text-[11px] font-medium text-white/80 shadow-lifted backdrop-blur-md">
             <Wallet className="size-3.5 text-brand" aria-hidden="true" />
-            Atualiza sozinho, todo dia
+            Consolidação diária automática
           </div>
         </div>
       </div>
