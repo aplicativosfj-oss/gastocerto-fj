@@ -60,6 +60,10 @@ export const AI_BLOCK_MESSAGE =
 export const AI_UPGRADE_MESSAGE =
   "Seu plano é pago, mas não inclui o Consultor de IA. Faça upgrade para o Premium IA para liberar as análises com inteligência artificial.";
 
+export const AI_TRIAL_BLOCK_MESSAGE =
+  "As licenças de teste de 7 dias liberam apenas os recursos básicos e não incluem o Consultor de IA. Assine o Premium IA para liberar as análises com inteligência artificial.";
+
+
 
 /** Rate limiting por usuário (protege trial/teste de tentativas repetidas). */
 export const AI_RATE_WINDOW_SECONDS = 60;
