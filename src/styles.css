@@ -387,10 +387,7 @@
     min-width: 0;
   }
 
-  /* Área de conteúdo com altura mínima estável entre navegações. */
-  @utility app-main {
-    min-height: calc(100svh - 8.5rem);
-  }
+
 
 
   img,
