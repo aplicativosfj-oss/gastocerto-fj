@@ -114,10 +114,33 @@ function GasPage() {
             </p>
           </div>
         </div>
-        <Button onClick={openNew}>
-          <Plus className="size-4" />
-          Registrar troca
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" onClick={() => setImportOpen(true)}>
+            <FileUp className="size-4" />
+            Importar histórico
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => exportGasCsv(summary)}
+            disabled={summary.refillCount === 0}
+          >
+            <FileSpreadsheet className="size-4" />
+            CSV
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => void exportGasPdf(summary)}
+            disabled={summary.refillCount === 0}
+          >
+            <FileText className="size-4" />
+            PDF
+          </Button>
+          <Button onClick={openNew}>
+            <Plus className="size-4" />
+            Registrar troca
+          </Button>
+        </div>
+
       </header>
 
       {isLoading ? (
