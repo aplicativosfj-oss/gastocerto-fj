@@ -714,6 +714,10 @@ export function ExpenseCardsDialog({
                   ? "todo mês"
                   : "pagamento único"}
             </p>
+            {phoneMode && phoneSummary ? (
+              <p className="mt-2 text-[11px] text-primary">{phoneSummary}</p>
+            ) : null}
+
           </div>
 
           <dl className="grid grid-cols-2 gap-2 text-xs">
