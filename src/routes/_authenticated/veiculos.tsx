@@ -199,56 +199,56 @@ function VehiclesPage() {
     <AppShell>
       <FeatureGate feature="vehicles">
       <div className="space-y-4">
-        <header className="flex flex-wrap items-center justify-between gap-3">
-          <div className="min-w-0">
-            <h1 className="text-2xl font-bold tracking-tight">Veículos e combustível</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Consumo médio, custo por km e histórico completo dos abastecimentos.
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Button variant="outline" asChild>
-              <Link to="/veiculos-configuracoes">
-                <Settings2 className="mr-2 size-4" />
-                Metas e alertas
-              </Link>
-            </Button>
-            <Button variant="outline" asChild>
-              <Link to="/veiculos-auditoria">
-                <History className="mr-2 size-4" />
-                Auditoria
-              </Link>
-            </Button>
-            <Button
-              variant="outline"
-              disabled={perVehicle.length === 0}
-              onClick={exportFuelCsv}
-            >
-              <Download className="mr-2 size-4" />
-              CSV
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setEditingVehicle(null);
-                setVehicleDialog(true);
-              }}
-            >
-              <Car className="mr-2 size-4" />
-              Novo veículo
-            </Button>
-            <Button
-              disabled={(vehicles ?? []).length === 0}
-              onClick={() => {
-                setEditingEntry(null);
-                setFuelDialog(true);
-              }}
-            >
-              <Plus className="mr-2 size-4" />
-              Novo gasto do veículo
-            </Button>
-          </div>
-        </header>
+        <PageHeader
+          icon={Fuel}
+          eyebrow="Frota e combustível"
+          title="Veículos e combustível"
+          description="Consumo médio, custo por km e histórico completo dos abastecimentos."
+          actions={
+            <>
+              <Button variant="outline" asChild>
+                <Link to="/veiculos-configuracoes">
+                  <Settings2 className="mr-2 size-4" />
+                  Metas e alertas
+                </Link>
+              </Button>
+              <Button variant="outline" asChild>
+                <Link to="/veiculos-auditoria">
+                  <History className="mr-2 size-4" />
+                  Auditoria
+                </Link>
+              </Button>
+              <Button
+                variant="outline"
+                disabled={perVehicle.length === 0}
+                onClick={exportFuelCsv}
+              >
+                <Download className="mr-2 size-4" />
+                CSV
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setEditingVehicle(null);
+                  setVehicleDialog(true);
+                }}
+              >
+                <Car className="mr-2 size-4" />
+                Novo veículo
+              </Button>
+              <Button
+                disabled={(vehicles ?? []).length === 0}
+                onClick={() => {
+                  setEditingEntry(null);
+                  setFuelDialog(true);
+                }}
+              >
+                <Plus className="mr-2 size-4" />
+                Novo gasto do veículo
+              </Button>
+            </>
+          }
+        />
 
         {isLoading ? (
           <Skeleton className="h-28 w-full" />
