@@ -108,6 +108,8 @@ function DashboardPage() {
   const [preset, setPreset] = useState<QuickPick>({ categoryId: null, subCategoryId: null });
   const [detail, setDetail] = useState<MetricDetail | null>(null);
   const [editingTx, setEditingTx] = useState<Transaction | null>(null);
+  /** Dia selecionado no calendário — permite lançar direto pelo modal do dia. */
+  const [detailDate, setDetailDate] = useState<string | null>(null);
   const [dependentOpen, setDependentOpen] = useState(false);
   const [taxOpen, setTaxOpen] = useState(false);
 
