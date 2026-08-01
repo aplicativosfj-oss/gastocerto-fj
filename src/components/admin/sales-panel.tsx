@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Copy, Download, ExternalLink, FileText, Loader2, RefreshCw, Search } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
@@ -29,7 +29,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
-import { getPixCheckoutStatus } from "@/lib/checkout.functions";
+import { getCheckoutStatus } from "@/lib/checkout.functions";
 import { adminListLicenses } from "@/lib/licenses.functions";
 import { formatCurrency, formatDateTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -263,7 +263,27 @@ export function SalesPanel({ globalSearch = "" }: { globalSearch?: string }) {
   const query = useQuery({
     queryKey: ["admin", "licenses"],
     queryFn: () => adminListLicenses(),
+    refetchInterval: 15_000,
+    refetchOnWindowFocus: true,
   });
+
+  // Atualização em tempo real: novos pedidos e confirmações aparecem sem recarregar a página.
+  useEffect(() => {
+    const channel = supabase
+      .channel("admin-sales-realtime")
+      .on("postgres_changes", { event: "*", schema: "public", table: "payments" }, () => {
+        query.refetch();
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "licenses" }, () => {
+        query.refetch();
+      })
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
 
   const licensesById = useMemo(() => {
     const map = new Map<string, any>();
@@ -328,7 +348,7 @@ export function SalesPanel({ globalSearch = "" }: { globalSearch?: string }) {
   const sync = async (paymentId: string) => {
     setSyncing(paymentId);
     try {
-      const result = await getPixCheckoutStatus({ data: { paymentId } });
+      const result = await getCheckoutStatus({ data: { paymentId } });
       toast.success(`Situação atualizada: ${STATUS_LABEL[result.status] ?? result.status}`);
       await query.refetch();
     } catch (error) {
