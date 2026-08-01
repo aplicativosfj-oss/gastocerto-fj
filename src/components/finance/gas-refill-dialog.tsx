@@ -24,8 +24,8 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { GAS_SIZES, useDeleteGasRefill, useSaveGasRefill, type GasRefill } from "@/lib/gas";
 import { isoDate, parseAmount, PAYMENT_METHODS } from "@/lib/finance";
-import { useCategories } from "@/lib/queries";
-import { useSaveTransaction } from "@/lib/transactions";
+import { useGasExpenseSync } from "@/lib/gas-expense";
+
 
 /**
  * Registro de troca do botijão de gás. Opcionalmente lança a compra também
