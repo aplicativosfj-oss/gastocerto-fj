@@ -28,6 +28,8 @@ import {
 
 import { AppShell } from "@/components/app-shell";
 import { GasImportDialog } from "@/components/finance/gas-import-dialog";
+import { Input } from "@/components/ui/input";
+
 import { GasRefillDialog } from "@/components/finance/gas-refill-dialog";
 import { GasReminderCard } from "@/components/finance/gas-reminder-card";
 
