@@ -1517,6 +1517,63 @@ export type Database = {
           },
         ]
       }
+      share_links: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          id: string
+          include_notes: boolean
+          include_transactions: boolean
+          label: string | null
+          last_viewed_at: string | null
+          month: number
+          password_hash: string
+          password_salt: string
+          revoked_at: string | null
+          token: string
+          updated_at: string
+          user_id: string
+          view_count: number
+          year: number
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          include_notes?: boolean
+          include_transactions?: boolean
+          label?: string | null
+          last_viewed_at?: string | null
+          month: number
+          password_hash: string
+          password_salt: string
+          revoked_at?: string | null
+          token: string
+          updated_at?: string
+          user_id: string
+          view_count?: number
+          year: number
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          include_notes?: boolean
+          include_transactions?: boolean
+          label?: string | null
+          last_viewed_at?: string | null
+          month?: number
+          password_hash?: string
+          password_salt?: string
+          revoked_at?: string | null
+          token?: string
+          updated_at?: string
+          user_id?: string
+          view_count?: number
+          year?: number
+        }
+        Relationships: []
+      }
       transaction_items: {
         Row: {
           created_at: string
