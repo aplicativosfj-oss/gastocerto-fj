@@ -181,11 +181,14 @@ export function CheckoutDialog({
             {step === "plan"
               ? "Escolha o plano e o ciclo de cobrança."
               : step === "form"
-                ? "Confirme seus dados para emitir o Pix."
-                : step === "pix"
-                  ? "Pague o Pix e a chave de ativação é liberada automaticamente."
-                  : "Sua chave de ativação está pronta."}
+                ? "Informe seus dados: enviaremos um código para confirmar seu e-mail."
+                : step === "code"
+                  ? "Digite o código de 6 dígitos enviado ao seu e-mail."
+                  : step === "pix"
+                    ? "Pague o Pix e a chave de ativação é liberada automaticamente."
+                    : "Sua chave de ativação está pronta."}
           </DialogDescription>
+
         </DialogHeader>
 
         {step === "plan" ? (
