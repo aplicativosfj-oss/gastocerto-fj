@@ -33,6 +33,7 @@ export const fixNexxusTransaction = createServerFn({ method: "POST" })
 
     if (error) throw error;
     return { success: true, count: updated?.length ?? 0 };
+  });
 
 export const fixComplexAdjustments = createServerFn({ method: "POST" })
   .inputValidator((data) => z.object({ userId: z.string() }).parse(data))
@@ -58,10 +59,7 @@ export const fixComplexAdjustments = createServerFn({ method: "POST" })
     
     results.movedRevenues = revenues?.length ?? 0;
 
-    // 2. Corrigir o gasto de R$ 262 que "não foi feito hoje"
-    // Vou procurar por um valor aproximado se exato falhar, mas o usuário disse 262.
-    // Como não sei a data correta, vou mover para o dia anterior ou deixar como pendente?
-    // O usuário disse "não foi feito hoje", geralmente significa que foi antes.
+    // 2. Corrigir o gasto de R$ 262 que "não foi feito hoje" (01/08)
     const { data: expense262 } = await supabaseAdmin
       .from("transactions")
       .update({ 
@@ -79,4 +77,3 @@ export const fixComplexAdjustments = createServerFn({ method: "POST" })
 
     return results;
   });
-
