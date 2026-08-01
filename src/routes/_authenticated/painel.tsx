@@ -41,7 +41,7 @@ import { MetricDetailDialog, type MetricDetail } from "@/components/finance/metr
 import { QuickCategoryMenu, type QuickPick } from "@/components/finance/quick-category-menu";
 import { PeriodPicker } from "@/components/finance/period-picker";
 import { CardMonthSummary } from "@/components/finance/card-month-summary";
-import { EmblemBike, EmblemCar } from "@/components/ui/panel-emblems";
+import { VehicleEmblem } from "@/components/finance/vehicle-emblem";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -860,8 +860,8 @@ function DashboardPage() {
                     <li key={row.vehicle?.id ?? row.vehicleName} className="space-y-1.5">
                       <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
                         <span className="flex min-w-0 items-center gap-2">
-                          {row.vehicleType === "moto" ? (
-                            <EmblemBike title="Moto" className="size-4 shrink-0 text-muted-foreground" />
+                          {(
+                            <VehicleEmblem vehicleType={row.vehicleType} className="size-4 shrink-0 text-muted-foreground" />
                           ) : (
                             <EmblemCar title="Carro" className="size-4 shrink-0 text-muted-foreground" />
                           )}
