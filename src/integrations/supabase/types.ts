@@ -158,6 +158,36 @@ export type Database = {
         }
         Relationships: []
       }
+      blocked_ips: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          ip: string
+          reason: string | null
+          target_user_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          ip: string
+          reason?: string | null
+          target_user_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          ip?: string
+          reason?: string | null
+          target_user_id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       budgets: {
         Row: {
           alert_percentage: number
@@ -921,6 +951,7 @@ export type Database = {
           plan_id: string | null
           source: string
           status: Database["public"]["Enums"]["license_status"]
+          trial_days: number | null
           updated_at: string
           user_id: string | null
         }
@@ -941,6 +972,7 @@ export type Database = {
           plan_id?: string | null
           source?: string
           status?: Database["public"]["Enums"]["license_status"]
+          trial_days?: number | null
           updated_at?: string
           user_id?: string | null
         }
@@ -961,6 +993,7 @@ export type Database = {
           plan_id?: string | null
           source?: string
           status?: Database["public"]["Enums"]["license_status"]
+          trial_days?: number | null
           updated_at?: string
           user_id?: string | null
         }
@@ -1038,6 +1071,7 @@ export type Database = {
           days_before_due: number
           due_alerts: boolean
           fuel_alerts: boolean
+          gas_alerts: boolean
           goal_alerts: boolean
           id: string
           overdue_alerts: boolean
@@ -1050,6 +1084,7 @@ export type Database = {
           days_before_due?: number
           due_alerts?: boolean
           fuel_alerts?: boolean
+          gas_alerts?: boolean
           goal_alerts?: boolean
           id?: string
           overdue_alerts?: boolean
@@ -1062,6 +1097,7 @@ export type Database = {
           days_before_due?: number
           due_alerts?: boolean
           fuel_alerts?: boolean
+          gas_alerts?: boolean
           goal_alerts?: boolean
           id?: string
           overdue_alerts?: boolean
