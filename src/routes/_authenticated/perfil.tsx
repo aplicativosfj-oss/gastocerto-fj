@@ -2,7 +2,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Loader2, Upload, User } from "lucide-react";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
 
 import { AppShell } from "@/components/app-shell";
 import { PageHeader } from "@/components/finance/page-header";
@@ -78,7 +77,7 @@ function ProfilePage() {
       .update({
         full_name: parsed.data.fullName,
         phone: parsed.data.phone || null,
-        monthly_income: parsed.data.monthlyIncome ?? null,
+        monthly_income: parsed.data.monthly_income ?? null,
       })
       .eq("user_id", user.id);
     setSaving(false);
@@ -152,118 +151,131 @@ function ProfilePage() {
 
   return (
     <AppShell>
-      <div className="mx-auto max-w-2xl space-y-5 sm:space-y-7">
+      <div className="mx-auto max-w-4xl space-y-6">
         <PageHeader
           icon={User}
           eyebrow="Configurações"
-          title="Meu perfil"
-          description="Seus dados pessoais e informações de conta."
-          className="lg:p-4"
+          title="Meu Perfil"
+          description="Gerencie sua conta e visualize o status da sua licença."
+          className="pb-2"
         />
 
-        <section className="interactive-card flex items-center gap-5 rounded-xl border border-border bg-card p-5 shadow-soft">
-          <Avatar className="size-20 border-2 border-background shadow-sm">
-            {avatarUrl ? <AvatarImage src={avatarUrl} alt="Foto de perfil" /> : null}
-            <AvatarFallback className="bg-muted text-lg font-bold">{initials}</AvatarFallback>
-          </Avatar>
-          <div className="space-y-2">
-            <Button
-              type="button"
-              variant="secondary"
-              className="h-9 font-bold uppercase tracking-wider text-[11px]"
-              onClick={() => fileRef.current?.click()}
-              disabled={uploading}
+        <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
+          {/* Coluna Esquerda: Avatar e Plano */}
+          <aside className="space-y-6">
+            <section className="accent-tile overflow-hidden rounded-2xl p-6 text-center shadow-soft">
+              <div className="relative mx-auto mb-4 inline-block">
+                <Avatar className="size-24 border-4 border-background shadow-xl ring-2 ring-border/20">
+                  {avatarUrl ? <AvatarImage src={avatarUrl} alt="Foto de perfil" /> : null}
+                  <AvatarFallback className="bg-muted text-2xl font-bold">{initials}</AvatarFallback>
+                </Avatar>
+                <button
+                  onClick={() => fileRef.current?.click()}
+                  disabled={uploading}
+                  className="absolute -bottom-1 -right-1 flex size-8 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-transform hover:scale-110 active:scale-95 disabled:opacity-50"
+                  title="Alterar foto"
+                >
+                  {uploading ? (
+                    <Loader2 className="size-4 animate-spin" />
+                  ) : (
+                    <Upload className="size-4" />
+                  )}
+                </button>
+              </div>
+              <div className="space-y-1">
+                <h3 className="font-display font-bold leading-tight">{profile?.full_name || "Usuário"}</h3>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">
+                  {(roles ?? ["user"]).join(" • ")}
+                </p>
+              </div>
+
+              <input
+                ref={fileRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                className="hidden"
+                onChange={handleAvatar}
+              />
+            </section>
+
+            <PlanSummaryCard />
+          </aside>
+
+          {/* Coluna Direita: Dados e Licença */}
+          <div className="space-y-6">
+            <form
+              onSubmit={handleSubmit}
+              className="accent-tile rounded-2xl p-6 shadow-soft"
+              noValidate
             >
-              {uploading ? (
-                <Loader2 className="mr-2 size-4 animate-spin" />
-              ) : (
-                <Upload className="mr-2 size-4" />
-              )}
-              Alterar foto
-            </Button>
-            <p className="text-[11px] font-medium text-muted-foreground/70 uppercase tracking-wide">
-              Resolução recomendada: 400x400px
-            </p>
-            <input
-              ref={fileRef}
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              className="hidden"
-              onChange={handleAvatar}
-            />
-          </div>
-        </section>
+              <div className="mb-6 border-b border-border/40 pb-4">
+                <h2 className="text-sm font-bold uppercase tracking-wider text-foreground">
+                  Informações Pessoais
+                </h2>
+              </div>
 
-        <form
-          onSubmit={handleSubmit}
-          className="interactive-card space-y-5 rounded-xl border border-border bg-card p-6 shadow-soft"
-          noValidate
-        >
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-1.5">
-              <Label htmlFor="fullName" className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Nome completo</Label>
-              <Input
-                id="fullName"
-                name="fullName"
-                defaultValue={profile?.full_name ?? ""}
-                className="h-10 rounded-lg border-border/60"
-                maxLength={100}
-              />
-              {errors.fullName ? (
-                <p className="mt-1 text-[11px] text-destructive font-medium">{errors.fullName}</p>
-              ) : null}
-            </div>
+              <div className="grid gap-x-6 gap-y-4 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label htmlFor="fullName" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70">Nome Completo</Label>
+                  <Input
+                    id="fullName"
+                    name="fullName"
+                    defaultValue={profile?.full_name ?? ""}
+                    className="h-10 rounded-xl bg-background/50 border-border/40 transition-colors focus:bg-background"
+                    maxLength={100}
+                  />
+                  {errors.fullName && (
+                    <p className="text-[10px] font-medium text-destructive">{errors.fullName}</p>
+                  )}
+                </div>
 
-            <div className="space-y-1.5">
-              <Label htmlFor="email" className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">E-mail</Label>
-              <Input id="email" value={user?.email ?? ""} className="h-10 rounded-lg bg-muted/30 border-border/40" disabled />
-            </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="email" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70">E-mail</Label>
+                  <Input id="email" value={user?.email ?? ""} className="h-10 rounded-xl bg-muted/40 border-transparent opacity-70" disabled />
+                </div>
 
-            <div className="space-y-1.5">
-              <Label htmlFor="phone" className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Telefone</Label>
-              <Input
-                id="phone"
-                name="phone"
-                defaultValue={profile?.phone ?? ""}
-                className="h-10 rounded-lg border-border/60"
-                maxLength={20}
-              />
-              {errors.phone ? <p className="mt-1 text-[11px] text-destructive font-medium">{errors.phone}</p> : null}
-            </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="phone" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70">Telefone / WhatsApp</Label>
+                  <Input
+                    id="phone"
+                    name="phone"
+                    defaultValue={profile?.phone ?? ""}
+                    className="h-10 rounded-xl bg-background/50 border-border/40 transition-colors focus:bg-background"
+                    maxLength={20}
+                  />
+                  {errors.phone && <p className="text-[10px] font-medium text-destructive">{errors.phone}</p>}
+                </div>
 
-            <div className="space-y-1.5">
-              <Label htmlFor="monthlyIncome" className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Renda mensal (R$)</Label>
-              <Input
-                id="monthlyIncome"
-                name="monthlyIncome"
-                inputMode="decimal"
-                defaultValue={profile?.monthly_income != null ? String(profile.monthly_income) : ""}
-                className="h-10 rounded-lg border-border/60 tabular-nums font-semibold"
-              />
-              {errors.monthlyIncome ? (
-                <p className="mt-1 text-[11px] text-destructive font-medium">{errors.monthlyIncome}</p>
-              ) : null}
+                <div className="space-y-1.5">
+                  <Label htmlFor="monthlyIncome" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70">Renda Mensal Estimada</Label>
+                  <Input
+                    id="monthlyIncome"
+                    name="monthlyIncome"
+                    inputMode="decimal"
+                    defaultValue={profile?.monthly_income != null ? String(profile.monthly_income) : ""}
+                    className="h-10 rounded-xl bg-background/50 border-border/40 transition-colors focus:bg-background tabular-nums font-semibold"
+                  />
+                  {errors.monthlyIncome && (
+                    <p className="text-[10px] font-medium text-destructive">{errors.monthlyIncome}</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="mt-8 flex items-center justify-end">
+                <Button type="submit" size="sm" className="h-10 px-6 rounded-xl font-bold uppercase tracking-widest text-[10px] shadow-lg shadow-primary/20" disabled={saving}>
+                  {saving ? <Loader2 className="mr-2 size-3 animate-spin" /> : null}
+                  Salvar Perfil
+                </Button>
+              </div>
+            </form>
+
+            <div className="grid gap-6 sm:grid-cols-2">
+              <TrialCard />
+              <LicenseCard />
             </div>
           </div>
-
-          <div className="flex items-center justify-between border-t border-border/40 pt-5">
-            <div className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground/60">
-              Acesso: <span className="text-foreground">{(roles ?? ["user"]).join(", ")}</span>
-            </div>
-            <Button type="submit" size="sm" className="h-9 px-5 font-bold uppercase tracking-wider text-[11px]" disabled={saving}>
-              {saving ? <Loader2 className="mr-2 size-3 animate-spin" /> : null}
-              Salvar Alterações
-            </Button>
-          </div>
-        </form>
-
-        <PlanSummaryCard />
-
-        <TrialCard />
-
-        <LicenseCard />
+        </div>
       </div>
-
     </AppShell>
   );
 }
