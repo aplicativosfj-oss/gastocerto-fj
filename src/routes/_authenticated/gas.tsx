@@ -290,9 +290,22 @@ function GasPage() {
   const [editing, setEditing] = useState<GasRefill | null>(null);
   const [importOpen, setImportOpen] = useState(false);
   const [detailKey, setDetailKey] = useState<string | null>(null);
+  const [chartRange, setChartRange] = useState("all");
 
   const summary = useMemo(() => summarizeGas(refills ?? []), [refills]);
-  const details = useMemo(() => buildDetails(summary), [summary]);
+
+  const filteredRefills = useMemo(() => {
+    if (!refills) return [];
+    if (chartRange === "all") return refills;
+    const days = parseInt(chartRange, 10);
+    const limit = new Date();
+    limit.setDate(limit.getDate() - days);
+    return refills.filter(r => new Date(r.date) >= limit);
+  }, [refills, chartRange]);
+
+  const filteredSummary = useMemo(() => summarizeGas(filteredRefills), [filteredRefills]);
+  const details = useMemo(() => buildDetails(filteredSummary), [filteredSummary]);
+
 
   const durationSeries = useMemo(
     () =>
