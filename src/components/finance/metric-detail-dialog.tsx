@@ -259,6 +259,8 @@ export function MetricDetailDialog({
                   {byCategory.map((item) => {
                     const Icon = categoryIcon(item.icon);
                     const percent = maxTotal > 0 ? (item.total / maxTotal) * 100 : 0;
+                    const categorySum = byCategory.reduce((sum, entry) => sum + entry.total, 0);
+                    const share = categorySum > 0 ? Math.round((item.total / categorySum) * 100) : 0;
                     return (
                       <li key={item.name} className="text-xs">
                         <div className="flex items-center justify-between gap-2">
@@ -266,10 +268,12 @@ export function MetricDetailDialog({
                             <Icon className="size-3.5 shrink-0" style={{ color: item.color ?? undefined }} />
                             <span className="truncate">{item.name}</span>
                           </span>
-                          <span className="shrink-0 font-semibold tabular-nums">
-                            {formatCurrency(item.total)}
+                          <span className="flex shrink-0 items-baseline gap-1.5 tabular-nums">
+                            <span className="font-semibold">{formatCurrency(item.total)}</span>
+                            <span className="text-[10px] text-muted-foreground">{share}%</span>
                           </span>
                         </div>
+
                         <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-muted">
                           <div
                             className="h-full rounded-full"
