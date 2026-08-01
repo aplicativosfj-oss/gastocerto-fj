@@ -61,6 +61,24 @@ export function useCategories() {
   });
 }
 
+/** Traz todas as categorias do usuário, inclusive as desativadas (tela de configuração). */
+export function useAllCategories() {
+  const { user } = useAuth();
+
+  return useQuery({
+    queryKey: ["categories", user?.id, "all"],
+    enabled: Boolean(user?.id),
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("categories")
+        .select("*")
+        .order("name");
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+}
+
 export function useInvalidateProfile() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
