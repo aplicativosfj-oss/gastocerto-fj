@@ -278,11 +278,7 @@ function VehiclesPage() {
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex min-w-0 items-start gap-3">
-                    {(
-                      <VehicleEmblem vehicleType={vehicle.vehicle_type} className="size-10" />
-                    ) : (
-                      <EmblemCar title="Carro" className="size-10" />
-                    )}
+                    <VehicleEmblem vehicleType={vehicle.vehicle_type} className="size-10" />
                     <div className="min-w-0">
                       <h2 className="truncate font-semibold">{vehicle.name}</h2>
                       <p className="mt-0.5 truncate text-xs text-muted-foreground">
