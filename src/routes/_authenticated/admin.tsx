@@ -46,6 +46,7 @@ import { BlockedIpsPanel } from "@/components/admin/blocked-ips-panel";
 import { ClosingPolicyPanel } from "@/components/admin/closing-policy-panel";
 import { CategoriesCatalogPanel } from "@/components/admin/categories-panel";
 import { AdminAccessPanel } from "@/components/admin/admin-access-panel";
+import { AuditLogsPanel } from "@/components/admin/audit-logs-panel";
 import { SupportTicketsPanel } from "@/components/admin/support-tickets-panel";
 import { AnnouncementsPanel } from "@/components/admin/announcements-panel";
 import { PlanConfigsPanel } from "@/components/admin/plan-configs-panel";
@@ -276,6 +277,7 @@ function AdminContent({ isAdmin }: { isAdmin: boolean }) {
             {isAdmin ? <TabsTrigger value="categories">Categorias</TabsTrigger> : null}
             <TabsTrigger value="reopen">Liberações</TabsTrigger>
             <TabsTrigger value="logs">Logs</TabsTrigger>
+            <TabsTrigger value="audit">Auditoria</TabsTrigger>
           </TabsList>
 
           {isAdmin ? (
@@ -423,6 +425,10 @@ function AdminContent({ isAdmin }: { isAdmin: boolean }) {
           <TabsContent value="reopen" className="mt-4 space-y-4">
             <ClosingPolicyPanel />
             <ReopenRequestsPanel />
+          </TabsContent>
+
+          <TabsContent value="audit" className="mt-4">
+            <AuditLogsPanel />
           </TabsContent>
 
           <TabsContent value="logs" className="mt-4">

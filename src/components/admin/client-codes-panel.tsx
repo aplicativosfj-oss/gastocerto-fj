@@ -17,25 +17,19 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { formatDateTime } from "@/lib/format";
-
-function remainingLabel(expiresAt: string | null) {
-  if (!expiresAt) return { text: "Sem validade definida", tone: "neutral" as const };
-  const diff = new Date(expiresAt).getTime() - Date.now();
-  if (diff <= 0) return { text: "Expirada", tone: "expired" as const };
-  const days = Math.floor(diff / 86_400_000);
-  const hours = Math.floor((diff % 86_400_000) / 3_600_000);
-  if (days > 0) return { text: `${days}d ${hours}h restantes`, tone: days <= 5 ? ("soon" as const) : ("ok" as const) };
-  return { text: `${hours}h restantes`, tone: "soon" as const };
-}
+import { remainingTime } from "@/lib/audit-log";
+import { useNow } from "@/lib/use-now";
 
 export function ClientCodesPanel() {
   const listLicenses = useServerFn(adminListLicenses);
   const [search, setSearch] = useState("");
+  const now = useNow(1000);
 
   const { data, isLoading } = useQuery({
     queryKey: ["admin", "client-codes"],
     queryFn: () => listLicenses(),
     refetchInterval: 60_000,
+    refetchOnWindowFocus: true,
   });
 
   const rows = useMemo(() => {
@@ -58,7 +52,8 @@ export function ClientCodesPanel() {
           Códigos de acesso de clientes
         </CardTitle>
         <CardDescription>
-          Situação de validade e tempo restante de cada chave entregue aos clientes.
+          Situação de validade e tempo restante de cada chave entregue aos clientes — o contador
+          atualiza automaticamente a cada segundo, sem recarregar a página.
         </CardDescription>
         <div className="relative mt-3">
           <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -96,7 +91,7 @@ export function ClientCodesPanel() {
               </TableHeader>
               <TableBody>
                 {rows.map((license) => {
-                  const remaining = remainingLabel(license.expires_at);
+                  const remaining = remainingTime(license.expires_at, now);
                   const isActive = license.status === "active" && remaining.tone !== "expired";
                   return (
                     <TableRow key={license.id}>
