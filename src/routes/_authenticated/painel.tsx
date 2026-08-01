@@ -398,7 +398,8 @@ function DashboardPage() {
 
   return (
     <AppShell>
-      <div className="space-y-4">
+      <>
+        <div className="space-y-4">
         <header className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 sm:flex sm:flex-wrap sm:items-center sm:justify-between">
           <div className="min-w-0">
             <h1 className="page-title truncate">
@@ -1030,45 +1031,6 @@ function DashboardPage() {
       />
     </AppShell>
   );
-}
-          setDialogKind(row.transaction_type === "income" ? "income" : "expense");
-          setPreset({ categoryId: null, subCategoryId: null });
-          setDialogOpen(true);
-        }}
-      />
-
-      <DependentExpenseDialog open={dependentOpen} onOpenChange={setDependentOpen} />
-
-      <TaxQuickDialog open={taxOpen} onOpenChange={setTaxOpen} />
-
-      <ExpenseCardsDialog
-        open={cardsOpen}
-        onOpenChange={setCardsOpen}
-        onAdvanced={() => {
-          setEditingTx(null);
-          setDialogKind("expense");
-          setPreset({ categoryId: null, subCategoryId: null });
-          setDialogOpen(true);
-        }}
-      />
-
-      <TransactionDialog
-        open={dialogOpen}
-        onOpenChange={(next) => {
-          setDialogOpen(next);
-          if (!next) setEditingTx(null);
-        }}
-        kind={dialogKind}
-        transaction={editingTx}
-        presetCategoryId={preset.categoryId}
-        presetSubCategoryId={preset.subCategoryId}
-        defaultDate={periodDefaultDate(period.year, period.month)}
-
-        onSaved={(savedDate) => {
-          const [y, m] = savedDate.split("-").map(Number);
-          if (y && m && (y !== period.year || m !== period.month)) setPeriod({ year: y, month: m });
-        }}
-      />
 
 
     
