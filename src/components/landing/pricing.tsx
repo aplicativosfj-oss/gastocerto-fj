@@ -212,7 +212,7 @@ export function Pricing() {
 
       <CheckoutDialog
         open={checkoutPlan !== null}
-        onOpenChange={(open) => setCheckoutPlan(open ? checkoutPlan : null)}
+        onOpenChange={(open: boolean) => setCheckoutPlan(open ? checkoutPlan : null)}
         {...(checkoutPlan ? { initialPlan: checkoutPlan } : {})}
         initialCycle={isYearly ? "annual" : "monthly"}
       />
