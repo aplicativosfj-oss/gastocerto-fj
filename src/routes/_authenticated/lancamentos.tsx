@@ -24,6 +24,7 @@ import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
 import { FilterField, FilterPanel } from "@/components/finance/filter-panel";
+import { FilterPresets } from "@/components/finance/filter-presets";
 import { MetaChip, PageHeader } from "@/components/finance/page-header";
 import { StatTile } from "@/components/finance/stat-tile";
 import { PeriodPicker } from "@/components/finance/period-picker";
