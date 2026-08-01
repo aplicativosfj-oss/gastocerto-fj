@@ -1015,12 +1015,13 @@ export function TransactionDialog({
           open={passwordOpen}
           onOpenChange={setPasswordOpen}
           email={user?.email}
-          description={`Para ${editing ? "editar" : "registrar"} um lançamento de ${formatDate(date)} (mês anterior) confirme sua senha.`}
+          description={`Para ${editing ? "editar" : "registrar"} um lançamento de ${formatDate(date)} (mês anterior) confirme sua senha. A liberação vale ${PAST_EDIT_UNLOCK_MINUTES} minutos para todo o mês.`}
           onConfirmed={() => {
-            setIdentityConfirmed(true);
+            pastUnlock.grant();
             window.setTimeout(() => formRef.current?.requestSubmit(), 0);
           }}
         />
+
       </DialogContent>
     </Dialog>
   );
