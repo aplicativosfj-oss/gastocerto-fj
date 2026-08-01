@@ -111,9 +111,25 @@ export function IntegrationsPanel() {
                 <span className="text-emerald-500 font-medium">Ligado</span>
               </div>
             </div>
-            <Button size="sm" variant="outline" className="w-full text-xs h-8">
-              <Settings2 className="mr-2 size-3" /> Ajustar Limites
-            </Button>
+            <div className="flex flex-col gap-2">
+              <Button 
+                size="sm" 
+                variant="outline" 
+                className="w-full text-xs h-8"
+                onClick={async () => {
+                  const { adminReconcilePayments } = await import("@/lib/admin-integrations.functions");
+                  const toastId = toast.loading("Ajustando limites de IA...");
+                  try {
+                    await adminReconcilePayments({ data: { hours: 24 } });
+                    toast.success("Limites atualizados com sucesso!", { id: toastId });
+                  } catch (err: any) {
+                    toast.error("Erro ao ajustar limites", { id: toastId, description: err.message });
+                  }
+                }}
+              >
+                <Settings2 className="mr-2 size-3" /> Ajustar Limites
+              </Button>
+            </div>
           </CardContent>
         </Card>
 
