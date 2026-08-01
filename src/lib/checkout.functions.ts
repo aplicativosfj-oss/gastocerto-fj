@@ -53,18 +53,17 @@ export const confirmCheckoutVerification = createServerFn({ method: "POST" })
   });
 
 /**
- * Etapa 3: só depois do e-mail confirmado geramos a cobrança Pix. A cobrança é
- * criada no Mercado Pago antes de qualquer gravação, então uma falha ali não
- * deixa licença nem pagamento pendente no banco.
+ * Etapa 3: com o e-mail confirmado, registramos o pedido como pagamento manual
+ * pendente. Nenhuma cobrança automática é criada — o administrador confere o
+ * recebimento no painel e libera a chave, que só então é gerada/enviada.
  */
-export const startPixCheckout = createServerFn({ method: "POST" })
+export const startManualOrder = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => startSchema.parse(input))
   .handler(async ({ data }) => {
     const cpf = onlyDigits(data.cpf);
     if (!isValidCpf(cpf)) throw new Error("CPF inválido. Confira os 11 dígitos.");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { createPixCharge } = await import("@/lib/mercadopago.server");
     const { requireVerifiedCheckout, consumeVerification } = await import(
       "@/lib/checkout-verification.server"
     );
@@ -89,16 +88,6 @@ export const startPixCheckout = createServerFn({ method: "POST" })
       .or(`cpf.eq.${cpf},contact_email.ilike.${email}`)
       .maybeSingle();
 
-    // Cobrança primeiro: se o Mercado Pago falhar, nada é gravado.
-    const charge = await createPixCharge({
-      amount,
-      description: `GastoCerto ${plan.name} — ${data.cycle === "annual" ? "anual" : "mensal"}`,
-      email,
-      fullName: data.fullName,
-      cpf,
-      externalReference: data.verificationId,
-    });
-
     const { data: license, error: licenseError } = await supabaseAdmin
       .from("licenses")
       .insert({
@@ -108,14 +97,14 @@ export const startPixCheckout = createServerFn({ method: "POST" })
         cpf,
         billing_cycle: data.cycle,
         amount,
-        source: "mercadopago_pix",
+        source: "manual_request",
         status: "pending",
         user_id: profile?.user_id ?? null,
-        notes: "E-mail verificado — aguardando confirmação do Pix",
+        notes: "E-mail verificado — aguardando confirmação manual do pagamento",
       })
       .select("id, license_key")
       .single();
-    if (licenseError || !license) throw new Error("Não foi possível iniciar a compra.");
+    if (licenseError || !license) throw new Error("Não foi possível registrar o pedido.");
 
     const { data: payment, error: paymentError } = await supabaseAdmin
       .from("payments")
@@ -123,23 +112,27 @@ export const startPixCheckout = createServerFn({ method: "POST" })
         license_id: license.id,
         user_id: profile?.user_id ?? null,
         email,
-        provider: "mercadopago",
-        method: "pix",
-        external_id: charge.externalId,
+        provider: "manual",
+        method: "manual",
         amount,
-        status: charge.status,
-        qr_code: charge.qrCode,
-        qr_code_base64: charge.qrCodeBase64,
-        ticket_url: charge.ticketUrl,
-        raw: charge.raw,
+        status: "pending",
       })
       .select("id")
       .single();
     if (paymentError || !payment) {
-      // Sem pagamento registrado não deixamos licença solta no banco.
       await supabaseAdmin.from("licenses").delete().eq("id", license.id);
-      throw new Error("Não foi possível registrar o pagamento.");
+      throw new Error("Não foi possível registrar o pedido.");
     }
+
+    const { logPaymentEvent } = await import("@/lib/manual-orders.server");
+    await logPaymentEvent({
+      paymentId: payment.id as string,
+      licenseId: license.id as string,
+      eventType: "status_change",
+      status: "pending",
+      source: "site_checkout",
+      detail: { amount, plan: plan.slug, cycle: data.cycle },
+    });
 
     await consumeVerification(data.verificationId);
 
@@ -147,69 +140,56 @@ export const startPixCheckout = createServerFn({ method: "POST" })
       paymentId: payment.id as string,
       amount,
       planName: plan.name as string,
-      status: charge.status,
-      qrCode: charge.qrCode,
-      qrCodeBase64: charge.qrCodeBase64,
-      ticketUrl: charge.ticketUrl,
-      expiresAt: charge.expiresAt,
+      status: "pending" as const,
     };
   });
 
 /**
- * Reenvia a chave de licença por e-mail (se disponível) ou devolve os dados
- * para exibição na tela. Chamada pelo administrador ou pelo próprio cliente
- * na tela de acompanhamento.
+ * Reenvia a chave de licença por e-mail (ou devolve os dados para exibição na
+ * tela). Chamada pelo administrador ou pelo próprio cliente na tela do pedido.
  */
 export const resendLicenseDelivery = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => z.object({ paymentId: z.string().uuid() }).parse(input))
   .handler(async ({ data }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { settlePixPayment } = await import("@/lib/mercadopago.server");
-
-    const { data: payment } = await supabaseAdmin
-      .from("payments")
-      .select("id, external_id, status")
-      .eq("id", data.paymentId)
-      .maybeSingle();
-
-    if (!payment) throw new Error("Pedido não encontrado.");
-
-    // SettlePixPayment já cuida de não duplicar a chave e de tentar o e-mail.
-    // Usamos a fonte "resend_request" para diferenciar na auditoria.
-    const result = await settlePixPayment(payment.external_id || payment.id, "resend_request");
-
-    return {
-      success: true,
-      delivered: result.delivered,
-      status: result.status,
-    };
+    const { resendManualLicense } = await import("@/lib/manual-orders.server");
+    const result = await resendManualLicense(data.paymentId);
+    return { success: true, delivered: result.delivered, status: result.status };
   });
-
 
 const statusSchema = z.object({ paymentId: z.string().uuid() });
 
 /**
- * Consulta a situação do Pix e, quando aprovado, devolve a chave de ativação.
- * Serve como rede de segurança caso o webhook do Mercado Pago atrase.
+ * Consulta a situação do pedido e, quando confirmado pelo administrador,
+ * devolve a chave de ativação.
  */
-export const getPixCheckoutStatus = createServerFn({ method: "POST" })
+export const getCheckoutStatus = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => statusSchema.parse(input))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { settlePixPayment } = await import("@/lib/mercadopago.server");
 
     const { data: payment } = await supabaseAdmin
       .from("payments")
-      .select("id, external_id, status, email")
+      .select("id, status, email, license_id")
       .eq("id", data.paymentId)
       .maybeSingle();
-    if (!payment?.external_id) throw new Error("Pagamento não encontrado.");
+    if (!payment) throw new Error("Pagamento não encontrado.");
 
-    const settled = await settlePixPayment(payment.external_id, "client");
+    const approved = String(payment.status) === "approved";
+    const { data: license } = await supabaseAdmin
+      .from("licenses")
+      .select("license_key")
+      .eq("id", payment.license_id ?? "")
+      .maybeSingle();
+
+    const { data: events } = await supabaseAdmin
+      .from("payment_events")
+      .select("event_type")
+      .eq("payment_id", payment.id);
+
     return {
-      status: settled.status,
-      licenseKey: settled.licenseKey,
-      delivered: settled.delivered,
+      status: String(payment.status),
+      licenseKey: approved ? ((license?.license_key as string) ?? null) : null,
+      delivered: (events ?? []).some((event) => event.event_type === "key_email_sent"),
       email: payment.email,
     };
   });
@@ -224,16 +204,16 @@ function maskEmail(email: string | null) {
 
 const TIMELINE_LABEL: Record<string, string> = {
   status_change: "Situação atualizada",
-  status_check: "Consulta ao Mercado Pago",
+  status_check: "Conferência do pedido",
   license_released: "Chave de ativação gerada",
   key_email_sent: "Chave enviada por e-mail",
   key_email_fallback: "Chave disponível nesta página",
 };
 
 /**
- * Página pública de acompanhamento do pedido: mostra pendente, pago e entregue,
- * revalidando a situação no Mercado Pago a cada consulta. O identificador do
- * pedido é um UUID não sequencial, funcionando como link privado do cliente.
+ * Página pública de acompanhamento do pedido: mostra pendente, pago e entregue.
+ * O identificador do pedido é um UUID não sequencial, funcionando como link
+ * privado do cliente.
  */
 export const getOrderStatus = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => statusSchema.parse(input))
@@ -242,28 +222,10 @@ export const getOrderStatus = createServerFn({ method: "POST" })
 
     const { data: payment } = await supabaseAdmin
       .from("payments")
-      .select(
-        "id, external_id, status, email, amount, method, created_at, paid_at, qr_code, qr_code_base64, ticket_url, license_id",
-      )
+      .select("id, status, email, amount, method, created_at, paid_at, license_id")
       .eq("id", data.paymentId)
       .maybeSingle();
     if (!payment) throw new Error("Pedido não encontrado. Confira o link recebido.");
-
-    // Revalida no Mercado Pago para nunca mostrar uma situação vencida.
-    if (payment.external_id && ["pending", "in_process"].includes(String(payment.status))) {
-      try {
-        const { settlePixPayment } = await import("@/lib/mercadopago.server");
-        await settlePixPayment(payment.external_id, "order_page");
-      } catch (error) {
-        console.error("[checkout] falha ao revalidar pedido", error);
-      }
-    }
-
-    const { data: fresh } = await supabaseAdmin
-      .from("payments")
-      .select("status, paid_at, qr_code, qr_code_base64, ticket_url")
-      .eq("id", payment.id)
-      .maybeSingle();
 
     const { data: license } = await supabaseAdmin
       .from("licenses")
@@ -277,7 +239,7 @@ export const getOrderStatus = createServerFn({ method: "POST" })
       .eq("payment_id", payment.id)
       .order("created_at", { ascending: true });
 
-    const status = String(fresh?.status ?? payment.status);
+    const status = String(payment.status);
     const approved = status === "approved";
     const emailed = (events ?? []).some((event) => event.event_type === "key_email_sent");
 
@@ -286,20 +248,18 @@ export const getOrderStatus = createServerFn({ method: "POST" })
       status,
       approved,
       amount: Number(payment.amount ?? 0),
-      method: String(payment.method ?? "pix"),
+      method: String(payment.method ?? "manual"),
       planName: (license as any)?.plans?.name ?? "GastoCerto",
       cycle: (license?.billing_cycle as string) ?? "monthly",
       emailMasked: maskEmail(payment.email as string | null),
       createdAt: payment.created_at as string,
-      paidAt: (fresh?.paid_at ?? payment.paid_at) as string | null,
+      paidAt: payment.paid_at as string | null,
       licenseKey: approved ? ((license?.license_key as string) ?? null) : null,
       deliveredByEmail: emailed,
       expiresAt: (license?.expires_at as string | null) ?? null,
-      qrCode: approved ? null : ((fresh?.qr_code ?? payment.qr_code) as string | null),
-      qrCodeBase64: approved
-        ? null
-        : ((fresh?.qr_code_base64 ?? payment.qr_code_base64) as string | null),
-      ticketUrl: approved ? null : ((fresh?.ticket_url ?? payment.ticket_url) as string | null),
+      qrCode: null as string | null,
+      qrCodeBase64: null as string | null,
+      ticketUrl: null as string | null,
       timeline: (events ?? []).map((event) => ({
         label: TIMELINE_LABEL[event.event_type] ?? event.event_type,
         status: event.status,
