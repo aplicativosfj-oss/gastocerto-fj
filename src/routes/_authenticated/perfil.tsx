@@ -77,7 +77,7 @@ function ProfilePage() {
       .update({
         full_name: parsed.data.fullName,
         phone: parsed.data.phone || null,
-        monthly_income: parsed.data.monthly_income ?? null,
+        monthly_income: parsed.data.monthlyIncome ?? null,
       })
       .eq("user_id", user.id);
     setSaving(false);
