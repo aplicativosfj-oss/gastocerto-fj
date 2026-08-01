@@ -505,11 +505,11 @@ function DashboardPage() {
                   onClick={() => openDayDetail(today.getDate())}
                 />
 
-                <StatCard
-                  tile="var(--acc-3)"
+                <StatTile
+                  tone="warning"
                   label="Gasto nos 7 dias"
                   value={formatCurrency(metrics.week)}
-                  icon={<CalendarClock className="size-4" />}
+                  icon={CalendarClock}
                   onClick={() =>
                     setDetail({
                       label: "Gasto nos últimos 7 dias",
@@ -520,12 +520,13 @@ function DashboardPage() {
                     })
                   }
                 />
+
                 
-                <StatCard
-                  tile="var(--acc-5)"
+                <StatTile
+                  tone="expense"
                   label="Gasto no mês"
                   value={formatCurrency(metrics.totalExpense)}
-                  icon={<TrendingDown className="size-4" />}
+                  icon={TrendingDown}
                   onClick={() =>
                     setDetail({
                       label: "Gasto no mês",
@@ -540,11 +541,12 @@ function DashboardPage() {
                   }
                 />
 
-                <StatCard
-                  tile="var(--acc-2)"
+
+                <StatTile
+                  tone="success"
                   label="Receita total"
                   value={formatCurrency(metrics.totalIncome)}
-                  icon={<TrendingUp className="size-4" />}
+                  icon={TrendingUp}
                   onClick={() =>
                     setDetail({
                       label: "Receita total",
@@ -558,12 +560,14 @@ function DashboardPage() {
                   }
                 />
 
-                <StatCard
-                  tile="var(--acc-1)"
+
+                <StatTile
+                  tone="neutral"
                   label="Saldo disponível"
                   value={formatCurrency(metrics.balance)}
-                  icon={<Wallet className="size-4" />}
+                  icon={Wallet}
                 />
+
               </div>
             </div>
 
