@@ -300,8 +300,9 @@ function GasPage() {
     const days = parseInt(chartRange, 10);
     const limit = new Date();
     limit.setDate(limit.getDate() - days);
-    return refills.filter(r => new Date(r.date) >= limit);
+    return refills.filter(r => new Date(r.refill_date) >= limit);
   }, [refills, chartRange]);
+
 
   const filteredSummary = useMemo(() => summarizeGas(filteredRefills), [filteredRefills]);
   const details = useMemo(() => buildDetails(filteredSummary), [filteredSummary]);
