@@ -5,6 +5,7 @@ import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxi
 
 import { AppShell } from "@/components/app-shell";
 import { TransactionDialog } from "@/components/finance/transaction-dialog";
+import { TransactionDetailsDialog } from "@/components/finance/transaction-details-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import {
@@ -19,7 +20,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { useCategories } from "@/lib/queries";
-import { useTransactions } from "@/lib/transactions";
+import { useTransactions, type Transaction } from "@/lib/transactions";
+
 
 export const Route = createFileRoute("/_authenticated/diario")({
   head: () => ({
@@ -80,7 +82,10 @@ function DailyPage() {
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [groupBy, setGroupBy] = useState<"date" | "category">("date");
+  const [details, setDetails] = useState<Transaction | null>(null);
+  const [editing, setEditing] = useState<Transaction | null>(null);
   const { data: categories } = useCategories();
+
 
   const categoryName = useMemo(() => {
     const map = new Map<string, string>();
@@ -316,8 +321,10 @@ function DailyPage() {
                       return (
                         <li
                           key={item.id}
-                          className="flex items-center justify-between gap-3 px-4 py-2.5"
+                          className="flex cursor-pointer items-center justify-between gap-3 px-4 py-2.5 transition hover:bg-muted/50"
+                          onClick={() => setDetails(item)}
                         >
+
                           <div className="flex min-w-0 items-center gap-3">
                             <span
                               aria-hidden="true"
@@ -377,9 +384,31 @@ function DailyPage() {
         </section>
       </div>
 
-      {dialogOpen ? (
-        <TransactionDialog open={dialogOpen} onOpenChange={setDialogOpen} kind="expense" />
+      {dialogOpen || editing ? (
+        <TransactionDialog
+          open={dialogOpen || Boolean(editing)}
+          onOpenChange={(open) => {
+            if (!open) {
+              setDialogOpen(false);
+              setEditing(null);
+            }
+          }}
+          transaction={editing}
+          kind={editing?.transaction_type === "income" ? "income" : "expense"}
+        />
       ) : null}
+
+      <TransactionDetailsDialog
+        transaction={details}
+        open={Boolean(details)}
+        onOpenChange={(open) => !open && setDetails(null)}
+        onEdit={(row) => {
+          setDetails(null);
+          setEditing(row);
+        }}
+      />
+
     </AppShell>
+
   );
 }
