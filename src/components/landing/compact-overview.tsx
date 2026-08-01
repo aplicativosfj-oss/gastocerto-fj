@@ -44,7 +44,7 @@ type Feature = { icon: LucideIcon; title: string; text: string; tag: string };
 const featureGroups: { group: string; caption: string; items: Feature[] }[] = [
   {
     group: "Dia a dia",
-    caption: "O básico resolvido em segundos",
+    caption: "Registros e contas do dia a dia",
     items: [
       {
         icon: Receipt,
@@ -74,7 +74,7 @@ const featureGroups: { group: string; caption: string; items: Feature[] }[] = [
   },
   {
     group: "Veículos e trabalho",
-    caption: "Controle profissional de rodagem",
+    caption: "Custos de veículos e rodagem",
     items: [
       {
         icon: Fuel,
@@ -104,7 +104,7 @@ const featureGroups: { group: string; caption: string; items: Feature[] }[] = [
   },
   {
     group: "Planejamento",
-    caption: "Onde o dinheiro passa a sobrar",
+    caption: "Orçamentos, metas e previsibilidade",
     items: [
       {
         icon: PiggyBank,
@@ -134,7 +134,7 @@ const featureGroups: { group: string; caption: string; items: Feature[] }[] = [
   },
   {
     group: "Inteligência",
-    caption: "Você enxerga antes de acontecer",
+    caption: "Relatórios, alertas e comprovantes",
     items: [
       {
         icon: BarChart3,
@@ -208,7 +208,7 @@ const tabs = ["recursos", "como-funciona", "seguranca", "faq"] as const;
 type TabValue = (typeof tabs)[number];
 
 const tabMeta: Record<TabValue, { label: string; description: string }> = {
-  recursos: { label: "Recursos", description: "Dezesseis recursos de controle de gastos em quatro frentes" },
+  recursos: { label: "Recursos", description: "Dezesseis recursos organizados em quatro frentes" },
   "como-funciona": { label: "Como funciona", description: "Três passos e depoimentos de clientes" },
   seguranca: { label: "Segurança", description: "LGPD, criptografia e controle de acesso" },
   faq: { label: "FAQ", description: "Perguntas frequentes: seis dúvidas comuns sobre planos e demonstração" },

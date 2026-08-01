@@ -75,10 +75,10 @@ export function Pricing() {
             Planos
           </p>
           <h2 className="section-title mt-1.5">
-            Comece de graça e evolua quando fizer sentido
+            Planos para cada nível de controle
           </h2>
           <p className="mt-1.5 text-sm text-muted-foreground">
-            Sem fidelidade. Exporte ou exclua seus dados quando quiser.
+            Sem fidelidade contratual. Exportação e exclusão de dados disponíveis a qualquer momento.
           </p>
          </div>
 
