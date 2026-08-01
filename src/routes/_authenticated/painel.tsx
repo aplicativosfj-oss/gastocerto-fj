@@ -629,6 +629,10 @@ function DashboardPage() {
               )}
             </section>
 
+            <PastMonthsLockNotice
+              monthKey={`${period.year}-${String(period.month).padStart(2, "0")}`}
+            />
+
             <RecurringAlerts days={7} />
 
             {budgetAlerts.length > 0 ? (
