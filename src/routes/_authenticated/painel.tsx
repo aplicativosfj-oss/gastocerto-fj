@@ -384,6 +384,26 @@ function DashboardPage() {
             </p>
           </div>
           <div className="col-span-2 flex flex-wrap items-center gap-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="h-9 rounded-lg px-2 text-xs font-medium text-muted-foreground hover:text-foreground"
+              onClick={() => {
+                reset();
+                navigate({
+                  search: (prev: any) => ({
+                    ...prev,
+                    ano: new Date().getFullYear(),
+                    mes: new Date().getMonth() + 1,
+                  }),
+                  replace: true,
+                });
+              }}
+              title="Voltar para hoje e limpar filtros"
+            >
+              <RefreshCw className="mr-1.5 size-3" />
+              Redefinir
+            </Button>
             <PeriodPicker year={period.year} month={period.month} onChange={handlePeriodChange} />
             <QuickCategoryMenu
               kind="income"

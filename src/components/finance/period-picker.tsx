@@ -7,7 +7,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
+import { ChevronLeft, ChevronRight, CalendarDays, X } from "lucide-react";
 import { MONTH_NAMES } from "@/lib/finance";
 import { cn } from "@/lib/utils";
 
@@ -56,7 +56,17 @@ export function PeriodPicker({ year, month, onChange, className }: PeriodPickerP
             </span>
           </Button>
         </SheetTrigger>
-        <SheetContent side="bottom" className="rounded-t-3xl px-4 pb-8 pt-6 sm:max-w-md sm:mx-auto">
+        <SheetContent 
+          side="bottom" 
+          className="rounded-t-3xl px-4 pb-8 pt-6 sm:max-w-md sm:mx-auto focus-visible:outline-none"
+          onOpenAutoFocus={(e) => {
+            const currentYearBtn = document.getElementById(`year-btn-${year}`);
+            if (currentYearBtn) {
+              e.preventDefault();
+              currentYearBtn.focus();
+            }
+          }}
+        >
           <SheetHeader className="mb-6">
             <SheetTitle className="text-center font-display text-xl font-bold">
               Selecionar período
@@ -64,24 +74,36 @@ export function PeriodPicker({ year, month, onChange, className }: PeriodPickerP
           </SheetHeader>
 
           <div className="space-y-6">
-            <div className="flex items-center justify-between border-b border-border pb-4">
-              {years.map((y) => (
-                <button
-                  key={y}
-                  onClick={() => onChange({ year: y, month })}
-                  className={cn(
-                    "rounded-lg px-2 py-1 text-sm font-bold transition-all",
-                    y === year
-                      ? "bg-brand text-brand-foreground shadow-sm"
-                      : "text-muted-foreground hover:bg-muted"
-                  )}
-                >
-                  {y}
-                </button>
-              ))}
+            <div 
+              className="flex items-center justify-between border-b border-border pb-4 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              role="group"
+              aria-label="Selecionar ano"
+            >
+              <div className="flex gap-2 min-w-max pb-1">
+                {years.map((y) => (
+                  <button
+                    key={y}
+                    id={`year-btn-${y}`}
+                    onClick={() => onChange({ year: y, month })}
+                    aria-pressed={y === year}
+                    className={cn(
+                      "rounded-lg px-3 py-1.5 text-sm font-bold transition-all focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 outline-none",
+                      y === year
+                        ? "bg-brand text-brand-foreground shadow-sm"
+                        : "text-muted-foreground hover:bg-muted"
+                    )}
+                  >
+                    {y}
+                  </button>
+                ))}
+              </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+            <div 
+              className="grid grid-cols-3 gap-2 sm:grid-cols-4"
+              role="grid"
+              aria-label="Meses do ano"
+            >
               {MONTH_NAMES.map((name, index) => {
                 const m = index + 1;
                 const active = m === month;
@@ -89,8 +111,11 @@ export function PeriodPicker({ year, month, onChange, className }: PeriodPickerP
                   <button
                     key={name}
                     onClick={() => handleSelect(year, m)}
+                    aria-label={name}
+                    aria-selected={active}
+                    role="gridcell"
                     className={cn(
-                      "flex h-12 items-center justify-center rounded-xl text-sm font-bold transition-all",
+                      "flex h-12 items-center justify-center rounded-xl text-sm font-bold transition-all focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 outline-none",
                       active
                         ? "bg-brand text-brand-foreground shadow-md scale-95"
                         : "bg-muted/50 text-foreground hover:bg-muted"

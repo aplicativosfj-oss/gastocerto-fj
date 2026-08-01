@@ -149,6 +149,13 @@ const VIEWS = [
   },
 ] as const;
 
+const TYPE_LABELS: Record<string, string> = {
+  all: "Todos os lançamentos",
+  expense: "Despesas",
+  income: "Receitas",
+  recurring: "Lançamentos fixos",
+};
+
 function TransactionsPage() {
   const today = new Date();
   const search_ = Route.useSearch();
@@ -187,7 +194,7 @@ function TransactionsPage() {
   const [toDate, setToDate] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [typeFilter, setTypeFilter] = useState<string>(search_.tipo ?? "expense");
+  const currentTypeFilter = search_.tipo ?? typeFilter ?? "expense";
   const [sort, setSort] = useState("date_desc");
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<string[]>([]);
@@ -524,11 +531,12 @@ function TransactionsPage() {
               <Button 
                 variant="outline" 
                 size="sm" 
-                className="h-9 rounded-lg px-3 text-xs font-medium text-muted-foreground hover:text-foreground hidden sm:flex"
+                className="h-9 rounded-lg px-3 text-xs font-medium text-muted-foreground hover:text-foreground flex"
                 onClick={handleReset}
+                title="Redefinir mês e filtros"
               >
                 <RefreshCw className="mr-1.5 size-3" />
-                Redefinir
+                <span className="hidden xs:inline">Redefinir</span>
               </Button>
               <PeriodPicker
                 year={period.year}
