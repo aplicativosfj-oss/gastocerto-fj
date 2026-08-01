@@ -1,9 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Loader2, Upload } from "lucide-react";
+import { Loader2, Upload, User } from "lucide-react";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
+import { PageHeader } from "@/components/finance/page-header";
 import { LicenseCard } from "@/components/finance/license-card";
 import { PlanSummaryCard } from "@/components/finance/plan-summary-card";
 import { TrialCard } from "@/components/finance/trial-card";
@@ -150,13 +151,14 @@ function ProfilePage() {
 
   return (
     <AppShell>
-      <div className="mx-auto max-w-2xl space-y-8">
-        <header>
-          <h1 className="page-title">Meu perfil</h1>
-          <p className="page-subtitle mt-1">
-            Seus dados ficam visíveis apenas para você.
-          </p>
-        </header>
+      <div className="mx-auto max-w-2xl space-y-4 sm:space-y-6">
+        <PageHeader
+          icon={User}
+          eyebrow="Configurações"
+          title="Meu perfil"
+          description="Seus dados pessoais e informações de conta."
+          className="lg:p-4"
+        />
 
         <section className="flex items-center gap-4 rounded-2xl border border-border bg-card p-4">
           <Avatar className="size-16">

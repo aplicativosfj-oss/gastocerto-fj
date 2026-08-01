@@ -2,6 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Loader2, Pencil, Plus, Power } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 
 import { AppShell } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
@@ -223,32 +225,53 @@ function CategoriesPage() {
             {visible.map((category) => (
               <div
                 key={category.id}
-                className="flex items-start justify-between gap-3 rounded-2xl border border-border bg-card p-4"
+                className={cn(
+                  "group relative flex items-start justify-between gap-3 rounded-2xl border p-4 transition-all duration-300",
+                  category.active === false
+                    ? "border-border/50 bg-muted/30 grayscale-[0.4] opacity-70"
+                    : "border-border bg-card shadow-sm hover:border-brand/30 hover:shadow-md",
+                )}
               >
+                {!category.active && (
+                  <div className="absolute inset-0 z-10 flex items-center justify-center rounded-2xl bg-background/5 backdrop-blur-[0.5px]">
+                    <Badge variant="outline" className="bg-background/80 text-[10px] font-bold uppercase tracking-wider">
+                      Desativada
+                    </Badge>
+                  </div>
+                )}
                 <div className="min-w-0">
                   <div className="flex min-w-0 items-center gap-2">
                     <span
-                      className="grid size-8 shrink-0 place-items-center rounded-lg"
-                      style={{
+                      className={cn(
+                        "grid size-8 shrink-0 place-items-center rounded-lg transition-transform group-hover:scale-110",
+                        category.active === false ? "bg-muted" : ""
+                      )}
+                      style={category.active !== false ? {
                         backgroundColor: `${category.color ?? "#94a3b8"}22`,
                         color: category.color ?? "#94a3b8",
-                      }}
+                      } : {}}
                     >
                       {(() => {
                         const Icon = categoryIcon(category.icon);
                         return <Icon className="size-4" />;
                       })()}
                     </span>
-                    <span className="truncate font-medium">{category.name}</span>
+                    <span className={cn(
+                      "truncate font-medium transition-colors",
+                      category.active === false ? "text-muted-foreground" : "text-foreground"
+                    )}>
+                      {category.name}
+                    </span>
                   </div>
-                  <p className="mt-1 text-xs text-muted-foreground">
+                  <p className="mt-1 text-xs text-muted-foreground/80">
                     Este mês: {formatCurrency(usage.get(category.id) ?? 0)}
                   </p>
                 </div>
-                <div className="flex shrink-0 gap-1">
+                <div className="relative z-20 flex shrink-0 gap-1">
                   <Button
                     variant="ghost"
                     size="icon"
+                    className="size-8"
                     aria-label={`Editar ${category.name}`}
                     onClick={() => {
                       setError(null);
@@ -261,18 +284,21 @@ function CategoriesPage() {
                         display_order: category.display_order ?? 0,
                         parent_id: category.parent_id
                       });
-
                     }}
                   >
-                    <Pencil className="size-4" />
+                    <Pencil className="size-3.5" />
                   </Button>
                   <Button
                     variant="ghost"
                     size="icon"
-                    aria-label={`Desativar ${category.name}`}
-                    onClick={() => toggleActive(category.id, false)}
+                    className={cn(
+                      "size-8",
+                      category.active === false ? "text-success hover:bg-success/10" : "text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                    )}
+                    aria-label={category.active === false ? `Reativar ${category.name}` : `Desativar ${category.name}`}
+                    onClick={() => toggleActive(category.id, category.active === false)}
                   >
-                    <Power className="size-4" />
+                    <Power className="size-3.5" />
                   </Button>
                 </div>
               </div>
