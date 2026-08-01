@@ -860,11 +860,10 @@ function DashboardPage() {
                     <li key={row.vehicle?.id ?? row.vehicleName} className="space-y-1.5">
                       <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
                         <span className="flex min-w-0 items-center gap-2">
-                          {(
-                            <VehicleEmblem vehicleType={row.vehicleType} className="size-4 shrink-0 text-muted-foreground" />
-                          ) : (
-                            <EmblemCar title="Carro" className="size-4 shrink-0 text-muted-foreground" />
-                          )}
+                          <VehicleEmblem
+                            vehicleType={row.vehicleType}
+                            className="size-4 shrink-0 text-muted-foreground"
+                          />
                           {row.vehicle ? (
                             <Link
                               to="/lancamentos"
