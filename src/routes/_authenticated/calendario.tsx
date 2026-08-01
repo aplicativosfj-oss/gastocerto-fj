@@ -467,6 +467,49 @@ function CalendarPage() {
 
           <aside className="space-y-4">
             <section className="rounded-xl border border-border bg-card p-4">
+              <h2 className="flex items-center gap-2 text-sm font-medium">
+                <CalendarDays className="size-4" />
+                Agenda do período
+              </h2>
+              <ul className="mt-3 space-y-2">
+                {agenda.length === 0 ? (
+                  <li className="text-sm text-muted-foreground">
+                    Nada encontrado com os filtros atuais.
+                  </li>
+                ) : (
+                  agenda.slice(0, 20).map(({ item, day }) => (
+                    <li
+                      key={`${item.id}-${day}`}
+                      className="rounded-lg border border-border px-3 py-2 text-sm"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="min-w-0 truncate font-medium">{item.description}</span>
+                        <span
+                          className={
+                            item.transaction_type === "income"
+                              ? "shrink-0 font-medium text-primary"
+                              : "shrink-0 font-medium"
+                          }
+                        >
+                          {formatCurrency(Number(item.amount || 0))}
+                        </span>
+                      </div>
+                      <p className="mt-0.5 flex flex-wrap gap-1.5 text-[11px] text-muted-foreground">
+                        <span>{formatDate(`${day}T00:00:00`)}</span>
+                        {kindsOf(item).map((kind) => (
+                          <Badge key={kind} variant="secondary" className="text-[10px]">
+                            {KIND_FILTERS.find((filter) => filter.key === kind)?.label ?? kind}
+                          </Badge>
+                        ))}
+                      </p>
+                    </li>
+                  ))
+                )}
+              </ul>
+            </section>
+
+
+            <section className="rounded-xl border border-border bg-card p-4">
               <div className="flex items-center justify-between gap-2">
                 <h2 className="flex items-center gap-2 text-sm font-medium">
                   <Bell className="size-4" />
