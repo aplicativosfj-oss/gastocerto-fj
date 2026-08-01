@@ -23,7 +23,10 @@ import {
 } from "recharts";
 
 import { AppShell } from "@/components/app-shell";
+import { GasImportDialog } from "@/components/finance/gas-import-dialog";
 import { GasRefillDialog } from "@/components/finance/gas-refill-dialog";
+import { GasReminderCard } from "@/components/finance/gas-reminder-card";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EmblemGauge } from "@/components/ui/panel-emblems";
