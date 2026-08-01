@@ -33,6 +33,7 @@ import {
 import { maskCpf } from "@/lib/cpf";
 import { formatCurrency } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { livePrice, usePublicPlans } from "@/hooks/use-public-plans";
 
 type Step = "plan" | "form" | "code" | "pix" | "done";
 
@@ -65,7 +66,15 @@ export function CheckoutDialog({
   const [code, setCode] = useState("");
   const pollRef = useRef<number | null>(null);
 
-  const plan = CHECKOUT_PLANS.find((item) => item.slug === planSlug) ?? CHECKOUT_PLANS[0];
+  const { data: livePlans } = usePublicPlans();
+
+  // Catálogo com os preços vigentes do banco (ajustes do admin valem na hora).
+  const catalog = CHECKOUT_PLANS.map((item) => {
+    const live = livePrice(livePlans, item.slug, { monthly: item.monthly, annual: item.annual });
+    return { ...item, monthly: live.monthly, annual: live.annual };
+  });
+
+  const plan = catalog.find((item) => item.slug === planSlug) ?? catalog[0];
   const price = checkoutPrice(plan, cycle);
 
   useEffect(() => {
@@ -220,7 +229,7 @@ export function CheckoutDialog({
             </div>
 
             <div className="grid gap-2">
-              {CHECKOUT_PLANS.map((item) => {
+              {catalog.map((item) => {
                 const selected = item.slug === planSlug;
                 return (
                   <button
