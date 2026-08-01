@@ -885,7 +885,7 @@ function TransactionsPage() {
           )}
         </section>
 
-        <section className="hidden overflow-hidden rounded-2xl border border-border bg-card shadow-soft sm:block">
+        <section className={cn("hidden overflow-hidden rounded-2xl border border-border bg-card shadow-soft sm:block transition-all duration-300", isLoading && "opacity-50 blur-[1px]")}>
           {isLoading ? (
             <div className="space-y-2 p-4">
               {Array.from({ length: 6 }).map((_, index) => (
