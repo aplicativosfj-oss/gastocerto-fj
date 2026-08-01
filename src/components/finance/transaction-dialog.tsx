@@ -688,13 +688,17 @@ export function TransactionDialog({
             </div>
 
 
-            <div>
+            <div className="space-y-1.5">
               <Label>Categoria</Label>
               <CategoryPicker
                 categories={options}
                 value={subCategoryId || categoryId}
                 onChange={(id) => {
-                  const selectedCat = options.find(c => c.id === id);
+                  const selectedCat = options.find((c) => c.id === id);
+                  if (selectedCat) {
+                    if (selectedCat.type === "income") setKind("income");
+                    else setKind("expense");
+                  }
                   if (suggestion && suggestion.id !== id) {
                     saveFeedback.mutate({
                       description: description,
@@ -758,6 +762,26 @@ export function TransactionDialog({
                 </div>
               )}
 
+              {selectedCat?.description && (
+                <p className="px-1 text-[10px] italic text-muted-foreground">
+                  {selectedCat.description}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="description">Descrição do lançamento</Label>
+              <Input
+                id="description"
+                value={description}
+                onChange={(event) => setDescription(upperText(event.target.value))}
+                placeholder={kind === "income" ? "Ex.: Salário, Venda..." : "Ex.: Almoço, Peças..."}
+                maxLength={100}
+                required
+              />
+              <p className="px-1 text-[10px] text-muted-foreground">
+                Dica: Mantenha a descrição focada no gasto específico. O nome da categoria ("{selectedCat?.name || "..."}") já é salvo automaticamente.
+              </p>
             </div>
 
 

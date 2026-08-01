@@ -20,6 +20,7 @@ import { useCategories } from "@/lib/queries";
 import { addMonths } from "@/lib/commitment-schedule";
 import { useSaveRecurringRule } from "@/lib/recurring";
 import { useSaveTransaction, useTransactions, type Category } from "@/lib/transactions";
+import { Search } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
@@ -323,13 +324,16 @@ export function ExpenseCardsDialog({
 
         {!selected ? (
           <div className="space-y-3">
-            <Input
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="Buscar categoria (feira, gás, combustível...)"
-              className="h-10"
-              aria-label="Buscar categoria"
-            />
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder="Buscar categoria (feira, oficina, roçagem...)"
+                className="h-10 pl-9"
+                aria-label="Buscar categoria"
+              />
+            </div>
 
             {phoneCategory ? (
               <button
