@@ -742,11 +742,24 @@ export function TransactionDialog({
                 </div>
 
                 <div className="sm:col-span-2">
+                  <Label htmlFor="notes">Observações e detalhes</Label>
+                  <Textarea
+                    id="notes"
+                    value={notes}
+                    onChange={(event) => setNotes(sanitizeText(event.target.value))}
+                    className="mt-1.5 resize-none"
+                    placeholder="Ex.: Presente para minha esposa, cor azul, tamanho M. Aniversário do João."
+                    rows={3}
+                  />
+                </div>
+
+                <div className="sm:col-span-2">
                   <Label htmlFor="tags">Tags (separadas por vírgula)</Label>
                   <Input
                     id="tags"
                     value={tags}
                     onChange={(event) => setTags(upperText(event.target.value))}
+
                     className="mt-1.5"
                     placeholder="CASA, URGENTE"
                   />
