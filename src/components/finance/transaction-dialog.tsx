@@ -984,6 +984,16 @@ export function TransactionDialog({
               </>
             ) : null}
 
+            {editing && transaction ? (
+              <StoredTransactionPanel
+                transaction={transaction}
+                categoryName={
+                  (categories ?? []).find((item) => item.id === transaction.category_id)?.name ?? null
+                }
+                enabled={open}
+              />
+            ) : null}
+
             <div className="sm:col-span-2">
               <ReceiptField value={attachment} onChange={setAttachment} />
             </div>
