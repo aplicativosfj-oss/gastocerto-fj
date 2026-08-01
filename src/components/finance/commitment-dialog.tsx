@@ -305,16 +305,17 @@ export function CommitmentDialog({
           </div>
 
           <div>
-            <Label htmlFor="cm-creditor">Credor / estabelecimento</Label>
+            <Label htmlFor="cm-creditor">Credor / Estabelecimento</Label>
             <Input
               id="cm-creditor"
               value={creditor}
               maxLength={120}
-              placeholder="Ex.: Banco, açougue, loja, pessoa"
+              placeholder="Ex.: Banco do Brasil, Loja Z, Nexxus"
               onChange={(event) => setCreditor(upperText(event.target.value))}
               className="mt-1.5"
             />
           </div>
+
 
           <div>
             <Label htmlFor="cm-total">
