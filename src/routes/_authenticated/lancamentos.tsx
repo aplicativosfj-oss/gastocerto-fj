@@ -511,6 +511,35 @@ function TransactionsPage() {
       toast.error("Não foi possível gerar o PDF do período.");
     }
   }
+  /** Resumo exibido na prévia antes de gerar o PDF do período. */
+  const pdfSummary = useMemo(() => {
+    const expenses = filtered.filter((row) => row.transaction_type === "expense");
+    const byCategory = new Map<string, number>();
+    for (const row of expenses) {
+      const name = row.category_id ? (categoryNames.get(row.category_id) ?? "Sem categoria") : "Sem categoria";
+      byCategory.set(name, (byCategory.get(name) ?? 0) + Number(row.amount));
+    }
+    const totalExpense = expenses.reduce((sum, row) => sum + Number(row.amount), 0);
+    const topCategories = [...byCategory.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([name, amount]) => ({
+        name,
+        amount,
+        share: totalExpense > 0 ? (amount / totalExpense) * 100 : 0,
+      }));
+
+    return {
+      periodLabel: `${MONTH_NAMES[period.month - 1]} de ${period.year}`,
+      typeLabel: TYPE_LABELS[currentTypeFilter] ?? "Lançamentos",
+      count: filtered.length,
+      income: incomeTotal,
+      expense: expenseTotal,
+      balance: total,
+      topCategories,
+    };
+  }, [filtered, categoryNames, period, currentTypeFilter, incomeTotal, expenseTotal, total]);
+
 
   const activeFilters = [
     search.trim() !== "",
