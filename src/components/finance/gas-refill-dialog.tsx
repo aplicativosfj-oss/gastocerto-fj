@@ -61,7 +61,7 @@ export function GasRefillDialog({
     setSupplier(refill?.supplier ?? "");
     setMethod(refill?.payment_method ?? "pix");
     setNotes(refill?.notes ?? "");
-    setCreateExpense(!refill);
+    setCreateExpense(refill ? Boolean(refill.transaction_id) : true);
   }, [open, refill]);
 
   const value = parseAmount(amount);
