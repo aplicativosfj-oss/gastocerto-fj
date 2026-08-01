@@ -34,7 +34,7 @@ export const CHECKOUT_PLANS: CheckoutPlan[] = [
     name: "Premium IA",
     tagline: "Tudo do Premium com o Consultor de IA liberado.",
     monthly: 34.9,
-    annual: 349,
+    annual: 348,
     recommended: true,
     highlights: [
       "Tudo do Premium, sem cotas",
