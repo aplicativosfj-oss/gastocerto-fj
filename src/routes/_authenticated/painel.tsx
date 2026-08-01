@@ -976,9 +976,6 @@ function DashboardPage() {
           </div>
         </div>
       </div>
-    </AppShell>
-  );
-}
 
       <MetricDetailDialog
         detail={detail}
