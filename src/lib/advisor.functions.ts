@@ -57,7 +57,11 @@ export const askAdvisor = createServerFn({ method: "POST" })
         planSlug: access.planSlug,
         question: data.question,
       });
-      return { entitled: false as const, reason: access.reason, answer: AI_BLOCK_MESSAGE };
+      return {
+        entitled: false as const,
+        reason: access.reason,
+        answer: access.message ?? AI_BLOCK_MESSAGE,
+      };
     }
 
     // 2) Limite mensal de consumo de créditos.
