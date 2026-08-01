@@ -42,6 +42,7 @@ import { Route as AuthenticatedVeiculosAuditoriaRouteImport } from './routes/_au
 import { Route as AuthenticatedVeiculosConfiguracoesRouteImport } from './routes/_authenticated/veiculos-configuracoes'
 import { Route as AuthenticatedVeiculosRelatorioRouteImport } from './routes/_authenticated/veiculos-relatorio'
 import { Route as CompartilhadoTokenRouteImport } from './routes/compartilhado.$token'
+import { Route as PedidoIdRouteImport } from './routes/pedido.$id'
 import { Route as ApiPublicMercadopagoWebhookRouteImport } from './routes/api/public/mercadopago/webhook'
 
 const IndexRoute = IndexRouteImport.update({
@@ -217,6 +218,11 @@ const CompartilhadoTokenRoute = CompartilhadoTokenRouteImport.update({
   path: '/compartilhado/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PedidoIdRoute = PedidoIdRouteImport.update({
+  id: '/pedido/$id',
+  path: '/pedido/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicMercadopagoWebhookRoute =
   ApiPublicMercadopagoWebhookRouteImport.update({
     id: '/api/public/mercadopago/webhook',
@@ -257,6 +263,7 @@ export interface FileRoutesByFullPath {
   '/veiculos-configuracoes': typeof AuthenticatedVeiculosConfiguracoesRoute
   '/veiculos-relatorio': typeof AuthenticatedVeiculosRelatorioRoute
   '/compartilhado/$token': typeof CompartilhadoTokenRoute
+  '/pedido/$id': typeof PedidoIdRoute
   '/api/public/mercadopago/webhook': typeof ApiPublicMercadopagoWebhookRoute
 }
 export interface FileRoutesByTo {
@@ -292,6 +299,7 @@ export interface FileRoutesByTo {
   '/veiculos-configuracoes': typeof AuthenticatedVeiculosConfiguracoesRoute
   '/veiculos-relatorio': typeof AuthenticatedVeiculosRelatorioRoute
   '/compartilhado/$token': typeof CompartilhadoTokenRoute
+  '/pedido/$id': typeof PedidoIdRoute
   '/api/public/mercadopago/webhook': typeof ApiPublicMercadopagoWebhookRoute
 }
 export interface FileRoutesById {
@@ -329,6 +337,7 @@ export interface FileRoutesById {
   '/_authenticated/veiculos-configuracoes': typeof AuthenticatedVeiculosConfiguracoesRoute
   '/_authenticated/veiculos-relatorio': typeof AuthenticatedVeiculosRelatorioRoute
   '/compartilhado/$token': typeof CompartilhadoTokenRoute
+  '/pedido/$id': typeof PedidoIdRoute
   '/api/public/mercadopago/webhook': typeof ApiPublicMercadopagoWebhookRoute
 }
 export interface FileRouteTypes {
@@ -366,6 +375,7 @@ export interface FileRouteTypes {
     | '/veiculos-configuracoes'
     | '/veiculos-relatorio'
     | '/compartilhado/$token'
+    | '/pedido/$id'
     | '/api/public/mercadopago/webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -401,6 +411,7 @@ export interface FileRouteTypes {
     | '/veiculos-configuracoes'
     | '/veiculos-relatorio'
     | '/compartilhado/$token'
+    | '/pedido/$id'
     | '/api/public/mercadopago/webhook'
   id:
     | '__root__'
@@ -437,6 +448,7 @@ export interface FileRouteTypes {
     | '/_authenticated/veiculos-configuracoes'
     | '/_authenticated/veiculos-relatorio'
     | '/compartilhado/$token'
+    | '/pedido/$id'
     | '/api/public/mercadopago/webhook'
   fileRoutesById: FileRoutesById
 }
@@ -449,6 +461,7 @@ export interface RootRouteChildren {
   RedefinirSenhaRoute: typeof RedefinirSenhaRoute
   TermosRoute: typeof TermosRoute
   CompartilhadoTokenRoute: typeof CompartilhadoTokenRoute
+  PedidoIdRoute: typeof PedidoIdRoute
   ApiPublicMercadopagoWebhookRoute: typeof ApiPublicMercadopagoWebhookRoute
 }
 
@@ -685,6 +698,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CompartilhadoTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/pedido/$id': {
+      id: '/pedido/$id'
+      path: '/pedido/$id'
+      fullPath: '/pedido/$id'
+      preLoaderRoute: typeof PedidoIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/mercadopago/webhook': {
       id: '/api/public/mercadopago/webhook'
       path: '/api/public/mercadopago/webhook'
@@ -764,6 +784,7 @@ const rootRouteChildren: RootRouteChildren = {
   RedefinirSenhaRoute: RedefinirSenhaRoute,
   TermosRoute: TermosRoute,
   CompartilhadoTokenRoute: CompartilhadoTokenRoute,
+  PedidoIdRoute: PedidoIdRoute,
   ApiPublicMercadopagoWebhookRoute: ApiPublicMercadopagoWebhookRoute,
 }
 export const routeTree = rootRouteImport
