@@ -91,6 +91,56 @@ export const adminCreateLicense = createServerFn({ method: "POST" })
     return license;
   });
 
+const trialBatchSchema = z.object({
+  quantity: z.number().int().min(1).max(50),
+  notes: z.string().max(300).optional(),
+});
+
+/**
+ * Gera licenças de teste (7 dias, recursos limitados e sem IA) para o
+ * administrador distribuir. Elas ficam pendentes e só passam a valer quando o
+ * cliente ativa a chave dentro do app.
+ */
+export const adminCreateTrialLicenses = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => trialBatchSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: plan } = await supabaseAdmin
+      .from("plans")
+      .select("id, name, trial_days")
+      .eq("slug", "trial_7_basic")
+      .maybeSingle();
+    if (!plan) throw new Error("Plano de teste de 7 dias não encontrado");
+
+    const rows = Array.from({ length: data.quantity }).map(() => ({
+      plan_id: plan.id,
+      billing_cycle: "monthly" as const,
+      amount: 0,
+      source: "trial_gift",
+      status: "pending" as const,
+      created_by: context.userId,
+      notes: data.notes || "Licença de teste 7 dias — recursos limitados, sem IA",
+    }));
+
+    const { data: created, error } = await supabaseAdmin
+      .from("licenses")
+      .insert(rows)
+      .select("id, license_key, status, created_at, notes");
+    if (error) throw new Error("Não foi possível gerar as licenças de teste");
+
+    await context.supabase.from("admin_logs").insert({
+      actor_id: context.userId,
+      target_user_id: null,
+      action: "trial_licenses_created",
+      details: { quantity: data.quantity },
+    });
+
+    return created ?? [];
+  });
+
 const statusSchema = z.object({
   licenseId: z.string().uuid(),
   status: z.enum(["pending", "active", "expired", "revoked"]),
@@ -191,8 +241,19 @@ export const activateLicense = createServerFn({ method: "POST" })
       throw new Error("Esta licença já está vinculada a outra conta");
     }
 
+    const { data: plan } = license.plan_id
+      ? await supabaseAdmin
+          .from("plans")
+          .select("id, slug, trial_days")
+          .eq("id", license.plan_id)
+          .maybeSingle()
+      : { data: null };
+
     const now = new Date();
-    const expiresAt = addMonths(now, monthsFromCycle(license.billing_cycle));
+    const trialDays = Number(license.amount) === 0 ? (plan?.trial_days ?? null) : null;
+    const expiresAt = trialDays
+      ? new Date(now.getTime() + trialDays * 24 * 60 * 60 * 1000)
+      : addMonths(now, monthsFromCycle(license.billing_cycle));
 
     const { error } = await supabaseAdmin
       .from("licenses")
@@ -208,9 +269,19 @@ export const activateLicense = createServerFn({ method: "POST" })
     if (license.plan_id) {
       await supabaseAdmin
         .from("profiles")
-        .update({ plan_id: license.plan_id, status: "active" })
+        .update({
+          plan_id: license.plan_id,
+          status: "active",
+          ...(trialDays
+            ? {
+                trial_plan_slug: plan?.slug ?? null,
+                trial_started_at: now.toISOString(),
+                trial_ends_at: expiresAt.toISOString(),
+              }
+            : {}),
+        })
         .eq("user_id", context.userId);
     }
 
-    return { ok: true, licenseKey: key };
+    return { ok: true, licenseKey: key, trialDays, expiresAt: expiresAt.toISOString() };
   });
