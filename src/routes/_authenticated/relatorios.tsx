@@ -478,11 +478,12 @@ function ReportsPage() {
         {isLoading ? (
           <Skeleton className="h-72 rounded-2xl" />
         ) : (
-          <div className="auto-cards-lg">
+          <div className="grid gap-3 sm:gap-4 md:grid-cols-2">
             <Panel
               title="Receitas x despesas por mês"
               description="Evolução mensal do período filtrado"
               icon={BarChart3}
+              className="interactive-card shadow-soft"
               bodyClassName="p-2 sm:p-4"
             >
               <div className="h-60 sm:h-64">
