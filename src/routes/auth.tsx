@@ -186,14 +186,23 @@ function AuthPage() {
                 </TabsContent>
                 <TabsContent value="signup" className="mt-5">
                   <CpfSignUpForm onDone={() => setMode("login")} />
+                  <p className="mt-4 border-t border-border pt-3 text-center text-xs text-muted-foreground">
+                    Já tem conta?{" "}
+                    <button
+                      type="button"
+                      onClick={() => setMode("login")}
+                      className="font-semibold text-primary underline underline-offset-2"
+                    >
+                      Voltar para Entrar
+                    </button>
+                  </p>
                 </TabsContent>
               </Tabs>
             )}
           </div>
 
-          {mode === "login" || mode === "signup" ? (
-            <CodeAccessInline onContinue={() => setMode("signup")} />
-          ) : null}
+          {mode === "login" ? <CodeAccessInline onContinue={() => setMode("signup")} /> : null}
+
 
           <p className="mt-4 text-center text-xs text-white/80 lg:text-muted-foreground">
             <Link to="/" className="hover:text-white lg:hover:text-foreground">

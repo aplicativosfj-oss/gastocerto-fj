@@ -6,7 +6,8 @@ import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
 import { EmblemShield } from "@/components/ui/panel-emblems";
-import { LicensesPanel, PaymentsPanel } from "@/components/admin/licenses-panel";
+import { LicensesPanel } from "@/components/admin/licenses-panel";
+import { SalesPanel } from "@/components/admin/sales-panel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -260,7 +261,7 @@ function AdminContent({ isAdmin }: { isAdmin: boolean }) {
           <TabsList>
             <TabsTrigger value="users">Usuários</TabsTrigger>
             {isAdmin ? <TabsTrigger value="licenses">Licenças</TabsTrigger> : null}
-            {isAdmin ? <TabsTrigger value="payments">Pagamentos</TabsTrigger> : null}
+            {isAdmin ? <TabsTrigger value="payments">Vendas &amp; pagamentos</TabsTrigger> : null}
             {isAdmin ? <TabsTrigger value="ai">IA &amp; testes</TabsTrigger> : null}
             {isAdmin ? <TabsTrigger value="security">Segurança</TabsTrigger> : null}
             {isAdmin ? <TabsTrigger value="categories">Categorias</TabsTrigger> : null}
@@ -276,9 +277,10 @@ function AdminContent({ isAdmin }: { isAdmin: boolean }) {
 
           {isAdmin ? (
             <TabsContent value="payments" className="mt-4">
-              <PaymentsPanel />
+              <SalesPanel />
             </TabsContent>
           ) : null}
+
 
           <TabsContent value="users" className="mt-4 space-y-3">
             <div className="flex flex-wrap gap-3">
