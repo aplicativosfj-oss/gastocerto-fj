@@ -460,7 +460,13 @@
     -webkit-overflow-scrolling: touch;
   }
 
-
+  img,
+  svg,
+  video,
+  canvas,
+  table {
+    max-width: 100%;
+  }
 
   /* Toques confortáveis no celular sem inflar o layout. */
   @media (max-width: 639px) {
