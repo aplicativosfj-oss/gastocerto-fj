@@ -36,7 +36,7 @@ export function IntegrationsPanel() {
               <div className="grid size-10 place-items-center rounded-xl bg-blue-500/10 text-blue-500">
                 <CreditCard className="size-5" />
               </div>
-              <Badge variant="success" className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20">Ativo</Badge>
+              <Badge variant="outline" className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20">Ativo</Badge>
             </div>
             <CardTitle className="text-lg mt-3">Mercado Pago</CardTitle>
             <CardDescription className="text-xs">Checkout Transparente & Pix</CardDescription>
@@ -72,7 +72,7 @@ export function IntegrationsPanel() {
               <div className="grid size-10 place-items-center rounded-xl bg-purple-500/10 text-purple-500">
                 <BrainCircuit className="size-5" />
               </div>
-              <Badge variant="success" className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20">Ativo</Badge>
+              <Badge variant="outline" className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20">Ativo</Badge>
             </div>
             <CardTitle className="text-lg mt-3">Google Gemini</CardTitle>
             <CardDescription className="text-xs">Motor de IA Financeira</CardDescription>
@@ -101,7 +101,7 @@ export function IntegrationsPanel() {
               <div className="grid size-10 place-items-center rounded-xl bg-orange-500/10 text-orange-500">
                 <Mail className="size-5" />
               </div>
-              <Badge variant="success" className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20">Ativo</Badge>
+              <Badge variant="outline" className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20">Ativo</Badge>
             </div>
             <CardTitle className="text-lg mt-3">Resend E-mail</CardTitle>
             <CardDescription className="text-xs">Envio de Chaves & Notificações</CardDescription>
