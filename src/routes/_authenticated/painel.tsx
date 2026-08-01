@@ -398,8 +398,7 @@ function DashboardPage() {
 
   return (
     <AppShell>
-      <>
-        <div className="space-y-4">
+      <div className="space-y-4">
         <header className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 sm:flex sm:flex-wrap sm:items-center sm:justify-between">
           <div className="min-w-0">
             <h1 className="page-title truncate">
