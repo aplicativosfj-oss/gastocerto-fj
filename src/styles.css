@@ -462,6 +462,10 @@
 
   /* Desktop: rolagem apenas pela roda do mouse/trackpad, sem barras visíveis. */
   @media (hover: hover) and (pointer: fine) {
+    html {
+      scrollbar-gutter: auto;
+    }
+
     html,
     body,
     [data-scroll-area],
