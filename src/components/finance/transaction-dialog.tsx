@@ -120,6 +120,8 @@ export function TransactionDialog({
   const [accountId, setAccountId] = useState(transaction?.account_id ?? "");
   const [merchant, setMerchant] = useState(transaction?.merchant_name ?? "");
   const [notes, setNotes] = useState(transaction?.notes ?? "");
+  const [merchant, setMerchant] = useState(transaction?.merchant_name ?? "");
+
   const [tags, setTags] = useState((transaction?.tags ?? []).join(", "));
   const [essential, setEssential] = useState(transaction?.is_essential ?? false);
   const [status, setStatus] = useState<string>(transaction?.status ?? (kind === "income" ? "received" : "paid"));
