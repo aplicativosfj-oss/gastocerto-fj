@@ -188,31 +188,19 @@ function AdminConsole({ isAdmin }: { isAdmin: boolean }) {
           </div>
         ) : null}
         {current === "audit" ? <AuditLogsPanel /> : null}
-        {current === "logs" ? <AdminLogsSection /> : null}
-        {current === "security" ? null : null}
+        {current === "security" ? (
+          <div className="space-y-4">
+            <AdminAccessPanel />
+            <BlockedIpsPanel />
+          </div>
+        ) : null}
+        {current === "logs" ? <LogsTable /> : null}
       </Suspense>
-
-      {current === "codes" || current === "licenses" ? null : null}
-
-      {current === "users" && isAdmin ? null : null}
-
-      {/* Segurança fica junto de códigos administrativos */}
-      {current === "logs" ? null : null}
     </AdminConsoleShell>
-  );
-}
-
-/** Trilha completa de ações administrativas, carregada apenas nesta seção. */
-function AdminLogsSection() {
-  return (
-    <div className="space-y-4">
-      <AdminAccessPanel />
-      <BlockedIpsPanel />
-      <LogsTable />
-    </div>
   );
 }
 
 const LogsTable = lazy(() =>
   import("@/components/admin/logs-table").then((m) => ({ default: m.LogsTable })),
 );
+
