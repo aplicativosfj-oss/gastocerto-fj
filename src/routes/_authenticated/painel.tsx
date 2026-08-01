@@ -144,16 +144,20 @@ function DashboardPage() {
         ? sum(expenses.filter((row) => row.transaction_date === todayIso))
         : 0,
       /**
-       * Últimos 7 dias corridos (inclui o dia de hoje). Considera também o mês
-       * anterior quando a janela cruza a virada do mês e ignora datas futuras.
+       * Últimos 7 dias corridos (inclui hoje), restrito ao mês aberto: cada mês
+       * enxerga apenas os próprios gastos, sem misturar competências.
        */
       week: isCurrentMonth
         ? sum(
-            [...expenses, ...previousMonthExpenses].filter(
-              (row) => row.transaction_date >= weekStart && row.transaction_date <= todayIso,
+            expenses.filter(
+              (row) =>
+                row.transaction_date >= weekStart &&
+                row.transaction_date >= range.start &&
+                row.transaction_date <= todayIso,
             ),
           )
         : 0,
+
 
       totalExpense,
       totalIncome,
