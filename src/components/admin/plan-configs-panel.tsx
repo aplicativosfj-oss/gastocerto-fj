@@ -117,8 +117,12 @@ export function PlanConfigsPanel() {
   const mutation = useMutation({
     mutationFn: (vars: { id: string; monthlyPrice: number; annualPrice: number; active: boolean }) =>
       updatePlan({ data: vars }),
-    onSuccess: (_r, vars) => {
-      toast.success("Plano atualizado — os preços já valem no site e no checkout.");
+    onSuccess: (result, vars) => {
+      const monthly = formatCurrency(Number(result?.monthlyPrice ?? vars.monthlyPrice));
+      const annual = formatCurrency(Number(result?.annualPrice ?? vars.annualPrice));
+      toast.success(`Plano atualizado: ${monthly}/mês · ${annual}/ano`, {
+        description: "Os novos valores já valem no site, no checkout e nas licenças.",
+      });
       setDrafts((prev) => {
         const next = { ...prev };
         delete next[vars.id];
@@ -129,6 +133,7 @@ export function PlanConfigsPanel() {
     },
     onError: (e: any) => toast.error(e?.message || "Erro ao atualizar plano"),
   });
+
 
   if (isLoading) {
     return (
