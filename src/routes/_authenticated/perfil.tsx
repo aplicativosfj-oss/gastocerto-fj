@@ -5,6 +5,7 @@ import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
 import { LicenseCard } from "@/components/finance/license-card";
+import { PlanSummaryCard } from "@/components/finance/plan-summary-card";
 import { TrialCard } from "@/components/finance/trial-card";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
