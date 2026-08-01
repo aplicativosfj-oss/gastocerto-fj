@@ -591,11 +591,21 @@ function TransactionsPage() {
                         <Button
                           variant="ghost"
                           size="icon"
+                          aria-label="Baixar PDF do lançamento"
+                          title="Baixar PDF"
+                          onClick={() => handleRowPdf(row)}
+                        >
+                          <FileDown className="size-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
                           aria-label="Excluir"
                           onClick={() => setConfirmDelete([row.id])}
                         >
                           <Trash2 className="size-4" />
                         </Button>
+
                       </div>
                     </TableCell>
                   </TableRow>
