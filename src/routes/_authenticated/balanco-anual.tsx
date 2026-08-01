@@ -200,9 +200,9 @@ function AnnualBalancePage() {
                   Valores em milhares de reais (mil = R$ 1.000)
                 </p>
               </div>
-              <div className="mt-2.5 h-56 sm:h-64 lg:h-72">
+              <div className="mt-2.5 h-48 sm:h-56 lg:h-64">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={chartData} margin={{ top: 6, right: 6, left: -6, bottom: 0 }} barGap={2} barCategoryGap="22%">
+                  <BarChart data={chartData} margin={{ top: 6, right: 6, left: -6, bottom: 0 }} barGap={2} barCategoryGap="28%">
                     <CartesianGrid {...gridProps} opacity={0.5} />
                     <XAxis
                       dataKey="mes"

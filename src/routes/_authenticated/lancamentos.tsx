@@ -151,10 +151,13 @@ const VIEWS = [
 function TransactionsPage() {
   const today = new Date();
   const search_ = Route.useSearch();
-  const [period, setPeriod] = useState({
+  const navigate = Route.useNavigate();
+
+  const period = useMemo(() => ({
     year: search_.ano ?? today.getFullYear(),
     month: search_.mes ?? today.getMonth() + 1,
-  });
+  }), [search_.ano, search_.mes, today]);
+
   const [vehicleFilter, setVehicleFilter] = useState(search_.veiculo ?? "all");
   const { data: vehicles } = useVehicles(true);
   const range = monthRange(period.year, period.month);
@@ -478,7 +481,15 @@ function TransactionsPage() {
                     type="button"
                     role="tab"
                     aria-selected={active}
-                    onClick={() => setTypeFilter(item.key)}
+                    onClick={() => {
+                      navigate({
+                        search: (prev) => ({
+                          ...prev,
+                          tipo: item.key,
+                        }),
+                        replace: true,
+                      });
+                    }}
                     className={cn(
                       "flex items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-[12px] font-bold tracking-tight transition-all duration-200",
                       active
@@ -494,7 +505,20 @@ function TransactionsPage() {
             </div>
 
             <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 [scrollbar-width:none] lg:overflow-visible lg:pb-0 [&::-webkit-scrollbar]:hidden [&>*]:shrink-0">
-              <PeriodPicker year={period.year} month={period.month} onChange={setPeriod} />
+              <PeriodPicker
+                year={period.year}
+                month={period.month}
+                onChange={(next) => {
+                  navigate({
+                    search: (prev) => ({
+                      ...prev,
+                      ano: next.year,
+                      mes: next.month,
+                    }),
+                    replace: true,
+                  });
+                }}
+              />
               <span aria-hidden className="mx-0.5 hidden h-6 w-px bg-border lg:block" />
               <Button
                 variant="outline"
