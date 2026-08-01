@@ -9,6 +9,8 @@ import {
   TrendingDown,
   TrendingUp,
   Wallet,
+  Zap,
+
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import {
