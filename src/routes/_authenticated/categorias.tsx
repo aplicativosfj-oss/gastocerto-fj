@@ -387,7 +387,7 @@ function CategoriesPage() {
           </div>
         )}
 
-        {inactiveCategories.length > 0 ? (
+        {isAdmin && inactiveCategories.length > 0 ? (
           <section className="rounded-2xl border border-dashed border-border bg-muted/20 p-4">
             <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
               <div>
