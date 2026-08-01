@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { ArrowLeft, Check, Delete, Eye, SlidersHorizontal } from "lucide-react";
+import { ArrowLeft, Check, Delete, Eye, SlidersHorizontal, Smartphone } from "lucide-react";
 import { toast } from "sonner";
 
 import { readRecentCategories, rememberCategory } from "@/components/finance/category-picker";
