@@ -332,7 +332,7 @@ function DashboardPage() {
               Olá, {firstName}!
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              {MONTH_NAMES[period.month - 1]} de {period.year}
+              {MONTH_NAMES[period.month - 1]} de {period.year} · ajuste para permitir clicar sobre os gráficos e poder ver detalhes abrindo um modal exibindo os detalhes de forma profissional
             </p>
           </div>
           <div className="col-span-2 flex flex-wrap items-center gap-2">
@@ -675,7 +675,13 @@ function DashboardPage() {
                 summary={`Receitas ${formatCurrency(metrics.totalIncome)} contra despesas ${formatCurrency(metrics.totalExpense)}.`}
               >
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={byDay}>
+                  <LineChart
+                    data={byDay}
+                    onClick={(state: { activeLabel?: string | number }) => {
+                      const day = Number(state?.activeLabel);
+                      if (day) openDayDetail(day);
+                    }}
+                  >
                     <CartesianGrid {...gridProps} />
                     <XAxis dataKey="day" {...axisProps} />
                     <YAxis {...axisProps} width={44} />
@@ -688,6 +694,7 @@ function DashboardPage() {
                       stroke={CHART_TOKENS.income}
                       strokeWidth={2}
                       dot={false}
+                      className="cursor-pointer"
                     />
                     <Line
                       type="monotone"
@@ -696,6 +703,7 @@ function DashboardPage() {
                       stroke={CHART_TOKENS.expense}
                       strokeWidth={2}
                       dot={false}
+                      className="cursor-pointer"
                     />
                   </LineChart>
                 </ResponsiveContainer>
