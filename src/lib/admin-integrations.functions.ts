@@ -85,6 +85,36 @@ export const adminTestMercadoPago = createServerFn({ method: "POST" })
     return result;
   });
 
+/** Envia um e-mail de teste para validar a integração de e-mail (Resend). */
+export const adminTestEmailDelivery = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ to: z.string().email() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { assertAdminCtx, auditLog } = await import("@/lib/admin-guard.server");
+    await assertAdminCtx(context);
+
+    const { sendLicenseKeyEmail } = await import("@/lib/license-delivery.server");
+    
+    // Simulamos um recibo/licença real para o teste ser fiel
+    const result = await sendLicenseKeyEmail({
+      to: data.to,
+      fullName: "Destinatário de Teste",
+      planName: "Premium IA (Teste)",
+      licenseKey: "GC-TEST-EMAIL-SENT",
+      statusUrl: `${process.env["APP_URL"] || "http://localhost:8080"}/pedido/test-id`
+    });
+
+    await auditLog(context, "admin_email_test_sent", {
+      to: data.to,
+      success: result.delivered,
+      channel: result.channel,
+      reason: result.reason
+    });
+
+    return result;
+  });
+
+
 /** Dispara a revalidação dos pagamentos pendentes manualmente. */
 export const adminReconcilePayments = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])

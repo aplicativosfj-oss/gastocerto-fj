@@ -139,9 +139,41 @@ export function IntegrationsPanel() {
                 <span className="text-emerald-500 font-medium">100% (Verificado)</span>
               </div>
             </div>
-            <Button size="sm" variant="outline" className="w-full text-xs h-8">
-              <Settings2 className="mr-2 size-3" /> DNS Settings
-            </Button>
+            <div className="flex flex-col gap-2">
+              <Button 
+                size="sm" 
+                variant="outline" 
+                className="w-full text-xs h-8"
+                onClick={async () => {
+                  const email = window.prompt("E-mail de destino para o teste:");
+                  if (!email) return;
+                  
+                  const toastId = toast.loading("Enviando e-mail de teste...");
+                  try {
+                    const { adminTestEmailDelivery } = await import("@/lib/admin-integrations.functions");
+                    const result = await adminTestEmailDelivery({ data: { to: email } });
+                    
+                    if (result.delivered) {
+                      toast.success("E-mail enviado com sucesso!", { id: toastId });
+                    } else {
+                      toast.warning("Simulação concluída", { 
+                        id: toastId,
+                        description: result.reason === "email_domain_not_configured" 
+                          ? "Domínio não configurado. O e-mail não foi disparado, mas a lógica está ativa."
+                          : `Motivo: ${result.reason}`
+                      });
+                    }
+                  } catch (err: any) {
+                    toast.error("Falha no teste", { id: toastId, description: err.message });
+                  }
+                }}
+              >
+                <Sparkles className="mr-2 size-3" /> Testar Envio
+              </Button>
+              <Button size="sm" variant="ghost" className="w-full text-xs h-8">
+                <Settings2 className="mr-2 size-3" /> DNS Settings
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>
