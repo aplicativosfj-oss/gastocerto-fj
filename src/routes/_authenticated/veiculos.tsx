@@ -276,13 +276,21 @@ function VehiclesPage() {
                 className="rounded-2xl border border-border bg-card p-4"
               >
                 <div className="flex items-start justify-between gap-2">
-                  <div className="min-w-0">
-                    <h2 className="truncate font-semibold">{vehicle.name}</h2>
-                    <p className="mt-0.5 truncate text-xs text-muted-foreground">
-                      {[vehicle.brand, vehicle.model, vehicle.year].filter(Boolean).join(" · ") ||
-                        labelFor(VEHICLE_TYPES, vehicle.vehicle_type)}
-                    </p>
+                  <div className="flex min-w-0 items-start gap-3">
+                    {vehicle.vehicle_type === "moto" ? (
+                      <EmblemBike title="Moto" className="size-10" />
+                    ) : (
+                      <EmblemCar title="Carro" className="size-10" />
+                    )}
+                    <div className="min-w-0">
+                      <h2 className="truncate font-semibold">{vehicle.name}</h2>
+                      <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                        {[vehicle.brand, vehicle.model, vehicle.year].filter(Boolean).join(" · ") ||
+                          labelFor(VEHICLE_TYPES, vehicle.vehicle_type)}
+                      </p>
+                    </div>
                   </div>
+
                   <div className="flex shrink-0">
                     <Button
                       variant="ghost"
