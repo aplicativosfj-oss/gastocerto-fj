@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Check, NotebookPen, Paperclip, Pencil, X } from "lucide-react";
+import { Check, FileDown, History, NotebookPen, Paperclip, Pencil, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { ReceiptViewer } from "@/components/finance/receipt-viewer";
@@ -14,10 +14,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { formatCurrency, formatDate } from "@/lib/format";
+import { formatCurrency, formatDate, formatDateTime } from "@/lib/format";
 import { PAYMENT_METHODS, TRANSACTION_STATUS, EXPENSE_TYPES, labelFor } from "@/lib/finance";
 import { useCategories } from "@/lib/queries";
+import { exportTransactionPdf } from "@/lib/transaction-detail-export";
+import { NOTE_FIELD_LABEL, useNoteHistory, useRefreshNoteHistory } from "@/lib/transaction-notes";
 import { useSaveTransaction, type Transaction } from "@/lib/transactions";
+
 
 function Field({ label, value }: { label: string; value: React.ReactNode }) {
   return (
