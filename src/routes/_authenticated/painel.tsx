@@ -144,6 +144,12 @@ function DashboardPage() {
       dailyAverage,
       projection: dailyAverage * range.days,
       previousExpense,
+      /** Só compara quando os dois períodos têm gasto e o mês não é futuro. */
+      diffAvailable:
+        previousExpense > 0 &&
+        totalExpense > 0 &&
+        new Date(period.year, period.month - 1, 1) <=
+          new Date(today.getFullYear(), today.getMonth(), 1),
       diffPercent:
         previousExpense > 0 ? ((totalExpense - previousExpense) / previousExpense) * 100 : 0,
       expenses,
