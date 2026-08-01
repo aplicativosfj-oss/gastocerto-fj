@@ -29,6 +29,7 @@ import {
 
 import { AppShell } from "@/components/app-shell";
 import { TransactionDialog } from "@/components/finance/transaction-dialog";
+import { ExpenseCardsDialog } from "@/components/finance/expense-cards-dialog";
 import { RecurringAlerts } from "@/components/finance/recurring-alerts";
 import { QuickCategoryMenu, type QuickPick } from "@/components/finance/quick-category-menu";
 import { PeriodPicker } from "@/components/finance/period-picker";
@@ -75,6 +76,7 @@ function DashboardPage() {
   const today = new Date();
   const [period, setPeriod] = useState({ year: today.getFullYear(), month: today.getMonth() + 1 });
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [cardsOpen, setCardsOpen] = useState(false);
   const [dialogKind, setDialogKind] = useState<"expense" | "income">("expense");
   const [preset, setPreset] = useState<QuickPick>({ categoryId: null, subCategoryId: null });
 
@@ -243,6 +245,10 @@ function DashboardPage() {
                 setDialogOpen(true);
               }}
             />
+            <Button onClick={() => setCardsOpen(true)}>
+              <Zap className="mr-2 size-4" aria-hidden />
+              Gasto em 2 toques
+            </Button>
             <QuickCategoryMenu
               kind="expense"
               label="Novo gasto"
@@ -598,6 +604,16 @@ function DashboardPage() {
           </>
         )}
       </div>
+
+      <ExpenseCardsDialog
+        open={cardsOpen}
+        onOpenChange={setCardsOpen}
+        onAdvanced={() => {
+          setDialogKind("expense");
+          setPreset({ categoryId: null, subCategoryId: null });
+          setDialogOpen(true);
+        }}
+      />
 
       <TransactionDialog
         open={dialogOpen}
