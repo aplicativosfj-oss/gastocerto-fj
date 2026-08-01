@@ -9,6 +9,7 @@ import {
   Plus,
   Sparkles,
   SparklesIcon,
+  Trash2,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -46,6 +47,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import {
   adminCreateLicense,
+  adminDeleteLicense,
   adminListLicenses,
   adminSetLicenseStatus,
 } from "@/lib/licenses.functions";
@@ -216,6 +218,15 @@ export function LicensesPanel() {
     onError: (error: Error) => toast.error(error.message),
   });
 
+  const deleteLicense = useMutation({
+    mutationFn: (id: string) => adminDeleteLicense({ data: { id } }),
+    onSuccess: async () => {
+      toast.success("Licença excluída definitivamente");
+      await queryClient.invalidateQueries({ queryKey: ["admin"] });
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
   const licenses = useMemo(() => {
     const rows = data.data?.licenses ?? [];
     if (statusFilter === "all") return rows;
@@ -369,6 +380,23 @@ export function LicensesPanel() {
                           Revogar
                         </Button>
                       ) : null}
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                        disabled={deleteLicense.isPending}
+                        onClick={() => {
+                          if (
+                            window.confirm(
+                              "Excluir esta licença definitivamente? Esta ação não pode ser desfeita.",
+                            )
+                          ) {
+                            deleteLicense.mutate(license.id);
+                          }
+                        }}
+                      >
+                        <Trash2 className="size-4" />
+                      </Button>
                     </div>
                   </TableCell>
                 </TableRow>
