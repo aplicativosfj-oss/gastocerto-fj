@@ -1108,7 +1108,7 @@ function TransactionsPage() {
           key={editing?.id ?? "new"}
           open={dialogOpen}
           onOpenChange={setDialogOpen}
-          kind={editing?.transaction_type === "income" ? "income" : "expense"}
+          kind={(editing ? editing.transaction_type === "income" : typeFilter === "income") ? "income" : "expense"}
           transaction={editing}
           defaultDate={periodDefaultDate(period.year, period.month)}
           onSaved={(savedDate) => {

@@ -177,7 +177,7 @@ function AnnualBalancePage() {
 
             <section className="rounded-xl border border-border bg-card p-4">
               <h2 className="text-base font-semibold text-foreground">Entradas x saídas por mês</h2>
-              <div className="mt-4 h-72">
+              <div className="mt-3 h-52 sm:h-60">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={chartData}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.25} />
