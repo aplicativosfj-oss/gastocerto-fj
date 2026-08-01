@@ -1,6 +1,6 @@
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { adminSettleManualOrder } from "@/lib/admin-integrations.functions";
-import { getMercadoPagoCredentials } from "@/lib/mercadopago-credentials.server";
+import { resolveMercadoPagoCredentials } from "@/lib/mercadopago-credentials.server";
 
 export async function processMercadoPagoWebhook(externalId: string, topic: string) {
   console.log(`[Webhook] Processing ${topic} ID: ${externalId}`);
@@ -8,7 +8,7 @@ export async function processMercadoPagoWebhook(externalId: string, topic: strin
   // Se for merchant_order, precisamos pegar o ID do pagamento dentro dela
   let paymentId = externalId;
   
-  const { accessToken } = await getMercadoPagoCredentials();
+  const { accessToken } = await resolveMercadoPagoCredentials();
   if (!accessToken) {
     console.error("[Webhook] No access token configured");
     return;
