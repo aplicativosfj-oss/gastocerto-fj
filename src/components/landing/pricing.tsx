@@ -7,11 +7,13 @@ import { CheckoutDialog } from "@/components/landing/checkout-dialog";
 
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/format";
+import { annualMonthlyEquivalent } from "@/lib/plan-pricing";
+import { livePrice, usePublicPlans } from "@/hooks/use-public-plans";
 import { cn } from "@/lib/utils";
 
 type Cycle = "monthly" | "yearly";
 
-const plans = [
+const basePlans = [
   {
     slug: "free",
     name: "Gratuito",
@@ -60,12 +62,25 @@ const plans = [
   },
 ];
 
-const premium = plans[plans.length - 1];
-const savingsPercent = Math.round((1 - premium.yearly / premium.monthly) * 100);
-const savingsPerYear = premium.monthly * 12 - premium.yearly * 12;
 
 
 export function Pricing() {
+  const { data: livePlans } = usePublicPlans();
+
+  // Preços vigentes do banco: qualquer ajuste do administrador aparece na hora.
+  const plans = basePlans.map((plan) => {
+    if (plan.monthly === 0) return plan;
+    const live = livePrice(livePlans, plan.slug, {
+      monthly: plan.monthly,
+      annual: plan.yearly * 12,
+    });
+    return { ...plan, monthly: live.monthly, yearly: annualMonthlyEquivalent(live.annual) };
+  });
+
+  const premium = plans[plans.length - 1];
+  const savingsPercent = Math.max(0, Math.round((1 - premium.yearly / premium.monthly) * 100));
+  const savingsPerYear = premium.monthly * 12 - premium.yearly * 12;
+
   const [cycle, setCycle] = useState<Cycle>("yearly");
   const isYearly = cycle === "yearly";
   const [checkoutPlan, setCheckoutPlan] = useState<"premium" | "premium_ia" | null>(null);

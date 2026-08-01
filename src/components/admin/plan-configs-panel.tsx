@@ -7,9 +7,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Loader2, Mail, Save, Sparkles, Tag } from "lucide-react";
+import { Loader2, Mail, RefreshCcw, Save, Sparkles, Tag } from "lucide-react";
 import { toast } from "sonner";
 import { formatCurrency } from "@/lib/format";
+import { normalizePlanPrices, suggestedAnnual } from "@/lib/plan-pricing";
+
 import { cn } from "@/lib/utils";
 import {
   adminGetOwnContact,
@@ -49,12 +51,18 @@ function AdminContactCard() {
   const mutation = useMutation({
     mutationFn: () => saveContact({ data: { contactEmail: value.trim() } }),
     onSuccess: () => {
-      toast.success("E-mail de contato atualizado");
+      const saved = value.trim();
+      toast.success(`E-mail de contato atualizado: ${saved}`, {
+        description: "Já aparece no suporte e nas respostas institucionais.",
+      });
       setEmail(null);
       queryClient.invalidateQueries({ queryKey: ["admin", "own-contact"] });
+      queryClient.invalidateQueries({ queryKey: ["admin", "settings"] });
+      queryClient.invalidateQueries({ queryKey: ["app-settings"] });
     },
     onError: (e: any) => toast.error(e?.message || "Não foi possível salvar"),
   });
+
 
   return (
     <Card className="border-brand/20 bg-card/60">
@@ -115,8 +123,12 @@ export function PlanConfigsPanel() {
   const mutation = useMutation({
     mutationFn: (vars: { id: string; monthlyPrice: number; annualPrice: number; active: boolean }) =>
       updatePlan({ data: vars }),
-    onSuccess: (_r, vars) => {
-      toast.success("Plano atualizado — os preços já valem no site e no checkout.");
+    onSuccess: (result, vars) => {
+      const monthly = formatCurrency(Number(result?.monthlyPrice ?? vars.monthlyPrice));
+      const annual = formatCurrency(Number(result?.annualPrice ?? vars.annualPrice));
+      toast.success(`Plano atualizado: ${monthly}/mês · ${annual}/ano`, {
+        description: "Os novos valores já valem no site, no checkout e nas licenças.",
+      });
       setDrafts((prev) => {
         const next = { ...prev };
         delete next[vars.id];
@@ -127,6 +139,7 @@ export function PlanConfigsPanel() {
     },
     onError: (e: any) => toast.error(e?.message || "Erro ao atualizar plano"),
   });
+
 
   if (isLoading) {
     return (
@@ -184,13 +197,17 @@ export function PlanConfigsPanel() {
           const monthly = Number(draft.monthly.replace(",", "."));
           const annual = Number(draft.annual.replace(",", "."));
           const validNumbers = Number.isFinite(monthly) && Number.isFinite(annual) && monthly >= 0 && annual >= 0;
+          const preview = validNumbers
+            ? normalizePlanPrices({ monthly, annual })
+            : { monthly: 0, annual: 0, monthlyEquivalent: 0, savingsPercent: 0, savingsAmount: 0, adjusted: false };
           const changed =
             validNumbers &&
-            (monthly !== Number(plan.monthly_price) ||
-              annual !== Number(plan.annual_price) ||
+            (preview.monthly !== Number(plan.monthly_price) ||
+              preview.annual !== Number(plan.annual_price) ||
               draft.active !== plan.active);
           const hasAi = plan.slug.includes("ia");
           const isTrial = plan.tier === "trial";
+
 
           return (
             <Card key={plan.id} className={cn("border-border/60 bg-card/50", plan.active && "border-brand/25")}>
@@ -255,12 +272,56 @@ export function PlanConfigsPanel() {
                   </div>
                 </div>
 
-                <p className="rounded-lg bg-muted/30 px-3 py-2 text-[11px] text-muted-foreground">
-                  Equivalente anual:{" "}
-                  <strong className="text-foreground">
-                    {annual > 0 ? `${formatCurrency(annual / 12)}/mês` : "gratuito"}
-                  </strong>
-                </p>
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                    Prévia para o cliente
+                  </p>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    className="h-7 gap-1 px-2 text-[11px]"
+                    onClick={() =>
+                      setDraft(plan, {
+                        monthly: preview.monthly.toFixed(2),
+                        annual: String(suggestedAnnual(preview.monthly)),
+                      })
+                    }
+                  >
+                    <RefreshCcw className="size-3" /> Arredondar
+                  </Button>
+                </div>
+
+                <div className="rounded-lg border border-border/60 bg-muted/20 p-3">
+                  <div className="flex items-baseline justify-between gap-2">
+                    <span className="text-[11px] text-muted-foreground">Mensal</span>
+                    <strong className="tabular-nums text-base">
+                      {preview.monthly > 0 ? `${formatCurrency(preview.monthly)}/mês` : "Gratuito"}
+                    </strong>
+                  </div>
+                  <div className="mt-1 flex items-baseline justify-between gap-2">
+                    <span className="text-[11px] text-muted-foreground">Anual</span>
+                    <strong className="tabular-nums text-base">
+                      {preview.annual > 0 ? `${formatCurrency(preview.annual)}/ano` : "Gratuito"}
+                    </strong>
+                  </div>
+                  {preview.annual > 0 ? (
+                    <p className="mt-1.5 text-[11px] text-muted-foreground">
+                      Exibido como{" "}
+                      <strong className="text-foreground">
+                        {formatCurrency(preview.monthlyEquivalent)}/mês
+                      </strong>{" "}
+                      no anual · economia de {preview.savingsPercent}% (
+                      {formatCurrency(preview.savingsAmount)}/ano)
+                    </p>
+                  ) : null}
+                  {preview.adjusted ? (
+                    <p className="mt-1.5 rounded-md bg-amber-500/10 px-2 py-1 text-[11px] font-medium text-amber-600">
+                      Valores serão salvos arredondados ({formatCurrency(preview.monthly)} ·{" "}
+                      {formatCurrency(preview.annual)}) para o anual nunca exibir centavos quebrados.
+                    </p>
+                  ) : null}
+                </div>
 
                 <Button
                   className="h-9 w-full gap-2"
@@ -268,15 +329,16 @@ export function PlanConfigsPanel() {
                   onClick={() =>
                     mutation.mutate({
                       id: plan.id,
-                      monthlyPrice: Number(monthly.toFixed(2)),
-                      annualPrice: Number(annual.toFixed(2)),
+                      monthlyPrice: preview.monthly,
+                      annualPrice: preview.annual,
                       active: draft.active,
                     })
                   }
                 >
                   {mutation.isPending ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}
-                  Salvar alterações
+                  {changed ? "Confirmar e salvar" : "Sem alterações"}
                 </Button>
+
               </CardContent>
             </Card>
           );

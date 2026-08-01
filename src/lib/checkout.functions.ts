@@ -9,11 +9,53 @@ const startSchema = z.object({
   fullName: z.string().trim().min(3).max(120),
   email: z.string().trim().email().max(160),
   cpf: z.string().trim().min(11).max(14),
+  verificationId: z.string().uuid(),
+});
+
+const verifySchema = z.object({
+  planSlug: z.enum(["premium", "premium_ia"]),
+  cycle: z.enum(["monthly", "annual"]),
+  fullName: z.string().trim().min(3).max(120),
+  email: z.string().trim().email({ message: "Informe um e-mail válido" }).max(160),
+  cpf: z.string().trim().min(11).max(14),
 });
 
 /**
- * Inicia o checkout transparente: emite uma licença pendente, cria a cobrança
- * Pix no Mercado Pago e devolve o QR Code para o cliente pagar na hora.
+ * Etapa 1 do cadastro: valida os dados e envia um código de 6 dígitos para o
+ * e-mail informado. Nada é registrado como cliente, licença ou pagamento aqui.
+ */
+export const requestCheckoutVerification = createServerFn({ method: "POST" })
+  .inputValidator((input: unknown) => verifySchema.parse(input))
+  .handler(async ({ data }) => {
+    const cpf = onlyDigits(data.cpf);
+    if (!isValidCpf(cpf)) throw new Error("CPF inválido. Confira os 11 dígitos.");
+
+    const { createEmailVerification } = await import("@/lib/checkout-verification.server");
+    return createEmailVerification({
+      planSlug: data.planSlug,
+      cycle: data.cycle,
+      fullName: data.fullName,
+      email: data.email,
+      cpf,
+    });
+  });
+
+/** Etapa 2: confirma o código recebido por e-mail. */
+export const confirmCheckoutVerification = createServerFn({ method: "POST" })
+  .inputValidator((input: unknown) =>
+    z
+      .object({ verificationId: z.string().uuid(), code: z.string().trim().length(6) })
+      .parse(input),
+  )
+  .handler(async ({ data }) => {
+    const { confirmEmailVerification } = await import("@/lib/checkout-verification.server");
+    return confirmEmailVerification(data.verificationId, data.code);
+  });
+
+/**
+ * Etapa 3: só depois do e-mail confirmado geramos a cobrança Pix. A cobrança é
+ * criada no Mercado Pago antes de qualquer gravação, então uma falha ali não
+ * deixa licença nem pagamento pendente no banco.
  */
 export const startPixCheckout = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => startSchema.parse(input))
@@ -23,6 +65,12 @@ export const startPixCheckout = createServerFn({ method: "POST" })
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { createPixCharge } = await import("@/lib/mercadopago.server");
+    const { requireVerifiedCheckout, consumeVerification } = await import(
+      "@/lib/checkout-verification.server"
+    );
+
+    const email = data.email.toLowerCase();
+    await requireVerifiedCheckout({ verificationId: data.verificationId, email, cpf });
 
     const { data: plan } = await supabaseAdmin
       .from("plans")
@@ -35,12 +83,21 @@ export const startPixCheckout = createServerFn({ method: "POST" })
     const amount = Number(data.cycle === "annual" ? plan.annual_price : plan.monthly_price);
     if (!(amount > 0)) throw new Error("Plano sem preço configurado. Fale com o suporte.");
 
-    const email = data.email.toLowerCase();
     const { data: profile } = await supabaseAdmin
       .from("profiles")
       .select("user_id")
       .or(`cpf.eq.${cpf},contact_email.ilike.${email}`)
       .maybeSingle();
+
+    // Cobrança primeiro: se o Mercado Pago falhar, nada é gravado.
+    const charge = await createPixCharge({
+      amount,
+      description: `GastoCerto ${plan.name} — ${data.cycle === "annual" ? "anual" : "mensal"}`,
+      email,
+      fullName: data.fullName,
+      cpf,
+      externalReference: data.verificationId,
+    });
 
     const { data: license, error: licenseError } = await supabaseAdmin
       .from("licenses")
@@ -54,26 +111,11 @@ export const startPixCheckout = createServerFn({ method: "POST" })
         source: "mercadopago_pix",
         status: "pending",
         user_id: profile?.user_id ?? null,
-        notes: "Aguardando confirmação do Pix",
+        notes: "E-mail verificado — aguardando confirmação do Pix",
       })
       .select("id, license_key")
       .single();
     if (licenseError || !license) throw new Error("Não foi possível iniciar a compra.");
-
-    let charge;
-    try {
-      charge = await createPixCharge({
-        amount,
-        description: `GastoCerto ${plan.name} — ${data.cycle === "annual" ? "anual" : "mensal"}`,
-        email,
-        fullName: data.fullName,
-        cpf,
-        externalReference: license.id,
-      });
-    } catch (error) {
-      await supabaseAdmin.from("licenses").update({ status: "revoked" }).eq("id", license.id);
-      throw error;
-    }
 
     const { data: payment, error: paymentError } = await supabaseAdmin
       .from("payments")
@@ -93,7 +135,13 @@ export const startPixCheckout = createServerFn({ method: "POST" })
       })
       .select("id")
       .single();
-    if (paymentError || !payment) throw new Error("Não foi possível registrar o pagamento.");
+    if (paymentError || !payment) {
+      // Sem pagamento registrado não deixamos licença solta no banco.
+      await supabaseAdmin.from("licenses").delete().eq("id", license.id);
+      throw new Error("Não foi possível registrar o pagamento.");
+    }
+
+    await consumeVerification(data.verificationId);
 
     return {
       paymentId: payment.id as string,
@@ -106,6 +154,7 @@ export const startPixCheckout = createServerFn({ method: "POST" })
       expiresAt: charge.expiresAt,
     };
   });
+
 
 const statusSchema = z.object({ paymentId: z.string().uuid() });
 

@@ -445,6 +445,54 @@ export type Database = {
           },
         ]
       }
+      checkout_verifications: {
+        Row: {
+          attempts: number
+          billing_cycle: string
+          code_hash: string
+          consumed_at: string | null
+          cpf: string
+          created_at: string
+          email: string
+          expires_at: string
+          full_name: string
+          id: string
+          plan_slug: string
+          updated_at: string
+          verified_at: string | null
+        }
+        Insert: {
+          attempts?: number
+          billing_cycle: string
+          code_hash: string
+          consumed_at?: string | null
+          cpf: string
+          created_at?: string
+          email: string
+          expires_at: string
+          full_name: string
+          id?: string
+          plan_slug: string
+          updated_at?: string
+          verified_at?: string | null
+        }
+        Update: {
+          attempts?: number
+          billing_cycle?: string
+          code_hash?: string
+          consumed_at?: string | null
+          cpf?: string
+          created_at?: string
+          email?: string
+          expires_at?: string
+          full_name?: string
+          id?: string
+          plan_slug?: string
+          updated_at?: string
+          verified_at?: string | null
+        }
+        Relationships: []
+      }
       closed_period_audit: {
         Row: {
           action: string

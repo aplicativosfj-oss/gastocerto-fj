@@ -16,7 +16,13 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { getPixCheckoutStatus, startPixCheckout } from "@/lib/checkout.functions";
+import {
+  confirmCheckoutVerification,
+  getPixCheckoutStatus,
+  requestCheckoutVerification,
+  startPixCheckout,
+} from "@/lib/checkout.functions";
+
 import {
   CHECKOUT_PLANS,
   CHECKOUT_STATUS_LABEL,
@@ -27,10 +33,13 @@ import {
 import { maskCpf } from "@/lib/cpf";
 import { formatCurrency } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { livePrice, usePublicPlans } from "@/hooks/use-public-plans";
 
-type Step = "plan" | "form" | "pix" | "done";
+type Step = "plan" | "form" | "code" | "pix" | "done";
 
 type Charge = Awaited<ReturnType<typeof startPixCheckout>>;
+type Verification = Awaited<ReturnType<typeof requestCheckoutVerification>>;
+
 
 export function CheckoutDialog({
   open,
@@ -53,9 +62,19 @@ export function CheckoutDialog({
   const [charge, setCharge] = useState<Charge | null>(null);
   const [status, setStatus] = useState("pending");
   const [licenseKey, setLicenseKey] = useState<string | null>(null);
+  const [verification, setVerification] = useState<Verification | null>(null);
+  const [code, setCode] = useState("");
   const pollRef = useRef<number | null>(null);
 
-  const plan = CHECKOUT_PLANS.find((item) => item.slug === planSlug) ?? CHECKOUT_PLANS[0];
+  const { data: livePlans } = usePublicPlans();
+
+  // Catálogo com os preços vigentes do banco (ajustes do admin valem na hora).
+  const catalog = CHECKOUT_PLANS.map((item) => {
+    const live = livePrice(livePlans, item.slug, { monthly: item.monthly, annual: item.annual });
+    return { ...item, monthly: live.monthly, annual: live.annual };
+  });
+
+  const plan = catalog.find((item) => item.slug === planSlug) ?? catalog[0];
   const price = checkoutPrice(plan, cycle);
 
   useEffect(() => {
@@ -66,6 +85,8 @@ export function CheckoutDialog({
     setCharge(null);
     setLicenseKey(null);
     setStatus("pending");
+    setVerification(null);
+    setCode("");
   }, [open, initialPlan, initialCycle]);
 
   // Rede de segurança: consulta o Mercado Pago a cada 5s enquanto o Pix não é pago.
@@ -90,9 +111,29 @@ export function CheckoutDialog({
     };
   }, [step, charge]);
 
+  // Etapa 1: envia o código para o e-mail. Nenhum cadastro é criado ainda.
+  const verify = useMutation({
+    mutationFn: () =>
+      requestCheckoutVerification({ data: { planSlug, cycle, fullName, email, cpf } }),
+    onSuccess: (result) => {
+      setVerification(result);
+      setCode("");
+      setStep("code");
+      toast.success(
+        result.emailDelivered
+          ? `Código enviado para ${result.email}.`
+          : "Código gerado. O envio por e-mail depende do domínio remetente configurado.",
+      );
+    },
+    onError: (error) =>
+      toast.error(error instanceof Error ? error.message : "Não foi possível enviar o código."),
+  });
+
   const create = useMutation({
     mutationFn: () =>
-      startPixCheckout({ data: { planSlug, cycle, fullName, email, cpf } }),
+      startPixCheckout({
+        data: { planSlug, cycle, fullName, email, cpf, verificationId: verification?.verificationId ?? "" },
+      }),
     onSuccess: (result) => {
       setCharge(result);
       setStatus(result.status);
@@ -101,6 +142,21 @@ export function CheckoutDialog({
     onError: (error) =>
       toast.error(error instanceof Error ? error.message : "Não foi possível gerar o Pix."),
   });
+
+  // Etapa 2: confirma o código e só então segue para a cobrança.
+  const confirm = useMutation({
+    mutationFn: () =>
+      confirmCheckoutVerification({
+        data: { verificationId: verification?.verificationId ?? "", code: code.trim() },
+      }),
+    onSuccess: () => {
+      toast.success("E-mail confirmado. Gerando seu Pix...");
+      create.mutate();
+    },
+    onError: (error) =>
+      toast.error(error instanceof Error ? error.message : "Código inválido."),
+  });
+
 
   const copy = async (value: string, label: string) => {
     try {
@@ -134,11 +190,14 @@ export function CheckoutDialog({
             {step === "plan"
               ? "Escolha o plano e o ciclo de cobrança."
               : step === "form"
-                ? "Confirme seus dados para emitir o Pix."
-                : step === "pix"
-                  ? "Pague o Pix e a chave de ativação é liberada automaticamente."
-                  : "Sua chave de ativação está pronta."}
+                ? "Informe seus dados: enviaremos um código para confirmar seu e-mail."
+                : step === "code"
+                  ? "Digite o código de 6 dígitos enviado ao seu e-mail."
+                  : step === "pix"
+                    ? "Pague o Pix e a chave de ativação é liberada automaticamente."
+                    : "Sua chave de ativação está pronta."}
           </DialogDescription>
+
         </DialogHeader>
 
         {step === "plan" ? (
@@ -170,7 +229,7 @@ export function CheckoutDialog({
             </div>
 
             <div className="grid gap-2">
-              {CHECKOUT_PLANS.map((item) => {
+              {catalog.map((item) => {
                 const selected = item.slug === planSlug;
                 return (
                   <button
@@ -227,9 +286,10 @@ export function CheckoutDialog({
             className="space-y-3"
             onSubmit={(event) => {
               event.preventDefault();
-              create.mutate();
+              verify.mutate();
             }}
           >
+
             <div className="rounded-xl border border-border bg-secondary/30 p-3 text-sm">
               <span className="font-semibold">{plan.name}</span> ·{" "}
               {cycle === "annual" ? "cobrança anual" : "cobrança mensal"} ·{" "}
@@ -248,7 +308,7 @@ export function CheckoutDialog({
               />
             </div>
             <div>
-              <Label htmlFor="checkout-email">E-mail para receber a chave</Label>
+              <Label htmlFor="checkout-email">E-mail para receber o código e a chave</Label>
               <Input
                 id="checkout-email"
                 type="email"
@@ -258,6 +318,9 @@ export function CheckoutDialog({
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
               />
+              <p className="mt-1 text-[11px] text-muted-foreground">
+                Sua conta só é criada depois que você confirmar este e-mail.
+              </p>
             </div>
             <div>
               <Label htmlFor="checkout-cpf">CPF do pagador</Label>
@@ -281,13 +344,79 @@ export function CheckoutDialog({
               >
                 Voltar
               </Button>
-              <Button type="submit" className="flex-1" disabled={create.isPending}>
-                {create.isPending ? (
+              <Button type="submit" className="flex-1" disabled={verify.isPending}>
+                {verify.isPending ? (
+                  <Loader2 className="mr-2 size-4 animate-spin" aria-hidden="true" />
+                ) : (
+                  <ShieldCheck className="mr-2 size-4" aria-hidden="true" />
+                )}
+                Enviar código
+              </Button>
+            </div>
+          </form>
+        ) : null}
+
+        {step === "code" && verification ? (
+          <form
+            className="space-y-3"
+            onSubmit={(event) => {
+              event.preventDefault();
+              confirm.mutate();
+            }}
+          >
+            <div className="rounded-xl border border-border bg-secondary/30 p-3 text-sm">
+              Enviamos um código de 6 dígitos para{" "}
+              <span className="font-semibold">{verification.email}</span>. Ele expira em 15 minutos.
+            </div>
+
+            {!verification.emailDelivered && verification.fallbackCode ? (
+              <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-3 text-xs">
+                <p className="font-semibold text-amber-600">Envio de e-mail ainda não configurado</p>
+                <p className="mt-1 text-muted-foreground">
+                  Enquanto o domínio remetente não estiver ativo, use o código abaixo:
+                </p>
+                <p className="tabular mt-1.5 text-lg font-extrabold tracking-[0.3em]">
+                  {verification.fallbackCode}
+                </p>
+              </div>
+            ) : null}
+
+            <div>
+              <Label htmlFor="checkout-code">Código de verificação</Label>
+              <Input
+                id="checkout-code"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                maxLength={6}
+                required
+                placeholder="000000"
+                className="tabular mt-1.5 text-center text-lg tracking-[0.4em]"
+                value={code}
+                onChange={(event) => setCode(event.target.value.replace(/\D/g, "").slice(0, 6))}
+              />
+            </div>
+
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                className="flex-1"
+                disabled={verify.isPending}
+                onClick={() => verify.mutate()}
+              >
+                Reenviar código
+              </Button>
+              <Button
+                type="submit"
+                className="flex-1"
+                disabled={confirm.isPending || create.isPending || code.length !== 6}
+              >
+                {confirm.isPending || create.isPending ? (
                   <Loader2 className="mr-2 size-4 animate-spin" aria-hidden="true" />
                 ) : (
                   <QrCode className="mr-2 size-4" aria-hidden="true" />
                 )}
-                Gerar Pix
+                Confirmar e gerar Pix
               </Button>
             </div>
           </form>
@@ -296,6 +425,7 @@ export function CheckoutDialog({
         {step === "pix" && charge ? (
           <div className="space-y-3">
             <div className="flex items-center justify-between gap-2 rounded-xl border border-border bg-secondary/30 p-3 text-sm">
+
               <span>
                 {charge.planName} · {cycle === "annual" ? "anual" : "mensal"}
               </span>

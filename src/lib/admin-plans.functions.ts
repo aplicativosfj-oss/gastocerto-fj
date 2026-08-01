@@ -31,13 +31,24 @@ export const adminUpdatePlan = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { assertAdminCtx, auditLog } = await import("@/lib/admin-guard.server");
+    const { normalizePlanPrices } = await import("@/lib/plan-pricing");
     await assertAdminCtx(context);
+
+    // Arredondamento oficial: mensal em centavos e anual múltiplo de 12,
+    // para o equivalente mensal nunca sair quebrado (ex.: 29,08).
+    const prices = normalizePlanPrices({ monthly: data.monthlyPrice, annual: data.annualPrice });
+
+    const { data: before } = await context.supabase
+      .from("plans")
+      .select("name, slug, monthly_price, annual_price, active")
+      .eq("id", data.id)
+      .maybeSingle();
 
     const { error } = await context.supabase
       .from("plans")
       .update({
-        monthly_price: data.monthlyPrice,
-        annual_price: data.annualPrice,
+        monthly_price: prices.monthly,
+        annual_price: prices.annual,
         active: data.active,
         ...(data.name ? { name: data.name } : {}),
         updated_at: new Date().toISOString(),
@@ -47,14 +58,42 @@ export const adminUpdatePlan = createServerFn({ method: "POST" })
 
     await auditLog(context, "plan_updated", {
       plan_id: data.id,
-      monthly_price: data.monthlyPrice,
-      annual_price: data.annualPrice,
-      active: data.active,
-      name: data.name ?? null,
+      plan_slug: before?.slug ?? null,
+      before: before
+        ? {
+            name: before.name,
+            monthly_price: Number(before.monthly_price),
+            annual_price: Number(before.annual_price),
+            active: before.active,
+          }
+        : null,
+      after: {
+        name: data.name ?? before?.name ?? null,
+        monthly_price: prices.monthly,
+        annual_price: prices.annual,
+        active: data.active,
+      },
+      rounding_adjusted: prices.adjusted,
+      monthly_equivalent: prices.monthlyEquivalent,
     });
 
-    return { ok: true };
+    if (before && before.active !== data.active) {
+      await auditLog(context, data.active ? "plan_activated" : "plan_deactivated", {
+        plan_id: data.id,
+        plan_slug: before.slug,
+      });
+    }
+
+    return {
+      ok: true,
+      monthlyPrice: prices.monthly,
+      annualPrice: prices.annual,
+      monthlyEquivalent: prices.monthlyEquivalent,
+      savingsPercent: prices.savingsPercent,
+      adjusted: prices.adjusted,
+    };
   });
+
 
 export const adminGetOwnContact = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -85,6 +124,12 @@ export const adminUpdateOwnContact = createServerFn({ method: "POST" })
     const { assertAdminCtx, auditLog } = await import("@/lib/admin-guard.server");
     await assertAdminCtx(context);
 
+    const { data: before } = await context.supabase
+      .from("profiles")
+      .select("contact_email, phone")
+      .eq("user_id", context.userId)
+      .maybeSingle();
+
     const { error } = await context.supabase
       .from("profiles")
       .update({
@@ -95,6 +140,10 @@ export const adminUpdateOwnContact = createServerFn({ method: "POST" })
       .eq("user_id", context.userId);
     if (error) throw error;
 
-    await auditLog(context, "admin_contact_email_updated", { contact_email: data.contactEmail });
+    await auditLog(context, "admin_contact_email_updated", {
+      before: { contact_email: before?.contact_email ?? null, phone: before?.phone ?? null },
+      after: { contact_email: data.contactEmail, phone: data.phone ?? before?.phone ?? null },
+    });
+
     return { ok: true };
   });
