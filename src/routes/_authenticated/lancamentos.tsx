@@ -105,6 +105,10 @@ export const Route = createFileRoute("/_authenticated/lancamentos")({
     veiculo: typeof search["veiculo"] === "string" ? (search["veiculo"] as string) : undefined,
     ano: Number(search["ano"]) || undefined,
     mes: Number(search["mes"]) || undefined,
+    tipo:
+      search["tipo"] === "income" || search["tipo"] === "expense" || search["tipo"] === "all"
+        ? (search["tipo"] as "income" | "expense" | "all")
+        : undefined,
   }),
   component: TransactionsPage,
 });
@@ -132,7 +136,7 @@ function TransactionsPage() {
   const [toDate, setToDate] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [typeFilter, setTypeFilter] = useState("all");
+  const [typeFilter, setTypeFilter] = useState<string>(search_.tipo ?? "expense");
   const [sort, setSort] = useState("date_desc");
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<string[]>([]);
@@ -361,7 +365,6 @@ function TransactionsPage() {
     toDate !== "",
     categoryFilter !== "all",
     statusFilter !== "all",
-    typeFilter !== "all",
     vehicleFilter !== "all",
   ].filter(Boolean).length;
 
@@ -380,11 +383,10 @@ function TransactionsPage() {
     <AppShell>
       <div className="mx-auto max-w-7xl space-y-3 sm:space-y-4">
         <PageHeader
-          icon={ArrowLeftRight}
-          eyebrow="Movimentações"
-          title="Lançamentos"
-          description="Registre, filtre e audite cada entrada e saída do período selecionado."
-          className="lg:p-5"
+          icon={view.icon}
+          eyebrow="Lançamentos"
+          title={view.title}
+          description={view.description}
           meta={
             <div className="flex flex-wrap items-center gap-1.5">
               <MetaChip icon={Receipt}>{filtered.length} itens</MetaChip>
@@ -399,32 +401,80 @@ function TransactionsPage() {
             </div>
           }
           actions={
-            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-              <PeriodPicker year={period.year} month={period.month} onChange={setPeriod} />
+            <div className="flex items-center gap-1.5 sm:gap-2">
               <Button
                 size="sm"
-                className="h-9 px-3 sm:h-10 sm:px-4"
+                className="h-9 px-3"
                 onClick={() => {
                   setEditing(null);
                   setDialogOpen(true);
                 }}
               >
                 <Plus className="mr-1.5 size-4" />
-                Novo
+                {view.newLabel}
               </Button>
-              <Button variant="secondary" size="sm" className="h-9 px-3 sm:h-10 sm:px-4" onClick={() => setCardsOpen(true)}>
+              <Button
+                variant="secondary"
+                size="sm"
+                className="h-9 px-3"
+                onClick={() => setCardsOpen(true)}
+              >
                 <Zap className="mr-1.5 size-4" aria-hidden />
                 Gasto rápido
               </Button>
-              <Button variant="outline" size="sm" className="h-9 px-3 sm:h-10 sm:px-4" onClick={exportCsv} disabled={filtered.length === 0}>
+            </div>
+          }
+        />
+
+        {/* Barra de contexto: recorte (despesas/receitas), competência e exportações. */}
+        <section className="rounded-2xl border border-border bg-card p-2.5 shadow-soft sm:p-3">
+          <div className="flex flex-col gap-2.5 lg:flex-row lg:items-center lg:justify-between">
+            <div
+              role="tablist"
+              aria-label="Recorte dos lançamentos"
+              className="grid grid-cols-3 gap-1 rounded-xl bg-muted/60 p-1"
+            >
+              {VIEWS.map((item) => {
+                const active = typeFilter === item.key;
+                return (
+                  <button
+                    key={item.key}
+                    type="button"
+                    role="tab"
+                    aria-selected={active}
+                    onClick={() => setTypeFilter(item.key)}
+                    className={cn(
+                      "flex items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-[12px] font-bold tracking-tight transition-all duration-200",
+                      active
+                        ? "bg-card text-foreground shadow-soft ring-1 ring-border"
+                        : "text-muted-foreground hover:text-foreground",
+                    )}
+                  >
+                    <item.icon className="size-3.5" aria-hidden />
+                    {item.tab}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 [scrollbar-width:none] lg:overflow-visible lg:pb-0 [&::-webkit-scrollbar]:hidden [&>*]:shrink-0">
+              <PeriodPicker year={period.year} month={period.month} onChange={setPeriod} />
+              <span aria-hidden className="mx-0.5 hidden h-6 w-px bg-border lg:block" />
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-9 px-3"
+                onClick={exportCsv}
+                disabled={filtered.length === 0}
+              >
                 <Download className="mr-1.5 size-4" />
                 CSV
               </Button>
               <PdfExportSettingsDialog />
               <ShareLinkDialog year={period.year} month={period.month} />
             </div>
-          }
-        />
+          </div>
+        </section>
 
         <PastMonthsLockNotice monthKey={monthKeyView} />
 
@@ -567,19 +617,6 @@ function TransactionsPage() {
                     {item.label}
                   </SelectItem>
                 ))}
-              </SelectContent>
-            </Select>
-          </FilterField>
-
-          <FilterField label="Tipo">
-            <Select value={typeFilter} onValueChange={setTypeFilter}>
-              <SelectTrigger aria-label="Filtrar por tipo">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Entradas e saídas</SelectItem>
-                <SelectItem value="expense">Saídas (gastos)</SelectItem>
-                <SelectItem value="income">Entradas (recebimentos)</SelectItem>
               </SelectContent>
             </Select>
           </FilterField>
