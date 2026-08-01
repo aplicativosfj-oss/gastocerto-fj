@@ -980,8 +980,6 @@ function DashboardPage() {
           </div>
         )}
       </div>
-        )}
-      </div>
     </AppShell>
   );
 }
