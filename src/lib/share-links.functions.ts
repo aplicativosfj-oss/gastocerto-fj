@@ -10,7 +10,12 @@ const createSchema = z.object({
   month: z.number().int().min(1).max(12),
   includeTransactions: z.boolean().default(true),
   includeNotes: z.boolean().default(false),
-  expiresInDays: z.number().int().min(1).max(365).nullable().default(7),
+  includeTotals: z.boolean().default(true),
+  includeCharts: z.boolean().default(true),
+  includeCategories: z.boolean().default(true),
+  includeAmounts: z.boolean().default(true),
+  /** Data e hora exatas de expiração (ISO). `null` = sem expirar. */
+  expiresAt: z.string().datetime().nullable().default(null),
 });
 
 const openSchema = z.object({
@@ -18,14 +23,24 @@ const openSchema = z.object({
   password: z.string().min(1).max(64),
 });
 
+export type ShareVisibility = {
+  totals: boolean;
+  charts: boolean;
+  categories: boolean;
+  transactions: boolean;
+  notes: boolean;
+  amounts: boolean;
+};
+
 export type SharePayload = {
   label: string | null;
   ownerName: string | null;
   year: number;
   month: number;
   expiresAt: string | null;
+  visibility: ShareVisibility;
   totals: { income: number; expense: number; balance: number; count: number };
-  categories: { name: string; total: number }[];
+  categories: { name: string; total: number; percent: number }[];
   transactions: {
     id: string;
     date: string;
@@ -46,10 +61,6 @@ export const createShareLink = createServerFn({ method: "POST" })
     const { hashSharePassword, generateShareToken } = await import("./share-hash.server");
     const { hash, salt } = await hashSharePassword(data.password);
     const token = generateShareToken();
-    const expiresAt =
-      data.expiresInDays === null
-        ? null
-        : new Date(Date.now() + data.expiresInDays * 86_400_000).toISOString();
 
     const { data: row, error } = await context.supabase
       .from("share_links")
@@ -63,7 +74,11 @@ export const createShareLink = createServerFn({ method: "POST" })
         month: data.month,
         include_transactions: data.includeTransactions,
         include_notes: data.includeNotes,
-        expires_at: expiresAt,
+        include_totals: data.includeTotals,
+        include_charts: data.includeCharts,
+        include_categories: data.includeCategories,
+        include_amounts: data.includeAmounts,
+        expires_at: data.expiresAt,
       })
       .select("id, token, expires_at")
       .single();
@@ -139,6 +154,17 @@ export const openShareLink = createServerFn({ method: "POST" })
       .update({ view_count: link.view_count + 1, last_viewed_at: new Date().toISOString() })
       .eq("id", link.id);
 
+    const visibility: ShareVisibility = {
+      totals: link.include_totals ?? true,
+      charts: link.include_charts ?? true,
+      categories: link.include_categories ?? true,
+      transactions: link.include_transactions,
+      notes: link.include_notes,
+      amounts: link.include_amounts ?? true,
+    };
+
+    const showCategories = visibility.categories || visibility.charts;
+
     return {
       ok: true as const,
       payload: {
@@ -147,20 +173,27 @@ export const openShareLink = createServerFn({ method: "POST" })
         year: link.year,
         month: link.month,
         expiresAt: link.expires_at,
-        totals: { income, expense, balance: income - expense, count: list.length },
-        categories: Array.from(byCategory, ([name, total]) => ({ name, total })).sort(
-          (a, b) => b.total - a.total,
-        ),
-        transactions: link.include_transactions
+        visibility,
+        totals: visibility.totals
+          ? { income, expense, balance: income - expense, count: list.length }
+          : { income: 0, expense: 0, balance: 0, count: list.length },
+        categories: showCategories
+          ? Array.from(byCategory, ([name, total]) => ({
+              name,
+              total: visibility.amounts ? total : 0,
+              percent: expense > 0 ? (total / expense) * 100 : 0,
+            })).sort((a, b) => b.percent - a.percent)
+          : [],
+        transactions: visibility.transactions
           ? list.map((item) => ({
               id: item.id,
               date: item.transaction_date,
               description: item.description,
               category: (item.category_id && categoryName.get(item.category_id)) || null,
               merchant: item.merchant_name,
-              amount: Number(item.amount),
+              amount: visibility.amounts ? Number(item.amount) : 0,
               type: item.transaction_type,
-              notes: link.include_notes ? item.notes : null,
+              notes: visibility.notes ? item.notes : null,
             }))
           : [],
       },
