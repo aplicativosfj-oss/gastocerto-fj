@@ -394,7 +394,7 @@ function DailyPage() {
             }
           }}
           transaction={editing}
-          kind={editing?.transaction_type ?? "expense"}
+          kind={editing?.transaction_type === "income" ? "income" : "expense"}
         />
       ) : null}
 
@@ -407,6 +407,7 @@ function DailyPage() {
           setEditing(row);
         }}
       />
+
     </AppShell>
 
   );
