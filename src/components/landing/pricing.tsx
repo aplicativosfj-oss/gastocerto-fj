@@ -180,27 +180,41 @@ export function Pricing() {
                   ))}
                 </ul>
 
-                <div className="mt-3 flex gap-2">
-                  <Button
-                    className="h-10 flex-1"
-                    variant={plan.highlighted ? "default" : "outline"}
-                    asChild
-                  >
-                    <Link to="/auth" search={{ mode: "signup" }}>
-                      {plan.cta}
-                    </Link>
-                  </Button>
-                  <Button variant="ghost" className="h-10 shrink-0" asChild>
-                    <Link to="/auth" search={{ mode: "login" }}>
-                      Entrar
-                    </Link>
-                  </Button>
+                <div className="mt-3">
+                  {plan.monthly === 0 ? (
+                    <Button className="h-10 w-full" variant="outline" asChild>
+                      <Link to="/auth" search={{ mode: "signup" }}>
+                        {plan.cta}
+                      </Link>
+                    </Button>
+                  ) : (
+                    <Button
+                      className="h-10 w-full"
+                      variant={plan.highlighted ? "default" : "outline"}
+                      onClick={() => setCheckoutPlan(plan.slug as "premium" | "premium_ia")}
+                    >
+                      {plan.cta} · Pix
+                    </Button>
+                  )}
+                  <p className="mt-1.5 text-center text-[11px] text-muted-foreground">
+                    {plan.monthly === 0
+                      ? "Sem cartão. Comece em menos de um minuto."
+                      : "Pagamento por Pix com liberação imediata da chave."}
+                  </p>
                 </div>
               </div>
             );
           })}
         </div>
       </div>
+
+      <CheckoutDialog
+        open={checkoutPlan !== null}
+        onOpenChange={(open) => setCheckoutPlan(open ? checkoutPlan : null)}
+        {...(checkoutPlan ? { initialPlan: checkoutPlan } : {})}
+        initialCycle={isYearly ? "annual" : "monthly"}
+      />
     </section>
   );
 }
+
