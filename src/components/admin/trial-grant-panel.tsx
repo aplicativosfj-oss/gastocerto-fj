@@ -76,12 +76,22 @@ export function TrialGrantPanel() {
           <Gift className="size-4 text-[oklch(0.62_0.14_160)]" aria-hidden />
         </span>
         <div>
-          <h2 className="text-sm font-semibold">Conceder período de teste</h2>
+          <h2 className="text-sm font-semibold">Conceder período de teste (Cortesia)</h2>
           <p className="text-xs text-muted-foreground">
-            Libera todos os recursos (inclusive a IA) por 7, 15 ou 30 dias.
+            Libera acesso imediato a um usuário específico por um período determinado.
           </p>
         </div>
       </header>
+
+      <div className="mt-3 rounded-lg bg-amber-500/5 border border-amber-500/20 p-3">
+        <h3 className="text-[11px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-500 mb-1">Como usar:</h3>
+        <ul className="text-[11px] text-muted-foreground space-y-1 list-disc pl-4">
+          <li>Busque o usuário pelo <strong>nome ou CPF</strong> abaixo.</li>
+          <li>Escolha a <strong>duração</strong> desejada (7, 15 ou 30 dias).</li>
+          <li>Clique em <strong>"Liberar teste"</strong> para ativar instantaneamente.</li>
+          <li>O usuário terá acesso a <strong>todos os recursos</strong>, inclusive a IA.</li>
+        </ul>
+      </div>
 
       <div className="mt-3 flex flex-wrap gap-2">
         <div className="min-w-56 flex-1 space-y-1">
