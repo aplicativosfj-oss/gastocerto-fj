@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { cn } from "@/lib/utils";
 import {
   CalendarClock,
   Check,
@@ -246,17 +247,6 @@ function RecurringPage() {
               }}
             >
               <Plus className="mr-2 size-4" />
-              Despesa mensal
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setEditing(null);
-                setPreset({ type: "expense", frequency: "monthly" });
-                setDialogOpen(true);
-              }}
-            >
-              <Plus className="mr-2 size-4" />
               Financiamento/Parcela
             </Button>
             <Button
@@ -274,7 +264,7 @@ function RecurringPage() {
 
         </header>
 
-        <section className="rounded-2xl border border-border bg-card">
+        <section className={cn("rounded-2xl border border-border bg-card transition-all duration-300", isLoading && "opacity-50 blur-[1px]")}>
           {(rules ?? []).length > 0 ? (
             <div className="flex flex-wrap items-center gap-2 border-b border-border p-3">
               <Select value={freqFilter} onValueChange={setFreqFilter}>
@@ -408,7 +398,7 @@ function RecurringPage() {
           </div>
         </section>
 
-        <section className="rounded-2xl border border-border bg-card">
+        <section className={cn("rounded-2xl border border-border bg-card transition-all duration-300", (isLoading || generate.isPending) && "opacity-50 blur-[1px]")}>
           <div className="border-b border-border p-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="min-w-0">

@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { cn } from "@/lib/utils";
 import { CalendarRange, FileDown, FileSpreadsheet, TrendingDown, TrendingUp } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -59,6 +60,7 @@ import { BALANCE_START, buildBalance, useBalanceTransactions, useClosings } from
 import { MONTH_NAMES } from "@/lib/finance";
 import { formatCurrency } from "@/lib/format";
 import { useCategories, useProfile } from "@/lib/queries";
+import { usePeriodStore } from "@/lib/period-store";
 
 export const Route = createFileRoute("/_authenticated/balanco-anual")({
   head: () => ({
@@ -93,7 +95,13 @@ function AnnualBalancePage() {
     for (let year = BALANCE_START.year; year <= current; year += 1) list.push(year);
     return list.reverse();
   }, []);
-  const [year, setYear] = useState(() => String(years[0] ?? BALANCE_START.year));
+  const { year: storedYear, setPeriod: setStoredPeriod } = usePeriodStore();
+  const [year, setYear] = useState(() => String(storedYear ?? years[0] ?? BALANCE_START.year));
+
+  const handleYearChange = (next: string) => {
+    setYear(next);
+    setStoredPeriod({ year: Number(next), month: 1 }); // Simplificado para balanço anual
+  };
 
   const balance = useMemo(() => {
     const rows = buildBalance(transactions ?? [], closings ?? []);
@@ -126,7 +134,7 @@ function AnnualBalancePage() {
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            <Select value={year} onValueChange={setYear}>
+            <Select value={year} onValueChange={handleYearChange}>
               <SelectTrigger className="w-[130px]">
                 <CalendarRange className="mr-2 size-4" />
                 <SelectValue />
@@ -167,14 +175,14 @@ function AnnualBalancePage() {
         </header>
 
         {isLoading ? (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 opacity-50 transition-opacity duration-300">
             {Array.from({ length: 4 }).map((_, index) => (
               <Skeleton key={index} className="h-28 rounded-xl" />
             ))}
           </div>
         ) : (
           <>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className={cn("grid gap-4 sm:grid-cols-2 lg:grid-cols-4 transition-all duration-300", isLoading && "opacity-50 blur-[1px]")}>
               <SummaryCard label="Entradas no ano" value={balance.income} tone="income" />
               <SummaryCard label="Saídas no ano" value={balance.expense} tone="expense" />
               <SummaryCard
