@@ -13,7 +13,10 @@ import { useMemo } from "react";
 
 export const Route = createFileRoute("/_authenticated/reconciliacao")({
   head: () => ({
-    title: "Reconciliação Mensal — GastoCerto",
+    meta: [
+      { title: "Reconciliação Mensal — GastoCerto" },
+      { name: "description", content: "Acompanhe receitas transferidas e o impacto no saldo." },
+    ],
   }),
   component: ReconciliationPage,
 });
@@ -30,7 +33,7 @@ function ReconciliationPage() {
   const { data: recon } = useQuery({
     queryKey: ["reconciliation", user?.id, currentYear, currentMonth],
     enabled: !!user?.id,
-    queryFn: () => getReconciliationData({ userId: user!.id, year: currentYear, month: currentMonth }),
+    queryFn: () => getReconciliationData({ data: { userId: user!.id, year: currentYear, month: currentMonth } }),
   });
 
   const totals = useMemo(() => {
