@@ -24,6 +24,7 @@ import { Fragment, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
+import { RefreshCw } from "lucide-react";
 import { FilterField, FilterPanel } from "@/components/finance/filter-panel";
 import { FilterPresets } from "@/components/finance/filter-presets";
 import { MetaChip, PageHeader } from "@/components/finance/page-header";
@@ -175,6 +176,38 @@ function TransactionsPage() {
         ...prev,
         ano: next.year,
         mes: next.month,
+      }),
+      replace: true,
+    });
+  };
+
+  const handleReset = () => {
+    reset();
+    navigate({
+      search: (prev: any) => ({
+        ...prev,
+        ano: new Date().getFullYear(),
+        mes: new Date().getMonth() + 1,
+        tipo: "all",
+      }),
+      replace: true,
+    });
+    // Forçar reset de estados locais se necessário
+    setSearch("");
+    setMerchantFilter("");
+    setFromDate("");
+    setToDate("");
+    setCategoryFilter("all");
+    setStatusFilter("all");
+    setVehicleFilter("all");
+  };
+
+  const handleTypeChange = (next: string) => {
+    setTypeFilter(next as any);
+    navigate({
+      search: (prev: any) => ({
+        ...prev,
+        tipo: next,
       }),
       replace: true,
     });
@@ -641,7 +674,7 @@ function TransactionsPage() {
             if (patch.to !== undefined) setToDate(patch.to);
             if (patch.category !== undefined) setCategoryFilter(patch.category);
             if (patch.status !== undefined) setStatusFilter(patch.status);
-            if (patch.type !== undefined) setTypeFilter(patch.type);
+            if (patch.type !== undefined) setTypeFilter(patch.type as any);
             if (patch.vehicle !== undefined) setVehicleFilter(patch.vehicle);
             if (patch.sort !== undefined) setSort(patch.sort);
             setPage(1);

@@ -90,7 +90,7 @@ export const Route = createFileRoute("/_authenticated/painel")({
 function DashboardPage() {
   const navigate = useNavigate();
   const today = new Date();
-  const { year: storedYear, month: storedMonth, setPeriod: setStoredPeriod } = usePeriodStore();
+  const { year: storedYear, month: storedMonth, setPeriod: setStoredPeriod, reset } = usePeriodStore();
   const [period, setPeriod] = useState({ year: storedYear, month: storedMonth });
 
   const handlePeriodChange = (next: { year: number; month: number }) => {
