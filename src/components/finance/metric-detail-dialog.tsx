@@ -165,13 +165,19 @@ export function MetricDetailDialog({
   categories,
   onOpenChange,
   onEditTransaction,
+  onAddTransaction,
+  addLabel = "Novo lançamento",
 }: {
   detail: MetricDetail | null;
   categories: Category[];
   onOpenChange: (open: boolean) => void;
   /** Abre a tela de edição com os campos já preenchidos. */
   onEditTransaction?: (transaction: Transaction) => void;
+  /** Cria um lançamento já vinculado ao contexto do detalhe (ex.: dia clicado). */
+  onAddTransaction?: () => void;
+  addLabel?: string;
 }) {
+
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const listRef = useRef<HTMLUListElement>(null);
 
