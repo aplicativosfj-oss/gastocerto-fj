@@ -20,7 +20,8 @@ interface PeriodPickerProps {
 
 export function PeriodPicker({ year, month, onChange, className }: PeriodPickerProps) {
   const [open, setOpen] = useState(false);
-  const years = Array.from({ length: 7 }, (_, index) => new Date().getFullYear() - 3 + index);
+  const today = new Date();
+  const years = Array.from({ length: 7 }, (_, index) => today.getFullYear() - 3 + index);
 
   function shift(delta: number) {
     const date = new Date(year, month - 1 + delta, 1);
