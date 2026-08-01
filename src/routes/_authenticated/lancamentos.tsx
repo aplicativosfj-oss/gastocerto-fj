@@ -343,13 +343,13 @@ function TransactionsPage() {
 
   return (
     <AppShell>
-      <div className="mx-auto max-w-6xl space-y-3 sm:space-y-4">
+      <div className="mx-auto max-w-7xl space-y-3 sm:space-y-4">
         <PageHeader
           icon={ArrowLeftRight}
           eyebrow="Movimentações"
           title="Lançamentos"
           description="Registre, filtre e audite cada entrada e saída do período selecionado."
-          className="lg:p-4"
+          className="lg:p-5"
           meta={
             <div className="flex flex-wrap items-center gap-1.5">
               <MetaChip icon={Receipt}>{filtered.length} itens</MetaChip>
@@ -393,38 +393,57 @@ function TransactionsPage() {
 
         <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4 sm:gap-4">
           <StatTile
-            label="Entradas"
+            label="Receitas"
             value={formatCurrency(periodTotals.income)}
             tone="success"
             icon={TrendingUp}
-            hint={`${periodTotals.incomeCount} recebimentos`}
+            hint={
+              <span className="flex items-center gap-1 font-medium text-success/80">
+                <Plus className="size-3" />
+                {periodTotals.incomeCount} lançamentos
+              </span>
+            }
             className="sm:p-3.5"
           />
           <StatTile
-            label="Saídas"
+            label="Despesas"
             value={formatCurrency(periodTotals.expense)}
             tone="expense"
             icon={TrendingDown}
-            hint={`${periodTotals.expenseCount} gastos`}
+            hint={
+              <span className="flex items-center gap-1 font-medium text-destructive/80">
+                <TrendingDown className="size-3" />
+                {periodTotals.expenseCount} lançamentos
+              </span>
+            }
             className="sm:p-3.5"
             progress={
               periodTotals.income ? (periodTotals.expense / periodTotals.income) * 100 : undefined
             }
           />
           <StatTile
-            label="Saldo"
+            label="Balanço"
             value={formatCurrency(total)}
             tone={total >= 0 ? "brand" : "warning"}
             icon={Wallet}
-            hint={total >= 0 ? "Sobra no período" : "Déficit no período"}
+            hint={
+              <span className="font-medium opacity-80">
+                {total >= 0 ? "Resultado positivo" : "Resultado negativo"}
+              </span>
+            }
             className="sm:p-3.5"
           />
           <StatTile
-            label="Abertos"
+            label="Pendentes"
             value={formatCurrency(periodTotals.open)}
             tone={periodTotals.openCount ? "warning" : "neutral"}
             icon={Clock}
-            hint={`${periodTotals.openCount} pendências`}
+            hint={
+              <span className="flex items-center gap-1 font-medium">
+                <Clock className="size-3" />
+                {periodTotals.openCount} aguardando
+              </span>
+            }
             className="sm:p-3.5"
           />
         </div>
@@ -630,14 +649,14 @@ function TransactionsPage() {
               return (
                 <article
                   key={row.id}
-                  className="interactive-card overflow-hidden rounded-xl border border-border bg-card shadow-soft transition-all active:scale-[0.98]"
+                  className="interactive-card relative overflow-hidden rounded-xl border border-border bg-card shadow-soft transition-all active:scale-[0.98]"
                 >
                   <div className="flex items-stretch">
                     <span
                       aria-hidden="true"
                       className={income ? "w-1.5 shrink-0 bg-success/80" : "w-1.5 shrink-0 bg-destructive/80"}
                     />
-                    <div className="min-w-0 flex-1 p-3.5">
+                    <div className="min-w-0 flex-1 p-3">
                       <div className="flex items-start justify-between gap-3">
                         <button
                           type="button"
@@ -646,8 +665,11 @@ function TransactionsPage() {
                         >
                           <div className="flex items-center gap-1.5">
                             <span className="truncate text-[14px] font-bold tracking-tight text-foreground">
-                              {row.description}
-                            </span>
+                                {row.description}
+                              </span>
+                              {row.is_recurring && (
+                                <Zap className="size-3 shrink-0 text-brand" fill="currentColor" />
+                              )}
                             {row.attachment_url ? (
                               <Paperclip className="size-3.5 shrink-0 text-muted-foreground" />
                             ) : null}
@@ -673,7 +695,7 @@ function TransactionsPage() {
                         </div>
                       </div>
                       
-                      <div className="mt-3 flex items-center justify-between">
+                      <div className="mt-2.5 flex items-center justify-between border-t border-border/40 pt-2.5">
                         <div className="flex flex-wrap items-center gap-1.5">
                           <Badge
                             variant={row.status === "overdue" ? "destructive" : row.status === "pending" ? "secondary" : "outline"}
@@ -742,8 +764,8 @@ function TransactionsPage() {
             </div>
           ) : (
             <Table>
-              <TableHeader className="bg-muted/30">
-                <TableRow className="hover:bg-transparent">
+              <TableHeader className="bg-muted/20 border-b border-border/50">
+                <TableRow className="hover:bg-transparent h-10">
                   <TableHead className="w-12 text-center">
                     <Checkbox
                       aria-label="Selecionar tudo"
@@ -754,20 +776,20 @@ function TransactionsPage() {
                       className="rounded"
                     />
                   </TableHead>
-                  <TableHead className="font-bold text-[11px] uppercase tracking-wider text-muted-foreground">Data</TableHead>
-                  <TableHead className="font-bold text-[11px] uppercase tracking-wider text-muted-foreground">Descrição</TableHead>
-                  <TableHead className="hidden font-bold text-[11px] uppercase tracking-wider text-muted-foreground md:table-cell">Categoria</TableHead>
-                  <TableHead className="hidden font-bold text-[11px] uppercase tracking-wider text-muted-foreground lg:table-cell">Pagamento</TableHead>
-                  <TableHead className="hidden font-bold text-[11px] uppercase tracking-wider text-muted-foreground sm:table-cell">Status</TableHead>
-                  <TableHead className="text-right font-bold text-[11px] uppercase tracking-wider text-muted-foreground">Valor</TableHead>
-                  <TableHead className="w-24 text-right font-bold text-[11px] uppercase tracking-wider text-muted-foreground">Ações</TableHead>
+                  <TableHead className="font-bold text-[10px] uppercase tracking-wider text-muted-foreground">Data</TableHead>
+                  <TableHead className="font-bold text-[10px] uppercase tracking-wider text-muted-foreground">Lançamento</TableHead>
+                  <TableHead className="hidden font-bold text-[10px] uppercase tracking-wider text-muted-foreground md:table-cell">Categoria</TableHead>
+                  <TableHead className="hidden font-bold text-[10px] uppercase tracking-wider text-muted-foreground lg:table-cell">Pagamento</TableHead>
+                  <TableHead className="hidden font-bold text-[10px] uppercase tracking-wider text-muted-foreground sm:table-cell text-center">Status</TableHead>
+                  <TableHead className="text-right font-bold text-[10px] uppercase tracking-wider text-muted-foreground">Valor</TableHead>
+                  <TableHead className="w-20 text-right font-bold text-[10px] uppercase tracking-wider text-muted-foreground">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {rows.map((row) => (
                   <Fragment key={row.id}>
                     <TableRow
-                      className="group cursor-pointer hover:bg-muted/40 transition-colors"
+                      className="group h-[52px] cursor-pointer hover:bg-muted/40 transition-colors"
                       onClick={(e) => {
                         const target = e.target as HTMLElement;
                         if (target.closest("button") || target.closest('[role="checkbox"]')) return;
@@ -812,10 +834,13 @@ function TransactionsPage() {
                           </button>
                           <button
                             type="button"
-                            className="flex min-w-0 flex-1 items-center gap-1.5 truncate text-left text-[14px] font-semibold tracking-tight hover:text-brand transition-colors"
+                            className="flex min-w-0 flex-1 items-center gap-2 truncate text-left text-[14px] font-bold tracking-tight hover:text-brand transition-colors"
                             onClick={() => setDetails(row)}
                           >
                             <span className="truncate">{row.description}</span>
+                            {row.is_recurring && (
+                              <Zap className="size-3.5 shrink-0 text-brand" fill="currentColor" />
+                            )}
                             {row.attachment_url ? (
                               <Paperclip className="size-3.5 shrink-0 text-muted-foreground/60" />
                             ) : null}
@@ -830,10 +855,10 @@ function TransactionsPage() {
                           {labelFor(PAYMENT_METHODS, row.payment_method)}
                         </span>
                       </TableCell>
-                      <TableCell className="hidden sm:table-cell">
+                      <TableCell className="hidden sm:table-cell text-center">
                         <Badge
                           variant={row.status === "overdue" ? "destructive" : row.status === "pending" ? "secondary" : "outline"}
-                          className="h-5 px-2 text-[10px] font-bold uppercase tracking-wide rounded-md"
+                          className="h-5 px-2 text-[9px] font-bold uppercase tracking-wide rounded-md"
                         >
                           {labelFor(TRANSACTION_STATUS, row.status)}
                         </Badge>
