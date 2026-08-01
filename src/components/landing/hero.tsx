@@ -70,7 +70,7 @@ export function Hero() {
       />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-24 bg-[linear-gradient(180deg,transparent,var(--background))] sm:hidden"
+        className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-14 bg-[linear-gradient(180deg,transparent,oklch(0.145_0.028_258))] sm:hidden"
       />
 
       <div className="section-shell relative grid w-full items-center gap-5 lg:grid-cols-[1.05fr_1fr] lg:gap-9 xl:gap-11">
