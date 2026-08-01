@@ -124,6 +124,12 @@ export const adminUpdateOwnContact = createServerFn({ method: "POST" })
     const { assertAdminCtx, auditLog } = await import("@/lib/admin-guard.server");
     await assertAdminCtx(context);
 
+    const { data: before } = await context.supabase
+      .from("profiles")
+      .select("contact_email, phone")
+      .eq("user_id", context.userId)
+      .maybeSingle();
+
     const { error } = await context.supabase
       .from("profiles")
       .update({
@@ -134,6 +140,10 @@ export const adminUpdateOwnContact = createServerFn({ method: "POST" })
       .eq("user_id", context.userId);
     if (error) throw error;
 
-    await auditLog(context, "admin_contact_email_updated", { contact_email: data.contactEmail });
+    await auditLog(context, "admin_contact_email_updated", {
+      before: { contact_email: before?.contact_email ?? null, phone: before?.phone ?? null },
+      after: { contact_email: data.contactEmail, phone: data.phone ?? before?.phone ?? null },
+    });
+
     return { ok: true };
   });
