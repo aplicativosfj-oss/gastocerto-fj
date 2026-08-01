@@ -197,7 +197,22 @@ function TransactionsPage() {
     0,
   );
 
+  /** Exporta o PDF do lançamento direto da lista, sem abrir o diálogo. */
+  async function handleRowPdf(row: Transaction) {
+    try {
+      const history = await fetchNoteHistory(row.id);
+      await exportTransactionPdf(row, {
+        categoryName: row.category_id ? categoryNames.get(row.category_id) : undefined,
+        history,
+      });
+      toast.success("PDF gerado");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Não foi possível gerar o PDF");
+    }
+  }
+
   async function handleDuplicate(row: Transaction) {
+
     try {
       await save.mutateAsync({
         values: {
