@@ -218,25 +218,36 @@ function CategoriesPage() {
           icon={Plus}
           eyebrow="Configuração"
           title="Categorias"
-          description="Organize seus gastos e receitas do jeito que faz sentido para você."
+          description={
+            isAdmin
+              ? "Catálogo oficial: crie, edite e ative as categorias disponíveis para os clientes."
+              : "Consulte as categorias disponíveis. A criação e a exclusão são feitas pelo administrador."
+          }
           className="lg:p-4"
           actions={
-            <Button
-              onClick={() => {
-                setError(null);
-                setDraft({ 
-                  name: "", 
-                  type: tab, 
-                  color: COLORS[0], 
-                  icon: "circle-ellipsis",
-                  display_order: allCategories.length,
-                  parent_id: null
-                });
-              }}
-            >
-              <Plus className="mr-2 size-4" />
-              Nova categoria
-            </Button>
+            isAdmin ? (
+              <Button
+                onClick={() => {
+                  setError(null);
+                  setDraft({ 
+                    name: "", 
+                    type: tab, 
+                    color: COLORS[0], 
+                    icon: "circle-ellipsis",
+                    display_order: allCategories.length,
+                    parent_id: null
+                  });
+                }}
+              >
+                <Plus className="mr-2 size-4" />
+                Nova categoria
+              </Button>
+            ) : (
+              <Badge variant="secondary" className="gap-1.5">
+                <Lock className="size-3" />
+                Somente leitura
+              </Badge>
+            )
           }
         />
 
@@ -247,7 +258,8 @@ function CategoriesPage() {
           </TabsList>
         </Tabs>
 
-        <CategoryAutofixCard />
+        {isAdmin ? <CategoryAutofixCard /> : null}
+
 
 
         {isLoading ? (
