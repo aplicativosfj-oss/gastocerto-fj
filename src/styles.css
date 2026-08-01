@@ -313,6 +313,22 @@
   height: 2.375rem;
 }
 
+/* Título e subtítulo padrão das telas internas: compacto no celular,
+   generoso no desktop — mesma hierarquia em todas as páginas. */
+@utility page-title {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  font-size: 1.125rem;
+  color: var(--foreground);
+}
+
+@utility page-subtitle {
+  font-size: 0.75rem;
+  line-height: 1.35;
+  color: var(--muted-foreground);
+}
+
 
 
 /* Revelação suave ao entrar na viewport. */
