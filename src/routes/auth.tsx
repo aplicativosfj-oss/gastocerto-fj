@@ -22,6 +22,7 @@ import {
   cpfSignInSchema,
   cpfSignUpSchema,
   forgotPasswordSchema,
+  emailSignInSchema,
   friendlyAuthError,
   signInSchema,
 } from "@/lib/validation";
