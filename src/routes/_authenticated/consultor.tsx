@@ -125,6 +125,26 @@ function AdvisorPage() {
           </div>
         </header>
 
+        <section className="rounded-2xl border border-primary/20 bg-primary/5 p-4">
+          <div className="flex items-start gap-3">
+            <div className="rounded-lg bg-primary/10 p-2">
+              <Send className="size-5 text-primary" />
+            </div>
+            <div>
+              <h2 className="text-sm font-semibold text-foreground">Novo: Importação por Imagem</h2>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Agora você pode subir fotos de notas fiscais ou cupons. A IA vai ler os itens, 
+                classificar automaticamente e ajudar você a entender seus gastos com alimentação 
+                ou mercado de forma detalhada.
+              </p>
+              <div className="mt-2 text-[10px] font-medium text-primary/80 uppercase tracking-wider">
+                Disponível no Plano Premium IA
+              </div>
+            </div>
+          </div>
+        </section>
+
+
         {locked || blocked ? (
           <section
             role="alert"
