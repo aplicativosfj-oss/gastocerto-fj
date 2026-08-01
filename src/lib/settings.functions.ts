@@ -4,6 +4,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { assertAdminRole } from "@/lib/admin-guard";
 import { AI_LIMITS_SETTING_KEY, AiLimitsSchema, normalizeAiLimits } from "@/lib/ai-limits";
 import { loadAiLimits } from "@/lib/ai-guard";
+import { auditLog } from "./admin-guard.server";
 
 /** Limites atuais do Consultor de IA (leitura para qualquer usuário logado). */
 export const getAiLimits = createServerFn({ method: "POST" })
@@ -34,10 +35,10 @@ export const saveAiLimits = createServerFn({ method: "POST" })
       );
     if (error) throw new Error("Não foi possível salvar os limites da IA");
 
-    await supabase.from("admin_logs").insert({
-      actor_id: userId,
-      action: "update_ai_limits",
-      details: limits,
+    await auditLog(context, "update_ai_limits", { 
+      economy_mode: limits.economyMode,
+      gemini_limit: limits.geminiMonthlyCreditLimit,
+      monthly_queries: limits.monthlyQueryLimit
     });
 
     return limits;
