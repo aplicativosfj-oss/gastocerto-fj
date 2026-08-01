@@ -1,13 +1,26 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Copy, Download, Paperclip, Pencil, Plus, Search, Trash2, Zap } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import {
+  ChevronDown,
+  ChevronRight,
+  Copy,
+  Download,
+  Paperclip,
+  Pencil,
+  Plus,
+  Search,
+  Trash2,
+  Zap,
+} from "lucide-react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
 import { PeriodPicker } from "@/components/finance/period-picker";
+import { InlineNotes } from "@/components/finance/inline-notes";
 import { TransactionDetailsDialog } from "@/components/finance/transaction-details-dialog";
 import { TransactionDialog } from "@/components/finance/transaction-dialog";
 import { ExpenseCardsDialog } from "@/components/finance/expense-cards-dialog";
+
 
 import {
   AlertDialog,
@@ -91,12 +104,16 @@ function TransactionsPage() {
   const remove = useDeleteTransaction();
 
   const [search, setSearch] = useState("");
+  const [merchantFilter, setMerchantFilter] = useState("");
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
   const [sort, setSort] = useState("date_desc");
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<string[]>([]);
+  const [expanded, setExpanded] = useState<string[]>([]);
   const [editing, setEditing] = useState<Transaction | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [cardsOpen, setCardsOpen] = useState(false);
@@ -112,9 +129,20 @@ function TransactionsPage() {
 
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();
+    const merchantTerm = merchantFilter.trim().toLowerCase();
     let rows = (transactions ?? []).filter((row) => {
-      if (term && !`${row.description} ${row.merchant_name ?? ""}`.toLowerCase().includes(term))
+      // A busca cobre descrição, estabelecimento e palavras-chave das anotações.
+      if (
+        term &&
+        !`${row.description} ${row.merchant_name ?? ""} ${row.notes ?? ""}`
+          .toLowerCase()
+          .includes(term)
+      )
         return false;
+      if (merchantTerm && !(row.merchant_name ?? "").toLowerCase().includes(merchantTerm))
+        return false;
+      if (fromDate && row.transaction_date < fromDate) return false;
+      if (toDate && row.transaction_date > toDate) return false;
       if (categoryFilter !== "all" && row.category_id !== categoryFilter) return false;
       if (statusFilter !== "all" && row.status !== statusFilter) return false;
       if (typeFilter !== "all" && row.transaction_type !== typeFilter) return false;
@@ -130,12 +158,35 @@ function TransactionsPage() {
     });
 
     return rows;
-  }, [transactions, search, categoryFilter, statusFilter, typeFilter, vehicleFilter, sort]);
+  }, [
+    transactions,
+    search,
+    merchantFilter,
+    fromDate,
+    toDate,
+    categoryFilter,
+    statusFilter,
+    typeFilter,
+    vehicleFilter,
+    sort,
+  ]);
 
   // Qualquer mudança de filtro volta para a primeira página da lista.
   useEffect(() => {
     setPage(1);
-  }, [categoryFilter, statusFilter, typeFilter, vehicleFilter, sort, period.year, period.month]);
+  }, [
+    categoryFilter,
+    statusFilter,
+    typeFilter,
+    vehicleFilter,
+    merchantFilter,
+    fromDate,
+    toDate,
+    sort,
+    period.year,
+    period.month,
+  ]);
+
 
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const currentPage = Math.min(page, pageCount);
@@ -320,7 +371,56 @@ function TransactionsPage() {
               ))}
             </SelectContent>
           </Select>
+
+          <Input
+            value={merchantFilter}
+            onChange={(event) => setMerchantFilter(event.target.value)}
+            placeholder="Estabelecimento"
+            aria-label="Filtrar por estabelecimento"
+          />
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-[11px] text-muted-foreground" htmlFor="filtro-de">
+                De
+              </label>
+              <Input
+                id="filtro-de"
+                type="date"
+                value={fromDate}
+                onChange={(event) => setFromDate(event.target.value)}
+              />
+            </div>
+            <div>
+              <label className="text-[11px] text-muted-foreground" htmlFor="filtro-ate">
+                Até
+              </label>
+              <Input
+                id="filtro-ate"
+                type="date"
+                value={toDate}
+                onChange={(event) => setToDate(event.target.value)}
+              />
+            </div>
+          </div>
+
+          {search || merchantFilter || fromDate || toDate ? (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="justify-self-start"
+              onClick={() => {
+                setSearch("");
+                setMerchantFilter("");
+                setFromDate("");
+                setToDate("");
+              }}
+            >
+              Limpar busca e datas
+            </Button>
+          ) : null}
         </section>
+
 
 
         {selected.length > 0 ? (
@@ -379,7 +479,10 @@ function TransactionsPage() {
               </TableHeader>
               <TableBody>
                 {rows.map((row) => (
-                  <TableRow key={row.id}>
+                  <Fragment key={row.id}>
+                  <TableRow>
+
+
                     <TableCell>
                       <Checkbox
                         aria-label={`Selecionar ${row.description}`}
@@ -397,20 +500,43 @@ function TransactionsPage() {
                       {formatDate(row.transaction_date)}
                     </TableCell>
                     <TableCell className="max-w-[220px] font-medium">
-                      <button
-                        type="button"
-                        className="flex w-full items-center gap-1.5 truncate text-left hover:underline"
-                        onClick={() => setDetails(row)}
-                      >
-                        <span className="truncate">{row.description}</span>
-                        {row.attachment_url ? (
-                          <Paperclip
-                            className="size-3.5 shrink-0 text-muted-foreground"
-                            aria-label="Possui comprovante"
-                          />
-                        ) : null}
-                      </button>
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          aria-label={
+                            expanded.includes(row.id) ? "Recolher anotações" : "Expandir anotações"
+                          }
+                          className="shrink-0 rounded p-0.5 text-muted-foreground hover:text-foreground"
+                          onClick={() =>
+                            setExpanded((current) =>
+                              current.includes(row.id)
+                                ? current.filter((id) => id !== row.id)
+                                : [...current, row.id],
+                            )
+                          }
+                        >
+                          {expanded.includes(row.id) ? (
+                            <ChevronDown className="size-4" />
+                          ) : (
+                            <ChevronRight className="size-4" />
+                          )}
+                        </button>
+                        <button
+                          type="button"
+                          className="flex w-full items-center gap-1.5 truncate text-left hover:underline"
+                          onClick={() => setDetails(row)}
+                        >
+                          <span className="truncate">{row.description}</span>
+                          {row.attachment_url ? (
+                            <Paperclip
+                              className="size-3.5 shrink-0 text-muted-foreground"
+                              aria-label="Possui comprovante"
+                            />
+                          ) : null}
+                        </button>
+                      </div>
                     </TableCell>
+
 
                     <TableCell className="hidden md:table-cell">
                       {row.category_id ? (categoryNames.get(row.category_id) ?? "—") : "—"}
@@ -473,7 +599,16 @@ function TransactionsPage() {
                       </div>
                     </TableCell>
                   </TableRow>
+                  {expanded.includes(row.id) ? (
+                    <TableRow>
+                      <TableCell colSpan={8} className="bg-muted/10">
+                        <InlineNotes transaction={row} />
+                      </TableCell>
+                    </TableRow>
+                  ) : null}
+                  </Fragment>
                 ))}
+
               </TableBody>
             </Table>
           )}

@@ -131,8 +131,13 @@ function DashboardPage() {
     const dailyAverage = elapsedDays > 0 ? totalExpense / elapsedDays : 0;
 
     return {
-      today: sum(expenses.filter((row) => row.transaction_date === todayIso)),
-      week: sum(expenses.filter((row) => row.transaction_date >= weekStart)),
+      isCurrentMonth,
+      /** Só soma quando o período aberto é o mês corrente, evitando misturar competências. */
+      today: isCurrentMonth
+        ? sum(expenses.filter((row) => row.transaction_date === todayIso))
+        : 0,
+      week: isCurrentMonth ? sum(expenses.filter((row) => row.transaction_date >= weekStart)) : 0,
+
       totalExpense,
       totalIncome,
       balance: totalIncome - totalExpense,
@@ -163,15 +168,20 @@ function DashboardPage() {
     const expenses = rows.filter((row) => row.transaction_type === "expense");
     const todayIso = isoDate(today);
     const weekStart = isoDate(new Date(today.getTime() - 6 * 86_400_000));
+    const sameMonth =
+      period.year === today.getFullYear() && period.month === today.getMonth() + 1;
     return {
       all: rows,
       expenses,
       incomes: rows.filter((row) => row.transaction_type === "income"),
-      todayExpenses: expenses.filter((row) => row.transaction_date === todayIso),
-      weekExpenses: expenses.filter((row) => row.transaction_date >= weekStart),
+      todayExpenses: sameMonth
+        ? expenses.filter((row) => row.transaction_date === todayIso)
+        : [],
+      weekExpenses: sameMonth ? expenses.filter((row) => row.transaction_date >= weekStart) : [],
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [transactions]);
+  }, [transactions, period.year, period.month]);
+
 
   const byDay = useMemo(() => {
     const map = new Map<number, { day: number; gasto: number; receita: number }>();
@@ -317,15 +327,22 @@ function DashboardPage() {
             <section className="grid gap-3 auto-cards-sm">
               <StatCard
                 tile="var(--acc-4)"
-                label={`Gasto hoje · ${formatDate(isoDate(today))}`}
+                label={
+                  metrics.isCurrentMonth
+                    ? `Gasto hoje · ${formatDate(isoDate(today))}`
+                    : "Gasto hoje"
+                }
                 value={formatCurrency(metrics.today)}
                 hint={
-                  detailRows.todayExpenses.length === 0
-                    ? "Nenhum lançamento hoje"
-                    : `${detailRows.todayExpenses.length} lançamento${
-                        detailRows.todayExpenses.length > 1 ? "s" : ""
-                      } só de hoje`
+                  !metrics.isCurrentMonth
+                    ? "Disponível apenas no mês atual"
+                    : detailRows.todayExpenses.length === 0
+                      ? "Nenhum lançamento hoje"
+                      : `${detailRows.todayExpenses.length} lançamento${
+                          detailRows.todayExpenses.length > 1 ? "s" : ""
+                        } só de hoje`
                 }
+
                 icon={<TrendingDown className="size-4" />}
                 onClick={() =>
                   setDetail({

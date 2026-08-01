@@ -1570,6 +1570,44 @@ export type Database = {
           },
         ]
       }
+      transaction_note_history: {
+        Row: {
+          changed_at: string
+          field: string
+          id: string
+          new_value: string | null
+          old_value: string | null
+          transaction_id: string
+          user_id: string
+        }
+        Insert: {
+          changed_at?: string
+          field: string
+          id?: string
+          new_value?: string | null
+          old_value?: string | null
+          transaction_id: string
+          user_id: string
+        }
+        Update: {
+          changed_at?: string
+          field?: string
+          id?: string
+          new_value?: string | null
+          old_value?: string | null
+          transaction_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transaction_note_history_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       transactions: {
         Row: {
           account_id: string | null

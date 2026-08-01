@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Check, NotebookPen, Paperclip, Pencil, X } from "lucide-react";
+import { Check, FileDown, History, NotebookPen, Paperclip, Pencil, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { ReceiptViewer } from "@/components/finance/receipt-viewer";
@@ -14,10 +14,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { formatCurrency, formatDate } from "@/lib/format";
+import { formatCurrency, formatDate, formatDateTime } from "@/lib/format";
 import { PAYMENT_METHODS, TRANSACTION_STATUS, EXPENSE_TYPES, labelFor } from "@/lib/finance";
 import { useCategories } from "@/lib/queries";
+import { exportTransactionPdf } from "@/lib/transaction-detail-export";
+import { NOTE_FIELD_LABEL, useNoteHistory, useRefreshNoteHistory } from "@/lib/transaction-notes";
 import { useSaveTransaction, type Transaction } from "@/lib/transactions";
+
 
 function Field({ label, value }: { label: string; value: React.ReactNode }) {
   return (
@@ -44,12 +47,16 @@ export function TransactionDetailsDialog({
 }) {
   const { data: categories } = useCategories();
   const saveTransaction = useSaveTransaction();
+  const refreshHistory = useRefreshNoteHistory();
   const [receiptOpen, setReceiptOpen] = useState(false);
   const [editingNotes, setEditingNotes] = useState(false);
   const [notesDraft, setNotesDraft] = useState("");
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const { data: history } = useNoteHistory(transaction?.id, open);
 
   useEffect(() => {
     setEditingNotes(false);
+    setHistoryOpen(false);
     setNotesDraft(transaction?.notes ?? "");
   }, [transaction?.id, transaction?.notes, open]);
 
@@ -64,12 +71,26 @@ export function TransactionDetailsDialog({
         id: transaction.id,
         values: { notes: notesDraft.trim() || null } as never,
       });
+      await refreshHistory(transaction.id);
       setEditingNotes(false);
       toast.success("Anotações salvas");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Não foi possível salvar as anotações");
     }
   }
+
+  async function handleExport() {
+    if (!transaction) return;
+    try {
+      await exportTransactionPdf(transaction, {
+        categoryName: category?.name,
+        history: history ?? [],
+      });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Não foi possível gerar o PDF");
+    }
+  }
+
 
   return (
     <>
@@ -205,10 +226,51 @@ export function TransactionDetailsDialog({
             )}
           </div>
 
+          <div className="rounded-lg border border-border/60 bg-muted/20 p-2.5">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-6 w-full justify-between px-1 text-[11px] font-medium uppercase tracking-wide text-muted-foreground"
+              onClick={() => setHistoryOpen((value) => !value)}
+            >
+              <span className="flex items-center gap-1.5">
+                <History className="size-3.5" /> Histórico de alterações
+              </span>
+              <span>{history?.length ?? 0}</span>
+            </Button>
+            {historyOpen ? (
+              (history ?? []).length === 0 ? (
+                <p className="mt-1.5 text-xs text-muted-foreground">
+                  Nenhuma alteração registrada até agora.
+                </p>
+              ) : (
+                <ul className="mt-1.5 space-y-1.5">
+                  {(history ?? []).map((entry) => (
+                    <li key={entry.id} className="rounded-md bg-background/60 px-2 py-1.5 text-xs">
+                      <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                        {formatDateTime(entry.changed_at)} ·{" "}
+                        {NOTE_FIELD_LABEL[entry.field] ?? entry.field}
+                      </p>
+                      <p className="mt-0.5 line-through text-muted-foreground">
+                        {entry.old_value || "(vazio)"}
+                      </p>
+                      <p className="font-medium">{entry.new_value || "(vazio)"}</p>
+                    </li>
+                  ))}
+                </ul>
+              )
+            ) : null}
+          </div>
+
           <DialogFooter className="gap-2 sm:justify-end">
             <Button size="sm" variant="ghost" onClick={() => onOpenChange(false)}>
               Fechar
             </Button>
+            <Button size="sm" variant="outline" onClick={handleExport}>
+              <FileDown className="mr-2 size-3.5" /> PDF
+            </Button>
+
             {onEdit ? (
               <Button
                 size="sm"
