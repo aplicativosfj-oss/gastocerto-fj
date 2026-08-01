@@ -42,6 +42,8 @@ import {
 import { axisProps, gridProps, seriesColor, tooltipProps, barRadius } from "@/lib/chart-theme";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { durationLabel, summarizeGas } from "@/lib/gas-analytics";
+import { exportGasCsv, exportGasPdf } from "@/lib/gas-export";
+
 import { useGasRefills, type GasRefill } from "@/lib/gas";
 
 export const Route = createFileRoute("/_authenticated/gas")({
