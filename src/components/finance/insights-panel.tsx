@@ -249,7 +249,7 @@ export function InsightsPanel({ year, month }: InsightsPanelProps) {
                   {entry.name}:{" "}
                   <span
                     className={
-                      entry.variacao >= 0 ? "font-medium text-destructive" : "font-medium text-emerald-600"
+                      entry.variacao >= 0 ? "font-medium text-destructive" : "font-medium text-income"
                     }
                   >
                     {entry.percent == null
@@ -316,7 +316,7 @@ export function InsightsPanel({ year, month }: InsightsPanelProps) {
               <li key={tip.id} className={`rounded-xl border p-3 ${TONE_STYLE[tip.tone]}`}>
                 <p className="flex items-center gap-2 text-sm font-semibold text-foreground">
                   {tip.tone === "good" ? (
-                    <TrendingDown className="size-4 text-emerald-600" />
+                    <TrendingDown className="size-4 text-income" />
                   ) : (
                     <TrendingUp className="size-4 text-amber-600" />
                   )}

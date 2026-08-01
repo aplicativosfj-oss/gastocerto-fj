@@ -237,7 +237,7 @@ export function CommitmentEntriesDialog({
                     <span
                       className={`text-sm font-semibold tabular-nums ${
                         entry.entry_type === "payment" || entry.entry_type === "discount"
-                          ? "text-emerald-600 dark:text-emerald-400"
+                          ? "text-income"
                           : "text-destructive"
                       }`}
                     >
@@ -289,7 +289,7 @@ function Stat({
 }) {
   const toneClass =
     tone === "ok"
-      ? "text-emerald-600 dark:text-emerald-400"
+      ? "text-income"
       : tone === "alert"
         ? "text-destructive"
         : "";

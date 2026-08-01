@@ -112,7 +112,7 @@ export function TransactionDetailsDialog({
 
           <div className="flex items-center justify-between gap-2 rounded-lg border border-border/60 bg-card/60 px-3 py-2">
             <span
-              className={`text-2xl font-semibold tabular-nums ${isIncome ? "text-emerald-600 dark:text-emerald-400" : "text-foreground"}`}
+              className={`text-2xl font-semibold tabular-nums ${isIncome ? "text-income" : "text-foreground"}`}
             >
               {isIncome ? "+" : "-"}
               {formatCurrency(Number(transaction.amount))}
