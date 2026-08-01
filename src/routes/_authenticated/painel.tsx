@@ -620,10 +620,9 @@ function DashboardPage() {
               }
             />
           </div>
+            </div>
           </div>
-          </div>
-        </div>
-      )}
+        )}
       
       {!loadingTransactions && (
         <div className="space-y-4 mt-4">
@@ -1030,9 +1029,9 @@ function DashboardPage() {
           if (y && m && (y !== period.year || m !== period.month)) setPeriod({ year: y, month: m });
         }}
       />
-    </AppShell>
-  );
-}
+      </AppShell>
+    );
+  }
     
 
 function StatCard({
