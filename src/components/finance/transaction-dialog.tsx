@@ -250,6 +250,39 @@ export function TransactionDialog({
     setDate(isoDate(base));
   }
 
+  /**
+   * Competência inconsistente: a data escolhida está fora do dia/semana/mês
+   * atual. Serve para oferecer atalhos de correção antes de salvar.
+   */
+  const competence = useMemo(() => {
+    const now = new Date();
+    const todayIso = isoDate(now);
+    const monday = new Date(now);
+    monday.setDate(now.getDate() - ((now.getDay() + 6) % 7));
+    const weekStart = isoDate(monday);
+    const monthStart = isoDate(new Date(now.getFullYear(), now.getMonth(), 1));
+    /** Mesmo dia do mês atual (ajustado ao último dia quando não existir). */
+    const day = Number(date.slice(8, 10)) || now.getDate();
+    const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+    const sameDayThisMonth = isoDate(
+      new Date(now.getFullYear(), now.getMonth(), Math.min(day, lastDay)),
+    );
+
+    return {
+      todayIso,
+      weekStart,
+      monthStart,
+      sameDayThisMonth,
+      outOfToday: Boolean(date) && date !== todayIso,
+      outOfWeek: Boolean(date) && (date < weekStart || date > todayIso),
+      outOfMonth: Boolean(date) && date.slice(0, 7) !== todayIso.slice(0, 7),
+    };
+  }, [date]);
+
+  const dateInconsistent = competence.outOfWeek || competence.outOfMonth;
+
+
+
   /** Ctrl/Cmd + Enter salva; Alt + C abre o seletor de categoria. */
   function handleFormKeyDown(event: React.KeyboardEvent<HTMLFormElement>) {
     const target = event.target as HTMLElement | null;
@@ -548,6 +581,48 @@ export function TransactionDialog({
                   </div>
                 </Alert>
               )}
+              {dateInconsistent && !isLockedMonth ? (
+                <Alert className="mt-2 border-amber-300/70 bg-amber-50 py-2 dark:border-amber-800 dark:bg-amber-900/20">
+                  <AlertTitle className="text-xs font-semibold text-amber-800 dark:text-amber-200">
+                    Competência fora do período atual
+                  </AlertTitle>
+                  <AlertDescription className="text-[11px] text-amber-700 dark:text-amber-300">
+                    {competence.outOfMonth
+                      ? `Este lançamento está em ${formatDate(date)}, em outro mês. Mova para a data correta se foi um erro.`
+                      : `Este lançamento está em ${formatDate(date)}, fora da semana atual.`}
+                    <span className="mt-2 flex flex-wrap gap-2">
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        className="h-7 text-[11px]"
+                        onClick={() => setDate(competence.todayIso)}
+                      >
+                        Mover para hoje
+                      </Button>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        className="h-7 text-[11px]"
+                        onClick={() => setDate(competence.weekStart)}
+                      >
+                        Esta semana ({formatDate(competence.weekStart)})
+                      </Button>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        className="h-7 text-[11px]"
+                        onClick={() => setDate(competence.sameDayThisMonth)}
+                      >
+                        Este mês ({formatDate(competence.sameDayThisMonth)})
+                      </Button>
+                    </span>
+                  </AlertDescription>
+                </Alert>
+              ) : null}
+
               <div className="mt-2 flex flex-wrap gap-2">
                 <Button type="button" variant="outline" size="sm" onClick={() => shiftDate("today")}>
                   Hoje

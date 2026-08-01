@@ -144,6 +144,12 @@ function DashboardPage() {
       dailyAverage,
       projection: dailyAverage * range.days,
       previousExpense,
+      /** Só compara quando os dois períodos têm gasto e o mês não é futuro. */
+      diffAvailable:
+        previousExpense > 0 &&
+        totalExpense > 0 &&
+        new Date(period.year, period.month - 1, 1) <=
+          new Date(today.getFullYear(), today.getMonth(), 1),
       diffPercent:
         previousExpense > 0 ? ((totalExpense - previousExpense) / previousExpense) * 100 : 0,
       expenses,
@@ -423,22 +429,33 @@ function DashboardPage() {
                 }
               />
               <StatCard
-                tile={metrics.diffPercent >= 0 ? "var(--acc-4)" : "var(--acc-2)"}
+                tile={
+                  !metrics.diffAvailable
+                    ? "var(--acc-1)"
+                    : metrics.diffPercent >= 0
+                      ? "var(--acc-4)"
+                      : "var(--acc-2)"
+                }
                 label="Comparado ao mês anterior"
                 value={
-                  metrics.previousExpense > 0
+                  metrics.diffAvailable
                     ? `${metrics.diffPercent >= 0 ? "+" : ""}${metrics.diffPercent.toFixed(1)}%`
                     : "—"
                 }
-                hint={formatCurrency(metrics.previousExpense)}
+                hint={
+                  metrics.diffAvailable
+                    ? formatCurrency(metrics.previousExpense)
+                    : "Sem gastos suficientes para comparar"
+                }
                 onClick={() =>
                   setDetail({
                     label: "Comparado ao mês anterior",
-                    value:
-                      metrics.previousExpense > 0
-                        ? `${metrics.diffPercent >= 0 ? "+" : ""}${metrics.diffPercent.toFixed(1)}%`
-                        : "—",
-                    formula: "Variação entre o gasto deste período e o do período anterior.",
+                    value: metrics.diffAvailable
+                      ? `${metrics.diffPercent >= 0 ? "+" : ""}${metrics.diffPercent.toFixed(1)}%`
+                      : "—",
+                    formula: metrics.diffAvailable
+                      ? "Variação entre o gasto deste período e o do período anterior."
+                      : "A comparação aparece quando este mês e o anterior têm gastos lançados (meses futuros não são comparados).",
                     rows: detailRows.expenses,
                     extra: [
                       { label: "Gasto deste mês", value: formatCurrency(metrics.totalExpense) },
@@ -448,6 +465,7 @@ function DashboardPage() {
                 }
               />
             </section>
+
 
             <section className="rounded-2xl border border-border bg-card p-4">
               <div className="flex flex-wrap items-center justify-between gap-2">
