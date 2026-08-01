@@ -8,8 +8,11 @@ export const adminAccessByCode = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => 
     z.object({ code: z.string() }).parse(input)
   )
-  .handler(async ({ data, request }) => {
+  .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { getWebRequest } = await import("@tanstack/react-start/server");
+    const request = getWebRequest();
+
     const code = data.code.trim().toUpperCase();
 
     // Busca o código e verifica validade
