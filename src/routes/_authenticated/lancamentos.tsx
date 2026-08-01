@@ -420,6 +420,36 @@ function TransactionsPage() {
           />
         </div>
 
+        {/* Presets e "meus filtros": recortes prontos sem abrir o formulário. */}
+        <FilterPresets
+          scope="lancamentos"
+          values={{
+            search,
+            merchant: merchantFilter,
+            from: fromDate,
+            to: toDate,
+            category: categoryFilter,
+            status: statusFilter,
+            type: typeFilter,
+            vehicle: vehicleFilter,
+            sort,
+          }}
+          onApply={(patch) => {
+            if (patch.search !== undefined) setSearch(patch.search);
+            if (patch.merchant !== undefined) setMerchantFilter(patch.merchant);
+            if (patch.from !== undefined) setFromDate(patch.from);
+            if (patch.to !== undefined) setToDate(patch.to);
+            if (patch.category !== undefined) setCategoryFilter(patch.category);
+            if (patch.status !== undefined) setStatusFilter(patch.status);
+            if (patch.type !== undefined) setTypeFilter(patch.type);
+            if (patch.vehicle !== undefined) setVehicleFilter(patch.vehicle);
+            if (patch.sort !== undefined) setSort(patch.sort);
+            setPage(1);
+          }}
+          onClear={clearFilters}
+        />
+
+
         <FilterPanel
           description="Busca, categoria, status, período e veículo"
           activeCount={activeFilters}
