@@ -35,6 +35,7 @@ import { CATEGORY_ICON_KEYS, categoryIcon } from "@/lib/category-icons";
 import { formatCurrency } from "@/lib/format";
 import { monthRange } from "@/lib/finance";
 import { useAllCategories } from "@/lib/queries";
+import { usePlanAccess } from "@/hooks/use-plan";
 import { useRefreshFinance, useSaveCategory, useTransactions } from "@/lib/transactions";
 import { sanitizeText } from "@/lib/validation";
 
@@ -83,6 +84,8 @@ function CategoriesPage() {
   const { data: categories, isLoading } = useAllCategories();
   const { data: transactions } = useTransactions(range);
   const save = useSaveCategory();
+  const planAccess = usePlanAccess();
+  const isAdmin = planAccess.data?.isAdmin === true;
   const refresh = useRefreshFinance();
 
   const [tab, setTab] = useState<"expense" | "income">("expense");
