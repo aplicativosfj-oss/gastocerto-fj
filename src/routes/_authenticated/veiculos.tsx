@@ -40,6 +40,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { EmblemBike, EmblemCar } from "@/components/ui/panel-emblems";
 import {
   Table,
   TableBody,
