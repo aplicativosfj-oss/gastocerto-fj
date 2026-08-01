@@ -27,7 +27,10 @@ export async function loadPlanAccess(
       )
       .eq("user_id", userId)
       .maybeSingle(),
-    supabase.from("licenses").select("status, expires_at, source, amount").eq("user_id", userId),
+    supabase
+      .from("licenses")
+      .select("status, expires_at, source, amount, plans(slug)")
+      .eq("user_id", userId),
     supabase.rpc("has_role", { _user_id: userId, _role: "admin" }),
   ]);
 
@@ -38,6 +41,13 @@ export async function loadPlanAccess(
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const rows = (licenses?.data ?? []) as any[];
+
+  const paidLicense = rows.find(
+    (license) =>
+      String(license.status ?? "").toLowerCase() === "active" &&
+      Number(license.amount ?? 0) > 0 &&
+      (!license.expires_at || new Date(license.expires_at).getTime() > now.getTime()),
+  );
 
   const hasPaidLicense = rows.some(
     (license) =>
@@ -61,6 +71,7 @@ export async function loadPlanAccess(
     trialEndsAt: row?.trial_ends_at ?? null,
     trialPlanSlug: row?.trial_plan_slug ?? null,
     hasPaidLicense,
+    paidPlanSlug: paidLicense?.plans?.slug ?? plan?.slug ?? null,
     isAdmin: admin?.data === true,
     now,
   });
