@@ -82,7 +82,7 @@ function TransactionPanel({
             {labelFor(TRANSACTION_STATUS, transaction.status)}
           </Badge>
           <span
-            className={`text-lg font-semibold tabular-nums ${isIncome ? "text-emerald-600 dark:text-emerald-400" : ""}`}
+            className={`text-lg font-semibold tabular-nums ${isIncome ? "text-income" : ""}`}
           >
             {isIncome ? "+" : "-"}
             {formatCurrency(Number(transaction.amount))}
@@ -360,7 +360,7 @@ export function MetricDetailDialog({
                             <span
                               className={
                                 row.transaction_type === "income"
-                                  ? "font-semibold tabular-nums text-emerald-600 dark:text-emerald-400"
+                                  ? "font-semibold tabular-nums text-income"
                                   : "font-semibold tabular-nums"
                               }
                             >

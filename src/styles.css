@@ -43,6 +43,13 @@
   --color-warning-foreground: var(--warning-foreground);
   --color-brand: var(--brand);
   --color-brand-foreground: var(--brand-foreground);
+  /* Tons calibrados de dinheiro: legíveis sem saturação agressiva. */
+  --color-expense: var(--expense);
+  --color-expense-surface: var(--expense-surface);
+  --color-expense-border: var(--expense-border);
+  --color-income: var(--income);
+  --color-income-surface: var(--income-surface);
+  --color-income-border: var(--income-border);
   --color-surface: var(--surface);
   --color-border: var(--border);
   --color-input: var(--input);
@@ -96,6 +103,13 @@
   --success-foreground: oklch(0.99 0.004 250);
   --warning: oklch(0.58 0.13 74);
   --warning-foreground: oklch(0.99 0.004 250);
+  /* Despesa/receita: cromas contidos para leitura confortável. */
+  --expense: oklch(0.5 0.128 22);
+  --expense-surface: oklch(0.972 0.014 22);
+  --expense-border: oklch(0.9 0.035 22);
+  --income: oklch(0.47 0.105 155);
+  --income-surface: oklch(0.972 0.014 155);
+  --income-border: oklch(0.895 0.032 155);
   --border: oklch(0.915 0.011 252);
   --input: oklch(0.915 0.011 252);
   --ring: oklch(0.55 0.16 258);
@@ -144,6 +158,13 @@
   --success-foreground: oklch(0.17 0.035 258);
   --warning: oklch(0.82 0.14 78);
   --warning-foreground: oklch(0.17 0.035 258);
+  /* No escuro, coral suave em vez de vermelho puro (evita ofuscar). */
+  --expense: oklch(0.78 0.095 25);
+  --expense-surface: oklch(0.29 0.045 22);
+  --expense-border: oklch(0.42 0.06 22);
+  --income: oklch(0.82 0.095 158);
+  --income-surface: oklch(0.28 0.04 158);
+  --income-border: oklch(0.42 0.055 158);
   --border: oklch(1 0 0 / 12%);
   --input: oklch(1 0 0 / 16%);
   --ring: oklch(0.68 0.13 255);
@@ -413,6 +434,8 @@
     /* Um único scroller: gutter reservado sem forçar barra extra. */
     scrollbar-gutter: stable;
     min-height: 100%;
+    /* Sem pull-to-refresh nem bounce encadeado no celular. */
+    overscroll-behavior: none;
   }
 
   body {
@@ -423,11 +446,19 @@
     min-height: 100dvh;
     text-rendering: optimizeLegibility;
     -webkit-tap-highlight-color: transparent;
+    overscroll-behavior-y: none;
+    /* Rolagem com inércia nativa no iOS. */
+    -webkit-overflow-scrolling: touch;
   }
 
-
-
-
+  /* Áreas roláveis internas não devolvem o gesto à página (evita travas). */
+  [data-scroll-area],
+  [data-radix-scroll-area-viewport],
+  .overflow-y-auto,
+  .overflow-auto {
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
 
   img,
   svg,

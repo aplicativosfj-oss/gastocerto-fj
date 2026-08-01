@@ -94,10 +94,10 @@ export function InteractiveCalendar({ onDayClick }: InteractiveCalendarProps) {
             
             <div className="mt-1 flex flex-col gap-0.5 w-full">
               {d.income > 0 && (
-                <div className="h-1 w-full rounded-full bg-emerald-500/80" title={`Receita: ${formatCurrency(d.income)}`} />
+                <div className="h-1 w-full rounded-full bg-income" title={`Receita: ${formatCurrency(d.income)}`} />
               )}
               {d.expense > 0 && (
-                <div className="h-1 w-full rounded-full bg-rose-500/80" title={`Despesa: ${formatCurrency(d.expense)}`} />
+                <div className="h-1 w-full rounded-full bg-expense" title={`Despesa: ${formatCurrency(d.expense)}`} />
               )}
             </div>
             
@@ -112,11 +112,11 @@ export function InteractiveCalendar({ onDayClick }: InteractiveCalendarProps) {
       
       <div className="mt-4 flex items-center justify-center gap-4 border-t border-border pt-3">
         <div className="flex items-center gap-1.5">
-          <div className="size-2 rounded-full bg-emerald-500" />
+          <div className="size-2 rounded-full bg-income" />
           <span className="text-[10px] text-muted-foreground">Receitas</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="size-2 rounded-full bg-rose-500" />
+          <div className="size-2 rounded-full bg-expense" />
           <span className="text-[10px] text-muted-foreground">Despesas</span>
         </div>
         <div className="flex items-center gap-1.5">

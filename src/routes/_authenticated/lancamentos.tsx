@@ -566,22 +566,23 @@ function TransactionsPage() {
   return (
     <AppShell>
       <div className="mx-auto max-w-7xl space-y-3 sm:space-y-4">
-        <section className="grid grid-cols-3 gap-2 sm:grid-cols-3">
-          <div className="flex flex-col rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-3 text-center">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-600">Receitas</p>
-            <p className="mt-0.5 text-sm font-bold text-emerald-700">{formatCurrency(incomeTotal)}</p>
+        <section className="grid grid-cols-3 gap-2">
+          <div className="flex flex-col rounded-2xl border border-income-border bg-income-surface p-3 text-center">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-income/85">Receitas</p>
+            <p className="mt-0.5 text-sm font-bold tabular-nums text-income">{formatCurrency(incomeTotal)}</p>
           </div>
-          <div className="flex flex-col rounded-2xl border border-rose-500/20 bg-rose-500/5 p-3 text-center">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-rose-600">Despesas</p>
-            <p className="mt-0.5 text-sm font-bold text-rose-700">{formatCurrency(expenseTotal)}</p>
+          <div className="flex flex-col rounded-2xl border border-expense-border bg-expense-surface p-3 text-center">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-expense/85">Despesas</p>
+            <p className="mt-0.5 text-sm font-bold tabular-nums text-expense">{formatCurrency(expenseTotal)}</p>
           </div>
           <div className="flex flex-col rounded-2xl border border-brand/20 bg-brand/5 p-3 text-center">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-brand">Saldo</p>
-            <p className={cn("mt-0.5 text-sm font-bold", total >= 0 ? "text-emerald-700" : "text-rose-700")}>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-brand/85">Saldo</p>
+            <p className={cn("mt-0.5 text-sm font-bold tabular-nums", total >= 0 ? "text-income" : "text-expense")}>
               {formatCurrency(total)}
             </p>
           </div>
         </section>
+
 
         <PageHeader
           icon={view.icon}

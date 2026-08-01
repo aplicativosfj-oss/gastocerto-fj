@@ -35,7 +35,7 @@ type InsightsPanelProps = {
 };
 
 const TONE_STYLE: Record<string, string> = {
-  good: "border-emerald-500/40 bg-emerald-500/5",
+  good: "border-income-border bg-income-surface",
   warn: "border-amber-500/40 bg-amber-500/5",
   bad: "border-destructive/40 bg-destructive/5",
   info: "border-border bg-muted/40",
@@ -249,7 +249,7 @@ export function InsightsPanel({ year, month }: InsightsPanelProps) {
                   {entry.name}:{" "}
                   <span
                     className={
-                      entry.variacao >= 0 ? "font-medium text-destructive" : "font-medium text-emerald-600"
+                      entry.variacao >= 0 ? "font-medium text-destructive" : "font-medium text-income"
                     }
                   >
                     {entry.percent == null
@@ -316,7 +316,7 @@ export function InsightsPanel({ year, month }: InsightsPanelProps) {
               <li key={tip.id} className={`rounded-xl border p-3 ${TONE_STYLE[tip.tone]}`}>
                 <p className="flex items-center gap-2 text-sm font-semibold text-foreground">
                   {tip.tone === "good" ? (
-                    <TrendingDown className="size-4 text-emerald-600" />
+                    <TrendingDown className="size-4 text-income" />
                   ) : (
                     <TrendingUp className="size-4 text-amber-600" />
                   )}
