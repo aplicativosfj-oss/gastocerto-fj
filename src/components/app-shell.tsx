@@ -254,7 +254,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         open={open}
         onOpenChange={setOpen}
         onSignOut={handleSignOut}
-        labelGroups={labelGroups}
+        
       />
     </div>
   );
@@ -268,14 +268,12 @@ function MobileTabBar({
   open,
   onOpenChange,
   onSignOut,
-  labelGroups,
 }: {
   items: NavGroup[];
   activeGroup?: string;
   open: boolean;
   onOpenChange: (value: boolean) => void;
   onSignOut: () => void;
-  labelGroups: Array<{ key: string; fallback: string; children?: Array<{ key: string; fallback: string }> }>;
 }) {
   const primary = MOBILE_PRIMARY.map((to) => items.find((item) => item.to === to)).filter(
     (item): item is NavGroup => Boolean(item),
