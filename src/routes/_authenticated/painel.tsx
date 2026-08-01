@@ -620,7 +620,6 @@ function DashboardPage() {
                 })
               }
             />
-            </div>
           </div>
         )}
       
@@ -981,10 +980,6 @@ function DashboardPage() {
           </div>
         )}
       </div>
-    </>
-  </AppShell>
-);
-}
 
       <MetricDetailDialog
         detail={detail}
@@ -1035,6 +1030,8 @@ function DashboardPage() {
       />
     </AppShell>
   );
+}
+
 
 
 
