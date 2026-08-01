@@ -247,6 +247,8 @@ function ProfilePage() {
           </Button>
         </form>
 
+        <PlanSummaryCard />
+
         <TrialCard />
 
         <LicenseCard />
