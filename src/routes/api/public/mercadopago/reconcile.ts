@@ -9,14 +9,17 @@ export const Route = createFileRoute("/api/public/mercadopago/reconcile")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const expected =
-          process.env["SUPABASE_ANON_KEY"] ?? process.env["SUPABASE_PUBLISHABLE_KEY"] ?? null;
+        const accepted = [
+          process.env["SUPABASE_ANON_KEY"],
+          process.env["SUPABASE_PUBLISHABLE_KEY"],
+          process.env["VITE_SUPABASE_PUBLISHABLE_KEY"],
+        ].filter((value): value is string => Boolean(value && value.length > 20));
         const provided =
           request.headers.get("apikey") ??
           request.headers.get("authorization")?.replace(/^Bearer\s+/i, "") ??
           null;
 
-        if (!expected || !provided || provided !== expected) {
+        if (!provided || !accepted.includes(provided)) {
           return new Response(JSON.stringify({ error: "não autorizado" }), {
             status: 401,
             headers: { "Content-Type": "application/json" },
