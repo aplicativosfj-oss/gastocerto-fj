@@ -1085,32 +1085,6 @@ function StatCard({
       ) : null}
     </Wrapper>
   );
-}
-    <Wrapper
-      type={onClick ? "button" : undefined}
-      onClick={onClick}
-      aria-label={onClick ? `Ver detalhes de ${label}` : undefined}
-      className={`accent-tile rounded-2xl p-3 text-left ${
-        onClick
-          ? "cursor-pointer transition hover:-translate-y-0.5 hover:shadow-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          : ""
-      }`}
-      style={{ "--tile": tile } as React.CSSProperties}
-    >
-      <div className="flex items-center gap-2" style={{ color: tile }}>
-        {icon}
-        <span className="text-xs font-medium uppercase tracking-wide">{label}</span>
-      </div>
-      <p className="mt-1.5 text-lg font-bold tabular-nums">{value}</p>
-      {hint ? <p className="mt-1 text-xs text-muted-foreground">{hint}</p> : null}
-      {onClick ? (
-        <p className="mt-1 text-[10px] uppercase tracking-wide text-muted-foreground">
-          toque para detalhar
-        </p>
-      ) : null}
-    </Wrapper>
-  );
-}
 
 function ChartCard({
   title,
