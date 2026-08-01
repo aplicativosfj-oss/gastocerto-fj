@@ -1,5 +1,10 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { adminGetIntegrationSettings } from "@/lib/admin-integrations.functions";
+import { 
+  adminGetIntegrationSettings, 
+  adminTestMercadoPago, 
+  adminLogIntegrationAction, 
+  adminAdjustGeminiLimits 
+} from "@/lib/admin-integrations.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -33,14 +38,14 @@ export function IntegrationsPanel() {
 
   const testWebhook = useMutation({
     mutationFn: () => testConnection(),
-    onSuccess: (result) =>
+    onSuccess: (result: any) =>
       result.ok
         ? toast.success("Conexão validada!", { description: result.message })
         : toast.error("Falha na conexão", { 
             description: result.message,
-            action: (result as any).instructions ? {
+            action: result.instructions ? {
               label: "Ver Ajuda",
-              onClick: () => toast.info("Instruções", { description: (result as any).instructions })
+              onClick: () => toast.info("Instruções", { description: result.instructions })
             } : undefined
           }),
     onError: (error: Error) => toast.error(error.message),
