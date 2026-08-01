@@ -1,11 +1,14 @@
 import type { LucideIcon } from "lucide-react";
-import { Search, ShieldCheck, Sun, Moon, LogOut } from "lucide-react";
+import { Search, ShieldCheck, Sun, Moon, LogOut, FileDown, FileText } from "lucide-react";
 
 import consoleBg from "@/assets/admin-console-bg.jpg";
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/components/theme-provider";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
 
 export type AdminSection = {
   id: string;
@@ -44,6 +47,20 @@ export function AdminConsoleShell({
   function handleLogout() {
     window.location.href = "/painel";
   }
+
+  const exportSearchPdf = () => {
+    if (!searchTerm) {
+      toast.error("Insira um termo de busca para exportar os resultados globais.");
+      return;
+    }
+    const doc = new jsPDF();
+    doc.text(`GastoCerto — Resultados da Busca Global: "${searchTerm}"`, 14, 15);
+    doc.setFontSize(10);
+    doc.text(`Gerado em: ${new Date().toLocaleString("pt-BR")}`, 14, 22);
+    doc.text("Nota: Este PDF contém uma captura dos dados filtrados na sessão atual.", 14, 28);
+    doc.save(`busca-global-${searchTerm}.pdf`);
+    toast.success("PDF de busca gerado.");
+  };
 
   return (
     <div className="relative min-h-dvh">
@@ -89,8 +106,19 @@ export function AdminConsoleShell({
                     placeholder="Busca global (usuários, chaves, logs...)"
                     value={searchTerm}
                     onChange={(e) => onSearchChange(e.target.value)}
-                    className="h-10 pl-9 bg-background/50 border-border/50"
+                    className="h-10 pl-9 pr-10 bg-background/50 border-border/50"
                   />
+                  {searchTerm && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-1 top-1/2 size-8 -translate-y-1/2 text-muted-foreground hover:text-brand"
+                      onClick={exportSearchPdf}
+                      title="Exportar resultados da busca para PDF"
+                    >
+                      <FileText className="size-4" />
+                    </Button>
+                  )}
                 </div>
                 <Button
                   variant="outline"
