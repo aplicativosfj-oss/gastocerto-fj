@@ -417,7 +417,11 @@ export function CompactOverview() {
             <h3 className="sr-only">{tabMeta["faq"].label}</h3>
             <Accordion type="single" collapsible className="grid gap-x-6 sm:grid-cols-2">
               {faqs.map((faq, index) => (
-                <AccordionItem key={faq.q} value={`item-${index}`}>
+                <AccordionItem
+                  key={faq.q}
+                  value={`item-${index}`}
+                  className={index > 3 ? "hidden sm:block" : undefined}
+                >
                   <AccordionTrigger className="py-2.5 text-left text-[13px] font-semibold sm:text-sm">{faq.q}</AccordionTrigger>
                   <AccordionContent className="text-xs leading-relaxed text-muted-foreground">
                     {faq.a}
