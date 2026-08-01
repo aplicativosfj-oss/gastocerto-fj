@@ -107,6 +107,11 @@ export const navGroups: NavGroup[] = [
   { key: "profile", label: "Meu perfil", to: "/perfil", icon: User2 },
 ];
 
+// Navegação exclusiva da área administrativa: nada de funções de cliente aqui.
+const adminNavGroups: NavGroup[] = [
+  { key: "admin", label: "Administração", to: "/admin", icon: ShieldCheck },
+  { key: "profile", label: "Minha conta", to: "/perfil", icon: User2 },
+];
 
 export function AppShell({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
@@ -120,16 +125,17 @@ export function AppShell({ children }: { children: ReactNode }) {
   usePlanRealtimeSync();
   const unreadCount = (notifications ?? []).filter((item) => !item.read_at).length;
   const isStaff = (roles ?? []).some((role) => role === "admin" || role === "support");
-  const baseItems: NavGroup[] = isStaff
-    ? [
-        ...navGroups,
-        { key: "admin", label: "Administração", to: "/admin", icon: ShieldCheck },
-      ]
-    : [...navGroups];
+  const isAdminArea = pathname.startsWith("/admin");
+  const baseItems: NavGroup[] = isAdminArea
+    ? adminNavGroups
+    : isStaff
+      ? [...navGroups, { key: "admin", label: "Administração", to: "/admin", icon: ShieldCheck }]
+      : [...navGroups];
   const items: NavGroup[] = baseItems.map((group) => ({
     ...group,
     children: group.children && group.children.length > 0 ? group.children : undefined,
   }));
+
 
 
 
