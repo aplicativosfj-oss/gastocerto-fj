@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { formatCurrency } from "@/lib/format";
 
 async function assertAdmin(context: { supabase: any; userId: string }) {
   const { data, error } = await context.supabase.rpc("has_role", {
@@ -8,6 +9,14 @@ async function assertAdmin(context: { supabase: any; userId: string }) {
     _role: "admin",
   });
   if (error || !data) throw new Error("Acesso restrito a administradores");
+}
+
+async function assertRole(context: { supabase: any; userId: string }, role: string) {
+  const { data, error } = await context.supabase.rpc("has_role", {
+    _user_id: context.userId,
+    _role: role,
+  });
+  if (error || !data) throw new Error(`Acesso restrito a usuários com papel ${role}`);
 }
 
 export const adminGetSupportTickets = createServerFn({ method: "GET" })
@@ -38,7 +47,12 @@ export const adminUpdateTicket = createServerFn({ method: "POST" })
 export const adminGetPlanConfigs = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    await assertAdmin(context);
+    // Permite que suporte também visualize as configs, mas apenas admin edita
+    const { data: isAdmin } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
+    const { data: isSupport } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "support" });
+    
+    if (!isAdmin && !isSupport) throw new Error("Acesso negado");
+
     const { data, error } = await context.supabase.from("plan_configs" as any).select("*").order("slug");
     if (error) throw error;
     return data as any[];

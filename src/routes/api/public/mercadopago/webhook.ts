@@ -22,8 +22,8 @@ export const Route = createFileRoute("/api/public/mercadopago/webhook")({
         ).trim();
         const type = String(body?.type ?? body?.topic ?? url.searchParams.get("topic") ?? "payment");
 
-        if (!externalId || !/^\d+$/.test(externalId) || !type.includes("payment")) {
-          // Notificações de outros tópicos são reconhecidas sem processamento.
+        if (!externalId || !/^\d+$/.test(externalId)) {
+          // Notificações de outros tópicos ou sem ID válido são reconhecidas sem processamento.
           return new Response("ok");
         }
 

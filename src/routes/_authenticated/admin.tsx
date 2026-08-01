@@ -113,9 +113,10 @@ function AdminPage() {
     );
   }
 
-  // Se NÃO for staff (admin ou suporte), forçamos o redirecionamento imediato para o painel do cliente.
-  // Isso resolve a "anomalia" onde um admin poderia cair em visualização de cliente se as rotas se confundissem.
+  // Se NÃO for staff (admin ou suporte), forçamos o redirecionamento.
+  // Usamos router.navigate ou similar se possível, mas window.location é seguro para fuga total.
   if (!isStaff) {
+    console.warn("Acesso negado ao painel administrativo. Redirecionando...");
     window.location.href = "/painel";
     return null;
   }
