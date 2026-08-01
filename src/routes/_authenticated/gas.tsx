@@ -392,6 +392,7 @@ function GasPage() {
             { label: "30 dias", value: "30" },
             { label: "60 dias", value: "60" },
             { label: "90 dias", value: "90" },
+            { label: "Personalizado", value: "custom" },
           ].map((range) => (
             <Button
               key={range.value}
@@ -404,7 +405,26 @@ function GasPage() {
             </Button>
           ))}
         </div>
+
+        {chartRange === "custom" && (
+          <div className="flex items-center gap-2 ml-auto">
+            <Input
+              type="date"
+              value={customStart}
+              onChange={(e) => setCustomStart(e.target.value)}
+              className="h-8 w-32 text-xs"
+            />
+            <span className="text-xs text-muted-foreground">até</span>
+            <Input
+              type="date"
+              value={customEnd}
+              onChange={(e) => setCustomEnd(e.target.value)}
+              className="h-8 w-32 text-xs"
+            />
+          </div>
+        )}
       </section>
+
 
 
       {isLoading ? (
