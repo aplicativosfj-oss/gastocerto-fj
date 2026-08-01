@@ -160,8 +160,11 @@ export function PlanConfigsPanel() {
   const setDraft = (plan: PlanRow, patch: Partial<Draft>) =>
     setDrafts((prev) => ({ ...prev, [plan.id]: { ...draftFor(plan), ...patch } }));
 
-  const activeCount = plans.filter((p) => p.active).length;
-  const paidCount = plans.filter((p) => p.active && Number(p.monthly_price) > 0).length;
+  // Catálogo comercial: apenas Gratuito, Premium e Premium IA aparecem no site.
+  const commercialPlans = plans.filter((p) => p.tier !== "trial");
+  const trialPlans = plans.filter((p) => p.tier === "trial");
+  const activeCount = commercialPlans.filter((p) => p.active).length;
+  const paidCount = commercialPlans.filter((p) => p.active && Number(p.monthly_price) > 0).length;
 
   return (
     <div className="space-y-6">
@@ -171,20 +174,22 @@ export function PlanConfigsPanel() {
             <CardTitle className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider">
               <Tag className="size-4 text-brand" /> Planos ativos
             </CardTitle>
-            <CardDescription className="text-xs">Situação atual do catálogo comercial.</CardDescription>
+            <CardDescription className="text-xs">
+              Catálogo comercial exibido no site: Gratuito, Premium e Premium IA.
+            </CardDescription>
           </CardHeader>
           <CardContent className="grid grid-cols-3 gap-3">
             <div>
               <p className="text-xl font-bold tabular-nums">{activeCount}</p>
-              <p className="text-[11px] text-muted-foreground">ativos</p>
+              <p className="text-[11px] text-muted-foreground">ativos no site</p>
             </div>
             <div>
               <p className="text-xl font-bold tabular-nums">{paidCount}</p>
               <p className="text-[11px] text-muted-foreground">pagos</p>
             </div>
             <div>
-              <p className="text-xl font-bold tabular-nums">{plans.length - activeCount}</p>
-              <p className="text-[11px] text-muted-foreground">inativos</p>
+              <p className="text-xl font-bold tabular-nums">{trialPlans.length}</p>
+              <p className="text-[11px] text-muted-foreground">testes internos</p>
             </div>
           </CardContent>
         </Card>
@@ -192,7 +197,8 @@ export function PlanConfigsPanel() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {plans.map((plan) => {
+        {commercialPlans.map((plan) => {
+
           const draft = draftFor(plan);
           const monthly = Number(draft.monthly.replace(",", "."));
           const annual = Number(draft.annual.replace(",", "."));
