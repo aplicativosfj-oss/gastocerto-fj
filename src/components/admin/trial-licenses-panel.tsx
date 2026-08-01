@@ -9,6 +9,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Table,
   TableBody,
   TableCell,
@@ -27,8 +34,8 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 /**
- * Geração de licenças de teste (7 dias, sem IA) para o administrador doar.
- * A chave só passa a valer quando o cliente a ativa dentro do app.
+ * Geração de códigos de teste (7, 15 ou 30 dias, sem IA) para o administrador
+ * doar. O código só passa a valer quando o cliente o ativa no site ou no app.
  */
 export function TrialLicensesPanel() {
   const create = useServerFn(adminCreateTrialLicenses);
@@ -36,6 +43,7 @@ export function TrialLicensesPanel() {
   const queryClient = useQueryClient();
 
   const [quantity, setQuantity] = useState("5");
+  const [trialDays, setTrialDays] = useState("15");
   const [notes, setNotes] = useState("");
 
   const licenses = useQuery({
@@ -51,22 +59,37 @@ export function TrialLicensesPanel() {
     [licenses.data],
   );
 
+  /** Códigos de 15 dias ainda não usados (prontos para entregar). */
+  const available15 = useMemo(
+    () =>
+      trials.filter(
+        (row: { status: string; trial_days?: number | null }) =>
+          row.status === "pending" && Number(row.trial_days ?? 7) === 15,
+      ).length,
+    [trials],
+  );
+
   const mutation = useMutation({
-    mutationFn: () =>
+    mutationFn: (input: { quantity: number; days: 7 | 15 | 30 }) =>
       create({
-        data: { quantity: Math.max(1, Math.min(50, Number(quantity) || 1)), notes: notes || undefined },
+        data: {
+          quantity: input.quantity,
+          trialDays: input.days,
+          notes: notes || undefined,
+        },
       }),
     onSuccess: (created) => {
-      toast.success(`${created.length} licença(s) de teste gerada(s).`);
+      toast.success(`${created.length} código(s) de teste gerado(s).`);
       setNotes("");
       void queryClient.invalidateQueries({ queryKey: ["admin", "licenses"] });
     },
-    onError: (error: Error) => toast.error(error.message || "Não foi possível gerar as licenças."),
+    onError: (error: Error) => toast.error(error.message || "Não foi possível gerar os códigos."),
   });
 
   const pendingKeys = trials
     .filter((row: { status: string }) => row.status === "pending")
     .map((row: { license_key: string }) => row.license_key);
+
 
   return (
     <section className="rounded-2xl border border-border bg-card p-4">
