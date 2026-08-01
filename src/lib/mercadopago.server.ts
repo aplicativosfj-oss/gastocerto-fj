@@ -7,15 +7,11 @@ const MP_API = "https://api.mercadopago.com";
 /** URL pública estável usada pelo Mercado Pago para notificar pagamentos. */
 const WEBHOOK_URL = "https://gastocerto-fj.lovable.app/api/public/mercadopago/webhook";
 
-function token() {
-  const value = process.env["MERCADOPAGO_ACCESS_TOKEN"];
-  if (!value) throw new Error("Pagamento indisponível: credencial do Mercado Pago ausente.");
-  return value;
-}
+import { requireAccessToken } from "@/lib/mercadopago-credentials.server";
 
 async function mpFetch(path: string, init?: RequestInit & { idempotencyKey?: string }) {
   const headers = new Headers(init?.headers);
-  headers.set("Authorization", `Bearer ${token()}`);
+  headers.set("Authorization", `Bearer ${await requireAccessToken()}`);
   headers.set("Content-Type", "application/json");
   if (init?.idempotencyKey) headers.set("X-Idempotency-Key", init.idempotencyKey);
 
@@ -249,3 +245,48 @@ export async function settlePixPayment(externalId: string, source = "webhook") {
   };
 }
 
+
+/**
+ * Revalidação periódica: reconsulta no Mercado Pago todos os Pix que ficaram
+ * sem confirmação (webhook perdido, notificação fora de ordem, expiração) e
+ * corrige a situação gravada, liberando ou bloqueando o cadastro conforme o
+ * resultado real da cobrança.
+ */
+export async function reconcilePendingPayments(options?: { limit?: number; hours?: number }) {
+  const limit = Math.min(Math.max(options?.limit ?? 50, 1), 200);
+  const hours = Math.min(Math.max(options?.hours ?? 72, 1), 24 * 30);
+  const since = new Date(Date.now() - hours * 60 * 60 * 1000).toISOString();
+
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data: pending } = await supabaseAdmin
+    .from("payments")
+    .select("id, external_id, status")
+    .eq("provider", "mercadopago")
+    .in("status", ["pending", "in_process", "authorized"])
+    .gte("created_at", since)
+    .order("created_at", { ascending: true })
+    .limit(limit);
+
+  const results: Array<{ paymentId: string; from: string; to: string | null; error?: string }> = [];
+  for (const payment of pending ?? []) {
+    if (!payment.external_id) continue;
+    try {
+      const settled = await settlePixPayment(String(payment.external_id), "revalidation");
+      results.push({ paymentId: payment.id as string, from: String(payment.status), to: settled.status });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error(`[mercadopago] revalidação falhou para ${payment.external_id}: ${message}`);
+      results.push({ paymentId: payment.id as string, from: String(payment.status), to: null, error: message });
+    }
+  }
+
+  const changed = results.filter((item) => item.to && item.to !== item.from);
+  console.log(`[mercadopago] revalidação concluída: ${results.length} verificados, ${changed.length} corrigidos`);
+  return {
+    checked: results.length,
+    corrected: changed.length,
+    failed: results.filter((item) => item.error).length,
+    ranAt: new Date().toISOString(),
+    results,
+  };
+}
