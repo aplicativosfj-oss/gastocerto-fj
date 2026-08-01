@@ -4,8 +4,9 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
 
-import authSide from "@/assets/auth-side.jpg";
+import authHero from "@/assets/auth-hero.jpg";
 import { PENDING_LICENSE_KEY } from "@/components/landing/code-access-dialog";
+import { CodeAccessInline } from "@/components/landing/code-access-inline";
 import { activateLicense } from "@/lib/licenses.functions";
 import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
@@ -99,52 +100,73 @@ function AuthPage() {
 
 
   return (
-    <main className="grid min-h-dvh lg:grid-cols-[1.05fr_minmax(0,26rem)]">
-      <section className="relative isolate hidden overflow-hidden bg-[oklch(0.16_0.03_258)] text-white lg:flex lg:flex-col lg:justify-between lg:p-8">
+    <main className="relative isolate grid min-h-dvh lg:grid-cols-[1.05fr_minmax(0,28rem)]">
+      {/* Fundo institucional: cobre a tela inteira no celular e a coluna esquerda no desktop. */}
+      <img
+        src={authHero}
+        alt=""
+        aria-hidden="true"
+        width={1536}
+        height={1024}
+        decoding="async"
+        className="absolute inset-0 -z-20 size-full object-cover lg:hidden"
+      />
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 -z-10 bg-[linear-gradient(175deg,oklch(0.16_0.03_258/0.9)_0%,oklch(0.16_0.03_258/0.75)_45%,oklch(0.16_0.03_258/0.95)_100%)] lg:hidden"
+      />
+
+      <section className="relative isolate hidden overflow-hidden bg-[oklch(0.16_0.03_258)] text-white lg:flex lg:flex-col lg:justify-between lg:p-10">
         <img
-          src={authSide}
+          src={authHero}
           alt=""
           aria-hidden="true"
-          width={1024}
-          height={1280}
+          width={1536}
+          height={1024}
           decoding="async"
-          className="absolute inset-0 -z-20 size-full object-cover opacity-70"
+          className="absolute inset-0 -z-20 size-full object-cover"
         />
         <div
           aria-hidden="true"
-          className="absolute inset-0 -z-10 bg-[linear-gradient(160deg,oklch(0.16_0.03_258/0.92)_10%,oklch(0.16_0.03_258/0.6)_60%,oklch(0.16_0.03_258/0.9)_100%)]"
+          className="absolute inset-0 -z-10 bg-[linear-gradient(160deg,oklch(0.16_0.03_258/0.9)_10%,oklch(0.16_0.03_258/0.62)_58%,oklch(0.16_0.03_258/0.94)_100%)]"
         />
         <Link to="/" className="inline-flex w-fit rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70">
           <Logo onDark />
         </Link>
-        <div className="max-w-sm">
+        <div className="max-w-md">
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/90">
             Acesso à plataforma
           </p>
-          <h2 className="font-display mt-2 text-3xl font-extrabold leading-tight tracking-[-0.02em]">
+          <h2 className="font-display mt-2 text-3xl font-extrabold leading-tight tracking-[-0.02em] xl:text-4xl">
             Suas finanças organizadas em um só sistema.
           </h2>
-          <p className="mt-2 text-sm leading-relaxed text-white/90">
+          <p className="mt-3 text-sm leading-relaxed text-white/90">
             Acesse com CPF e senha de 6 dígitos. Cadastro gratuito, sem necessidade de cartão.
           </p>
-          <ul className="mt-4 grid gap-1.5 text-[13px] text-white/90">
-            <li>• Painel mensal com despesas por categoria</li>
-            <li>• Controle de combustível com custo por quilômetro</li>
-            <li>• Orçamentos, vencimentos e relatórios exportáveis</li>
+          <ul className="mt-5 grid gap-2 text-[13px] text-white/90">
+            <li className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 backdrop-blur-sm">
+              Painel mensal com despesas por categoria
+            </li>
+            <li className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 backdrop-blur-sm">
+              Controle de combustível com custo por quilômetro
+            </li>
+            <li className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 backdrop-blur-sm">
+              Orçamentos, vencimentos e relatórios exportáveis
+            </li>
           </ul>
         </div>
         <p className="text-[11px] text-white/90">Dev. Franc D&apos;nis · Feijó-AC</p>
       </section>
 
-      <section className="relative flex items-center justify-center bg-secondary/30 px-4 py-8">
+      <section className="relative flex items-center justify-center px-4 py-8 lg:bg-secondary/30">
         <div className="w-full max-w-sm">
           <div className="mb-5 flex justify-center lg:hidden">
             <Link to="/">
-              <Logo />
+              <Logo onDark />
             </Link>
           </div>
 
-          <div className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6">
+          <div className="rounded-2xl border border-border bg-card/95 p-5 shadow-lifted backdrop-blur-md sm:p-6 lg:bg-card lg:shadow-sm">
             {mode === "forgot" ? (
               <ForgotPasswordForm onBack={() => setMode("login")} />
             ) : mode === "admin" ? (
@@ -169,8 +191,12 @@ function AuthPage() {
             )}
           </div>
 
-          <p className="mt-4 text-center text-xs text-muted-foreground">
-            <Link to="/" className="hover:text-foreground">
+          {mode === "login" || mode === "signup" ? (
+            <CodeAccessInline onContinue={() => setMode("signup")} />
+          ) : null}
+
+          <p className="mt-4 text-center text-xs text-white/80 lg:text-muted-foreground">
+            <Link to="/" className="hover:text-white lg:hover:text-foreground">
               Voltar para a página inicial
             </Link>
           </p>
@@ -179,6 +205,7 @@ function AuthPage() {
     </main>
   );
 }
+
 
 function FieldError({ id, message }: { id?: string; message?: string }) {
   if (!message) return null;
