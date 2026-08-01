@@ -16,6 +16,7 @@ import {
   AlertCircle
 } from "lucide-react";
 import { formatDateTime } from "@/lib/format";
+import { MercadoPagoPanel } from "@/components/admin/mercadopago-panel";
 
 export function IntegrationsPanel() {
   const getSettings = useServerFn(adminGetIntegrationSettings);
@@ -27,18 +28,21 @@ export function IntegrationsPanel() {
 
   const testWebhook = useMutation({
     mutationFn: async () => {
-      // Simulação de teste de conexão com Mercado Pago
-      await new Promise(r => setTimeout(r, 1500));
-      return { ok: true };
+      const { adminTestMercadoPago } = await import("@/lib/admin-integrations.functions");
+      return adminTestMercadoPago();
     },
-    onSuccess: () => toast.success("Conexão com Mercado Pago validada com sucesso!"),
-    onError: () => toast.error("Falha ao validar conexão com Mercado Pago.")
+    onSuccess: (result) =>
+      result.ok
+        ? toast.success("Conexão com Mercado Pago validada!", { description: result.message })
+        : toast.error("Credencial recusada", { description: result.message }),
+    onError: (error: Error) => toast.error(error.message),
   });
 
   if (isLoading) return <div className="flex justify-center p-8"><RefreshCw className="animate-spin" /></div>;
 
   return (
     <div className="space-y-6">
+      <MercadoPagoPanel />
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {/* Mercado Pago */}
         <Card className="border-brand/20 bg-card/50">
@@ -62,7 +66,7 @@ export function IntegrationsPanel() {
               </div>
               <div className="flex items-center justify-between text-xs">
                 <span className="text-muted-foreground">Última Conciliação:</span>
-                <span className="font-mono text-[10px]">{data?.mercadopago?.last_sync ? formatDateTime(data.mercadopago.last_sync) : '—'}</span>
+                <span className="font-mono text-[10px]">{data?.mercadopago?.last_sync ? formatDateTime(data.mercadopago.last_sync) : "—"}</span>
               </div>
             </div>
             <div className="flex gap-2">

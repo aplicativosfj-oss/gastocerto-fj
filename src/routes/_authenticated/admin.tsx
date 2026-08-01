@@ -8,6 +8,7 @@ import {
   KeyRound,
   LayoutDashboard,
   LifeBuoy,
+  ReceiptText,
   Loader2,
   Lock,
   ScrollText,
@@ -79,6 +80,9 @@ const AuditLogsPanel = lazy(() =>
 const PermissionsPanel = lazy(() =>
   import("@/components/admin/permissions-panel").then((m) => ({ default: m.PermissionsPanel })),
 );
+const PaymentsAuditPanel = lazy(() =>
+  import("@/components/admin/payments-audit-panel").then((m) => ({ default: m.PaymentsAuditPanel })),
+);
 const IntegrationsPanel = lazy(() =>
   import("@/components/admin/integrations-panel").then((m) => ({ default: m.IntegrationsPanel })),
 );
@@ -110,6 +114,7 @@ const SECTIONS: AdminSection[] = [
   { id: "users", label: "Contas", hint: "Usuários, papéis e credenciais", icon: Users },
   { id: "business", label: "Negócio", hint: "MRR, churn, LTV e custo de IA", icon: TrendingUp, adminOnly: true },
   { id: "sales", label: "Vendas e pagamentos", hint: "Pedidos, Pix e reconciliação", icon: Wallet, adminOnly: true },
+  { id: "payments-audit", label: "Auditoria de pagamentos", hint: "Checkout Pix, status e erros do Mercado Pago", icon: ReceiptText, adminOnly: true },
   { id: "plans", label: "Planos e preços", hint: "Limites e valores por plano", icon: CreditCard, adminOnly: true },
   { id: "licenses", label: "Licenças", hint: "Emissão, validade e revogação", icon: ShieldCheck, adminOnly: true },
   { id: "codes", label: "Códigos de clientes", hint: "Validade e tempo restante", icon: KeyRound, adminOnly: true },
@@ -181,6 +186,7 @@ function AdminConsole({ isAdmin }: { isAdmin: boolean }) {
         {current === "users" ? <UsersPanel isAdmin={isAdmin} globalSearch={search} /> : null}
         {current === "business" ? <BusinessDashboard /> : null}
         {current === "sales" ? <SalesPanel globalSearch={search} /> : null}
+        {current === "payments-audit" ? <PaymentsAuditPanel globalSearch={search} /> : null}
         {current === "plans" ? <PlanConfigsPanel /> : null}
         {current === "licenses" ? <LicensesPanel globalSearch={search} /> : null}
         {current === "codes" ? <ClientCodesPanel globalSearch={search} /> : null}
