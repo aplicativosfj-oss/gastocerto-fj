@@ -152,14 +152,14 @@ export function Pricing() {
 
         </div>
 
-        <div className="mx-auto mt-4 grid max-w-5xl gap-3 md:grid-cols-3">
+        <div className="mx-auto mt-4 grid max-w-5xl gap-3 sm:grid-cols-2 md:grid-cols-3">
           {plans.map((plan) => {
             const price = isYearly ? plan.yearly : plan.monthly;
             return (
               <div
                 key={plan.slug}
                 className={cn(
-                  "relative flex flex-col rounded-2xl border border-border bg-card/80 p-4 shadow-soft backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:shadow-lifted",
+                  "relative flex flex-col rounded-2xl border border-border bg-card/80 p-3.5 sm:p-4 shadow-soft backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:shadow-lifted",
                   plan.highlighted && "border-brand/50 ring-1 ring-brand/30",
                 )}
               >
@@ -171,8 +171,8 @@ export function Pricing() {
                 )}
 
                 <div className="flex items-baseline justify-between gap-3">
-                  <h3 className="text-base font-semibold">{plan.name}</h3>
-                  <p className="tabular text-2xl font-extrabold tracking-tight">
+                  <h3 className="text-sm sm:text-base font-semibold">{plan.name}</h3>
+                  <p className="tabular text-xl sm:text-2xl font-extrabold tracking-tight">
                     {price === 0 ? "R$ 0" : formatCurrency(price)}
                     <span className="ml-1 text-xs font-medium text-muted-foreground">/mês</span>
                   </p>
@@ -189,9 +189,9 @@ export function Pricing() {
                   )}
                 </p>
 
-                <ul className="mt-2.5 flex-1 space-y-1">
+                <ul className="mt-2.5 flex-1 space-y-0.5 sm:space-y-1">
                   {plan.features.map((feature) => (
-                    <li key={feature} className="flex items-start gap-2 text-[13px]">
+                    <li key={feature} className="flex items-start gap-2 text-[12px] sm:text-[13px]">
                       <Check className="mt-0.5 size-4 shrink-0 text-success" aria-hidden="true" />
                       <span className="text-muted-foreground">{feature}</span>
                     </li>
@@ -200,7 +200,7 @@ export function Pricing() {
 
                 <div className="mt-3">
                   <Button
-                    className="h-10 w-full"
+                    className="h-9 sm:h-10 w-full text-xs sm:text-sm"
                     variant={plan.highlighted ? "default" : "outline"}
                     onClick={() => setCheckoutPlan(plan.slug as "free" | "premium" | "premium_ia")}
                   >
