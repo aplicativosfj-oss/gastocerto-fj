@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Loader2, RefreshCcw, Search } from "lucide-react";
+import { Loader2, Mail, RefreshCcw, Search } from "lucide-react";
 import { toast } from "sonner";
 
 import { adminGetCheckoutAudit, adminReconcilePayments } from "@/lib/admin-integrations.functions";
@@ -305,7 +305,7 @@ function ResendButton({ paymentId }: { paymentId: string }) {
 
   return (
     <Button
-      size="xs"
+      size="sm"
       variant="ghost"
       className="h-6 gap-1 px-1.5 text-[10px] text-brand"
       disabled={loading}
