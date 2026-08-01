@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Loader2, ShieldCheck } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -12,39 +13,36 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { supabase } from "@/integrations/supabase/client";
+import { verifyMyPassword } from "@/lib/reauth.functions";
 
 export type PasswordConfirmDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  /** E-mail da conta que precisa confirmar a identidade. */
-  email: string | null | undefined;
+  /** Mantido por compatibilidade; a validação usa o e-mail real da sessão. */
+  email?: string | null;
   description?: string;
   onConfirmed: () => void;
 };
 
 /**
  * Reautenticação leve: confirma a senha do próprio usuário antes de liberar
- * uma ação sensível (ex.: retificar lançamento de mês anterior).
+ * uma ação sensível (ex.: retificar lançamento de mês anterior). A checagem
+ * roda no servidor, então a sessão atual não é substituída.
  */
 export function PasswordConfirmDialog({
   open,
   onOpenChange,
-  email,
   description,
   onConfirmed,
 }: PasswordConfirmDialogProps) {
+  const verify = useServerFn(verifyMyPassword);
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [checking, setChecking] = useState(false);
 
   async function handleConfirm(event: React.FormEvent) {
     event.preventDefault();
-    if (!email) {
-      setError("Não foi possível identificar sua conta. Entre novamente.");
-      return;
-    }
-    if (password.length < 6) {
+    if (!password.trim()) {
       setError("Informe sua senha de acesso.");
       return;
     }
@@ -52,9 +50,9 @@ export function PasswordConfirmDialog({
     setChecking(true);
     setError(null);
     try {
-      const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
-      if (authError) {
-        setError("Senha incorreta. Tente novamente.");
+      const result = await verify({ data: { password } });
+      if (!result.ok) {
+        setError(result.reason ?? "Senha incorreta. Tente novamente.");
         return;
       }
       setPassword("");
