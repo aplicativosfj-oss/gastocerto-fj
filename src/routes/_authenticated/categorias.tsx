@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Loader2, Pencil, Plus, RotateCcw } from "lucide-react";
+import { Loader2, Lock, Pencil, Plus, RotateCcw } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -258,7 +258,7 @@ function CategoriesPage() {
           </TabsList>
         </Tabs>
 
-        {isAdmin ? <CategoryAutofixCard /> : null}
+        <CategoryAutofixCard />
 
 
 
