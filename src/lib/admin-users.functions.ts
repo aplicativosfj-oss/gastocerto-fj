@@ -30,11 +30,12 @@ export const adminUpdateUser = createServerFn({ method: "POST" })
     await assertAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const patch: Record<string, string | null> = {};
-    if (data.fullName !== undefined) patch['full_name'] = data.fullName;
-    if (data.contactEmail !== undefined) patch['contact_email'] = data.contactEmail || null;
-    if (data.phone !== undefined) patch['phone'] = data.phone || null;
-    if (data.cpf !== undefined) patch['cpf'] = data.cpf.replace(/\D/g, "") || null;
+    const patch = {
+      ...(data.fullName !== undefined ? { full_name: data.fullName } : {}),
+      ...(data.contactEmail !== undefined ? { contact_email: data.contactEmail || null } : {}),
+      ...(data.phone !== undefined ? { phone: data.phone || null } : {}),
+      ...(data.cpf !== undefined ? { cpf: data.cpf.replace(/\D/g, "") || null } : {}),
+    };
 
     if (Object.keys(patch).length > 0) {
       const { error } = await supabaseAdmin
@@ -194,9 +195,8 @@ export const adminBlockIp = createServerFn({ method: "POST" })
       {
         ip: data.ip.trim(),
         reason: data.reason || null,
-        user_id: data.targetUserId ?? null,
+        target_user_id: data.targetUserId ?? null,
         created_by: context.userId,
-        active: true,
       },
       { onConflict: "ip" },
     );
@@ -222,7 +222,7 @@ export const adminUnblockIp = createServerFn({ method: "POST" })
 
     const { data: row, error } = await supabaseAdmin
       .from("blocked_ips")
-      .update({ active: false })
+      .delete()
       .eq("id", data.id)
       .select("ip")
       .maybeSingle();
