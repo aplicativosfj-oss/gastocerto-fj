@@ -95,27 +95,46 @@ export function LandingHeader({ hideActions }: { hideActions?: boolean }) {
         </nav>
 
         {!hideActions && (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2">
             <ThemeToggle className={cn("hidden sm:inline-flex", !scrolled && "text-white hover:bg-white/10 hover:text-white")} />
             <CodeAccessDialog>
               <Button
                 variant="ghost"
-                className={cn("hidden sm:inline-flex", !scrolled && "text-white hover:bg-white/10 hover:text-white")}
+                className={cn("hidden lg:inline-flex", !scrolled && "text-white hover:bg-white/10 hover:text-white")}
               >
                 <KeyRound className="size-4" aria-hidden />
                 Tenho um código
               </Button>
             </CodeAccessDialog>
+            {/* Código: ícone compacto no celular, mantendo a ação sempre acessível. */}
+            <CodeAccessDialog>
+              <Button
+                variant="outline"
+                size="icon"
+                aria-label="Entrar com código de teste"
+                className={cn(
+                  "lg:hidden",
+                  !scrolled && "border-white/25 bg-white/5 text-white hover:bg-white/15 hover:text-white",
+                )}
+              >
+                <KeyRound className="size-4" aria-hidden />
+              </Button>
+            </CodeAccessDialog>
+            {/* Entrar: presente no desktop e no mobile. */}
             <Button
-              variant="ghost"
-              className={cn("hidden sm:inline-flex", !scrolled && "text-white hover:bg-white/10 hover:text-white")}
+              variant="outline"
+              className={cn(
+                "h-10 px-3 text-sm font-semibold",
+                !scrolled && "border-white/30 bg-white/10 text-white hover:bg-white/20 hover:text-white",
+              )}
               asChild
             >
               <Link to="/auth" search={{ mode: "login" }}>Entrar</Link>
             </Button>
-            <Button className="hidden shadow-soft sm:inline-flex" asChild>
+            <Button className="hidden shadow-soft lg:inline-flex" asChild>
               <Link to="/auth" search={{ mode: "signup" }}>Criar conta gratuita</Link>
             </Button>
+
 
             <Button
               variant="outline"
