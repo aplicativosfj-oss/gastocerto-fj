@@ -13,7 +13,8 @@ import {
   Settings2, 
   RefreshCw,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  Sparkles
 } from "lucide-react";
 import { formatDateTime } from "@/lib/format";
 import { MercadoPagoPanel } from "@/components/admin/mercadopago-panel";
