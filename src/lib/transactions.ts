@@ -114,10 +114,12 @@ export function useRefreshFinance() {
 export function useSaveTransaction() {
   const { user } = useAuth();
   const refresh = useRefreshFinance();
+  const guard = useServerFn(assertWriteAllowed);
 
   return useMutation({
     mutationFn: async (input: { id?: string; values: Omit<TablesInsert<"transactions">, "user_id"> }) => {
       if (!user) throw new Error("Sessão expirada");
+      await guard({ data: undefined });
       if (input.id) {
         const { data, error } = await supabase
           .from("transactions")
@@ -142,8 +144,10 @@ export function useSaveTransaction() {
 
 export function useDeleteTransaction() {
   const refresh = useRefreshFinance();
+  const guard = useServerFn(assertWriteAllowed);
   return useMutation({
     mutationFn: async (ids: string[]) => {
+      await guard({ data: undefined });
       const { error } = await supabase
         .from("transactions")
         .update({ deleted_at: new Date().toISOString() })
@@ -153,6 +157,7 @@ export function useDeleteTransaction() {
     onSuccess: refresh,
   });
 }
+
 
 export function useRestoreTransaction() {
   const refresh = useRefreshFinance();
