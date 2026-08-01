@@ -1,13 +1,26 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Copy, Download, Paperclip, Pencil, Plus, Search, Trash2, Zap } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronRight,
+  Copy,
+  Download,
+  Paperclip,
+  Pencil,
+  Plus,
+  Search,
+  Trash2,
+  Zap,
+} from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
 import { PeriodPicker } from "@/components/finance/period-picker";
+import { InlineNotes } from "@/components/finance/inline-notes";
 import { TransactionDetailsDialog } from "@/components/finance/transaction-details-dialog";
 import { TransactionDialog } from "@/components/finance/transaction-dialog";
 import { ExpenseCardsDialog } from "@/components/finance/expense-cards-dialog";
+
 
 import {
   AlertDialog,
