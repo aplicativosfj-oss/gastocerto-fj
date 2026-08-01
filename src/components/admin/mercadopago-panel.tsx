@@ -58,7 +58,10 @@ export function MercadoPagoPanel() {
           description: `${result.message}${result.pixEnabled ? " Pix habilitado." : " Pix não habilitado na conta."}`,
         });
       } else {
-        toast.error("Credencial recusada", { description: result.message });
+        toast.error("Credencial recusada", { 
+          description: result.message,
+          duration: 6000 
+        });
       }
     },
     onError: (error: Error) => toast.error(error.message),
