@@ -58,7 +58,7 @@ export function PlanConfigsPanel() {
                     isTrial && "border-amber-500/50 text-amber-500 bg-amber-500/5",
                     hasAi && "border-brand/50 text-brand bg-brand/5"
                   )}>
-                    {plan.plan_id.toUpperCase()}
+                    {plan.plan_id.replace('_ia', ' + IA').toUpperCase()}
                   </Badge>
                   {hasAi && <Sparkles className="size-4 text-brand" />}
                 </div>
@@ -117,7 +117,7 @@ export function PlanConfigsPanel() {
             <p className="text-sm text-muted-foreground leading-relaxed">
               O sistema utiliza o <code className="rounded bg-brand/10 px-1 text-brand">plan-features.ts</code> para restringir recursos. 
               Planos sem o sufixo IA são bloqueados automaticamente no Advisor. Certifique-se de ajustar os preços 
-              refletindo o valor dos créditos de IA consumidos.
+              refletindo o valor dos créditos de IA consumidos (<strong>Premium: R$ 24,90</strong> | <strong>Premium + IA: R$ 34,90</strong>).
             </p>
           </div>
         </div>

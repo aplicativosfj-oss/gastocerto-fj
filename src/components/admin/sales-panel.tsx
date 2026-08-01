@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Copy, ExternalLink, Loader2, RefreshCw, Search } from "lucide-react";
+import { Copy, Download, ExternalLink, FileText, Loader2, RefreshCw, Search } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -203,6 +203,63 @@ export function SalesPanel({ globalSearch = "" }: { globalSearch?: string }) {
   const [syncing, setSyncing] = useState<string | null>(null);
   const [detailId, setDetailId] = useState<string | null>(null);
 
+  const exportCsv = () => {
+    const headers = ["Data", "Cliente", "E-mail", "Plano", "Ciclo", "Método", "Valor", "Status", "Chave"];
+    const rows = payments.map(p => [
+      formatDateTime(p.paid_at || p.created_at),
+      p.license?.full_name || "—",
+      p.email || "—",
+      p.license?.plans?.name || "—",
+      p.license?.billing_cycle || "—",
+      p.method || "—",
+      p.amount,
+      STATUS_LABEL[p.status] || p.status,
+      p.license?.license_key || "—"
+    ]);
+    const csvContent = "\ufeff" + [headers, ...rows].map(e => e.map(v => `"${String(v).replace(/"/g, '""')}"`).join(";")).join("\n");
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `vendas-${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    toast.success("CSV exportado.");
+  };
+
+  const exportPdf = async () => {
+    const [{ default: jsPDF }, { default: autoTable }] = await Promise.all([
+      import("jspdf"),
+      import("jspdf-autotable"),
+    ]);
+    const doc = new jsPDF({ orientation: "landscape" });
+    doc.setFontSize(16);
+    doc.text("GastoCerto — Relatório de Vendas", 14, 15);
+    doc.setFontSize(9);
+    doc.text(`Gerado em: ${new Date().toLocaleString("pt-BR")} · Período: ${period}`, 14, 22);
+
+    autoTable(doc, {
+      startY: 28,
+      head: [["Data", "Cliente", "Plano", "Valor", "Status", "Chave"]],
+      body: payments.map(p => [
+        formatDateTime(p.paid_at || p.created_at),
+        p.license?.full_name || p.email || "—",
+        `${p.license?.plans?.name || "—"} (${p.license?.billing_cycle || "—"})`,
+        formatCurrency(Number(p.amount || 0)),
+        STATUS_LABEL[p.status] || p.status,
+        p.license?.license_key || "—"
+      ]),
+      theme: "striped",
+      styles: { fontSize: 8 },
+      headStyles: { fillColor: [16, 185, 129] }
+    });
+
+    doc.save(`vendas-${new Date().toISOString().split('T')[0]}.pdf`);
+    toast.success("PDF exportado.");
+  };
+
   const query = useQuery({
     queryKey: ["admin", "licenses"],
     queryFn: () => adminListLicenses(),
@@ -364,6 +421,16 @@ export function SalesPanel({ globalSearch = "" }: { globalSearch?: string }) {
           <RefreshCw className="mr-2 size-4" aria-hidden="true" />
           Atualizar
         </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" className="h-10" onClick={exportCsv} disabled={payments.length === 0}>
+            <Download className="size-4 mr-2" />
+            CSV
+          </Button>
+          <Button variant="outline" className="h-10" onClick={exportPdf} disabled={payments.length === 0}>
+            <FileText className="size-4 mr-2" />
+            PDF
+          </Button>
+        </div>
       </div>
 
       <div className="overflow-x-auto rounded-xl border border-border bg-card">

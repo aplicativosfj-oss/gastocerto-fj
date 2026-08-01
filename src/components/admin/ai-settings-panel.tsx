@@ -65,6 +65,13 @@ const FIELDS: {
     step: "0.01",
     group: "quota",
   },
+  {
+    key: "geminiMonthlyCreditLimit",
+    label: "Teto Mensal Gemini (tokens/créditos)",
+    hint: "Limite máximo de consumo do Gemini por usuário antes do bloqueio.",
+    step: "1",
+    group: "quota",
+  },
 ];
 
 export function AiSettingsPanel() {

@@ -9,13 +9,14 @@ export type AuditLogRow = {
   details: unknown;
 };
 
-export type AuditCategory = "codes" | "permissions" | "plans" | "users" | "other";
+export type AuditCategory = "codes" | "permissions" | "plans" | "users" | "sales" | "other";
 
 const CATEGORY_RULES: Array<{ category: AuditCategory; test: RegExp }> = [
   { category: "codes", test: /(code|codigo|código|license|licen|key|chave)/i },
   { category: "permissions", test: /(role|permiss|papel|admin_access|grant|revoke_role)/i },
   { category: "plans", test: /(plan|price|preco|preço|announc|aviso|setting)/i },
   { category: "users", test: /(user|usuario|usuário|profile|status|pin|support_note)/i },
+  { category: "sales", test: /(sale|payment|venda|pagamento|receita|billing|checkout)/i },
 ];
 
 export function categorizeAction(action: string): AuditCategory {
@@ -30,6 +31,7 @@ export const AUDIT_CATEGORY_LABELS: Record<AuditCategory, string> = {
   permissions: "Permissões",
   plans: "Planos e avisos",
   users: "Usuários",
+  sales: "Vendas e pagamentos",
   other: "Outros",
 };
 

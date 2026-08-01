@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Copy, Gift, Loader2 } from "lucide-react";
+import { Copy, Gift, Loader2, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -24,7 +24,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { formatDateTime } from "@/lib/format";
-import { adminCreateTrialLicenses, adminListLicenses } from "@/lib/licenses.functions";
+import { adminCreateTrialLicenses, adminListLicenses, adminDeleteLicense } from "@/lib/licenses.functions";
 
 const STATUS_LABELS: Record<string, string> = {
   pending: "Aguardando ativação",
@@ -41,6 +41,7 @@ export function TrialLicensesPanel() {
   const create = useServerFn(adminCreateTrialLicenses);
   const listLicenses = useServerFn(adminListLicenses);
   const queryClient = useQueryClient();
+  const deleteLicense = useServerFn(adminDeleteLicense);
 
   const [quantity, setQuantity] = useState("5");
   const [trialDays, setTrialDays] = useState("15");
@@ -86,6 +87,15 @@ export function TrialLicensesPanel() {
     onError: (error: Error) => toast.error(error.message || "Não foi possível gerar os códigos."),
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => deleteLicense({ data: { id } }),
+    onSuccess: () => {
+      toast.success("Licença excluída com sucesso.");
+      void queryClient.invalidateQueries({ queryKey: ["admin", "licenses"] });
+    },
+    onError: (error: Error) => toast.error(error.message || "Não foi possível excluir a licença."),
+  });
+
   const pendingKeys = trials
     .filter((row: { status: string }) => row.status === "pending")
     .map((row: { license_key: string }) => row.license_key);
@@ -104,6 +114,15 @@ export function TrialLicensesPanel() {
           </p>
         </div>
       </header>
+
+      <div className="mt-3 rounded-lg bg-primary/5 border border-primary/20 p-3">
+        <h3 className="text-[11px] font-bold uppercase tracking-wider text-primary mb-1">Diferença entre Teste e Licença:</h3>
+        <ul className="text-[11px] text-muted-foreground space-y-1 list-disc pl-4">
+          <li><strong>Teste (Cortesia):</strong> Aplicado direto ao perfil do usuário. <strong>Com IA liberada.</strong></li>
+          <li><strong>Código para Doar:</strong> Você gera chaves para enviar por e-mail/rede social. <strong>Sem IA.</strong></li>
+          <li>A validade do código só começa quando o cliente ativa a chave no painel dele.</li>
+        </ul>
+      </div>
 
       <div className="mt-3 flex flex-wrap items-center gap-2 rounded-xl border border-dashed border-border bg-muted/40 p-2.5">
         <p className="text-xs text-muted-foreground">
@@ -197,7 +216,8 @@ export function TrialLicensesPanel() {
               <TableHead>Situação</TableHead>
               <TableHead>Gerada em</TableHead>
               <TableHead>Ativada em</TableHead>
-              <TableHead>Expira em</TableHead>
+               <TableHead>Expira em</TableHead>
+               <TableHead className="w-[50px]"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -236,8 +256,23 @@ export function TrialLicensesPanel() {
                     <TableCell className="text-sm text-muted-foreground">
                       {row.activated_at ? formatDateTime(row.activated_at) : "—"}
                     </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
+                     <TableCell className="text-sm text-muted-foreground">
                       {row.expires_at ? formatDateTime(row.expires_at) : "—"}
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="size-8 text-muted-foreground hover:text-destructive"
+                        disabled={deleteMutation.isPending}
+                        onClick={() => {
+                          if (confirm("Tem certeza que deseja excluir esta licença?")) {
+                            deleteMutation.mutate(row.id);
+                          }
+                        }}
+                      >
+                        <Trash2 className="size-4" />
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ),
