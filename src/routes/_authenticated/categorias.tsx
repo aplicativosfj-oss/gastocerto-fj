@@ -226,17 +226,26 @@ function CategoriesPage() {
             <p className="text-sm text-muted-foreground">Nenhuma categoria por aqui ainda.</p>
           </div>
         ) : (
-          <div className="space-y-6">
-            <div className="grid gap-3 auto-cards-sm">
-              {visible.map((category) => (
+          <div className="grid gap-3 auto-cards-sm">
+            {allCategories.map((category) => {
+              const isActive = category.active !== false;
+              return (
                 <div
                   key={category.id}
-                  className="interactive-card group relative flex items-start justify-between gap-3 rounded-xl border border-border bg-card p-4 shadow-soft transition-all"
+                  className={cn(
+                    "interactive-card group relative flex items-start justify-between gap-3 rounded-xl border p-4 transition-all duration-300",
+                    isActive 
+                      ? "border-border bg-card shadow-soft hover:shadow-md" 
+                      : "border-border/40 bg-muted/30 grayscale opacity-70 shadow-inner scale-[0.98] translate-y-0.5"
+                  )}
                 >
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2.5">
                       <span
-                        className="grid size-9 shrink-0 place-items-center rounded-xl transition-transform group-hover:scale-110"
+                        className={cn(
+                          "grid size-9 shrink-0 place-items-center rounded-xl transition-all duration-300",
+                          isActive ? "group-hover:scale-110" : "scale-95 opacity-50"
+                        )}
                         style={{
                           backgroundColor: `${category.color ?? "#94a3b8"}15`,
                           color: category.color ?? "#94a3b8",
@@ -248,88 +257,57 @@ function CategoriesPage() {
                         })()}
                       </span>
                       <div className="min-w-0">
-                        <span className="block truncate text-[14px] font-bold tracking-tight text-foreground">
+                        <span className={cn(
+                          "block truncate text-[14px] font-bold tracking-tight transition-colors",
+                          isActive ? "text-foreground" : "text-muted-foreground"
+                        )}>
                           {category.name}
                         </span>
-                        <p className="mt-0.5 text-[11px] font-medium text-muted-foreground/80 uppercase tracking-wider">
-                          Gasto: {formatCurrency(usage.get(category.id) ?? 0)}
+                        <p className="mt-0.5 text-[11px] font-medium text-muted-foreground/60 uppercase tracking-wider">
+                          {isActive ? `Gasto: ${formatCurrency(usage.get(category.id) ?? 0)}` : "Desativada"}
                         </p>
                       </div>
                     </div>
                   </div>
-                  <div className="flex shrink-0 gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="size-8 rounded-lg"
-                      onClick={() => {
-                        setError(null);
-                        setDraft({
-                          id: category.id,
-                          name: category.name,
-                          type: category.type as "expense" | "income",
-                          color: category.color ?? COLORS[0],
-                          icon: category.icon ?? "circle-ellipsis",
-                          display_order: category.display_order ?? 0,
-                          parent_id: category.parent_id,
-                          description: category.description
-                        });
-                      }}
-                    >
-                      <Pencil className="size-3.5" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="size-8 rounded-lg hover:text-destructive hover:bg-destructive/10"
-                      onClick={() => toggleActive(category.id, false)}
-                    >
-                      <Power className="size-3.5" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {inactive.length > 0 && (
-              <div className="space-y-3 pt-4">
-                <div className="flex items-center gap-2 px-1">
-                  <div className="h-px flex-1 bg-border/60" />
-                  <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60">
-                    Desativadas ({inactive.length})
-                  </span>
-                  <div className="h-px flex-1 bg-border/60" />
-                </div>
-                <div className="grid gap-3 auto-cards-sm">
-                  {inactive.map((category) => (
-                    <div
-                      key={category.id}
-                      className="group flex items-center justify-between gap-3 rounded-xl border border-dashed border-border/60 bg-muted/20 p-3 opacity-60 grayscale transition-all hover:opacity-100 hover:grayscale-0"
-                    >
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-muted text-muted-foreground">
-                          {(() => {
-                            const Icon = categoryIcon(category.icon);
-                            return <Icon className="size-3.5" />;
-                          })()}
-                        </span>
-                        <span className="truncate text-[13px] font-semibold text-muted-foreground">
-                          {category.name}
-                        </span>
-                      </div>
+                  
+                  <div className="flex flex-col items-end gap-2 shrink-0">
+                    <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
                       <Button
                         variant="ghost"
-                        size="sm"
-                        className="h-7 px-2 text-[10px] font-bold uppercase tracking-wider text-success hover:bg-success/10"
-                        onClick={() => toggleActive(category.id, true)}
+                        size="icon"
+                        className="size-8 rounded-lg"
+                        onClick={() => {
+                          setError(null);
+                          setDraft({
+                            id: category.id,
+                            name: category.name,
+                            type: category.type as "expense" | "income",
+                            color: category.color ?? COLORS[0],
+                            icon: category.icon ?? "circle-ellipsis",
+                            display_order: category.display_order ?? 0,
+                            parent_id: category.parent_id,
+                            description: category.description
+                          });
+                        }}
                       >
-                        Reativar
+                        <Pencil className="size-3.5" />
                       </Button>
                     </div>
-                  ))}
+                    
+                    <div className="flex items-center gap-2" title={isActive ? "Desativar" : "Ativar"}>
+                      <Switch 
+                        checked={isActive}
+                        onCheckedChange={(checked) => toggleActive(category.id, checked)}
+                        className={cn(
+                          "scale-75 transition-all duration-500",
+                          !isActive && "opacity-60"
+                        )}
+                      />
+                    </div>
+                  </div>
                 </div>
-              </div>
-            )}
+              );
+            })}
           </div>
         )}
       </div>
