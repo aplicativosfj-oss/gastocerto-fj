@@ -267,8 +267,8 @@ export function AppShell({ children }: { children: ReactNode }) {
         </header>
 
         <main className="app-main mx-auto w-full min-w-0 max-w-6xl flex-1 px-3 py-2.5 pb-[calc(4.75rem+env(safe-area-inset-bottom))] sm:px-4 sm:py-4 lg:pb-6">
-          <ReadOnlyBanner />
-          {children}
+          {!isAdminArea ? <ReadOnlyBanner /> : null}
+
         </main>
 
         <footer className="hidden border-t border-border px-4 py-2 text-center text-[11px] text-muted-foreground lg:block">
