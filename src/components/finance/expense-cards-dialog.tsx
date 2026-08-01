@@ -80,7 +80,6 @@ export function ExpenseCardsDialog({
   const [digits, setDigits] = useState("");
   const [note, setNote] = useState("");
   const [date, setDate] = useState(isoDate(new Date()));
-  const [search, setSearch] = useState("");
   const [kind, setKind] = useState<ExpenseKind>("single");
   const [installmentsTotal, setInstallmentsTotal] = useState("12");
   const [installmentsPaid, setInstallmentsPaid] = useState("0");
