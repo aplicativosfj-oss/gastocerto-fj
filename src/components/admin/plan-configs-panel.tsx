@@ -184,13 +184,17 @@ export function PlanConfigsPanel() {
           const monthly = Number(draft.monthly.replace(",", "."));
           const annual = Number(draft.annual.replace(",", "."));
           const validNumbers = Number.isFinite(monthly) && Number.isFinite(annual) && monthly >= 0 && annual >= 0;
+          const preview = validNumbers
+            ? normalizePlanPrices({ monthly, annual })
+            : { monthly: 0, annual: 0, monthlyEquivalent: 0, savingsPercent: 0, savingsAmount: 0, adjusted: false };
           const changed =
             validNumbers &&
-            (monthly !== Number(plan.monthly_price) ||
-              annual !== Number(plan.annual_price) ||
+            (preview.monthly !== Number(plan.monthly_price) ||
+              preview.annual !== Number(plan.annual_price) ||
               draft.active !== plan.active);
           const hasAi = plan.slug.includes("ia");
           const isTrial = plan.tier === "trial";
+
 
           return (
             <Card key={plan.id} className={cn("border-border/60 bg-card/50", plan.active && "border-brand/25")}>
