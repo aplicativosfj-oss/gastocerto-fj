@@ -41,6 +41,8 @@ export function BusinessDashboard() {
     link.click();
     document.body.removeChild(link);
     toast.success("CSV exportado com sucesso");
+  };
+
   const exportPdf = () => {
     if (!rawMetrics.length) return;
     const doc = new jsPDF();
