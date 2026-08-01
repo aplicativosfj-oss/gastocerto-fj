@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Loader2, Pencil, Plus } from "lucide-react";
+import { Loader2, Pencil, Plus, RotateCcw } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -34,7 +34,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { CATEGORY_ICON_KEYS, categoryIcon } from "@/lib/category-icons";
 import { formatCurrency } from "@/lib/format";
 import { monthRange } from "@/lib/finance";
-import { useCategories } from "@/lib/queries";
+import { useAllCategories } from "@/lib/queries";
 import { useRefreshFinance, useSaveCategory, useTransactions } from "@/lib/transactions";
 import { sanitizeText } from "@/lib/validation";
 
@@ -80,7 +80,7 @@ type Draft = {
 function CategoriesPage() {
   const today = new Date();
   const range = monthRange(today.getFullYear(), today.getMonth() + 1);
-  const { data: categories, isLoading } = useCategories();
+  const { data: categories, isLoading } = useAllCategories();
   const { data: transactions } = useTransactions(range);
   const save = useSaveCategory();
   const refresh = useRefreshFinance();
@@ -101,12 +101,15 @@ function CategoriesPage() {
     return map;
   }, [transactions]);
 
-  const allCategories = (categories ?? [])
+  const typeCategories = (categories ?? [])
     .filter((category) => category.type === tab)
     .sort((a, b) => {
       // Prioritize active ones? No, let's keep the user's order
       return (a.display_order || 0) - (b.display_order || 0);
     });
+
+  const allCategories = typeCategories.filter((category) => category.active !== false);
+  const inactiveCategories = typeCategories.filter((category) => category.active === false);
 
   async function handleSave() {
     if (!draft) return;
