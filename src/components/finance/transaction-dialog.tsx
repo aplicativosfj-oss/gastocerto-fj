@@ -120,12 +120,6 @@ export function TransactionDialog({
     [categories, kind],
   );
 
-  const selectedCat = useMemo(() => {
-    const id = (transaction as any)?.sub_category_id || transaction?.category_id || "";
-    // Note: this only works for editing mode or when values are set.
-    // We'll define a dynamic selectedCat based on categoryId/subCategoryId state below.
-    return null; 
-  }, [transaction]);
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [advanced, setAdvanced] = useState(false);
@@ -159,7 +153,7 @@ export function TransactionDialog({
   const saveFeedback = useSaveCategoryFeedback();
   const [revenueSuggestion, setRevenueSuggestion] = useState<{ message: string; date: string } | null>(null);
 
-  const selectedCat = useMemo(
+  const selectedCategory = useMemo(
     () => (categories ?? []).find((c) => c.id === (subCategoryId || categoryId)),
     [categories, subCategoryId, categoryId],
   );
@@ -779,9 +773,9 @@ export function TransactionDialog({
                 </div>
               )}
 
-              {selectedCat?.description && (
+              {selectedCategory?.description && (
                 <p className="px-1 text-[10px] italic text-muted-foreground">
-                  {selectedCat.description}
+                  {selectedCategory.description}
                 </p>
               )}
             </div>
@@ -797,7 +791,7 @@ export function TransactionDialog({
                 required
               />
               <p className="px-1 text-[10px] text-muted-foreground">
-                Dica: Mantenha a descrição focada no gasto específico. O nome da categoria ("{selectedCat?.name || "..."}") já é salvo automaticamente.
+                Dica: Mantenha a descrição focada no gasto específico. O nome da categoria ("{selectedCategory?.name || "..."}") já é salvo automaticamente.
               </p>
             </div>
 
