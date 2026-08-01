@@ -337,16 +337,27 @@ export function CheckoutDialog({
               {CHECKOUT_STATUS_LABEL[status] ?? status} — confirmamos automaticamente em segundos.
             </p>
 
-            {charge.ticketUrl ? (
+            <div className="space-y-1 text-center">
+              {charge.ticketUrl ? (
+                <a
+                  href={charge.ticketUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="block text-xs font-medium text-primary underline underline-offset-2"
+                >
+                  Abrir comprovante no Mercado Pago
+                </a>
+              ) : null}
               <a
-                href={charge.ticketUrl}
+                href={`/pedido/${charge.paymentId}`}
                 target="_blank"
                 rel="noreferrer"
-                className="block text-center text-xs font-medium text-primary underline underline-offset-2"
+                className="block text-xs font-medium text-primary underline underline-offset-2"
               >
-                Abrir comprovante no Mercado Pago
+                Acompanhar meu pedido em uma página própria
               </a>
-            ) : null}
+            </div>
+
           </div>
         ) : null}
 

@@ -1205,6 +1205,57 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_events: {
+        Row: {
+          created_at: string
+          detail: Json
+          event_type: string
+          external_id: string | null
+          id: string
+          license_id: string | null
+          payment_id: string | null
+          source: string
+          status: string | null
+        }
+        Insert: {
+          created_at?: string
+          detail?: Json
+          event_type: string
+          external_id?: string | null
+          id?: string
+          license_id?: string | null
+          payment_id?: string | null
+          source?: string
+          status?: string | null
+        }
+        Update: {
+          created_at?: string
+          detail?: Json
+          event_type?: string
+          external_id?: string | null
+          id?: string
+          license_id?: string | null
+          payment_id?: string | null
+          source?: string
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_events_license_id_fkey"
+            columns: ["license_id"]
+            isOneToOne: false
+            referencedRelation: "licenses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_events_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "payments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payments: {
         Row: {
           amount: number
