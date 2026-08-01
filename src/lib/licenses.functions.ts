@@ -43,6 +43,24 @@ export const adminCreateLicense = createServerFn({ method: "POST" })
     await assertAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
+    const { data: chosenPlan } = await supabaseAdmin
+      .from("plans")
+      .select("slug, trial_days, monthly_price, annual_price")
+      .eq("id", data.planId)
+      .maybeSingle();
+
+    // Backend: teste de cortesia nunca é ativado pelo admin nem libera IA.
+    const courtesy = isCourtesyTrialLicense({
+      source: data.amount <= 0 ? TRIAL_GIFT_SOURCE : "manual",
+      amount: data.amount,
+      planSlug: chosenPlan?.slug ?? null,
+    });
+    if (courtesy && data.activateNow) {
+      throw new Error(
+        "Licenças de teste só entram em vigor quando o cliente ativa a chave no site ou aplicativo.",
+      );
+    }
+
     const email = data.email.trim().toLowerCase();
     const { data: profile } = await supabaseAdmin
       .from("profiles")
@@ -220,7 +238,9 @@ export const adminListLicenses = createServerFn({ method: "GET" })
     const [licenses, payments] = await Promise.all([
       supabaseAdmin
         .from("licenses")
-        .select("*, plans(name, slug)")
+        .select(
+          "*, plans(name, slug, tier, monthly_price, annual_price, trial_days)",
+        )
         .order("created_at", { ascending: false })
         .limit(500),
       supabaseAdmin
