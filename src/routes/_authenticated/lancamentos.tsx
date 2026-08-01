@@ -568,11 +568,11 @@ function TransactionsPage() {
       <div className="mx-auto max-w-7xl space-y-3 sm:space-y-4">
         <section className="grid grid-cols-3 gap-2">
           <div className="flex flex-col rounded-2xl border border-income-border bg-income-surface p-3 text-center">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-income/85">Receitas</p>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-income">Receitas</p>
             <p className="mt-0.5 text-sm font-bold tabular-nums text-income">{formatCurrency(incomeTotal)}</p>
           </div>
           <div className="flex flex-col rounded-2xl border border-expense-border bg-expense-surface p-3 text-center">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-expense/85">Despesas</p>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-expense">Despesas</p>
             <p className="mt-0.5 text-sm font-bold tabular-nums text-expense">{formatCurrency(expenseTotal)}</p>
           </div>
           <div className="flex flex-col rounded-2xl border border-brand/20 bg-brand/5 p-3 text-center">

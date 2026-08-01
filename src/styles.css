@@ -103,10 +103,10 @@
   --success-foreground: oklch(0.99 0.004 250);
   --warning: oklch(0.58 0.13 74);
   --warning-foreground: oklch(0.99 0.004 250);
-  /* Despesa/receita: cromas contidos para leitura confortável. */
-  --expense: oklch(0.5 0.128 22);
-  --expense-surface: oklch(0.972 0.014 22);
-  --expense-border: oklch(0.9 0.035 22);
+  /* Despesa: vermelho tijolo sóbrio (croma contido, alto contraste no claro). */
+  --expense: oklch(0.475 0.105 27);
+  --expense-surface: oklch(0.976 0.009 30);
+  --expense-border: oklch(0.9 0.024 28);
   --income: oklch(0.47 0.105 155);
   --income-surface: oklch(0.972 0.014 155);
   --income-border: oklch(0.895 0.032 155);
@@ -158,10 +158,10 @@
   --success-foreground: oklch(0.17 0.035 258);
   --warning: oklch(0.82 0.14 78);
   --warning-foreground: oklch(0.17 0.035 258);
-  /* No escuro, coral suave em vez de vermelho puro (evita ofuscar). */
-  --expense: oklch(0.78 0.095 25);
-  --expense-surface: oklch(0.29 0.045 22);
-  --expense-border: oklch(0.42 0.06 22);
+  /* No escuro, terracota claro: legível sem vibrar nem desbotar. */
+  --expense: oklch(0.775 0.07 32);
+  --expense-surface: oklch(0.265 0.026 28);
+  --expense-border: oklch(0.375 0.035 28);
   --income: oklch(0.82 0.095 158);
   --income-surface: oklch(0.28 0.04 158);
   --income-border: oklch(0.42 0.055 158);
@@ -460,6 +460,35 @@
     -webkit-overflow-scrolling: touch;
   }
 
+  /* Desktop: rolagem apenas pela roda do mouse/trackpad, sem barras visíveis. */
+  @media (hover: hover) and (pointer: fine) {
+    html {
+      scrollbar-gutter: auto;
+    }
+
+    html,
+    body,
+    [data-scroll-area],
+    [data-radix-scroll-area-viewport],
+    .overflow-y-auto,
+    .overflow-auto,
+    .overflow-x-auto {
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    html::-webkit-scrollbar,
+    body::-webkit-scrollbar,
+    [data-scroll-area]::-webkit-scrollbar,
+    [data-radix-scroll-area-viewport]::-webkit-scrollbar,
+    .overflow-y-auto::-webkit-scrollbar,
+    .overflow-auto::-webkit-scrollbar,
+    .overflow-x-auto::-webkit-scrollbar {
+      width: 0;
+      height: 0;
+    }
+  }
+
   img,
   svg,
   video,
@@ -467,6 +496,7 @@
   table {
     max-width: 100%;
   }
+
 
   /* Toques confortáveis no celular sem inflar o layout. */
   @media (max-width: 639px) {

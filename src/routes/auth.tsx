@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
-import { AlertCircle, Loader2 } from "lucide-react";
+import { AlertCircle, KeyRound, Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -405,8 +405,9 @@ function CpfSignInForm({ onForgot, onAdmin }: { onForgot: () => void; onAdmin: (
         <button
           type="button"
           onClick={onForgot}
-          className="text-xs font-medium text-primary hover:underline"
+          className="inline-flex min-h-9 items-center gap-1.5 rounded-md px-2 text-sm font-semibold text-primary underline-offset-4 hover:bg-primary/10 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
+          <KeyRound className="size-4" aria-hidden="true" />
           Esqueci minha senha
         </button>
         <button
@@ -417,6 +418,7 @@ function CpfSignInForm({ onForgot, onAdmin }: { onForgot: () => void; onAdmin: (
           Acesso administrativo
         </button>
       </div>
+
 
       <Button type="submit" className="w-full" disabled={loading}>
         {loading ? <Loader2 className="mr-2 size-4 animate-spin" aria-hidden="true" /> : null}
