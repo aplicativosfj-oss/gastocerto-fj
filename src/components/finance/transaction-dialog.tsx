@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { CategoryPicker, readRecentCategories, rememberCategory } from "@/components/finance/category-picker";
 import { PurchaseItemsEditor } from "@/components/finance/purchase-items-editor";
 import { ReceiptField } from "@/components/finance/receipt-field";
+import { StoredTransactionPanel } from "@/components/finance/stored-transaction-panel";
 
 import { Button } from "@/components/ui/button";
 
@@ -982,6 +983,16 @@ export function TransactionDialog({
                   <Switch id="recurring" checked={recurring} onCheckedChange={setRecurring} />
                 </div>
               </>
+            ) : null}
+
+            {editing && transaction ? (
+              <StoredTransactionPanel
+                transaction={transaction}
+                categoryName={
+                  (categories ?? []).find((item) => item.id === transaction.category_id)?.name ?? null
+                }
+                enabled={open}
+              />
             ) : null}
 
             <div className="sm:col-span-2">
