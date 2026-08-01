@@ -298,17 +298,22 @@ function MobileTabBar({
   open,
   onOpenChange,
   onSignOut,
+  adminArea = false,
 }: {
   items: NavGroup[];
   activeGroup?: string;
   open: boolean;
   onOpenChange: (value: boolean) => void;
   onSignOut: () => void;
+  adminArea?: boolean;
 }) {
   const navigate = useNavigate();
-  const primary = MOBILE_PRIMARY.map((to) => items.find((item) => item.to === to)).filter(
-    (item): item is NavGroup => Boolean(item),
-  );
+  const primary = adminArea
+    ? items
+    : MOBILE_PRIMARY.map((to) => items.find((item) => item.to === to)).filter(
+        (item): item is NavGroup => Boolean(item),
+      );
+
 
   return (
     <>
