@@ -544,7 +544,7 @@ function TransactionsPage() {
 
         <PastMonthsLockNotice monthKey={monthKeyView} />
 
-        <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4 sm:gap-4">
+        <div className={cn("grid grid-cols-2 gap-2.5 sm:grid-cols-4 sm:gap-4 transition-all duration-300", isLoading && "opacity-50 blur-[1px]")}>
           <StatTile
             label="Receitas"
             value={formatCurrency(periodTotals.income)}
