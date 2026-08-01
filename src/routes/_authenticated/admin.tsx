@@ -218,7 +218,7 @@ function AdminContent({ isAdmin }: { isAdmin: boolean }) {
             <StatCard label="Contas ativas" value={overview.data?.activeUsers} />
             <StatCard label="Novos (30 dias)" value={overview.data?.newUsers30d} />
             <StatCard label="Lançamentos" value={overview.data?.totalTransactions} />
-            <div className="flex items-center justify-center rounded-xl border border-dashed border-border p-3">
+            <div className="flex flex-col gap-2 rounded-xl border border-dashed border-border p-3">
               <Button 
                 variant="outline" 
                 size="sm" 
@@ -234,7 +234,22 @@ function AdminContent({ isAdmin }: { isAdmin: boolean }) {
               >
                 Corrigir Lançamento Nexxus
               </Button>
+              <Button 
+                variant="secondary" 
+                size="sm" 
+                onClick={async () => {
+                  try {
+                    const res = await fixComplexAdjustments({ data: { userId: '6f34802b-e8a0-49c3-bfae-b689da7f993a' } });
+                    toast.success(`${res.movedRevenues} receitas transferidas e ${res.correctedExpense262} gasto de R$ 262 corrigido.`);
+                  } catch (e) {
+                    toast.error("Erro ao processar ajustes complexos.");
+                  }
+                }}
+              >
+                Transferir Receitas & Corrigir R$ 262
+              </Button>
             </div>
+
           </div>
 
         ) : null}
