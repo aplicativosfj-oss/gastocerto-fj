@@ -914,6 +914,13 @@ function DashboardPage() {
         onOpenChange={(next) => {
           if (!next) setDetail(null);
         }}
+        onEditTransaction={(row) => {
+          setDetail(null);
+          setEditingTx(row);
+          setDialogKind(row.transaction_type === "income" ? "income" : "expense");
+          setPreset({ categoryId: null, subCategoryId: null });
+          setDialogOpen(true);
+        }}
       />
 
       <DependentExpenseDialog open={dependentOpen} onOpenChange={setDependentOpen} />
