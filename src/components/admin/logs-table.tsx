@@ -58,12 +58,6 @@ export function LogsTable({ globalSearch = "" }: { globalSearch?: string }) {
       return actor.includes(term) || target.includes(term) || action.includes(term) || details.includes(term);
     });
   }, [logs.data, globalSearch, nameByUser]);
-    const map = new Map<string, string>();
-    for (const profile of profiles.data ?? []) {
-      map.set(profile.user_id, profile.full_name ?? "Usuário");
-    }
-    return map;
-  }, [profiles.data]);
 
   return (
     <div className="overflow-x-auto rounded-xl border border-border bg-card">
