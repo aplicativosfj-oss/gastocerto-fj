@@ -391,11 +391,10 @@ function DashboardPage() {
               onClick={() => {
                 reset();
                 navigate({
-                  search: (prev: any) => ({
-                    ...prev,
+                  search: {
                     ano: new Date().getFullYear(),
                     mes: new Date().getMonth() + 1,
-                  }) as any,
+                  } as any,
                   replace: true,
                 });
               }}

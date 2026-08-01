@@ -184,12 +184,11 @@ function TransactionsPage() {
   const handleReset = () => {
     reset();
     navigate({
-      search: (prev: any) => ({
-        ...prev,
+      search: {
         ano: new Date().getFullYear(),
         mes: new Date().getMonth() + 1,
         tipo: "all",
-      }) as any,
+      } as any,
       replace: true,
     });
     // Forçar reset de estados locais se necessário
