@@ -429,26 +429,24 @@
   html {
     scroll-behavior: smooth;
     scroll-padding-top: 5rem;
-    overflow-x: hidden;
     -webkit-text-size-adjust: 100%;
-    /* Um único scroller: gutter reservado sem forçar barra extra. */
-    scrollbar-gutter: stable;
-    min-height: 100%;
-    /* Sem pull-to-refresh nem bounce encadeado no celular. */
-    overscroll-behavior: none;
+    /* Um único scroller: a página rola pelo html. */
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: auto;
+    /* Evita apenas o encadeamento horizontal; a rolagem vertical fica livre. */
+    overscroll-behavior-x: none;
   }
 
   body {
-    overflow-x: hidden;
-    /* O scroll da página pertence ao html: evita a segunda barra no desktop. */
-    overflow-y: visible;
+    /* Nunca criar um segundo scroller aqui: travava a rolagem da página. */
+    overflow: visible;
     min-width: 0;
+    max-width: 100%;
+    height: auto;
     min-height: 100dvh;
     text-rendering: optimizeLegibility;
     -webkit-tap-highlight-color: transparent;
-    overscroll-behavior-y: none;
-    /* Rolagem com inércia nativa no iOS. */
-    -webkit-overflow-scrolling: touch;
   }
 
   /* Áreas roláveis internas não devolvem o gesto à página (evita travas). */
@@ -459,6 +457,7 @@
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
   }
+
 
   /* Desktop: rolagem apenas pela roda do mouse/trackpad, sem barras visíveis. */
   @media (hover: hover) and (pointer: fine) {
