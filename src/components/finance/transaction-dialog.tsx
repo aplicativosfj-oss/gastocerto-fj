@@ -145,7 +145,7 @@ export function TransactionDialog({
     async function checkRevenue() {
       if (kind === "income" && date && !editing) {
         const { suggestRevenueTransfer } = await import("@/lib/reconciliation.functions");
-        const res = await suggestRevenueTransfer({ userId: "temp", date });
+        const res = await suggestRevenueTransfer({ data: { userId: "temp", date } });
         if (res.shouldSuggest && res.suggestedDate) {
           setRevenueSuggestion({ message: res.message, date: res.suggestedDate });
         } else {
