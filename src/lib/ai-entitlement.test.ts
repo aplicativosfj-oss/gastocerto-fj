@@ -12,7 +12,8 @@ import {
 const future = new Date(Date.now() + 30 * 86_400_000).toISOString();
 const past = new Date(Date.now() - 86_400_000).toISOString();
 
-const paidPlan = { slug: "premium", monthly_price: 19.9, annual_price: 199 };
+const paidPlan = { slug: "premium_ia", monthly_price: 39.9, annual_price: 398 };
+const paidPlanNoAi = { slug: "premium", monthly_price: 24.9, annual_price: 239 };
 const freePlan = { slug: "free", monthly_price: 0, annual_price: 0 };
 const trialPlan = { slug: "trial", monthly_price: 0, annual_price: 0 };
 
@@ -26,8 +27,14 @@ describe("evaluateAiEntitlement", () => {
     expect(result.reason).toBe("paid_license");
   });
 
-  it("libera a IA em plano pago", () => {
+  it("libera a IA no plano pago com IA integrada", () => {
     expect(evaluateAiEntitlement({ plan: paidPlan }).entitled).toBe(true);
+  });
+
+  it("bloqueia plano pago sem IA integrada", () => {
+    const result = evaluateAiEntitlement({ plan: paidPlanNoAi });
+    expect(result.entitled).toBe(false);
+    expect(result.reason).toBe("plan_without_ai");
   });
 
   it("libera para administradores", () => {
