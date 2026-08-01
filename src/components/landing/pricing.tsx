@@ -3,6 +3,8 @@ import { Check, Sparkles } from "lucide-react";
 import { useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
+import { CheckoutDialog } from "@/components/landing/checkout-dialog";
+
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/format";
 import { cn } from "@/lib/utils";
