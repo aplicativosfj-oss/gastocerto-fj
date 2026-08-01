@@ -39,7 +39,7 @@ const EVENT_LABEL: Record<string, string> = {
 /** Auditoria completa do checkout Pix: tentativas, cobranças, status e erros. */
 export function PaymentsAuditPanel({ globalSearch = "" }: { globalSearch?: string }) {
   const getAudit = useServerFn(adminGetCheckoutAudit);
-  const reconcile = useServerFn(adminReconcilePayments);
+  const settle = useServerFn(adminSettleManualOrder);
 
   const [search, setSearch] = useState(globalSearch);
   const [status, setStatus] = useState("all");
@@ -48,18 +48,24 @@ export function PaymentsAuditPanel({ globalSearch = "" }: { globalSearch?: strin
   const { data, isLoading, refetch, isFetching } = useQuery({
     queryKey: ["admin", "checkout-audit", search, status, days],
     queryFn: () => getAudit({ data: { search: search || undefined, status, days } }),
+    refetchInterval: 15_000,
   });
 
   const revalidate = useMutation({
-    mutationFn: () => reconcile({ data: { hours: 24 * 7 } }),
-    onSuccess: (result) => {
-      toast.success("Revalidação concluída", {
-        description: `${result.checked} verificados • ${result.corrected} corrigidos.`,
-      });
+    mutationFn: () => refetch(),
+    onSuccess: () => toast.success("Painel atualizado com os pedidos mais recentes."),
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const approve = useMutation({
+    mutationFn: (paymentId: string) => settle({ data: { paymentId, status: "approved" as const } }),
+    onSuccess: () => {
+      toast.success("Pagamento confirmado", { description: "Chave de licença liberada para o cliente." });
       refetch();
     },
     onError: (error: Error) => toast.error(error.message),
   });
+
 
   const summary = data?.summary;
 
