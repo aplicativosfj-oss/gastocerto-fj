@@ -1031,6 +1031,7 @@ function DashboardPage() {
     </AppShell>
   );
 }
+}
 
       <MetricDetailDialog
         detail={detail}
