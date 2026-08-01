@@ -99,6 +99,7 @@ export type AiEntitlementReason =
   | "plan_without_ai"
   | "trial_active"
   | "trial_expired"
+  | "trial_without_ai"
   | "trial_plan"
   | "free_plan"
   | "no_plan";
@@ -121,6 +122,8 @@ export function evaluateAiEntitlement(input: {
   isAdmin?: boolean | null;
   /** Fim do período de teste do usuário (tudo liberado enquanto vigente). */
   trialEndsAt?: string | Date | null;
+  /** Slug do plano de teste em vigor (testes de cortesia nunca liberam IA). */
+  trialPlanSlug?: string | null;
   now?: Date;
 }): AiEntitlement {
   const now = input.now ?? new Date();
