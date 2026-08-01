@@ -87,9 +87,8 @@ export function Hero() {
             </span>
           </h1>
 
-          <p className="mt-3 max-w-lg text-[14px] leading-relaxed text-white/90 sm:mt-2 sm:text-[15px]">
-            Registre despesas, receitas, contas fixas, combustível e gás em um único sistema,
-            com painéis mensais, orçamentos e relatórios prontos para consulta.
+          <p className="mt-3 max-w-lg text-[14px] leading-relaxed text-white/90 sm:mt-2 sm:text-[15px] max-sm:line-clamp-2">
+            Controle despesas, combustível e gás em um sistema único e profissional.
           </p>
 
           {/* CTAs: full-width stacked on phone, inline from sm */}
