@@ -14,6 +14,8 @@ import type { Category, Transaction } from "@/lib/transactions";
 export type MetricDetail = {
   label: string;
   value: string;
+  totalInvoiced?: string;
+
   hint?: string;
   /** Lançamentos que formam o número do card. */
   rows: Transaction[];
@@ -68,10 +70,16 @@ export function MetricDetailDialog({
 
             <div className="rounded-2xl border border-border bg-muted/40 p-4 text-center">
               <p className="text-3xl font-bold tabular-nums">{detail.value}</p>
+              {detail.totalInvoiced && detail.totalInvoiced !== detail.value && (
+                <p className="mt-1 text-sm font-medium text-primary">
+                  Total no período: {detail.totalInvoiced}
+                </p>
+              )}
               {detail.hint ? (
                 <p className="mt-1 text-xs text-muted-foreground">{detail.hint}</p>
               ) : null}
             </div>
+
 
             {detail.extra && detail.extra.length > 0 ? (
               <dl className="grid grid-cols-2 gap-2 text-xs">

@@ -232,11 +232,16 @@ function DashboardPage() {
       categoryId === "sem-categoria" ? !row.category_id : row.category_id === categoryId,
     );
     const total = rows.reduce((sum, row) => sum + Number(row.amount), 0);
+    
+    // Calcula o total faturado no mês para esta categoria (mesmo que o card principal seja filtrado)
+    // No caso de "Gás", o usuário quer ver o que foi gasto "neste mês"
     setDetail({
       label: `Gastos em ${name}`,
       value: formatCurrency(total),
+      totalInvoiced: formatCurrency(total),
       hint: `${rows.length} lançamento(s) em ${MONTH_NAMES[period.month - 1]} de ${period.year}`,
       formula: "Soma das despesas do período classificadas nesta categoria.",
+
       rows,
       extra: [
         {
@@ -333,7 +338,7 @@ function DashboardPage() {
               Olá, {firstName}!
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              {MONTH_NAMES[period.month - 1]} de {period.year} · ajuste para permitir clicar sobre os gráficos e poder ver detalhes abrindo um modal exibindo os detalhes de forma profissional
+              {MONTH_NAMES[period.month - 1]} de {period.year} · Clique nos gráficos para ver detalhes profissionais
             </p>
           </div>
           <div className="col-span-2 flex flex-wrap items-center gap-2">
