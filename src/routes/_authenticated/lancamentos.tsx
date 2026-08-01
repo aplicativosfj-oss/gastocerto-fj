@@ -371,7 +371,56 @@ function TransactionsPage() {
               ))}
             </SelectContent>
           </Select>
+
+          <Input
+            value={merchantFilter}
+            onChange={(event) => setMerchantFilter(event.target.value)}
+            placeholder="Estabelecimento"
+            aria-label="Filtrar por estabelecimento"
+          />
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-[11px] text-muted-foreground" htmlFor="filtro-de">
+                De
+              </label>
+              <Input
+                id="filtro-de"
+                type="date"
+                value={fromDate}
+                onChange={(event) => setFromDate(event.target.value)}
+              />
+            </div>
+            <div>
+              <label className="text-[11px] text-muted-foreground" htmlFor="filtro-ate">
+                Até
+              </label>
+              <Input
+                id="filtro-ate"
+                type="date"
+                value={toDate}
+                onChange={(event) => setToDate(event.target.value)}
+              />
+            </div>
+          </div>
+
+          {search || merchantFilter || fromDate || toDate ? (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="justify-self-start"
+              onClick={() => {
+                setSearch("");
+                setMerchantFilter("");
+                setFromDate("");
+                setToDate("");
+              }}
+            >
+              Limpar busca e datas
+            </Button>
+          ) : null}
         </section>
+
 
 
         {selected.length > 0 ? (
