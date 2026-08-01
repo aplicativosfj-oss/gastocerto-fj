@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 
 import heroBg from "@/assets/hero-desk-night.jpg";
+import heroMobileBg from "@/assets/hero-mobile.jpg";
 import { Button } from "@/components/ui/button";
 import { CodeAccessDialog } from "@/components/landing/code-access-dialog";
 import { GridPattern, RingChart, Sparkline } from "@/components/landing/decor";
