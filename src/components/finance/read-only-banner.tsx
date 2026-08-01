@@ -22,8 +22,9 @@ export function ReadOnlyBanner() {
         <strong>Modo somente leitura.</strong> {access.readOnlyReason}
       </p>
       <Button size="sm" asChild>
-        <Link to="/planos">Ver planos</Link>
+        <Link to="/perfil">Ativar plano</Link>
       </Button>
+
     </div>
   );
 }
