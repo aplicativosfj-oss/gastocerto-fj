@@ -2,12 +2,14 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { Loader2, Lock } from "lucide-react";
 import { useState } from "react";
+import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { formatCurrency, formatDate } from "@/lib/format";
+import { axisProps, barRadius, CHART_TOKENS, gridProps, tooltipProps } from "@/lib/chart-theme";
+import { formatCurrency, formatDate, formatDateTime } from "@/lib/format";
 import { openShareLink, type SharePayload } from "@/lib/share-links.functions";
 
 const MONTHS = [
@@ -110,6 +112,13 @@ function SharedPage() {
     );
   }
 
+  const { visibility } = payload;
+  const showValue = visibility.amounts;
+  const chartData = payload.categories.slice(0, 8).map((item) => ({
+    name: item.name.length > 14 ? `${item.name.slice(0, 13)}…` : item.name,
+    valor: showValue ? item.total : Number(item.percent.toFixed(1)),
+  }));
+
   return (
     <main className="mx-auto max-w-3xl px-4 py-10">
       <header className="mb-6">
@@ -121,32 +130,60 @@ function SharedPage() {
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
           {MONTHS[payload.month - 1]} de {payload.year}
-          {payload.expiresAt ? ` · link válido até ${formatDate(payload.expiresAt)}` : ""}
+          {payload.expiresAt ? ` · link válido até ${formatDateTime(payload.expiresAt)}` : ""}
         </p>
       </header>
 
-      <section className="grid gap-3 sm:grid-cols-3">
-        <Card>
-          <CardContent className="pt-6">
-            <p className="text-xs uppercase tracking-wide text-muted-foreground">Receitas</p>
-            <p className="mt-1 text-xl font-semibold">{formatCurrency(payload.totals.income)}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <p className="text-xs uppercase tracking-wide text-muted-foreground">Despesas</p>
-            <p className="mt-1 text-xl font-semibold">{formatCurrency(payload.totals.expense)}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <p className="text-xs uppercase tracking-wide text-muted-foreground">Saldo</p>
-            <p className="mt-1 text-xl font-semibold">{formatCurrency(payload.totals.balance)}</p>
-          </CardContent>
-        </Card>
-      </section>
+      {visibility.totals && showValue && (
+        <section className="grid gap-3 sm:grid-cols-3">
+          <Card>
+            <CardContent className="pt-6">
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">Receitas</p>
+              <p className="mt-1 text-xl font-semibold">{formatCurrency(payload.totals.income)}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6">
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">Despesas</p>
+              <p className="mt-1 text-xl font-semibold">{formatCurrency(payload.totals.expense)}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6">
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">Saldo</p>
+              <p className="mt-1 text-xl font-semibold">{formatCurrency(payload.totals.balance)}</p>
+            </CardContent>
+          </Card>
+        </section>
+      )}
 
-      {payload.categories.length > 0 && (
+      {visibility.charts && chartData.length > 0 && (
+        <section className="mt-6">
+          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+            Distribuição das despesas
+          </h2>
+          <Card>
+            <CardContent className="h-64 pt-6">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={chartData}>
+                  <CartesianGrid {...gridProps} />
+                  <XAxis dataKey="name" {...axisProps} interval={0} angle={-20} height={48} dy={10} />
+                  <YAxis {...axisProps} width={44} />
+                  <Tooltip
+                    {...tooltipProps}
+                    formatter={(value: number) =>
+                      showValue ? formatCurrency(value) : `${value.toFixed(1)}%`
+                    }
+                  />
+                  <Bar dataKey="valor" name="Despesa" fill={CHART_TOKENS.neutral} radius={barRadius} />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </section>
+      )}
+
+      {visibility.categories && payload.categories.length > 0 && (
         <section className="mt-6">
           <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
             Despesas por categoria
@@ -156,7 +193,9 @@ function SharedPage() {
               {payload.categories.map((item) => (
                 <div key={item.name} className="flex items-center justify-between py-2 text-sm">
                   <span>{item.name}</span>
-                  <span className="font-medium">{formatCurrency(item.total)}</span>
+                  <span className="font-medium">
+                    {showValue ? formatCurrency(item.total) : `${item.percent.toFixed(1)}%`}
+                  </span>
                 </div>
               ))}
             </CardContent>
@@ -164,7 +203,7 @@ function SharedPage() {
         </section>
       )}
 
-      {payload.transactions.length > 0 && (
+      {visibility.transactions && payload.transactions.length > 0 && (
         <section className="mt-6">
           <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
             Lançamentos ({payload.totals.count})
@@ -185,15 +224,17 @@ function SharedPage() {
                         <p className="mt-1 text-xs text-muted-foreground">{item.notes}</p>
                       )}
                     </div>
-                    <span
-                      className={
-                        item.type === "income"
-                          ? "shrink-0 text-sm font-semibold text-primary"
-                          : "shrink-0 text-sm font-semibold"
-                      }
-                    >
-                      {item.type === "income" ? "+" : "−"} {formatCurrency(item.amount)}
-                    </span>
+                    {showValue && (
+                      <span
+                        className={
+                          item.type === "income"
+                            ? "shrink-0 text-sm font-semibold text-primary"
+                            : "shrink-0 text-sm font-semibold"
+                        }
+                      >
+                        {item.type === "income" ? "+" : "−"} {formatCurrency(item.amount)}
+                      </span>
+                    )}
                   </div>
                 </div>
               ))}
@@ -201,6 +242,11 @@ function SharedPage() {
           </Card>
         </section>
       )}
+
+      <p className="mt-8 text-center text-[11px] text-muted-foreground">
+        Visualização somente leitura gerada no GastoCerto. O dono do link pode revogar o acesso a
+        qualquer momento.
+      </p>
     </main>
   );
 }
