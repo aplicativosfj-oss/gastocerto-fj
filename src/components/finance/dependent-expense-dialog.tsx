@@ -1,8 +1,10 @@
 import { useMemo, useState } from "react";
-import { ArrowLeft, Check, Plus, Baby, PiggyBank, Gift, Trophy, Rocket, ToyBrick } from "lucide-react";
+import { ArrowLeft, Check, Plus, Baby, PiggyBank, Gift, Trophy, Rocket, ToyBrick, ShieldCheck, Lock, TrendingUp, Target, Star, AlertTriangle, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 
 import { DependentDialog } from "@/components/finance/dependent-dialog";
+import { KidsPinDialog } from "@/components/finance/kids-pin-dialog";
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -32,7 +34,11 @@ import { useCategories } from "@/lib/queries";
 import { useSaveTransaction, useTransactions } from "@/lib/transactions";
 import { cn } from "@/lib/utils";
 
+import { KidsEvolutionChart, KidsGoalsList } from "@/components/finance/kids-visuals";
+import { useKidsSavingsGoals, useSaveKidsGoal } from "@/lib/kids-goals";
+
 function shiftIso(days: number) {
+
   const date = new Date();
   date.setDate(date.getDate() - days);
   return isoDate(date);
@@ -59,12 +65,15 @@ export function DependentExpenseDialog({
   const { data: monthTransactions } = useTransactions(range);
 
   const [manageOpen, setManageOpen] = useState(false);
+  const [pinOpen, setPinOpen] = useState(false);
+  const [kidsModeActive, setKidsModeActive] = useState(false);
   const [editing, setEditing] = useState<Dependent | null>(null);
   const [selected, setSelected] = useState<Dependent | null>(null);
   const [reason, setReason] = useState<DependentReason>("ganho_mesada");
   const [amount, setAmount] = useState("");
   const [date, setDate] = useState(isoDate(new Date()));
   const [note, setNote] = useState("");
+
 
   const active = (dependents ?? []).filter((item) => item.active !== false);
 
@@ -165,7 +174,80 @@ export function DependentExpenseDialog({
             </DialogDescription>
           </DialogHeader>
 
-          {!selected ? (
+          {kidsModeActive && selected ? (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => setKidsModeActive(false)}
+                  className="rounded-xl"
+                >
+                  <ArrowLeft className="mr-2 size-4" />
+                  Sair do Modo Kids
+                </Button>
+                <div className="flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-[10px] font-bold text-primary">
+                  <ShieldCheck className="size-3" />
+                  MODO SEGURO
+                </div>
+              </div>
+
+              <div className="rounded-3xl bg-gradient-to-br from-primary/20 to-primary/5 p-6 text-center">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-widest">Saldo Mágico</p>
+                <h3 className="text-4xl font-black text-primary my-2 tabular-nums">
+                  {formatCurrency(toCents(Number(selected.monthly_allowance || 0) - alreadySpent))}
+                </h3>
+                <div className="flex items-center justify-center gap-2 text-[10px] font-semibold text-primary/60">
+                  <TrendingUp className="size-3" />
+                  Sua economia está crescendo!
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex items-center justify-between px-1">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Evolução</h4>
+                  <Star className="size-4 text-yellow-500 fill-yellow-500" />
+                </div>
+                <div className="rounded-3xl border bg-card p-4 shadow-sm">
+                  <KidsEvolutionChart 
+                    transactions={(monthTransactions ?? []).filter(t => dependentIdFromTags(t.tags) === selected.id)} 
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex items-center justify-between px-1">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Metas Mágicas</h4>
+                  <Target className="size-4 text-primary" />
+                </div>
+                <KidsGoalsList 
+                  goals={[]} // Será populado pelo hook futuramente
+                  onAdd={() => toast.info("Peça ao seu responsável para criar uma meta!")} 
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <Button 
+                  className="h-20 rounded-3xl flex-col gap-1 text-xs font-bold shadow-lg shadow-income/20 bg-income hover:bg-income/90 border-0"
+                  onClick={() => {
+                    setReason("ganho_presente");
+                  }}
+                >
+                  <PiggyBank className="size-6" />
+                  Ganhei Dinheiro
+                </Button>
+                <Button 
+                  className="h-20 rounded-3xl flex-col gap-1 text-xs font-bold shadow-lg shadow-destructive/20 bg-destructive hover:bg-destructive/90 border-0"
+                  onClick={() => {
+                    setReason("gasto_lanche");
+                  }}
+                >
+                  <Rocket className="size-6" />
+                  Gastei Dinheiro
+                </Button>
+              </div>
+            </div>
+          ) : !selected ? (
             <div className="space-y-3">
               {active.length === 0 ? (
                 <p className="rounded-xl border border-dashed border-border p-4 text-center text-xs text-muted-foreground">
@@ -177,25 +259,45 @@ export function DependentExpenseDialog({
                   {active.map((item) => {
                     const age = dependentAge(item);
                     const spent = spentByDependent.get(item.id) ?? 0;
+                    const isLimitReached = item.monthly_limit && spent >= Number(item.monthly_limit);
+                    
                     return (
                       <button
                         key={item.id}
                         type="button"
-                        onClick={() => setSelected(item)}
-                        className="flex items-center gap-3 rounded-xl border border-border bg-card p-3 text-left transition hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        onClick={() => {
+                          setSelected(item);
+                          if ((item as any).pin_code) {
+                            setPinOpen(true);
+                          }
+                        }}
+                        className={cn(
+                          "flex items-center gap-3 rounded-xl border border-border bg-card p-3 text-left transition hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                          isLimitReached && "border-destructive/30 bg-destructive/5"
+                        )}
                       >
-                        <span
-                          className="flex size-9 shrink-0 items-center justify-center rounded-full text-xs font-bold"
-                          style={{
-                            backgroundColor: `${item.color ?? "#64748b"}22`,
-                            color: item.color ?? undefined,
-                          }}
-                        >
-                          {(item.nickname?.trim() || item.name).slice(0, 2).toUpperCase()}
-                        </span>
-                        <span className="min-w-0">
-                          <span className="block truncate text-sm font-semibold">
-                            {item.nickname?.trim() || item.name}
+                        <div className="relative">
+                          <span
+                            className="flex size-9 shrink-0 items-center justify-center rounded-full text-xs font-bold"
+                            style={{
+                              backgroundColor: `${item.color ?? "#64748b"}22`,
+                              color: item.color ?? undefined,
+                            }}
+                          >
+                            {(item.nickname?.trim() || item.name).slice(0, 2).toUpperCase()}
+                          </span>
+                          {(item as any).pin_code && (
+                            <div className="absolute -bottom-1 -right-1 flex size-4 items-center justify-center rounded-full bg-background shadow-sm border border-border">
+                              <Lock className="size-2 text-muted-foreground" />
+                            </div>
+                          )}
+                        </div>
+                        <span className="min-w-0 flex-1">
+                          <span className="flex items-center justify-between">
+                            <span className="block truncate text-sm font-semibold">
+                              {item.nickname?.trim() || item.name}
+                            </span>
+                            {isLimitReached && <AlertTriangle className="size-3 text-destructive animate-pulse" />}
                           </span>
                           <span className="block text-[11px] text-muted-foreground">
                             {relationLabel(item.relation)}
@@ -226,10 +328,27 @@ export function DependentExpenseDialog({
             </div>
           ) : (
             <div className="space-y-3">
+              <div className="flex items-center justify-between rounded-xl bg-primary/5 p-3 border border-primary/10">
+                <div className="flex items-center gap-2">
+                  <div className="size-2 rounded-full bg-primary animate-pulse" />
+                  <span className="text-xs font-bold text-primary">Painel do Responsável</span>
+                </div>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-7 text-[10px] font-bold"
+                  onClick={() => setKidsModeActive(true)}
+                >
+                  <Baby className="mr-1 size-3" />
+                  Ver como Criança
+                </Button>
+              </div>
+
               <div>
                 <Label className="text-[11px] uppercase tracking-wide text-muted-foreground">
-                  Motivo do gasto
+                  Motivo do lançamento
                 </Label>
+
                 <div className="mt-1.5 grid grid-cols-2 gap-2 sm:grid-cols-4">
                   {DEPENDENT_REASONS.map((item) => {
                     const Icon = categoryIcon(item.icon);
@@ -377,6 +496,16 @@ export function DependentExpenseDialog({
       </Dialog>
 
       <DependentDialog open={manageOpen} onOpenChange={setManageOpen} dependent={editing} />
+      
+      {selected && (
+        <KidsPinDialog 
+          open={pinOpen} 
+          onOpenChange={setPinOpen} 
+          pin={(selected as any).pin_code} 
+          onSuccess={() => setKidsModeActive(true)}
+        />
+      )}
     </>
   );
 }
+

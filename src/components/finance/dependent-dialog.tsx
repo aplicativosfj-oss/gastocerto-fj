@@ -50,6 +50,10 @@ export function DependentDialog({
   const [allowance, setAllowance] = useState("");
   const [color, setColor] = useState(COLORS[0]);
   const [notes, setNotes] = useState("");
+  const [pinCode, setPinCode] = useState("");
+  const [monthlyLimit, setMonthlyLimit] = useState("");
+  const [allowanceDay, setAllowanceDay] = useState("");
+
 
   useEffect(() => {
     if (!open) return;
@@ -59,7 +63,11 @@ export function DependentDialog({
     setBirthDate(dependent?.birth_date ?? "");
     setSchool(dependent?.school ?? "");
     setAllowance(amountToInput(dependent?.monthly_allowance ?? ""));
+    setPinCode((dependent as any)?.pin_code ?? "");
+    setMonthlyLimit(amountToInput((dependent as any)?.monthly_limit ?? ""));
+    setAllowanceDay(((dependent as any)?.recurring_allowance_day ?? "").toString());
     setColor(dependent?.color ?? COLORS[0]);
+
     setNotes(dependent?.notes ?? "");
   }, [open, dependent]);
 
@@ -80,9 +88,13 @@ export function DependentDialog({
           monthly_allowance: allowance ? parseAmount(allowance) : null,
           color,
           notes: notes.trim() || null,
+          pin_code: pinCode.trim() || null,
+          monthly_limit: monthlyLimit ? parseAmount(monthlyLimit) : null,
+          recurring_allowance_day: allowanceDay ? parseInt(allowanceDay) : null,
           active: true,
         },
       });
+
       toast.success(dependent ? "Dependente atualizado." : `${name.trim()} cadastrado.`);
       onOpenChange(false);
     } catch (error) {
@@ -176,8 +188,48 @@ export function DependentDialog({
             />
           </div>
 
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <Label htmlFor="dep-pin">PIN de Acesso (4 dígitos)</Label>
+              <Input
+                id="dep-pin"
+                value={pinCode}
+                onChange={(e) => setPinCode(e.target.value)}
+                placeholder="Ex: 1234"
+                maxLength={4}
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <Label htmlFor="dep-recur">Dia da Mesada (1-28)</Label>
+              <Input
+                id="dep-recur"
+                type="number"
+                min="1"
+                max="28"
+                value={allowanceDay}
+                onChange={(e) => setAllowanceDay(e.target.value)}
+                placeholder="Ex: 5"
+                className="mt-1"
+              />
+            </div>
+          </div>
+
+          <div>
+            <Label htmlFor="dep-limit">Limite de Alerta de Gastos</Label>
+            <MoneyInput
+              id="dep-limit"
+              value={monthlyLimit}
+              onValueChange={setMonthlyLimit}
+              placeholder="0,00"
+              className="mt-1"
+            />
+          </div>
+
+
           <div>
             <Label>Cor de identificação</Label>
+
             <div className="mt-1.5 flex gap-2">
               {COLORS.map((option) => (
                 <button

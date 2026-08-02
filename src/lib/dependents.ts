@@ -4,7 +4,13 @@ import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables, TablesInsert } from "@/integrations/supabase/types";
 
-export type Dependent = Tables<"dependents">;
+export type Dependent = Tables<"dependents"> & {
+  pin_code?: string | null;
+  kids_mode_enabled?: boolean;
+  monthly_limit?: number | null;
+  recurring_allowance_day?: number | null;
+};
+
 
 export const DEPENDENT_RELATIONS = [
   { value: "filho", label: "Filho" },
@@ -82,22 +88,24 @@ export function useSaveDependent() {
   return useMutation({
     mutationFn: async (input: {
       id?: string;
-      values: Omit<TablesInsert<"dependents">, "user_id">;
+      values: Partial<Dependent>;
     }): Promise<string> => {
+
       if (!user) throw new Error("Sessão expirada");
       if (input.id) {
         const { error } = await supabase
           .from("dependents")
-          .update(input.values)
+          .update(input.values as any)
           .eq("id", input.id);
         if (error) throw error;
         return input.id;
       }
       const { data, error } = await supabase
         .from("dependents")
-        .insert({ ...input.values, user_id: user.id })
+        .insert({ ...input.values, user_id: user.id } as any)
         .select("id")
         .single();
+
       if (error) throw error;
       return data.id;
     },
