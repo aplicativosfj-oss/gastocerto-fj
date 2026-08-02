@@ -9,6 +9,7 @@ export type Dependent = Tables<"dependents"> & {
   kids_mode_enabled?: boolean;
   monthly_limit?: number | null;
   recurring_allowance_day?: number | null;
+  last_allowance_month?: string | null;
 };
 
 

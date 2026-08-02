@@ -746,10 +746,15 @@ export type Database = {
           color: string | null
           created_at: string
           id: string
+          kids_mode_enabled: boolean
+          last_allowance_month: string | null
           monthly_allowance: number | null
+          monthly_limit: number | null
           name: string
           nickname: string | null
           notes: string | null
+          pin_code: string | null
+          recurring_allowance_day: number | null
           relation: string
           school: string | null
           updated_at: string
@@ -761,10 +766,15 @@ export type Database = {
           color?: string | null
           created_at?: string
           id?: string
+          kids_mode_enabled?: boolean
+          last_allowance_month?: string | null
           monthly_allowance?: number | null
+          monthly_limit?: number | null
           name: string
           nickname?: string | null
           notes?: string | null
+          pin_code?: string | null
+          recurring_allowance_day?: number | null
           relation?: string
           school?: string | null
           updated_at?: string
@@ -776,10 +786,15 @@ export type Database = {
           color?: string | null
           created_at?: string
           id?: string
+          kids_mode_enabled?: boolean
+          last_allowance_month?: string | null
           monthly_allowance?: number | null
+          monthly_limit?: number | null
           name?: string
           nickname?: string | null
           notes?: string | null
+          pin_code?: string | null
+          recurring_allowance_day?: number | null
           relation?: string
           school?: string | null
           updated_at?: string
@@ -1099,6 +1114,59 @@ export type Database = {
           updated_by?: string | null
         }
         Relationships: []
+      }
+      kids_savings_goals: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          current_amount: number
+          dependent_id: string
+          icon: string | null
+          id: string
+          redeemed_at: string | null
+          reward: string | null
+          target_amount: number
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          current_amount?: number
+          dependent_id: string
+          icon?: string | null
+          id?: string
+          redeemed_at?: string | null
+          reward?: string | null
+          target_amount?: number
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          current_amount?: number
+          dependent_id?: string
+          icon?: string | null
+          id?: string
+          redeemed_at?: string | null
+          reward?: string | null
+          target_amount?: number
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kids_savings_goals_dependent_id_fkey"
+            columns: ["dependent_id"]
+            isOneToOne: false
+            referencedRelation: "dependents"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       licenses: {
         Row: {

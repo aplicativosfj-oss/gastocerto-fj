@@ -35,7 +35,19 @@ import { useSaveTransaction, useTransactions } from "@/lib/transactions";
 import { cn } from "@/lib/utils";
 
 import { KidsEvolutionChart, KidsGoalsList } from "@/components/finance/kids-visuals";
-import { useKidsSavingsGoals, useSaveKidsGoal } from "@/lib/kids-goals";
+import { KidsGoalDialog } from "@/components/finance/kids-goal-dialog";
+import {
+  useContributeKidsGoal,
+  useKidsSavingsGoals,
+  useRedeemKidsGoal,
+  type KidsSavingsGoal,
+} from "@/lib/kids-goals";
+import {
+  useAllowanceRecurrence,
+  useKidsAlertSync,
+  useKidsAlerts,
+  useKidsSummaries,
+} from "@/lib/kids-alerts";
 
 function shiftIso(days: number) {
 
@@ -63,6 +75,15 @@ export function DependentExpenseDialog({
   const today = new Date();
   const range = monthRange(today.getFullYear(), today.getMonth() + 1);
   const { data: monthTransactions } = useTransactions(range);
+  const historyRange = useMemo(
+    () => ({
+      start: isoDate(new Date(today.getFullYear(), today.getMonth() - 5, 1)),
+      end: isoDate(new Date(today.getFullYear(), today.getMonth() + 1, 0)),
+    }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [today.getFullYear(), today.getMonth()],
+  );
+  const { data: historyTransactions } = useTransactions(historyRange);
 
   const [manageOpen, setManageOpen] = useState(false);
   const [pinOpen, setPinOpen] = useState(false);
@@ -73,7 +94,8 @@ export function DependentExpenseDialog({
   const [amount, setAmount] = useState("");
   const [date, setDate] = useState(isoDate(new Date()));
   const [note, setNote] = useState("");
-
+  const [goalOpen, setGoalOpen] = useState(false);
+  const [editingGoal, setEditingGoal] = useState<KidsSavingsGoal | null>(null);
 
   const active = (dependents ?? []).filter((item) => item.active !== false);
 
@@ -89,6 +111,10 @@ export function DependentExpenseDialog({
     return map;
   }, [monthTransactions]);
 
+  const summaries = useKidsSummaries(active, monthTransactions);
+  const alerts = useKidsAlerts(active, summaries);
+  useKidsAlertSync(open ? alerts : []);
+
   const reasonInfo = DEPENDENT_REASONS.find((item) => item.value === reason)!;
 
   const category = useMemo(() => {
@@ -101,8 +127,57 @@ export function DependentExpenseDialog({
     );
   }, [categories, reasonInfo]);
 
+  const allowanceCategoryId = useMemo(() => {
+    const list = (categories ?? []).filter((item) => item.type === "income");
+    return (list.find((item) => item.name === "Mesada dos pais") ?? list[0])?.id ?? null;
+  }, [categories]);
+
+  useAllowanceRecurrence(active, allowanceCategoryId, open);
+
+  const { data: goals } = useKidsSavingsGoals(selected?.id);
+  const contribute = useContributeKidsGoal();
+  const redeem = useRedeemKidsGoal();
+
+  const selectedHistory = useMemo(
+    () => (historyTransactions ?? []).filter((row) => dependentIdFromTags(row.tags) === selected?.id),
+    [historyTransactions, selected],
+  );
+  const selectedSummary = selected ? summaries.get(selected.id) : undefined;
+  const selectedAlerts = alerts.filter((item) => item.dependentId === selected?.id);
+
   const value = amount ? parseAmount(amount) : 0;
   const alreadySpent = selected ? (spentByDependent.get(selected.id) ?? 0) : 0;
+
+  async function handleContribute(goal: KidsSavingsGoal) {
+    const input = window.prompt("Quanto guardar nesta meta? (ex.: 10,50)");
+    if (!input) return;
+    const cents = parseAmount(input);
+    if (!cents || cents <= 0) {
+      toast.error("Valor inválido.");
+      return;
+    }
+    try {
+      const result = await contribute.mutateAsync({ goal, amount: cents });
+      toast.success(
+        result.reached ? "Meta conquistada! Fale com o responsável para o resgate." : "Moedinha guardada!",
+      );
+    } catch (error) {
+      toast.error("Não foi possível guardar.", {
+        description: error instanceof Error ? error.message : undefined,
+      });
+    }
+  }
+
+  async function handleRedeem(goal: KidsSavingsGoal, undo: boolean) {
+    try {
+      await redeem.mutateAsync({ id: goal.id, undo });
+      toast.success(undo ? "Resgate desfeito." : "Recompensa marcada como entregue!");
+    } catch (error) {
+      toast.error("Não foi possível atualizar a recompensa.", {
+        description: error instanceof Error ? error.message : undefined,
+      });
+    }
+  }
 
   function reset() {
     setSelected(null);
@@ -193,25 +268,27 @@ export function DependentExpenseDialog({
               </div>
 
               <div className="rounded-3xl bg-gradient-to-br from-primary/20 to-primary/5 p-6 text-center">
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-widest">Saldo Mágico</p>
-                <h3 className="text-4xl font-black text-primary my-2 tabular-nums">
-                  {formatCurrency(toCents(Number(selected.monthly_allowance || 0) - alreadySpent))}
+                <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">Saldo Mágico</p>
+                <h3 className="my-2 text-4xl font-black tabular-nums text-primary">
+                  {formatCurrency(selectedSummary?.balance ?? 0)}
                 </h3>
-                <div className="flex items-center justify-center gap-2 text-[10px] font-semibold text-primary/60">
-                  <TrendingUp className="size-3" />
-                  Sua economia está crescendo!
+                <div className="flex items-center justify-center gap-3 text-[10px] font-semibold text-primary/70">
+                  <span className="flex items-center gap-1">
+                    <TrendingUp className="size-3" />
+                    Ganhos {formatCurrency(selectedSummary?.income ?? 0)}
+                  </span>
+                  <span>·</span>
+                  <span>Gastos {formatCurrency(selectedSummary?.expense ?? 0)}</span>
                 </div>
               </div>
 
               <div className="space-y-3">
                 <div className="flex items-center justify-between px-1">
                   <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Evolução</h4>
-                  <Star className="size-4 text-yellow-500 fill-yellow-500" />
+                  <Star className="size-4 fill-yellow-500 text-yellow-500" />
                 </div>
                 <div className="rounded-3xl border bg-card p-4 shadow-sm">
-                  <KidsEvolutionChart 
-                    transactions={(monthTransactions ?? []).filter(t => dependentIdFromTags(t.tags) === selected.id)} 
-                  />
+                  <KidsEvolutionChart transactions={selectedHistory} />
                 </div>
               </div>
 
@@ -220,9 +297,10 @@ export function DependentExpenseDialog({
                   <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Metas Mágicas</h4>
                   <Target className="size-4 text-primary" />
                 </div>
-                <KidsGoalsList 
-                  goals={[]} // Será populado pelo hook futuramente
-                  onAdd={() => toast.info("Peça ao seu responsável para criar uma meta!")} 
+                <KidsGoalsList
+                  goals={goals ?? []}
+                  onAdd={() => toast.info("Peça ao seu responsável para criar uma meta!")}
+                  onContribute={handleContribute}
                 />
               </div>
 
@@ -343,6 +421,105 @@ export function DependentExpenseDialog({
                   Ver como Criança
                 </Button>
               </div>
+
+              {selectedAlerts.length > 0 ? (
+                <div className="space-y-2">
+                  {selectedAlerts.map((alert) => (
+                    <div
+                      key={alert.title}
+                      className={cn(
+                        "rounded-xl border p-3",
+                        alert.severity === "critical"
+                          ? "border-destructive/30 bg-destructive/5"
+                          : "border-amber-500/30 bg-amber-500/5",
+                      )}
+                    >
+                      <p className="flex items-center gap-1.5 text-xs font-bold">
+                        <AlertTriangle
+                          className={cn(
+                            "size-3.5",
+                            alert.severity === "critical" ? "text-destructive" : "text-amber-600",
+                          )}
+                        />
+                        {alert.title}
+                      </p>
+                      <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">{alert.message}</p>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+
+              <dl className="grid grid-cols-3 gap-2 rounded-xl border border-border bg-muted/30 p-3 text-center text-xs">
+                <div>
+                  <dt className="text-[10px] uppercase text-muted-foreground">Ganhos</dt>
+                  <dd className="font-semibold tabular-nums text-income">
+                    {formatCurrency(selectedSummary?.income ?? 0)}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-[10px] uppercase text-muted-foreground">Gastos</dt>
+                  <dd className="font-semibold tabular-nums text-destructive">
+                    {formatCurrency(selectedSummary?.expense ?? 0)}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-[10px] uppercase text-muted-foreground">Saldo</dt>
+                  <dd className="font-semibold tabular-nums">{formatCurrency(selectedSummary?.balance ?? 0)}</dd>
+                </div>
+              </dl>
+
+              <div className="rounded-xl border border-border bg-card p-3">
+                <p className="mb-2 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
+                  <TrendingUp className="size-3.5" />
+                  Evolução por semana e por mês
+                </p>
+                <KidsEvolutionChart transactions={selectedHistory} />
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <p className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
+                    <Target className="size-3.5" />
+                    Metas e recompensas
+                  </p>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    className="h-7 text-[10px] font-bold"
+                    onClick={() => {
+                      setEditingGoal(null);
+                      setGoalOpen(true);
+                    }}
+                  >
+                    <Plus className="mr-1 size-3" />
+                    Nova meta
+                  </Button>
+                </div>
+                <KidsGoalsList
+                  goals={goals ?? []}
+                  onAdd={() => {
+                    setEditingGoal(null);
+                    setGoalOpen(true);
+                  }}
+                  onContribute={handleContribute}
+                  onRedeem={handleRedeem}
+                  canRedeem
+                />
+              </div>
+
+              {selected.recurring_allowance_day ? (
+                <p className="flex items-center gap-1.5 rounded-xl bg-primary/5 p-2 text-[10px] text-muted-foreground">
+                  <RefreshCw className="size-3 text-primary" />
+                  Mesada automática todo dia {selected.recurring_allowance_day}
+                  {selected.last_allowance_month
+                    ? ` — último lançamento em ${selected.last_allowance_month}`
+                    : " — será lançada no próximo ciclo"}
+                  .
+                </p>
+              ) : null}
+
+
 
               <div>
                 <Label className="text-[11px] uppercase tracking-wide text-muted-foreground">
@@ -496,14 +673,22 @@ export function DependentExpenseDialog({
       </Dialog>
 
       <DependentDialog open={manageOpen} onOpenChange={setManageOpen} dependent={editing} />
-      
+
       {selected && (
-        <KidsPinDialog 
-          open={pinOpen} 
-          onOpenChange={setPinOpen} 
-          pin={(selected as any).pin_code} 
-          onSuccess={() => setKidsModeActive(true)}
-        />
+        <>
+          <KidsPinDialog
+            open={pinOpen}
+            onOpenChange={setPinOpen}
+            pin={selected.pin_code ?? undefined}
+            onSuccess={() => setKidsModeActive(true)}
+          />
+          <KidsGoalDialog
+            open={goalOpen}
+            onOpenChange={setGoalOpen}
+            dependentId={selected.id}
+            goal={editingGoal}
+          />
+        </>
       )}
     </>
   );
