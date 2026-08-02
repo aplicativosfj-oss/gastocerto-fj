@@ -467,7 +467,7 @@ function DashboardPage() {
               Novo gasto do veículo
             </Button>
             <Button variant="outline" onClick={() => setDependentOpen(true)}>
-              <ToyBrick className="mr-2 size-4" aria-hidden />
+              <Baby className="mr-2 size-4" aria-hidden />
               Espaço Kids
             </Button>
             <Button variant="outline" onClick={() => setTaxOpen(true)}>
