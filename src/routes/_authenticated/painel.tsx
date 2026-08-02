@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, ToyBrick } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   AlertTriangle,
@@ -14,7 +14,10 @@ import {
   Users,
   Wallet,
   Zap,
-
+  Gift,
+  PiggyBank,
+  Trophy,
+  Baby,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -464,8 +467,8 @@ function DashboardPage() {
               Novo gasto do veículo
             </Button>
             <Button variant="outline" onClick={() => setDependentOpen(true)}>
-              <Users className="mr-2 size-4" aria-hidden />
-              Gasto com filhos
+              <Baby className="mr-2 size-4" aria-hidden />
+              Espaço Kids
             </Button>
             <Button variant="outline" onClick={() => setTaxOpen(true)}>
               <Landmark className="mr-2 size-4" aria-hidden />

@@ -32,22 +32,14 @@ export function relationLabel(value: string | null | undefined) {
  * não existir, cai em "Presentes" ou "Filhos".
  */
 export const DEPENDENT_REASONS = [
-  { value: "pix", label: "Pix / dinheiro", category: "Pix para filhos", icon: "send" },
-  { value: "mesada", label: "Mesada", category: "Mesada", icon: "piggy-bank" },
-  { value: "lanche", label: "Lanche / sorvete", category: "Lazer com filhos", icon: "ice-cream-cone" },
-  { value: "presente", label: "Presente / aniversário", category: "Presentes e aniversários", icon: "cake" },
-  { value: "flores", label: "Flores / perfume", category: "Presentes", icon: "gift" },
-  { value: "cabelo", label: "Cabelo / salão", category: "Corte de cabelo", icon: "scissors" },
-  { value: "beleza", label: "Beleza / estética", category: "Beleza", icon: "scissors" },
-  { value: "jantar", label: "Jantar / passeio a dois", category: "Restaurantes", icon: "chef-hat" },
-  { value: "material", label: "Material didático", category: "Material didático", icon: "book-open" },
-  { value: "escola", label: "Escola / mensalidade", category: "Educação", icon: "graduation-cap" },
-  { value: "roupa", label: "Roupa / calçado", category: "Roupas", icon: "shirt" },
-  { value: "saude", label: "Saúde / remédio", category: "Saúde", icon: "heart-pulse" },
-  { value: "transporte", label: "Transporte", category: "Transporte", icon: "bus" },
-  { value: "pensao", label: "Pensão alimentícia", category: "Filhos", icon: "baby" },
-  { value: "ajuda", label: "Ajuda / empréstimo", category: "Doações", icon: "hand-heart" },
-  { value: "outro", label: "Outro gasto", category: "Presentes", icon: "circle-ellipsis" },
+  { value: "ganho_mesada", label: "Recebeu Mesada", category: "Mesada dos pais", icon: "piggy-bank", type: "income" },
+  { value: "ganho_presente", label: "Ganhou Presente", category: "Presentes em dinheiro", icon: "gift", type: "income" },
+  { value: "ganho_premio", label: "Prêmio / Brinde", category: "Brindes e prêmios", icon: "trophy", type: "income" },
+  { value: "venda", label: "Venda de Brinquedo", category: "Venda de brinquedos", icon: "toy-brick", type: "income" },
+  { value: "gasto_lanche", label: "Lanche / Sorvete", category: "Gastos da Criança", icon: "ice-cream-cone", type: "expense" },
+  { value: "gasto_brinquedo", label: "Comprou Brinquedo", category: "Gastos da Criança", icon: "rocket", type: "expense" },
+  { value: "gasto_geral", label: "Outro Gasto", category: "Gastos da Criança", icon: "circle-ellipsis", type: "expense" },
+  { value: "ajuda", label: "Ajuda / Doação", category: "Doações", icon: "hand-heart", type: "expense" },
 ] as const;
 
 

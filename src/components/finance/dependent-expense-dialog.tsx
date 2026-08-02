@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { ArrowLeft, Check, Plus, Users } from "lucide-react";
+import { ArrowLeft, Check, Plus, Baby, PiggyBank, Gift, Trophy, Rocket, ToyBrick } from "lucide-react";
 import { toast } from "sonner";
 
 import { DependentDialog } from "@/components/finance/dependent-dialog";
@@ -61,7 +61,7 @@ export function DependentExpenseDialog({
   const [manageOpen, setManageOpen] = useState(false);
   const [editing, setEditing] = useState<Dependent | null>(null);
   const [selected, setSelected] = useState<Dependent | null>(null);
-  const [reason, setReason] = useState<DependentReason>("pix");
+  const [reason, setReason] = useState<DependentReason>("ganho_mesada");
   const [amount, setAmount] = useState("");
   const [date, setDate] = useState(isoDate(new Date()));
   const [note, setNote] = useState("");
@@ -83,11 +83,10 @@ export function DependentExpenseDialog({
   const reasonInfo = DEPENDENT_REASONS.find((item) => item.value === reason)!;
 
   const category = useMemo(() => {
-    const list = (categories ?? []).filter((item) => item.type === "expense");
+    const list = (categories ?? []).filter((item) => item.type === reasonInfo.type);
     return (
       list.find((item) => item.name === reasonInfo.category) ??
-      list.find((item) => item.name === "Presentes") ??
-      list.find((item) => item.name === "Filhos") ??
+      list.find((item) => item.name === (reasonInfo.type === "expense" ? "Gastos da Criança" : "Mesada dos pais")) ??
       list[0] ??
       null
     );
@@ -98,7 +97,7 @@ export function DependentExpenseDialog({
 
   function reset() {
     setSelected(null);
-    setReason("pix");
+    setReason("ganho_mesada");
     setAmount("");
     setDate(isoDate(new Date()));
     setNote("");
@@ -123,13 +122,13 @@ export function DependentExpenseDialog({
         values: {
           description,
           amount: value,
-          transaction_type: "expense",
+          transaction_type: reasonInfo.type,
           category_id: category.id,
           transaction_date: date,
-          status: "paid",
+          status: reasonInfo.type === "income" ? "received" : "paid",
           payment_date: date,
           tags: [dependentTag(selected.id), reasonTag(reason)],
-          notes: `Gasto com ${who} (${relationLabel(selected.relation)}) — ${reasonInfo.label}`,
+          notes: `${reasonInfo.type === "income" ? "Ganho" : "Gasto"} com ${who} (${relationLabel(selected.relation)}) — ${reasonInfo.label}`,
         },
       });
       toast.success(`${formatCurrency(value)} com ${who} registrado.`);
@@ -153,15 +152,16 @@ export function DependentExpenseDialog({
       >
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>
+            <DialogTitle className="flex items-center gap-2">
+              <Baby className="size-5 text-primary" />
               {selected
-                ? `Gasto com ${selected.nickname?.trim() || selected.name}`
-                : "Gasto com filhos e dependentes"}
+                ? `Espaço Kids — ${selected.nickname?.trim() || selected.name}`
+                : "Espaço Kids: Gestão para Pequenos"}
             </DialogTitle>
             <DialogDescription>
               {selected
-                ? "Escolha o motivo, o valor e a data — o gasto fica separado por filho."
-                : "Aquele pix de última hora, o sorvete, o presente ou o material da escola: escolha a pessoa."}
+                ? "Registre ganhos e gastos das crianças. Ensine educação financeira na prática!"
+                : "Cadastre as crianças para gerenciar mesadas, presentes e ensinar o valor do dinheiro."}
             </DialogDescription>
           </DialogHeader>
 
@@ -221,7 +221,7 @@ export function DependentExpenseDialog({
                 }}
               >
                 <Plus className="size-4" aria-hidden />
-                Cadastrar pessoa (filho, esposa, mãe, amigo...)
+                Cadastrar criança (filho, sobrinho, afilhado...)
               </Button>
             </div>
           ) : (
@@ -230,7 +230,7 @@ export function DependentExpenseDialog({
                 <Label className="text-[11px] uppercase tracking-wide text-muted-foreground">
                   Motivo do gasto
                 </Label>
-                <div className="mt-1.5 grid grid-cols-3 gap-2 sm:grid-cols-4">
+                <div className="mt-1.5 grid grid-cols-2 gap-2 sm:grid-cols-4">
                   {DEPENDENT_REASONS.map((item) => {
                     const Icon = categoryIcon(item.icon);
                     return (
@@ -245,7 +245,12 @@ export function DependentExpenseDialog({
                             : "border-border bg-card hover:border-primary/40",
                         )}
                       >
-                        <Icon className="size-4" aria-hidden />
+                        <div className={cn(
+                          "flex size-7 items-center justify-center rounded-lg",
+                          item.type === "income" ? "bg-income/10 text-income" : "bg-destructive/10 text-destructive"
+                        )}>
+                          <Icon className="size-4" aria-hidden />
+                        </div>
                         <span className="text-[10px] font-medium leading-tight">{item.label}</span>
                       </button>
                     );
@@ -313,22 +318,25 @@ export function DependentExpenseDialog({
                   </div>
                   <div>
                     <dt className="text-[10px] uppercase text-muted-foreground">
-                      Com este gasto fica
+                      {reasonInfo.type === "income" ? "Total após ganho" : "Total após gasto"}
                     </dt>
-                    <dd className="font-semibold tabular-nums text-destructive">
-                      {formatCurrency(toCents(alreadySpent + value))}
+                    <dd className={cn(
+                      "font-semibold tabular-nums",
+                      reasonInfo.type === "income" ? "text-primary" : "text-destructive"
+                    )}>
+                      {formatCurrency(toCents(alreadySpent + (reasonInfo.type === "income" ? -value : value)))}
                     </dd>
                   </div>
                   {selected.monthly_allowance ? (
                     <div className="col-span-2">
                       <dt className="text-[10px] uppercase text-muted-foreground">
-                        Além da mesada de {formatCurrency(Number(selected.monthly_allowance))}
+                        Saldo após mesada de {formatCurrency(Number(selected.monthly_allowance))}
                       </dt>
-                      <dd className="font-semibold tabular-nums">
+                      <dd className="font-semibold tabular-nums text-primary">
                         {formatCurrency(
                           toCents(
-                            Math.max(alreadySpent + value - Number(selected.monthly_allowance), 0),
-                          ),
+                            Number(selected.monthly_allowance) - (alreadySpent + (reasonInfo.type === "income" ? -value : value))
+                          )
                         )}
                       </dd>
                     </div>
@@ -353,7 +361,7 @@ export function DependentExpenseDialog({
                   onClick={handleSave}
                 >
                   <Check className="size-4" aria-hidden />
-                  Salvar gasto
+                  Salvar Lançamento
                 </Button>
               </div>
             </div>
@@ -361,8 +369,8 @@ export function DependentExpenseDialog({
 
           {active.length > 0 && !selected ? (
             <p className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-              <Users className="size-3.5" aria-hidden />
-              {active.length} dependente(s) cadastrado(s).
+              <Baby className="size-3.5" aria-hidden />
+              {active.length} criança(s) cadastrada(s).
             </p>
           ) : null}
         </DialogContent>
