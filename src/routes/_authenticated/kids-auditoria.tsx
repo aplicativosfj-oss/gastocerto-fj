@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
+import { PushAlertsCard } from "@/components/finance/push-alerts-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -167,6 +168,8 @@ function KidsAuditPage() {
             />
           </div>
         </section>
+
+        <PushAlertsCard />
 
         <section className="rounded-xl border bg-card p-4">
           <h2 className="text-sm font-semibold">Relatório por criança</h2>
