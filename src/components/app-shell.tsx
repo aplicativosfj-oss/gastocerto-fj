@@ -3,11 +3,16 @@ import { useQueryClient } from "@tanstack/react-query";
 import { ReadOnlyBanner } from "@/components/finance/read-only-banner";
 import {
   ArrowLeftRight,
+  Baby,
   BarChart3,
   Bell,
+  CalendarClock,
   Car,
-  Flame,
+  ChevronDown,
   LayoutDashboard,
+  PanelLeftClose,
+  PanelLeftOpen,
+  TrendingDown as TrendingDownIcon,
   LogOut,
   Plus,
   Menu,
@@ -68,7 +73,7 @@ export const navGroups: NavGroup[] = [
   },
   {
     key: "vehicles",
-    label: "Gastos com Veículo",
+    label: "Veículos e consumo",
     to: "/veiculos",
     icon: Car,
     children: [
@@ -76,9 +81,9 @@ export const navGroups: NavGroup[] = [
       { key: "vehicles.report", label: "Relatório de gastos", to: "/veiculos-relatorio" },
       { key: "vehicles.settings", label: "Configurações", to: "/veiculos-configuracoes" },
       { key: "vehicles.audit", label: "Auditoria", to: "/veiculos-auditoria" },
+      { key: "vehicles.gas", label: "Botijão de gás", to: "/gas" },
     ],
   },
-  { key: "gas", label: "Botijão de gás", to: "/gas", icon: Flame },
   {
     key: "planning",
     label: "Planejamento",
@@ -100,13 +105,20 @@ export const navGroups: NavGroup[] = [
     icon: BarChart3,
     children: [
       { key: "analytics.reports", label: "Relatórios", to: "/relatorios" },
-      { key: "analytics.calendar", label: "Calendário e alertas", to: "/calendario" },
       { key: "analytics.advisor", label: "Consultor de IA", to: "/consultor" },
       { key: "analytics.reconciliation", label: "Reconciliação", to: "/reconciliacao" },
-      { key: "analytics.kids", label: "Espaço Kids — histórico", to: "/kids-auditoria" },
     ],
   },
-  { key: "profile", label: "Meu perfil", to: "/perfil", icon: User2 },
+  {
+    key: "kids",
+    label: "Espaço Kids",
+    to: "/kids-auditoria",
+    icon: Baby,
+    children: [
+      { key: "kids.audit", label: "Histórico e relatórios", to: "/kids-auditoria" },
+    ],
+  },
+  { key: "alerts", label: "Calendário e alertas", to: "/calendario", icon: CalendarClock },
 ];
 
 // Navegação exclusiva da área administrativa: nada de funções de cliente aqui.
