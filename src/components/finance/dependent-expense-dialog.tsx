@@ -161,6 +161,16 @@ export function DependentExpenseDialog({
       toast.success(
         result.reached ? "Meta conquistada! Fale com o responsável para o resgate." : "Moedinha guardada!",
       );
+      await logAudit({
+        dependent_id: goal.dependent_id,
+        action: result.reached ? "conquista" : "meta",
+        title: result.reached ? `Meta "${goal.title}" conquistada` : `Guardou na meta "${goal.title}"`,
+        description: result.reached
+          ? `Objetivo de ${formatCurrency(Number(goal.target_amount))} alcançado.`
+          : `Depósito na meta (saldo da meta: ${formatCurrency(result.next)}).`,
+        amount: cents,
+        ...(result.reached ? { dedupe_key: `conquista:${goal.id}` } : {}),
+      });
     } catch (error) {
       toast.error("Não foi possível guardar.", {
         description: error instanceof Error ? error.message : undefined,
@@ -172,6 +182,14 @@ export function DependentExpenseDialog({
     try {
       await redeem.mutateAsync({ id: goal.id, undo });
       toast.success(undo ? "Resgate desfeito." : "Recompensa marcada como entregue!");
+      await logAudit({
+        dependent_id: goal.dependent_id,
+        action: "resgate",
+        title: undo
+          ? `Resgate da meta "${goal.title}" desfeito`
+          : `Recompensa da meta "${goal.title}" entregue`,
+        description: goal.reward ? `Recompensa: ${goal.reward}` : null,
+      });
     } catch (error) {
       toast.error("Não foi possível atualizar a recompensa.", {
         description: error instanceof Error ? error.message : undefined,
