@@ -50,6 +50,10 @@ export function DependentDialog({
   const [allowance, setAllowance] = useState("");
   const [color, setColor] = useState(COLORS[0]);
   const [notes, setNotes] = useState("");
+  const [pinCode, setPinCode] = useState("");
+  const [monthlyLimit, setMonthlyLimit] = useState("");
+  const [allowanceDay, setAllowanceDay] = useState("");
+
 
   useEffect(() => {
     if (!open) return;
@@ -59,7 +63,11 @@ export function DependentDialog({
     setBirthDate(dependent?.birth_date ?? "");
     setSchool(dependent?.school ?? "");
     setAllowance(amountToInput(dependent?.monthly_allowance ?? ""));
+    setPinCode((dependent as any)?.pin_code ?? "");
+    setMonthlyLimit(amountToInput((dependent as any)?.monthly_limit ?? ""));
+    setAllowanceDay(((dependent as any)?.recurring_allowance_day ?? "").toString());
     setColor(dependent?.color ?? COLORS[0]);
+
     setNotes(dependent?.notes ?? "");
   }, [open, dependent]);
 
@@ -80,7 +88,11 @@ export function DependentDialog({
           monthly_allowance: allowance ? parseAmount(allowance) : null,
           color,
           notes: notes.trim() || null,
+          pin_code: pinCode.trim() || null,
+          monthly_limit: monthlyLimit ? parseAmount(monthlyLimit) : null,
+          recurring_allowance_day: allowanceDay ? parseInt(allowanceDay) : null,
           active: true,
+
         },
       });
       toast.success(dependent ? "Dependente atualizado." : `${name.trim()} cadastrado.`);
