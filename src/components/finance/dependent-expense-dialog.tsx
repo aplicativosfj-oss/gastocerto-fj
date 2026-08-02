@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { ArrowLeft, Check, Plus, ToyBrick, PiggyBank, Gift, Trophy, Rocket } from "lucide-react";
+import { ArrowLeft, Check, Plus, Baby, PiggyBank, Gift, Trophy, Rocket, ToyBrick } from "lucide-react";
 import { toast } from "sonner";
 
 import { DependentDialog } from "@/components/finance/dependent-dialog";
