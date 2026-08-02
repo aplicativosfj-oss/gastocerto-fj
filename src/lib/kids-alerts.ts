@@ -3,7 +3,12 @@ import { useEffect, useMemo, useRef } from "react";
 import { dependentIdFromTags, useSaveDependent, type Dependent } from "@/lib/dependents";
 import { isoDate, toCents } from "@/lib/finance";
 import { formatCurrency } from "@/lib/format";
-import { useSyncNotifications, type NotificationDraft } from "@/lib/notifications";
+import { useLogKidsAudit } from "@/lib/kids-audit";
+import {
+  useNotificationPreferences,
+  useSyncNotifications,
+  type NotificationDraft,
+} from "@/lib/notifications";
 import { useSaveTransaction } from "@/lib/transactions";
 
 export type KidsSummary = {
@@ -111,16 +116,26 @@ function monthKey(date = new Date()) {
 /** Grava os alertas do Espaço Kids na central de notificações (1x por mês/tipo). */
 export function useKidsAlertSync(alerts: KidsAlert[]) {
   const sync = useSyncNotifications();
+  const logAudit = useLogKidsAudit();
+  const { data: preferences } = useNotificationPreferences();
+  const enabled = (preferences as { kids_alerts?: boolean } | null | undefined)?.kids_alerts ?? true;
   const sent = useRef(new Set<string>());
 
   useEffect(() => {
-    if (alerts.length === 0) return;
+    if (!enabled || alerts.length === 0) return;
     const drafts: NotificationDraft[] = [];
     for (const alert of alerts) {
       const kind = alert.title.includes("imite") ? "limite" : "saldo";
       const key = `kids:${kind}:${alert.dependentId}:${monthKey()}:${alert.severity}`;
       if (sent.current.has(key)) continue;
       sent.current.add(key);
+      void logAudit({
+        dependent_id: alert.dependentId,
+        action: "alerta",
+        title: alert.title,
+        description: alert.message,
+        dedupe_key: `audit:${key}`,
+      });
       drafts.push({
         notification_type: "kids",
         title: alert.title,
@@ -133,7 +148,7 @@ export function useKidsAlertSync(alerts: KidsAlert[]) {
     }
     if (drafts.length > 0) void sync.mutateAsync(drafts).catch(() => undefined);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [alerts]);
+  }, [alerts, enabled]);
 }
 
 /**
@@ -147,6 +162,7 @@ export function useAllowanceRecurrence(
 ) {
   const save = useSaveTransaction();
   const saveDependent = useSaveDependent();
+  const logAudit = useLogKidsAudit();
   const running = useRef(false);
 
   useEffect(() => {
@@ -183,6 +199,14 @@ export function useAllowanceRecurrence(
           await saveDependent.mutateAsync({
             id: dep.id,
             values: { last_allowance_month: key } as Partial<Dependent>,
+          });
+          await logAudit({
+            dependent_id: dep.id,
+            action: "mesada_automatica",
+            title: `Mesada automática de ${who}`,
+            description: `Lançada como receita em ${date} (${formatCurrency(Number(dep.monthly_allowance))}).`,
+            amount: Number(dep.monthly_allowance),
+            dedupe_key: `mesada:${dep.id}:${key}`,
           });
         } catch {
           // silencioso: meses fechados ou limites de plano não devem travar a tela
