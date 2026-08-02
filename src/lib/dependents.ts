@@ -88,8 +88,9 @@ export function useSaveDependent() {
   return useMutation({
     mutationFn: async (input: {
       id?: string;
-      values: Omit<TablesInsert<"dependents">, "user_id">;
+      values: Partial<Dependent>;
     }): Promise<string> => {
+
       if (!user) throw new Error("Sessão expirada");
       if (input.id) {
         const { error } = await supabase

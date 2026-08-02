@@ -92,9 +92,9 @@ export function DependentDialog({
           monthly_limit: monthlyLimit ? parseAmount(monthlyLimit) : null,
           recurring_allowance_day: allowanceDay ? parseInt(allowanceDay) : null,
           active: true,
-
         },
       });
+
       toast.success(dependent ? "Dependente atualizado." : `${name.trim()} cadastrado.`);
       onOpenChange(false);
     } catch (error) {
@@ -193,8 +193,8 @@ export function DependentDialog({
               <Label htmlFor="dep-pin">PIN de Acesso (4 dígitos)</Label>
               <Input
                 id="dep-pin"
-                value={(dependent as any)?.pin_code || ""}
-                onChange={(e) => setName(name)} // Placeholder, will fix handleSave
+                value={pinCode}
+                onChange={(e) => setPinCode(e.target.value)}
                 placeholder="Ex: 1234"
                 maxLength={4}
                 className="mt-1"
@@ -207,6 +207,8 @@ export function DependentDialog({
                 type="number"
                 min="1"
                 max="28"
+                value={allowanceDay}
+                onChange={(e) => setAllowanceDay(e.target.value)}
                 placeholder="Ex: 5"
                 className="mt-1"
               />
@@ -217,10 +219,13 @@ export function DependentDialog({
             <Label htmlFor="dep-limit">Limite de Alerta de Gastos</Label>
             <MoneyInput
               id="dep-limit"
+              value={monthlyLimit}
+              onValueChange={setMonthlyLimit}
               placeholder="0,00"
               className="mt-1"
             />
           </div>
+
 
           <div>
             <Label>Cor de identificação</Label>
