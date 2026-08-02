@@ -97,7 +97,7 @@ export function DependentExpenseDialog({
 
   function reset() {
     setSelected(null);
-    setReason("pix");
+    setReason("ganho_mesada");
     setAmount("");
     setDate(isoDate(new Date()));
     setNote("");
