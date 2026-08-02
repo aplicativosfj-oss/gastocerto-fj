@@ -319,7 +319,7 @@ export function DependentExpenseDialog({
                       "font-semibold tabular-nums",
                       reasonInfo.type === "income" ? "text-primary" : "text-destructive"
                     )}>
-                      {formatCurrency(toCents(alreadySpent + (reasonInfo.type === "income" ? -value/100 : value)))}
+                      {formatCurrency(toCents(alreadySpent + (reasonInfo.type === "income" ? -value : value)))}
                     </dd>
                   </div>
                   {selected.monthly_allowance ? (
