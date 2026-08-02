@@ -159,6 +159,8 @@ export function AppShell({ children }: { children: ReactNode }) {
     await queryClient.cancelQueries();
     queryClient.clear();
     await supabase.auth.signOut();
+    // Não deixa preferências/rascunhos deste usuário no navegador compartilhado.
+    clearBrowserCredentials();
     navigate({ to: "/auth", replace: true });
   }
 
