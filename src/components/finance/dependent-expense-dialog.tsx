@@ -75,6 +75,15 @@ export function DependentExpenseDialog({
   const today = new Date();
   const range = monthRange(today.getFullYear(), today.getMonth() + 1);
   const { data: monthTransactions } = useTransactions(range);
+  const historyRange = useMemo(
+    () => ({
+      start: isoDate(new Date(today.getFullYear(), today.getMonth() - 5, 1)),
+      end: isoDate(new Date(today.getFullYear(), today.getMonth() + 1, 0)),
+    }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [today.getFullYear(), today.getMonth()],
+  );
+  const { data: historyTransactions } = useTransactions(historyRange);
 
   const [manageOpen, setManageOpen] = useState(false);
   const [pinOpen, setPinOpen] = useState(false);
@@ -85,7 +94,8 @@ export function DependentExpenseDialog({
   const [amount, setAmount] = useState("");
   const [date, setDate] = useState(isoDate(new Date()));
   const [note, setNote] = useState("");
-
+  const [goalOpen, setGoalOpen] = useState(false);
+  const [editingGoal, setEditingGoal] = useState<KidsSavingsGoal | null>(null);
 
   const active = (dependents ?? []).filter((item) => item.active !== false);
 
@@ -101,6 +111,10 @@ export function DependentExpenseDialog({
     return map;
   }, [monthTransactions]);
 
+  const summaries = useKidsSummaries(active, monthTransactions);
+  const alerts = useKidsAlerts(active, summaries);
+  useKidsAlertSync(open ? alerts : []);
+
   const reasonInfo = DEPENDENT_REASONS.find((item) => item.value === reason)!;
 
   const category = useMemo(() => {
@@ -113,8 +127,57 @@ export function DependentExpenseDialog({
     );
   }, [categories, reasonInfo]);
 
+  const allowanceCategoryId = useMemo(() => {
+    const list = (categories ?? []).filter((item) => item.type === "income");
+    return (list.find((item) => item.name === "Mesada dos pais") ?? list[0])?.id ?? null;
+  }, [categories]);
+
+  useAllowanceRecurrence(active, allowanceCategoryId, open);
+
+  const { data: goals } = useKidsSavingsGoals(selected?.id);
+  const contribute = useContributeKidsGoal();
+  const redeem = useRedeemKidsGoal();
+
+  const selectedHistory = useMemo(
+    () => (historyTransactions ?? []).filter((row) => dependentIdFromTags(row.tags) === selected?.id),
+    [historyTransactions, selected],
+  );
+  const selectedSummary = selected ? summaries.get(selected.id) : undefined;
+  const selectedAlerts = alerts.filter((item) => item.dependentId === selected?.id);
+
   const value = amount ? parseAmount(amount) : 0;
   const alreadySpent = selected ? (spentByDependent.get(selected.id) ?? 0) : 0;
+
+  async function handleContribute(goal: KidsSavingsGoal) {
+    const input = window.prompt("Quanto guardar nesta meta? (ex.: 10,50)");
+    if (!input) return;
+    const cents = parseAmount(input);
+    if (!cents || cents <= 0) {
+      toast.error("Valor inválido.");
+      return;
+    }
+    try {
+      const result = await contribute.mutateAsync({ goal, amount: cents });
+      toast.success(
+        result.reached ? "Meta conquistada! Fale com o responsável para o resgate." : "Moedinha guardada!",
+      );
+    } catch (error) {
+      toast.error("Não foi possível guardar.", {
+        description: error instanceof Error ? error.message : undefined,
+      });
+    }
+  }
+
+  async function handleRedeem(goal: KidsSavingsGoal, undo: boolean) {
+    try {
+      await redeem.mutateAsync({ id: goal.id, undo });
+      toast.success(undo ? "Resgate desfeito." : "Recompensa marcada como entregue!");
+    } catch (error) {
+      toast.error("Não foi possível atualizar a recompensa.", {
+        description: error instanceof Error ? error.message : undefined,
+      });
+    }
+  }
 
   function reset() {
     setSelected(null);
