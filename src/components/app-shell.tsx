@@ -12,7 +12,6 @@ import {
   LayoutDashboard,
   PanelLeftClose,
   PanelLeftOpen,
-  TrendingDown as TrendingDownIcon,
   LogOut,
   Plus,
   Menu,
@@ -668,34 +667,6 @@ function MobileTabBar({
         </div>
       </nav>
     </>
-  );
-}
-
-function NavLink({
-  item,
-  active,
-  onNavigate,
-}: {
-  item: { label: string; to: string; icon: typeof LayoutDashboard };
-  /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
-  active: boolean;
-  onNavigate?: () => void;
-}) {
-  return (
-    <Link
-      to={item.to as never}
-      onClick={onNavigate}
-      aria-current={active ? "page" : undefined}
-      className={cn(
-        "flex items-center gap-3 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors",
-        active
-          ? "bg-secondary text-foreground"
-          : "text-muted-foreground hover:bg-secondary/60 hover:text-foreground",
-      )}
-    >
-      <item.icon className="size-4 shrink-0" />
-      <span className="truncate">{item.label}</span>
-    </Link>
   );
 }
 
