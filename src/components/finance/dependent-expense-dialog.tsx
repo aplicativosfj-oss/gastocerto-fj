@@ -61,7 +61,7 @@ export function DependentExpenseDialog({
   const [manageOpen, setManageOpen] = useState(false);
   const [editing, setEditing] = useState<Dependent | null>(null);
   const [selected, setSelected] = useState<Dependent | null>(null);
-  const [reason, setReason] = useState<DependentReason>("pix");
+  const [reason, setReason] = useState<DependentReason>("ganho_mesada");
   const [amount, setAmount] = useState("");
   const [date, setDate] = useState(isoDate(new Date()));
   const [note, setNote] = useState("");
@@ -83,11 +83,10 @@ export function DependentExpenseDialog({
   const reasonInfo = DEPENDENT_REASONS.find((item) => item.value === reason)!;
 
   const category = useMemo(() => {
-    const list = (categories ?? []).filter((item) => item.type === "expense");
+    const list = (categories ?? []).filter((item) => item.type === reasonInfo.type);
     return (
       list.find((item) => item.name === reasonInfo.category) ??
-      list.find((item) => item.name === "Presentes") ??
-      list.find((item) => item.name === "Filhos") ??
+      list.find((item) => item.name === (reasonInfo.type === "expense" ? "Gastos da Criança" : "Mesada dos pais")) ??
       list[0] ??
       null
     );
@@ -123,13 +122,13 @@ export function DependentExpenseDialog({
         values: {
           description,
           amount: value,
-          transaction_type: "expense",
+          transaction_type: reasonInfo.type,
           category_id: category.id,
           transaction_date: date,
-          status: "paid",
+          status: reasonInfo.type === "income" ? "received" : "paid",
           payment_date: date,
           tags: [dependentTag(selected.id), reasonTag(reason)],
-          notes: `Gasto com ${who} (${relationLabel(selected.relation)}) — ${reasonInfo.label}`,
+          notes: `${reasonInfo.type === "income" ? "Ganho" : "Gasto"} com ${who} (${relationLabel(selected.relation)}) — ${reasonInfo.label}`,
         },
       });
       toast.success(`${formatCurrency(value)} com ${who} registrado.`);
