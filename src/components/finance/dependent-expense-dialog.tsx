@@ -34,7 +34,11 @@ import { useCategories } from "@/lib/queries";
 import { useSaveTransaction, useTransactions } from "@/lib/transactions";
 import { cn } from "@/lib/utils";
 
+import { KidsEvolutionChart, KidsGoalsList } from "@/components/finance/kids-visuals";
+import { useKidsSavingsGoals, useSaveKidsGoal } from "@/lib/kids-goals";
+
 function shiftIso(days: number) {
+
   const date = new Date();
   date.setDate(date.getDate() - days);
   return isoDate(date);
