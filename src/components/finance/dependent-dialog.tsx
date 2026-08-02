@@ -176,8 +176,43 @@ export function DependentDialog({
             />
           </div>
 
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <Label htmlFor="dep-pin">PIN de Acesso (4 dígitos)</Label>
+              <Input
+                id="dep-pin"
+                value={(dependent as any)?.pin_code || ""}
+                onChange={(e) => setName(name)} // Placeholder, will fix handleSave
+                placeholder="Ex: 1234"
+                maxLength={4}
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <Label htmlFor="dep-recur">Dia da Mesada (1-28)</Label>
+              <Input
+                id="dep-recur"
+                type="number"
+                min="1"
+                max="28"
+                placeholder="Ex: 5"
+                className="mt-1"
+              />
+            </div>
+          </div>
+
+          <div>
+            <Label htmlFor="dep-limit">Limite de Alerta de Gastos</Label>
+            <MoneyInput
+              id="dep-limit"
+              placeholder="0,00"
+              className="mt-1"
+            />
+          </div>
+
           <div>
             <Label>Cor de identificação</Label>
+
             <div className="mt-1.5 flex gap-2">
               {COLORS.map((option) => (
                 <button

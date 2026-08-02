@@ -1,8 +1,10 @@
 import { useMemo, useState } from "react";
-import { ArrowLeft, Check, Plus, Baby, PiggyBank, Gift, Trophy, Rocket, ToyBrick } from "lucide-react";
+import { ArrowLeft, Check, Plus, Baby, PiggyBank, Gift, Trophy, Rocket, ToyBrick, ShieldCheck, Lock, TrendingUp, Target, Star, AlertTriangle, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 
 import { DependentDialog } from "@/components/finance/dependent-dialog";
+import { KidsPinDialog } from "@/components/finance/kids-pin-dialog";
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -59,12 +61,15 @@ export function DependentExpenseDialog({
   const { data: monthTransactions } = useTransactions(range);
 
   const [manageOpen, setManageOpen] = useState(false);
+  const [pinOpen, setPinOpen] = useState(false);
+  const [kidsModeActive, setKidsModeActive] = useState(false);
   const [editing, setEditing] = useState<Dependent | null>(null);
   const [selected, setSelected] = useState<Dependent | null>(null);
   const [reason, setReason] = useState<DependentReason>("ganho_mesada");
   const [amount, setAmount] = useState("");
   const [date, setDate] = useState(isoDate(new Date()));
   const [note, setNote] = useState("");
+
 
   const active = (dependents ?? []).filter((item) => item.active !== false);
 
@@ -377,6 +382,16 @@ export function DependentExpenseDialog({
       </Dialog>
 
       <DependentDialog open={manageOpen} onOpenChange={setManageOpen} dependent={editing} />
+      
+      {selected && (
+        <KidsPinDialog 
+          open={pinOpen} 
+          onOpenChange={setPinOpen} 
+          pin={(selected as any).pin_code} 
+          onSuccess={() => setKidsModeActive(true)}
+        />
+      )}
     </>
   );
 }
+

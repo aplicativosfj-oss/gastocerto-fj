@@ -4,7 +4,13 @@ import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables, TablesInsert } from "@/integrations/supabase/types";
 
-export type Dependent = Tables<"dependents">;
+export type Dependent = Tables<"dependents"> & {
+  pin_code?: string | null;
+  kids_mode_enabled?: boolean;
+  monthly_limit?: number | null;
+  recurring_allowance_day?: number | null;
+};
+
 
 export const DEPENDENT_RELATIONS = [
   { value: "filho", label: "Filho" },
