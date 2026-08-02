@@ -153,15 +153,16 @@ export function DependentExpenseDialog({
       >
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>
+            <DialogTitle className="flex items-center gap-2">
+              <ToyBrick className="size-5 text-primary" />
               {selected
-                ? `Gasto com ${selected.nickname?.trim() || selected.name}`
-                : "Gasto com filhos e dependentes"}
+                ? `Espaço Kids — ${selected.nickname?.trim() || selected.name}`
+                : "Espaço Kids: Gestão para Pequenos"}
             </DialogTitle>
             <DialogDescription>
               {selected
-                ? "Escolha o motivo, o valor e a data — o gasto fica separado por filho."
-                : "Aquele pix de última hora, o sorvete, o presente ou o material da escola: escolha a pessoa."}
+                ? "Registre ganhos e gastos das crianças. Ensine educação financeira na prática!"
+                : "Cadastre as crianças para gerenciar mesadas, presentes e ensinar o valor do dinheiro."}
             </DialogDescription>
           </DialogHeader>
 
@@ -221,7 +222,7 @@ export function DependentExpenseDialog({
                 }}
               >
                 <Plus className="size-4" aria-hidden />
-                Cadastrar pessoa (filho, esposa, mãe, amigo...)
+                Cadastrar criança (filho, sobrinho, afilhado...)
               </Button>
             </div>
           ) : (
@@ -353,7 +354,7 @@ export function DependentExpenseDialog({
                   onClick={handleSave}
                 >
                   <Check className="size-4" aria-hidden />
-                  Salvar gasto
+                  Salvar Lançamento
                 </Button>
               </div>
             </div>
@@ -361,8 +362,8 @@ export function DependentExpenseDialog({
 
           {active.length > 0 && !selected ? (
             <p className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-              <Users className="size-3.5" aria-hidden />
-              {active.length} dependente(s) cadastrado(s).
+              <ToyBrick className="size-3.5" aria-hidden />
+              {active.length} criança(s) cadastrada(s).
             </p>
           ) : null}
         </DialogContent>
