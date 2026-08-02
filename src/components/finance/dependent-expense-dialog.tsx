@@ -137,6 +137,7 @@ export function DependentExpenseDialog({
   const { data: goals } = useKidsSavingsGoals(selected?.id);
   const contribute = useContributeKidsGoal();
   const redeem = useRedeemKidsGoal();
+  const logAudit = useLogKidsAudit();
 
   const selectedHistory = useMemo(
     () => (historyTransactions ?? []).filter((row) => dependentIdFromTags(row.tags) === selected?.id),
