@@ -35,6 +35,9 @@ const BusinessDashboard = lazy(() =>
 const SupportTicketsPanel = lazy(() =>
   import("@/components/admin/support-tickets-panel").then((m) => ({ default: m.SupportTicketsPanel })),
 );
+const EmailSetupPanel = lazy(() =>
+  import("@/components/admin/email-setup-panel").then((m) => ({ default: m.EmailSetupPanel })),
+);
 const AnnouncementsPanel = lazy(() =>
   import("@/components/admin/announcements-panel").then((m) => ({ default: m.AnnouncementsPanel })),
 );
@@ -124,6 +127,7 @@ const SECTIONS: AdminSection[] = [
   { id: "announcements", label: "Avisos globais", hint: "Comunicados na plataforma", icon: BellRing, adminOnly: true },
   { id: "categories", label: "Catálogo", hint: "Categorias da plataforma", icon: Tags, adminOnly: true },
   { id: "security", label: "Segurança", hint: "Códigos de acesso e IPs bloqueados", icon: Lock, adminOnly: true },
+  { id: "emails", label: "E-mails e avisos", hint: "Domínio de envio, teste e liberação", icon: BellRing, adminOnly: true },
   { id: "integrations", label: "Integrações", hint: "Mercado Pago, IA e APIs", icon: Settings, adminOnly: true },
 
   { id: "closing", label: "Fechamento", hint: "Política e liberações de meses", icon: Lock },
@@ -199,6 +203,7 @@ function AdminConsole({ isAdmin }: { isAdmin: boolean }) {
         {current === "ai" ? <AiSettingsPanel /> : null}
         {current === "tickets" ? <SupportTicketsPanel /> : null}
         {current === "announcements" ? <AnnouncementsPanel /> : null}
+        {current === "emails" ? <EmailSetupPanel /> : null}
         {current === "categories" ? <CategoriesCatalogPanel /> : null}
         {current === "closing" ? (
           <div className="space-y-4">
