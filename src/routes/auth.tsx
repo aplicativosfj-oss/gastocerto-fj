@@ -16,6 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
+import { clearBrowserCredentials } from "@/lib/local-session";
 import { resolveHomeRoute, resolveHomeRouteForSession } from "@/lib/post-login";
 import { cpfToLoginEmail, maskCpf, onlyDigits, pinToPassword } from "@/lib/cpf";
 import {
@@ -211,6 +212,20 @@ function AuthPage() {
 
 
           <p className="mt-4 text-center text-xs text-white/80 lg:text-muted-foreground">
+            <button
+              type="button"
+              onClick={async () => {
+                await supabase.auth.signOut().catch(() => undefined);
+                clearBrowserCredentials();
+                window.location.replace("/auth");
+              }}
+              className="underline underline-offset-2 hover:text-white lg:hover:text-foreground"
+            >
+              Limpar acesso salvo neste navegador
+            </button>
+          </p>
+
+          <p className="mt-2 text-center text-xs text-white/80 lg:text-muted-foreground">
             <Link to="/" className="hover:text-white lg:hover:text-foreground">
               Voltar para a página inicial
             </Link>

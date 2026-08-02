@@ -27,6 +27,7 @@ import { Route as AuthenticatedConsultorRouteImport } from './routes/_authentica
 import { Route as AuthenticatedDiarioRouteImport } from './routes/_authenticated/diario'
 import { Route as AuthenticatedFechamentoRouteImport } from './routes/_authenticated/fechamento'
 import { Route as AuthenticatedGasRouteImport } from './routes/_authenticated/gas'
+import { Route as AuthenticatedKidsAuditoriaRouteImport } from './routes/_authenticated/kids-auditoria'
 import { Route as AuthenticatedLancamentosRouteImport } from './routes/_authenticated/lancamentos'
 import { Route as AuthenticatedMetasRouteImport } from './routes/_authenticated/metas'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
@@ -137,6 +138,12 @@ const AuthenticatedGasRoute = AuthenticatedGasRouteImport.update({
   path: '/gas',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedKidsAuditoriaRoute =
+  AuthenticatedKidsAuditoriaRouteImport.update({
+    id: '/kids-auditoria',
+    path: '/kids-auditoria',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedLancamentosRoute =
   AuthenticatedLancamentosRouteImport.update({
     id: '/lancamentos',
@@ -247,6 +254,7 @@ export interface FileRoutesByFullPath {
   '/diario': typeof AuthenticatedDiarioRoute
   '/fechamento': typeof AuthenticatedFechamentoRoute
   '/gas': typeof AuthenticatedGasRoute
+  '/kids-auditoria': typeof AuthenticatedKidsAuditoriaRoute
   '/lancamentos': typeof AuthenticatedLancamentosRoute
   '/metas': typeof AuthenticatedMetasRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
@@ -283,6 +291,7 @@ export interface FileRoutesByTo {
   '/diario': typeof AuthenticatedDiarioRoute
   '/fechamento': typeof AuthenticatedFechamentoRoute
   '/gas': typeof AuthenticatedGasRoute
+  '/kids-auditoria': typeof AuthenticatedKidsAuditoriaRoute
   '/lancamentos': typeof AuthenticatedLancamentosRoute
   '/metas': typeof AuthenticatedMetasRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
@@ -321,6 +330,7 @@ export interface FileRoutesById {
   '/_authenticated/diario': typeof AuthenticatedDiarioRoute
   '/_authenticated/fechamento': typeof AuthenticatedFechamentoRoute
   '/_authenticated/gas': typeof AuthenticatedGasRoute
+  '/_authenticated/kids-auditoria': typeof AuthenticatedKidsAuditoriaRoute
   '/_authenticated/lancamentos': typeof AuthenticatedLancamentosRoute
   '/_authenticated/metas': typeof AuthenticatedMetasRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
@@ -359,6 +369,7 @@ export interface FileRouteTypes {
     | '/diario'
     | '/fechamento'
     | '/gas'
+    | '/kids-auditoria'
     | '/lancamentos'
     | '/metas'
     | '/onboarding'
@@ -395,6 +406,7 @@ export interface FileRouteTypes {
     | '/diario'
     | '/fechamento'
     | '/gas'
+    | '/kids-auditoria'
     | '/lancamentos'
     | '/metas'
     | '/onboarding'
@@ -432,6 +444,7 @@ export interface FileRouteTypes {
     | '/_authenticated/diario'
     | '/_authenticated/fechamento'
     | '/_authenticated/gas'
+    | '/_authenticated/kids-auditoria'
     | '/_authenticated/lancamentos'
     | '/_authenticated/metas'
     | '/_authenticated/onboarding'
@@ -592,6 +605,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedGasRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/kids-auditoria': {
+      id: '/_authenticated/kids-auditoria'
+      path: '/kids-auditoria'
+      fullPath: '/kids-auditoria'
+      preLoaderRoute: typeof AuthenticatedKidsAuditoriaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/lancamentos': {
       id: '/_authenticated/lancamentos'
       path: '/lancamentos'
@@ -726,6 +746,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDiarioRoute: typeof AuthenticatedDiarioRoute
   AuthenticatedFechamentoRoute: typeof AuthenticatedFechamentoRoute
   AuthenticatedGasRoute: typeof AuthenticatedGasRoute
+  AuthenticatedKidsAuditoriaRoute: typeof AuthenticatedKidsAuditoriaRoute
   AuthenticatedLancamentosRoute: typeof AuthenticatedLancamentosRoute
   AuthenticatedMetasRoute: typeof AuthenticatedMetasRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
@@ -754,6 +775,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDiarioRoute: AuthenticatedDiarioRoute,
   AuthenticatedFechamentoRoute: AuthenticatedFechamentoRoute,
   AuthenticatedGasRoute: AuthenticatedGasRoute,
+  AuthenticatedKidsAuditoriaRoute: AuthenticatedKidsAuditoriaRoute,
   AuthenticatedLancamentosRoute: AuthenticatedLancamentosRoute,
   AuthenticatedMetasRoute: AuthenticatedMetasRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,

@@ -28,6 +28,7 @@ import { Button } from "@/components/ui/button";
 import { usePlanRealtimeSync } from "@/hooks/use-plan";
 import { supabase } from "@/integrations/supabase/client";
 import { useAvatarUrl, useProfile, useRoles } from "@/lib/queries";
+import { clearBrowserCredentials } from "@/lib/local-session";
 import { useNotifications } from "@/lib/notifications";
 import { cn } from "@/lib/utils";
 
@@ -102,6 +103,7 @@ export const navGroups: NavGroup[] = [
       { key: "analytics.calendar", label: "Calendário e alertas", to: "/calendario" },
       { key: "analytics.advisor", label: "Consultor de IA", to: "/consultor" },
       { key: "analytics.reconciliation", label: "Reconciliação", to: "/reconciliacao" },
+      { key: "analytics.kids", label: "Espaço Kids — histórico", to: "/kids-auditoria" },
     ],
   },
   { key: "profile", label: "Meu perfil", to: "/perfil", icon: User2 },
@@ -158,6 +160,8 @@ export function AppShell({ children }: { children: ReactNode }) {
     await queryClient.cancelQueries();
     queryClient.clear();
     await supabase.auth.signOut();
+    // Não deixa preferências/rascunhos deste usuário no navegador compartilhado.
+    clearBrowserCredentials();
     navigate({ to: "/auth", replace: true });
   }
 

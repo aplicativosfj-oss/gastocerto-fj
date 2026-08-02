@@ -1115,6 +1115,45 @@ export type Database = {
         }
         Relationships: []
       }
+      kids_audit_log: {
+        Row: {
+          action: string
+          amount: number | null
+          created_at: string
+          dedupe_key: string | null
+          dependent_id: string | null
+          description: string | null
+          id: string
+          metadata: Json
+          title: string
+          user_id: string
+        }
+        Insert: {
+          action: string
+          amount?: number | null
+          created_at?: string
+          dedupe_key?: string | null
+          dependent_id?: string | null
+          description?: string | null
+          id?: string
+          metadata?: Json
+          title: string
+          user_id: string
+        }
+        Update: {
+          action?: string
+          amount?: number | null
+          created_at?: string
+          dedupe_key?: string | null
+          dependent_id?: string | null
+          description?: string | null
+          id?: string
+          metadata?: Json
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       kids_savings_goals: {
         Row: {
           completed_at: string | null
@@ -1309,6 +1348,8 @@ export type Database = {
           gas_alerts: boolean
           goal_alerts: boolean
           id: string
+          kids_achievement_alerts: boolean
+          kids_email_alerts: boolean
           overdue_alerts: boolean
           updated_at: string
           user_id: string
@@ -1322,6 +1363,8 @@ export type Database = {
           gas_alerts?: boolean
           goal_alerts?: boolean
           id?: string
+          kids_achievement_alerts?: boolean
+          kids_email_alerts?: boolean
           overdue_alerts?: boolean
           updated_at?: string
           user_id: string
@@ -1335,6 +1378,8 @@ export type Database = {
           gas_alerts?: boolean
           goal_alerts?: boolean
           id?: string
+          kids_achievement_alerts?: boolean
+          kids_email_alerts?: boolean
           overdue_alerts?: boolean
           updated_at?: string
           user_id?: string
