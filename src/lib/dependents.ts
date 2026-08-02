@@ -95,16 +95,17 @@ export function useSaveDependent() {
       if (input.id) {
         const { error } = await supabase
           .from("dependents")
-          .update(input.values)
+          .update(input.values as any)
           .eq("id", input.id);
         if (error) throw error;
         return input.id;
       }
       const { data, error } = await supabase
         .from("dependents")
-        .insert({ ...input.values, user_id: user.id })
+        .insert({ ...input.values, user_id: user.id } as any)
         .select("id")
         .single();
+
       if (error) throw error;
       return data.id;
     },
