@@ -211,6 +211,20 @@ function AuthPage() {
 
 
           <p className="mt-4 text-center text-xs text-white/80 lg:text-muted-foreground">
+            <button
+              type="button"
+              onClick={async () => {
+                await supabase.auth.signOut().catch(() => undefined);
+                clearBrowserCredentials();
+                window.location.replace("/auth");
+              }}
+              className="underline underline-offset-2 hover:text-white lg:hover:text-foreground"
+            >
+              Limpar acesso salvo neste navegador
+            </button>
+          </p>
+
+          <p className="mt-2 text-center text-xs text-white/80 lg:text-muted-foreground">
             <Link to="/" className="hover:text-white lg:hover:text-foreground">
               Voltar para a página inicial
             </Link>
