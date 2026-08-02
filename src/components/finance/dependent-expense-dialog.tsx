@@ -36,6 +36,7 @@ import { cn } from "@/lib/utils";
 
 import { KidsEvolutionChart, KidsGoalsList } from "@/components/finance/kids-visuals";
 import { KidsGoalDialog } from "@/components/finance/kids-goal-dialog";
+import { useLogKidsAudit } from "@/lib/kids-audit";
 import {
   useContributeKidsGoal,
   useKidsSavingsGoals,
