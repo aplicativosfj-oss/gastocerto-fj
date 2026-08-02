@@ -268,25 +268,27 @@ export function DependentExpenseDialog({
               </div>
 
               <div className="rounded-3xl bg-gradient-to-br from-primary/20 to-primary/5 p-6 text-center">
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-widest">Saldo Mágico</p>
-                <h3 className="text-4xl font-black text-primary my-2 tabular-nums">
-                  {formatCurrency(toCents(Number(selected.monthly_allowance || 0) - alreadySpent))}
+                <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">Saldo Mágico</p>
+                <h3 className="my-2 text-4xl font-black tabular-nums text-primary">
+                  {formatCurrency(selectedSummary?.balance ?? 0)}
                 </h3>
-                <div className="flex items-center justify-center gap-2 text-[10px] font-semibold text-primary/60">
-                  <TrendingUp className="size-3" />
-                  Sua economia está crescendo!
+                <div className="flex items-center justify-center gap-3 text-[10px] font-semibold text-primary/70">
+                  <span className="flex items-center gap-1">
+                    <TrendingUp className="size-3" />
+                    Ganhos {formatCurrency(selectedSummary?.income ?? 0)}
+                  </span>
+                  <span>·</span>
+                  <span>Gastos {formatCurrency(selectedSummary?.expense ?? 0)}</span>
                 </div>
               </div>
 
               <div className="space-y-3">
                 <div className="flex items-center justify-between px-1">
                   <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Evolução</h4>
-                  <Star className="size-4 text-yellow-500 fill-yellow-500" />
+                  <Star className="size-4 fill-yellow-500 text-yellow-500" />
                 </div>
                 <div className="rounded-3xl border bg-card p-4 shadow-sm">
-                  <KidsEvolutionChart 
-                    transactions={(monthTransactions ?? []).filter(t => dependentIdFromTags(t.tags) === selected.id)} 
-                  />
+                  <KidsEvolutionChart transactions={selectedHistory} />
                 </div>
               </div>
 
@@ -295,9 +297,10 @@ export function DependentExpenseDialog({
                   <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Metas Mágicas</h4>
                   <Target className="size-4 text-primary" />
                 </div>
-                <KidsGoalsList 
-                  goals={[]} // Será populado pelo hook futuramente
-                  onAdd={() => toast.info("Peça ao seu responsável para criar uma meta!")} 
+                <KidsGoalsList
+                  goals={goals ?? []}
+                  onAdd={() => toast.info("Peça ao seu responsável para criar uma meta!")}
+                  onContribute={handleContribute}
                 />
               </div>
 
