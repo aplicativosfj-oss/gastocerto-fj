@@ -422,6 +422,105 @@ export function DependentExpenseDialog({
                 </Button>
               </div>
 
+              {selectedAlerts.length > 0 ? (
+                <div className="space-y-2">
+                  {selectedAlerts.map((alert) => (
+                    <div
+                      key={alert.title}
+                      className={cn(
+                        "rounded-xl border p-3",
+                        alert.severity === "critical"
+                          ? "border-destructive/30 bg-destructive/5"
+                          : "border-amber-500/30 bg-amber-500/5",
+                      )}
+                    >
+                      <p className="flex items-center gap-1.5 text-xs font-bold">
+                        <AlertTriangle
+                          className={cn(
+                            "size-3.5",
+                            alert.severity === "critical" ? "text-destructive" : "text-amber-600",
+                          )}
+                        />
+                        {alert.title}
+                      </p>
+                      <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">{alert.message}</p>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+
+              <dl className="grid grid-cols-3 gap-2 rounded-xl border border-border bg-muted/30 p-3 text-center text-xs">
+                <div>
+                  <dt className="text-[10px] uppercase text-muted-foreground">Ganhos</dt>
+                  <dd className="font-semibold tabular-nums text-income">
+                    {formatCurrency(selectedSummary?.income ?? 0)}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-[10px] uppercase text-muted-foreground">Gastos</dt>
+                  <dd className="font-semibold tabular-nums text-destructive">
+                    {formatCurrency(selectedSummary?.expense ?? 0)}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-[10px] uppercase text-muted-foreground">Saldo</dt>
+                  <dd className="font-semibold tabular-nums">{formatCurrency(selectedSummary?.balance ?? 0)}</dd>
+                </div>
+              </dl>
+
+              <div className="rounded-xl border border-border bg-card p-3">
+                <p className="mb-2 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
+                  <TrendingUp className="size-3.5" />
+                  Evolução por semana e por mês
+                </p>
+                <KidsEvolutionChart transactions={selectedHistory} />
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <p className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
+                    <Target className="size-3.5" />
+                    Metas e recompensas
+                  </p>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    className="h-7 text-[10px] font-bold"
+                    onClick={() => {
+                      setEditingGoal(null);
+                      setGoalOpen(true);
+                    }}
+                  >
+                    <Plus className="mr-1 size-3" />
+                    Nova meta
+                  </Button>
+                </div>
+                <KidsGoalsList
+                  goals={goals ?? []}
+                  onAdd={() => {
+                    setEditingGoal(null);
+                    setGoalOpen(true);
+                  }}
+                  onContribute={handleContribute}
+                  onRedeem={handleRedeem}
+                  canRedeem
+                />
+              </div>
+
+              {selected.recurring_allowance_day ? (
+                <p className="flex items-center gap-1.5 rounded-xl bg-primary/5 p-2 text-[10px] text-muted-foreground">
+                  <RefreshCw className="size-3 text-primary" />
+                  Mesada automática todo dia {selected.recurring_allowance_day}
+                  {selected.last_allowance_month
+                    ? ` — último lançamento em ${selected.last_allowance_month}`
+                    : " — será lançada no próximo ciclo"}
+                  .
+                </p>
+              ) : null}
+
+
+
               <div>
                 <Label className="text-[11px] uppercase tracking-wide text-muted-foreground">
                   Motivo do lançamento
