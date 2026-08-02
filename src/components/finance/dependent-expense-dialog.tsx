@@ -35,7 +35,19 @@ import { useSaveTransaction, useTransactions } from "@/lib/transactions";
 import { cn } from "@/lib/utils";
 
 import { KidsEvolutionChart, KidsGoalsList } from "@/components/finance/kids-visuals";
-import { useKidsSavingsGoals, useSaveKidsGoal } from "@/lib/kids-goals";
+import { KidsGoalDialog } from "@/components/finance/kids-goal-dialog";
+import {
+  useContributeKidsGoal,
+  useKidsSavingsGoals,
+  useRedeemKidsGoal,
+  type KidsSavingsGoal,
+} from "@/lib/kids-goals";
+import {
+  useAllowanceRecurrence,
+  useKidsAlertSync,
+  useKidsAlerts,
+  useKidsSummaries,
+} from "@/lib/kids-alerts";
 
 function shiftIso(days: number) {
 
