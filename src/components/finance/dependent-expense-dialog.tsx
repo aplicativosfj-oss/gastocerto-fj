@@ -313,24 +313,20 @@ export function DependentExpenseDialog({
                   </div>
                   <div>
                     <dt className="text-[10px] uppercase text-muted-foreground">
-                      Com este gasto fica
+                      {reasonInfo.type === "income" ? "Total após ganho" : "Total após gasto"}
                     </dt>
-                    <dd className="font-semibold tabular-nums text-destructive">
-                      {formatCurrency(toCents(alreadySpent + value))}
+                    <dd className={cn(
+                      "font-semibold tabular-nums",
+                      reasonInfo.type === "income" ? "text-primary" : "text-destructive"
+                    )}>
+                      {formatCurrency(toCents(alreadySpent + (reasonInfo.type === "income" ? -value/100 : value)))}
                     </dd>
                   </div>
                   {selected.monthly_allowance ? (
                     <div className="col-span-2">
                       <dt className="text-[10px] uppercase text-muted-foreground">
-                        Além da mesada de {formatCurrency(Number(selected.monthly_allowance))}
+                        Mesada cadastrada: {formatCurrency(Number(selected.monthly_allowance))}
                       </dt>
-                      <dd className="font-semibold tabular-nums">
-                        {formatCurrency(
-                          toCents(
-                            Math.max(alreadySpent + value - Number(selected.monthly_allowance), 0),
-                          ),
-                        )}
-                      </dd>
                     </div>
                   ) : null}
                 </dl>
