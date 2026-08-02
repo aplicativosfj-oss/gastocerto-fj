@@ -4,9 +4,25 @@
  */
 import { useCallback, useEffect, useState } from "react";
 
-import { readLocalPref, writeLocalPref } from "@/lib/local-session";
-
 const PREF_KEY = "gc:push-alerts";
+
+function readLocalPref(key: string) {
+  if (typeof window === "undefined") return null;
+  try {
+    return window.localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function writeLocalPref(key: string, value: string) {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(key, value);
+  } catch {
+    // Armazenamento bloqueado: a preferência vale só para esta sessão.
+  }
+}
 
 export type PushPermission = "unsupported" | "default" | "granted" | "denied";
 
