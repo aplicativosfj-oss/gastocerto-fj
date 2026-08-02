@@ -230,7 +230,7 @@ export function DependentExpenseDialog({
                 <Label className="text-[11px] uppercase tracking-wide text-muted-foreground">
                   Motivo do gasto
                 </Label>
-                <div className="mt-1.5 grid grid-cols-3 gap-2 sm:grid-cols-4">
+                <div className="mt-1.5 grid grid-cols-2 gap-2 sm:grid-cols-4">
                   {DEPENDENT_REASONS.map((item) => {
                     const Icon = categoryIcon(item.icon);
                     return (
@@ -245,7 +245,12 @@ export function DependentExpenseDialog({
                             : "border-border bg-card hover:border-primary/40",
                         )}
                       >
-                        <Icon className="size-4" aria-hidden />
+                        <div className={cn(
+                          "flex size-7 items-center justify-center rounded-lg",
+                          item.type === "income" ? "bg-income/10 text-income" : "bg-destructive/10 text-destructive"
+                        )}>
+                          <Icon className="size-4" aria-hidden />
+                        </div>
                         <span className="text-[10px] font-medium leading-tight">{item.label}</span>
                       </button>
                     );
