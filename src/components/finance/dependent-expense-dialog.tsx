@@ -153,7 +153,7 @@ export function DependentExpenseDialog({
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <ToyBrick className="size-5 text-primary" />
+              <Baby className="size-5 text-primary" />
               {selected
                 ? `Espaço Kids — ${selected.nickname?.trim() || selected.name}`
                 : "Espaço Kids: Gestão para Pequenos"}
@@ -330,8 +330,15 @@ export function DependentExpenseDialog({
                   {selected.monthly_allowance ? (
                     <div className="col-span-2">
                       <dt className="text-[10px] uppercase text-muted-foreground">
-                        Mesada cadastrada: {formatCurrency(Number(selected.monthly_allowance))}
+                        Saldo após mesada de {formatCurrency(Number(selected.monthly_allowance))}
                       </dt>
+                      <dd className="font-semibold tabular-nums text-primary">
+                        {formatCurrency(
+                          toCents(
+                            Number(selected.monthly_allowance) - (alreadySpent + (reasonInfo.type === "income" ? -value : value))
+                          )
+                        )}
+                      </dd>
                     </div>
                   ) : null}
                 </dl>
@@ -362,7 +369,7 @@ export function DependentExpenseDialog({
 
           {active.length > 0 && !selected ? (
             <p className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-              <ToyBrick className="size-3.5" aria-hidden />
+              <Baby className="size-3.5" aria-hidden />
               {active.length} criança(s) cadastrada(s).
             </p>
           ) : null}
