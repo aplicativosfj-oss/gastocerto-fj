@@ -673,14 +673,22 @@ export function DependentExpenseDialog({
       </Dialog>
 
       <DependentDialog open={manageOpen} onOpenChange={setManageOpen} dependent={editing} />
-      
+
       {selected && (
-        <KidsPinDialog 
-          open={pinOpen} 
-          onOpenChange={setPinOpen} 
-          pin={(selected as any).pin_code} 
-          onSuccess={() => setKidsModeActive(true)}
-        />
+        <>
+          <KidsPinDialog
+            open={pinOpen}
+            onOpenChange={setPinOpen}
+            pin={selected.pin_code ?? undefined}
+            onSuccess={() => setKidsModeActive(true)}
+          />
+          <KidsGoalDialog
+            open={goalOpen}
+            onOpenChange={setGoalOpen}
+            dependentId={selected.id}
+            goal={editingGoal}
+          />
+        </>
       )}
     </>
   );
